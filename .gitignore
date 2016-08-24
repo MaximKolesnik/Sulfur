@@ -1,0 +1,6 @@
+obj/
+bin/
+ipch/
+*.db
+*.opendb
+*.sdf
