@@ -7,6 +7,8 @@ void display()
 
 namespace Sulfur
 {
+  Core* Core::m_instance = nullptr;
+
   void Core::StartUp(int argc, char **argv)
   {
     

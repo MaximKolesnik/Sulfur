@@ -11,7 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\sfTransform.hpp" />
     <ClInclude Include="Core\sfCore.hpp" />
+    <ClInclude Include="DataStructures\sfSlotMap.hpp" />
+    <ClInclude Include="Factories\sfComponentFactory.hpp" />
     <ClInclude Include="Math\sfMathDefs.hpp" />
     <ClInclude Include="Math\sfMatrix3.hpp" />
     <ClInclude Include="Math\sfMatrix4.hpp" />
@@ -20,10 +23,13 @@
     <ClInclude Include="Math\sfVector3.hpp" />
     <ClInclude Include="Math\sfVector4.hpp" />
     <ClInclude Include="sfProjectDefs.hpp" />
-    <ClInclude Include="Types\sfSingleton.hpp" />
+    <ClInclude Include="Types\sfIEntity.h" />
+    <ClInclude Include="Types\sfTypes.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Components\sfTransform.cpp" />
     <ClCompile Include="Core\sfCore.cpp" />
+    <ClCompile Include="Factories\sfComponentFactory.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math\sfMatrix3.cpp" />
     <ClCompile Include="Math\sfVector2.cpp" />
@@ -38,7 +44,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>

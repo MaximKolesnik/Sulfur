@@ -21,7 +21,7 @@ namespace UnitTests
   public:
     TEST_METHOD(Vector3Set0)
     {
-      Sulfur::Vector3 v(1.0, 2.2, 3.999);
+      Sulfur::Vector3 v(Sulfur::Real(1.0), Sulfur::Real(2.2), Sulfur::Real(3.999));
 
       Assert::IsTrue(AreEqual(Sulfur::Real(1.0), v[0]));
       Assert::IsTrue(AreEqual(Sulfur::Real(2.2), v[1]));
@@ -37,9 +37,9 @@ namespace UnitTests
       Assert::IsTrue(AreEqual(Sulfur::Real(2.2), v[1]));
       Assert::IsTrue(AreEqual(Sulfur::Real(3.999), v[2]));
 
-      v.SetX(-5.32);
-      v.SetY(14.213);
-      v.SetZ(5.2);
+      v.SetX(Sulfur::Real(-5.32));
+      v.SetY(Sulfur::Real(14.213));
+      v.SetZ(Sulfur::Real(5.2));
 
       Assert::IsTrue(AreEqual(Sulfur::Real(-5.32), v[0]));
       Assert::IsTrue(AreEqual(Sulfur::Real(14.213), v[1]));
@@ -68,8 +68,8 @@ namespace UnitTests
 
     TEST_METHOD(Vector3Dot)
     {
-      Sulfur::Vector3 v1(0.2, 3.5, 2.1);
-      Sulfur::Vector3 v2(-0.5, 6.319, -1.22);
+      Sulfur::Vector3 v1(Sulfur::Real(0.2), Sulfur::Real(3.5), Sulfur::Real(2.1));
+      Sulfur::Vector3 v2(Sulfur::Real(-0.5), Sulfur::Real(6.319), Sulfur::Real(-1.22));
 
       Assert::IsTrue(AreEqual(Sulfur::Real(19.454498), v1.Dot(v2)));
       Assert::IsTrue(AreEqual(Sulfur::Real(19.454498), Dot(v1, v2)));
@@ -77,8 +77,8 @@ namespace UnitTests
 
     TEST_METHOD(Vector3Cross)
     {
-      Sulfur::Vector3 v1(0.2, 3.5, 2.1);
-      Sulfur::Vector3 v2(-0.5, 6.319, -1.22);
+      Sulfur::Vector3 v1(Sulfur::Real(0.2), Sulfur::Real(3.5), Sulfur::Real(2.1));
+      Sulfur::Vector3 v2(Sulfur::Real(-0.5), Sulfur::Real(6.319), Sulfur::Real(-1.22));
       Sulfur::Vector3 v = v1.Cross(v2);
       Sulfur::Vector3 vc = Sulfur::Cross(v1, v2);
 
@@ -93,7 +93,7 @@ namespace UnitTests
 
     TEST_METHOD(Vector3Length)
     {
-      Sulfur::Vector3 v(0.25, 3.456, 2.5);
+      Sulfur::Vector3 v(Sulfur::Real(0.25), Sulfur::Real(3.456), Sulfur::Real(2.5));
 
       Assert::IsTrue(AreEqual(Sulfur::Real(18.256436), v.LengthSq()));
       Assert::IsTrue(AreEqual(Sulfur::Real(18.256436), Sulfur::LengthSq(v)));
@@ -103,7 +103,7 @@ namespace UnitTests
 
     TEST_METHOD(Vector3Normalize)
     {
-      Sulfur::Vector3 v(0.7321, -2.333, 3.0);
+      Sulfur::Vector3 v(Sulfur::Real(0.7321), Sulfur::Real(-2.333), Sulfur::Real(3.0));
       Sulfur::Vector3 vn = v.Normalized();
 
       Assert::IsTrue(AreEqual(Sulfur::Real(0.189160753182), vn[0]));

@@ -2,13 +2,12 @@
 #include <chrono>
 #include <vector>
 
-#include "Types/sfSingleton.hpp"
 #include "Core/sfCore.hpp"
 #include "Math\sfVector2.hpp"
 #include "Math/sfVector3.hpp"
 #include "Math\sfMatrix3.hpp"
 #include "Math\sfMatrix4.hpp"
-
+#include "Factories\sfComponentFactory.hpp"
 
 #pragma optimize("", off)
 int main(int argc, char** argv)

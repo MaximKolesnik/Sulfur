@@ -5,16 +5,12 @@
 #include <cmath>
 
 #include "../sfProjectDefs.hpp"
+#include "../Types/sfTypes.hpp"
 
-#pragma warning( disable : 4166)
+#pragma warning(disable : 4166)
 
 namespace Sulfur
 {
-  //Types
-  #ifndef SF_USE_DOUBLE_PRECISION
-
-  typedef float Real;
-
   #ifdef SF_USE_SIMD
 
     const __m128 c_SIMDZeroMask = _mm_set_ps(-0.0f, -0.0f, -0.0f, -0.0f);
@@ -22,12 +18,6 @@ namespace Sulfur
     const __m128 c_SIMDNegMask  = _mm_castsi128_ps(_mm_set_epi32(0x80000000, 0x80000000, 0x80000000, 0x80000000));
 
   #endif  //SF_USE_SIMD
-
-  #else
-
-  typedef double Real;
-
-  #endif //SF_USE_DOUBLE_PRECISION
 
   #define SF_EPSILON  Sulfur::Real(0.000001)
 #ifdef SF_USE_SIMD
