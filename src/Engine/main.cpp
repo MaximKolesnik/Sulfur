@@ -1,14 +1,21 @@
 #include <iostream>
 #include <chrono>
 #include <vector>
+#include <thread>
 
 #include "Core/sfCore.hpp"
 #include "Math\sfVector2.hpp"
 #include "Math/sfVector3.hpp"
 #include "Math\sfMatrix3.hpp"
 #include "Math\sfMatrix4.hpp"
-#include "Factories\sfComponentFactory.hpp"
 
+
+void test(void)
+{
+  int i = 0;
+  while(true)
+    std::cout << i++ << std::endl;
+}
 #pragma optimize("", off)
 int main(int argc, char** argv)
 {
@@ -31,7 +38,8 @@ int main(int argc, char** argv)
   Sulfur::Vector3 v(1, 2, 3);
   Sulfur::Quaternion q(1, 0, 0, 0);
 
-  auto start2 = std::chrono::steady_clock::now();
+
+  /*auto start2 = std::chrono::steady_clock::now();
   for (int i = 0; i < 100000000; ++i)
   {
     m.SetRotation(q);
@@ -39,7 +47,7 @@ int main(int argc, char** argv)
   auto end2 = std::chrono::steady_clock::now();
   auto timeSimd = std::chrono::duration<double, std::milli>(end2 - start2).count();
 
-  std::cout << "SIMD time: " << timeSimd << "ms" << std::endl;
+  std::cout << "SIMD time: " << timeSimd << "ms" << std::endl;*/
 
   /*Sulfur::Core *core = Sulfur::Core::GetInstance();
 

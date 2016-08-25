@@ -1,4 +1,16 @@
-// TODO: Add Quaternions
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfMatrix4.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    8/22/2016
+
+\brief   4x4 Matrix
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 
 #pragma once
 
@@ -13,6 +25,8 @@ namespace Sulfur
   SF_ATTR_ALIGN_16 class Matrix4
   {
   public:
+    static const Matrix4 SF_ATTR_ALIGN_16 c_identity;
+
     SF_FORCE_INLINE SF_VEC_CALL Matrix4(void)
     {
     }
@@ -758,6 +772,10 @@ namespace Sulfur
 
     SF_FORCE_INLINE Matrix4 SF_VEC_CALL Inverted(void) const
     {
+
+      SF_ASSERT(DeterminantFull() != 0.0, "Determinant is zero");
+
+
 #ifdef SF_USE_SIMD
       __m128 temp1 = _mm_unpackhi_ps(m_rows[0].Get128(), m_rows[1].Get128());
       __m128 v0 = _mm_unpacklo_ps(m_rows[0].Get128(), m_rows[1].Get128());
@@ -924,19 +942,22 @@ namespace Sulfur
 
     SF_FORCE_INLINE Vector3 SF_VEC_CALL GetColumn(int i) const
     {
-      assert(i >= 0 && i < 4);
+      SF_ASSERT(0 <= i && i < 4, "Index is out of range");
+
       return Vector3(m_rows[0][i], m_rows[1][i], m_rows[2][i]);
     }
 
     SF_FORCE_INLINE Vector4& SF_VEC_CALL operator[](int i)
     {
-      assert(i >= 0 && i < 4);
+      SF_ASSERT(0 <= i && i < 4, "Index is out of range");
+
       return m_rows[i];
     }
 
     SF_FORCE_INLINE const Vector4& SF_VEC_CALL operator[](int i) const
     {
-      assert(i >= 0 && i < 4);
+      SF_ASSERT(0 <= i && i < 4, "Index is out of range");
+
       return m_rows[i];
     }
 
@@ -1158,7 +1179,7 @@ namespace Sulfur
   private:
     SF_FORCE_INLINE Vector4 SF_VEC_CALL _GetColumn4(int i) const
     {
-      assert(0 <= i && i < 4);
+      SF_ASSERT(0 <= i && i < 4, "Index is out of range");
       return Vector4(m_rows[0][i], m_rows[1][i], m_rows[2][i],
         m_rows[3][i]);
     }

@@ -1,11 +1,25 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfQuaternion.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    8/22/2016
+
+\brief   Quaternion
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 
-#include <assert.h>
 #include <iostream>
 
 #include "../sfProjectDefs.hpp"
 #include "sfMathDefs.hpp"
 #include "sfVector3.hpp"
+#include "../Error/sfError.hpp"
 
 namespace Sulfur
 {
@@ -45,7 +59,7 @@ namespace Sulfur
     {
       Real axisLength = axis.Length();
 
-      assert(axisLength != 0.0);
+      SF_ASSERT(axisLength != 0.0, "Axis has length of 0");
 
       Real scalar = MathUtils::Sin(angleRad * Real(0.5)) / axisLength;
 
@@ -130,7 +144,7 @@ namespace Sulfur
 
     SF_FORCE_INLINE Quaternion SF_VEC_CALL Normalized(void) const
     {
-      assert(this->Length() != 0);
+      SF_ASSERT(this->Length() != 0, "Normalization of zero length Quaternion");
 #ifdef SF_USE_SIMD
       __m128 qMul = _mm_mul_ps(m_data, m_data);
       __m128 sum1 = _mm_add_ps(qMul, _mm_shuffle_ps(qMul, qMul, 0xE)); //_MM_SHUFFLE(0, 0, 3, 2)
@@ -150,7 +164,7 @@ namespace Sulfur
 
     SF_FORCE_INLINE Quaternion& SF_VEC_CALL Normalize(void)
     {
-      assert(this->Length() != 0);
+      SF_ASSERT(this->Length() != 0, "Normalization of zero length Quaternion");
 #ifdef SF_USE_SIMD
       __m128 qMul = _mm_mul_ps(m_data, m_data);
       __m128 sum1 = _mm_add_ps(qMul, _mm_shuffle_ps(qMul, qMul, 0xE)); //_MM_SHUFFLE(0, 0, 3, 2)
@@ -345,13 +359,13 @@ namespace Sulfur
 
     SF_FORCE_INLINE Real SF_VEC_CALL operator[](int i)
     {
-      assert(i >= 0 && i < 4);
+      SF_ASSERT(i >= 0 && i < 4, "Index is out of range");
       return m_comps[i];
     }
 
     SF_FORCE_INLINE const Real SF_VEC_CALL operator[](int i) const
     {
-      assert(i >= 0 && i < 4);
+      SF_ASSERT(i >= 0 && i < 4, "Index is out of range");
       return m_comps[i];
     }
   private:

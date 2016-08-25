@@ -1,10 +1,23 @@
-#pragma once
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfVector4.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    8/22/2016
 
-#include <assert.h>
+\brief   4D Vector
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
+#pragma once
 
 #include "../sfProjectDefs.hpp"
 #include "sfMathDefs.hpp"
 #include "sfVector3.hpp"
+#include "../Error/sfError.hpp"
 
 namespace Sulfur
 {
@@ -162,13 +175,13 @@ namespace Sulfur
 
     SF_FORCE_INLINE Vector4& SF_VEC_CALL Normalize(void)
     {
-      assert(!IsZeroEpsilon());
+      SF_ASSERT(!IsZeroEpsilon(), "Trying to normalize vector of length 0");
       return *this /= Length();
     }
 
     SF_FORCE_INLINE Vector4 SF_VEC_CALL Normalized(void) const
     {
-      assert(!IsZeroEpsilon());
+      SF_ASSERT(!IsZeroEpsilon(), "Trying to normalize vector of length 0");
       return *this / Length();
     }
 
@@ -263,7 +276,7 @@ namespace Sulfur
 
     SF_FORCE_INLINE Vector4 SF_VEC_CALL operator/(Real scalar) const
     {
-      assert(scalar != Real(0.0));
+      SF_ASSERT(scalar != Real(0.0), "Scaling by 1/0");
 #ifdef SF_USE_SIMD
       return Vector4(_mm_div_ps(m_data, _mm_set1_ps(scalar)));
 #else
@@ -274,7 +287,7 @@ namespace Sulfur
 
     SF_FORCE_INLINE Vector4& SF_VEC_CALL operator/=(Real scalar)
     {
-      assert(scalar != Real(0.0));
+      SF_ASSERT(scalar != Real(0.0), "Scaling by 1/0");
 #ifdef SF_USE_SIMD
       m_data = _mm_div_ps(m_data, _mm_set1_ps(scalar));
 #else
@@ -290,13 +303,13 @@ namespace Sulfur
     //Index access
     SF_FORCE_INLINE Real& SF_VEC_CALL operator[](int i)
     {
-      assert(i >= 0 && i <= 3);
+      SF_ASSERT(i >= 0 && i <= 3, "Index is out of range");
       return m_comps[i];
     }
 
     SF_FORCE_INLINE const Real& SF_VEC_CALL operator[](int i) const
     {
-      assert(i >= 0 && i <= 3);
+      SF_ASSERT(i >= 0 && i <= 3, "Index is out of range");
       return m_comps[i];
     }
 

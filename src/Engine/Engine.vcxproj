@@ -14,7 +14,10 @@
     <ClInclude Include="Components\sfTransform.hpp" />
     <ClInclude Include="Core\sfCore.hpp" />
     <ClInclude Include="DataStructures\sfSlotMap.hpp" />
+    <ClInclude Include="Error\sfError.hpp" />
+    <ClInclude Include="template.hpp" />
     <ClInclude Include="Factories\sfComponentFactory.hpp" />
+    <ClInclude Include="Logger\sfLogger.hpp" />
     <ClInclude Include="Math\sfMathDefs.hpp" />
     <ClInclude Include="Math\sfMatrix3.hpp" />
     <ClInclude Include="Math\sfMatrix4.hpp" />
@@ -22,6 +25,8 @@
     <ClInclude Include="Math\sfVector2.hpp" />
     <ClInclude Include="Math\sfVector3.hpp" />
     <ClInclude Include="Math\sfVector4.hpp" />
+    <ClInclude Include="Settings\EngineSettings.h" />
+    <ClInclude Include="sfSulfurPCH.hpp" />
     <ClInclude Include="sfProjectDefs.hpp" />
     <ClInclude Include="Types\sfIEntity.h" />
     <ClInclude Include="Types\sfTypes.hpp" />
@@ -30,11 +35,16 @@
     <ClCompile Include="Components\sfTransform.cpp" />
     <ClCompile Include="Core\sfCore.cpp" />
     <ClCompile Include="Factories\sfComponentFactory.cpp" />
+    <ClCompile Include="Logger\sfLogger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math\sfMatrix3.cpp" />
+    <ClCompile Include="Math\sfMatrix4.cpp" />
     <ClCompile Include="Math\sfVector2.cpp" />
     <ClCompile Include="Math\sfVector3.cpp" />
     <ClCompile Include="Math\sfVector4.cpp" />
+    <ClCompile Include="sfSulfurPCH.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{74E88DFB-F41F-45EF-A54F-EB874762B79E}</ProjectGuid>
@@ -44,7 +54,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -80,16 +90,16 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>SF_USE_SIMD;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeaderFile />
-      <PrecompiledHeaderOutputFile />
+      <PreprocessorDefinitions>SF_USE_SIMD;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>sfSulfurPCH.hpp</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)/ipch/$(TargetName).pch</PrecompiledHeaderOutputFile>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <ForcedIncludeFiles>sfSulfurPCH.hpp</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -99,12 +109,11 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
-      <PreprocessorDefinitions>SF_USE_SIMD;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SF_USE_SIMD;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -113,6 +122,9 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <PrecompiledHeaderFile>sfSulfurPCH.hpp</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)/ipch/$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>sfSulfurPCH.hpp</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -1,4 +1,16 @@
-// TODO: Add Quaternions
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfMatrix3.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    8/22/2016
+
+\brief   3x3 Matrix
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 
 #pragma once
 
@@ -288,7 +300,9 @@ namespace Sulfur
     SF_FORCE_INLINE Matrix3 SF_VEC_CALL Inverted(void) const
     {
       Real det = Determinant();
-      assert(det != 0.0);
+
+      SF_ASSERT(det != 0.0, "Determinant is zero");
+
       Real s = Real(1.0) / det;
 
       return Matrix3(_Cofactor(1, 1, 2, 2) * s, -_Cofactor(0, 1, 2, 2) * s, _Cofactor(0, 1, 1, 2) * s,
@@ -305,19 +319,22 @@ namespace Sulfur
 
     SF_FORCE_INLINE Vector3 SF_VEC_CALL GetColumn(int i) const
     {
-      assert(0 <= i && i < 3);
+      SF_ASSERT(0 <= i && i < 3, "Index is out of range");
+
       return Vector3(m_rows[0][i], m_rows[1][i], m_rows[2][i]);
     }
 
     SF_FORCE_INLINE Vector3& SF_VEC_CALL operator[](int i)
     {
-      assert(0 <= i && i < 3);
+      SF_ASSERT(0 <= i && i < 3, "Index is out of range");
+
       return m_rows[i];
     }
 
     SF_FORCE_INLINE const Vector3& SF_VEC_CALL operator[](int i) const
     {
-      assert(0 <= i && i < 3);
+      SF_ASSERT(0 <= i && i < 3, "Index is out of range");
+
       return m_rows[i];
     }
 

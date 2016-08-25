@@ -4,6 +4,7 @@
 #include "../src/Engine/Math/sfVector3.hpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace Sulfur;
 
 namespace UnitTests
 {
@@ -21,131 +22,135 @@ namespace UnitTests
   public:
     TEST_METHOD(Vector3Set0)
     {
-      Sulfur::Vector3 v(Sulfur::Real(1.0), Sulfur::Real(2.2), Sulfur::Real(3.999));
+      Vector3 v(Real(1.0), Real(2.2), Real(3.999));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.0), v[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(2.2), v[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(3.999), v[2]));
+      Assert::IsTrue(AreEqual(Real(1.0), v[0]));
+      Assert::IsTrue(AreEqual(Real(2.2), v[1]));
+      Assert::IsTrue(AreEqual(Real(3.999), v[2]));
     }
 
     TEST_METHOD(Vector3Set1)
     {
-      Sulfur::Vector3 v;
-      v.Set(1.0, 2.2, 3.999);
+      Vector3 v;
+      v.Set(Real(1.0), Real(2.2f), Real(3.999f));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.0), v[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(2.2), v[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(3.999), v[2]));
+      Assert::IsTrue(AreEqual(Real(1.0), v[0]));
+      Assert::IsTrue(AreEqual(Real(2.2), v[1]));
+      Assert::IsTrue(AreEqual(Real(3.999), v[2]));
 
-      v.SetX(Sulfur::Real(-5.32));
-      v.SetY(Sulfur::Real(14.213));
-      v.SetZ(Sulfur::Real(5.2));
+      v.SetX(Real(-5.32));
+      v.SetY(Real(14.213));
+      v.SetZ(Real(5.2));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(-5.32), v[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(14.213), v[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(5.2), v[2]));
+      Assert::IsTrue(AreEqual(Real(-5.32), v[0]));
+      Assert::IsTrue(AreEqual(Real(14.213), v[1]));
+      Assert::IsTrue(AreEqual(Real(5.2), v[2]));
     }
 
     TEST_METHOD(Vector3OpEq)
     {
-      Sulfur::Vector3 v1;
-      Sulfur::Vector3 v2(1.0, 2.2, 3.999);
+      Vector3 v1;
+      Vector3 v2(Real(1.0f), 
+        Real(2.2f), Real(3.999));
       v1 = v2;
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.0), v1[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(2.2), v1[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(3.999), v1[2]));
+      Assert::IsTrue(AreEqual(Real(1.0), v1[0]));
+      Assert::IsTrue(AreEqual(Real(2.2), v1[1]));
+      Assert::IsTrue(AreEqual(Real(3.999), v1[2]));
     }
 
     TEST_METHOD(Vector3Get)
     {
-      Sulfur::Vector3 v(1.0, 2.2, 3.999);
+      Vector3 v(Real(1.0), Real(2.2), Real(3.999));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.0), v.GetX()));
-      Assert::IsTrue(AreEqual(Sulfur::Real(2.2), v.GetY()));
-      Assert::IsTrue(AreEqual(Sulfur::Real(3.999), v.GetZ()));
+      Assert::IsTrue(AreEqual(Real(1.0), v.GetX()));
+      Assert::IsTrue(AreEqual(Real(2.2), v.GetY()));
+      Assert::IsTrue(AreEqual(Real(3.999), v.GetZ()));
     }
 
     TEST_METHOD(Vector3Dot)
     {
-      Sulfur::Vector3 v1(Sulfur::Real(0.2), Sulfur::Real(3.5), Sulfur::Real(2.1));
-      Sulfur::Vector3 v2(Sulfur::Real(-0.5), Sulfur::Real(6.319), Sulfur::Real(-1.22));
+      Vector3 v1(Real(0.2), Real(3.5), Real(2.1));
+      Vector3 v2(Real(-0.5), Real(6.319), Real(-1.22));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(19.454498), v1.Dot(v2)));
-      Assert::IsTrue(AreEqual(Sulfur::Real(19.454498), Dot(v1, v2)));
+      Assert::IsTrue(AreEqual(Real(19.454498), v1.Dot(v2)));
+      Assert::IsTrue(AreEqual(Real(19.454498), Dot(v1, v2)));
     }
 
     TEST_METHOD(Vector3Cross)
     {
-      Sulfur::Vector3 v1(Sulfur::Real(0.2), Sulfur::Real(3.5), Sulfur::Real(2.1));
-      Sulfur::Vector3 v2(Sulfur::Real(-0.5), Sulfur::Real(6.319), Sulfur::Real(-1.22));
-      Sulfur::Vector3 v = v1.Cross(v2);
-      Sulfur::Vector3 vc = Sulfur::Cross(v1, v2);
+      Vector3 v1(Real(0.2), Real(3.5), Real(2.1));
+      Vector3 v2(Real(-0.5), Real(6.319), Real(-1.22));
+      Vector3 v = v1.Cross(v2);
+      Vector3 vc = Cross(v1, v2);
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(-17.5399), v.GetX()));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-0.806), v.GetY()));
-      Assert::IsTrue(AreEqual(Sulfur::Real(3.01380014), v.GetZ()));
+      Assert::IsTrue(AreEqual(Real(-17.5399), v.GetX()));
+      Assert::IsTrue(AreEqual(Real(-0.806), v.GetY()));
+      Assert::IsTrue(AreEqual(Real(3.01380014), v.GetZ()));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(-17.5399), vc.GetX()));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-0.806), vc.GetY()));
-      Assert::IsTrue(AreEqual(Sulfur::Real(3.01380014), vc.GetZ()));
+      Assert::IsTrue(AreEqual(Real(-17.5399), vc.GetX()));
+      Assert::IsTrue(AreEqual(Real(-0.806), vc.GetY()));
+      Assert::IsTrue(AreEqual(Real(3.01380014), vc.GetZ()));
     }
 
     TEST_METHOD(Vector3Length)
     {
-      Sulfur::Vector3 v(Sulfur::Real(0.25), Sulfur::Real(3.456), Sulfur::Real(2.5));
+      Vector3 v(Real(0.25), Real(3.456), Real(2.5));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(18.256436), v.LengthSq()));
-      Assert::IsTrue(AreEqual(Sulfur::Real(18.256436), Sulfur::LengthSq(v)));
-      Assert::IsTrue(AreEqual(Sulfur::Real(4.27275508308), v.Length()));
-      Assert::IsTrue(AreEqual(Sulfur::Real(4.27275508308), Sulfur::Length(v)));
+      Assert::IsTrue(AreEqual(Real(18.256436), v.LengthSq()));
+      Assert::IsTrue(AreEqual(Real(18.256436), LengthSq(v)));
+      Assert::IsTrue(AreEqual(Real(4.27275508308), v.Length()));
+      Assert::IsTrue(AreEqual(Real(4.27275508308), Length(v)));
     }
 
     TEST_METHOD(Vector3Normalize)
     {
-      Sulfur::Vector3 v(Sulfur::Real(0.7321), Sulfur::Real(-2.333), Sulfur::Real(3.0));
-      Sulfur::Vector3 vn = v.Normalized();
+      Vector3 v(Real(0.7321), Real(-2.333), Real(3.0));
+      Vector3 vn = v.Normalized();
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.189160753182), vn[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-0.602802946555), vn[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.775143094584), vn[2]));
+      Assert::IsTrue(AreEqual(Real(0.189160753182), vn[0]));
+      Assert::IsTrue(AreEqual(Real(-0.602802946555), vn[1]));
+      Assert::IsTrue(AreEqual(Real(0.775143094584), vn[2]));
 
       v.Normalize();
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.189160753182), v[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-0.602802946555), v[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.775143094584), v[2]));
+      Assert::IsTrue(AreEqual(Real(0.189160753182), v[0]));
+      Assert::IsTrue(AreEqual(Real(-0.602802946555), v[1]));
+      Assert::IsTrue(AreEqual(Real(0.775143094584), v[2]));
 
-      v.Set(0.7321, -2.333, 3.0);
-      vn = Sulfur::Normalize(v);
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.189160753182), vn[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-0.602802946555), vn[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.775143094584), vn[2]));
+      v.Set(Real(0.7321), Real(-2.333), Real(3.0));
+      vn = Normalize(v);
+      Assert::IsTrue(AreEqual(Real(0.189160753182), vn[0]));
+      Assert::IsTrue(AreEqual(Real(-0.602802946555), vn[1]));
+      Assert::IsTrue(AreEqual(Real(0.775143094584), vn[2]));
     }
 
     TEST_METHOD(Vector3ZeroOut)
     {
-      Sulfur::Vector3 v(0.1, -6.435, 3.232);
+      Vector3 v(Real(0.1), Real(-6.435), 
+        Real(3.232));
 
       v.ZeroOut();
-      Assert::AreEqual(Sulfur::Real(0.0), v[0]);
-      Assert::AreEqual(Sulfur::Real(0.0), v[1]);
-      Assert::AreEqual(Sulfur::Real(0.0), v[2]);
+      Assert::AreEqual(Real(0.0), v[0]);
+      Assert::AreEqual(Real(0.0), v[1]);
+      Assert::AreEqual(Real(0.0), v[2]);
     }
 
     TEST_METHOD(Vector3IsZeroEpsilon)
     {
-      Sulfur::Vector3 v(0.00000001, 0.00000001, 0.00000001);
+      Vector3 v(Real(0.00000001), Real(0.00000001), 
+        Real(0.00000001));
 
       Assert::IsTrue(v.IsZeroEpsilon());
     }
 
     TEST_METHOD(Vector3HasInfiniry)
     {
-      Sulfur::Vector3 v(0.0, 0.0, 0.0);
+      Vector3 v(Real(0.0), Real(0.0), 
+        Real(0.0));
 
       Assert::IsFalse(v.HasInfinity());
 
-      Sulfur::Real inf = std::numeric_limits<Sulfur::Real>::infinity();
+      Real inf = std::numeric_limits<Real>::infinity();
       v.Set(inf, inf, inf);
 
       Assert::IsTrue(v.HasInfinity());
@@ -171,212 +176,216 @@ namespace UnitTests
 
     TEST_METHOD(Vector3Abs)
     {
-      Sulfur::Vector3 v(-0.2341, 5.1257, -13.231);
-      Sulfur::Vector3 va = v.GetAbs();
+      Vector3 v(Real(-0.2341), 
+        Real(5.1257), Real(-13.231));
 
-      Assert::AreEqual(Sulfur::Real(0.2341), va[0]);
-      Assert::AreEqual(Sulfur::Real(5.1257), va[1]);
-      Assert::AreEqual(Sulfur::Real(13.231), va[2]);
+      Vector3 va = v.GetAbs();
+
+      Assert::AreEqual(Real(0.2341), va[0]);
+      Assert::AreEqual(Real(5.1257), va[1]);
+      Assert::AreEqual(Real(13.231), va[2]);
 
       v.Abs();
-      Assert::AreEqual(Sulfur::Real(0.2341), v[0]);
-      Assert::AreEqual(Sulfur::Real(5.1257), v[1]);
-      Assert::AreEqual(Sulfur::Real(13.231), v[2]);
+      Assert::AreEqual(Real(0.2341), v[0]);
+      Assert::AreEqual(Real(5.1257), v[1]);
+      Assert::AreEqual(Real(13.231), v[2]);
 
-      v.Set(-0.2341, 5.1257, -13.231);
-      Sulfur::Abs(v);
-      Assert::AreEqual(Sulfur::Real(0.2341), v[0]);
-      Assert::AreEqual(Sulfur::Real(5.1257), v[1]);
-      Assert::AreEqual(Sulfur::Real(13.231), v[2]);
+      v.Set(Real(-0.2341), Real(5.1257), Real(-13.231));
+      Abs(v);
+      Assert::AreEqual(Real(0.2341), v[0]);
+      Assert::AreEqual(Real(5.1257), v[1]);
+      Assert::AreEqual(Real(13.231), v[2]);
     }
 
     TEST_METHOD(Vector3Neg)
     {
-      Sulfur::Vector3 v(-1.5436, -10.243, 4.321);
-      Sulfur::Vector3 vn = v.Negated();
+      Vector3 v(Real(-1.5436), Real(-10.243), 
+        Real(4.321));
+      Vector3 vn = v.Negated();
 
-      Assert::AreEqual(Sulfur::Real(1.5436), vn[0]);
-      Assert::AreEqual(Sulfur::Real(10.243), vn[1]);
-      Assert::AreEqual(Sulfur::Real(-4.321), vn[2]);
+      Assert::AreEqual(Real(1.5436), vn[0]);
+      Assert::AreEqual(Real(10.243), vn[1]);
+      Assert::AreEqual(Real(-4.321), vn[2]);
 
       v.Negate();
-      Assert::AreEqual(Sulfur::Real(1.5436), v[0]);
-      Assert::AreEqual(Sulfur::Real(10.243), v[1]);
-      Assert::AreEqual(Sulfur::Real(-4.321), v[2]);
+      Assert::AreEqual(Real(1.5436), v[0]);
+      Assert::AreEqual(Real(10.243), v[1]);
+      Assert::AreEqual(Real(-4.321), v[2]);
 
-      v.Set(-1.5436, -10.243, 4.321);
-      Sulfur::Negate(v);
-      Assert::AreEqual(Sulfur::Real(1.5436), v[0]);
-      Assert::AreEqual(Sulfur::Real(10.243), v[1]);
-      Assert::AreEqual(Sulfur::Real(-4.321), v[2]);
+      v.Set(Real(-1.5436), Real(-10.243), 
+        Real(4.321));
+      Negate(v);
+      Assert::AreEqual(Real(1.5436), v[0]);
+      Assert::AreEqual(Real(10.243), v[1]);
+      Assert::AreEqual(Real(-4.321), v[2]);
     }
 
     TEST_METHOD(Vector3Distance)
     {
-      Sulfur::Vector3 v1(-2.5, 3.0, 7.0);
-      Sulfur::Vector3 v2(2.5, 0.0, 0.0);
+      Vector3 v1(Real(-2.5), Real(3.0), Real(7.0));
+      Vector3 v2(Real(2.5), Real(0.0), Real(0.0));
 
-      Assert::AreEqual(Sulfur::Real(9.11043357914), v1.Distance(v2));
-      Assert::AreEqual(Sulfur::Real(83), v1.DistanceSq(v2));
-      Assert::AreEqual(Sulfur::Real(9.11043357914), Sulfur::Distance(v1, v2));
-      Assert::AreEqual(Sulfur::Real(83), Sulfur::DistanceSq(v1, v2));
+      Assert::AreEqual(Real(9.11043357914), v1.Distance(v2));
+      Assert::AreEqual(Real(83), v1.DistanceSq(v2));
+      Assert::AreEqual(Real(9.11043357914), Distance(v1, v2));
+      Assert::AreEqual(Real(83), DistanceSq(v1, v2));
     }
 
     TEST_METHOD(Vector3MinMaxAxis)
     {
-      Sulfur::Vector3 v(-2.5, 3.0, 1.0);
+      Vector3 v(Real(-2.5), Real(3.0), Real(1.0));
 
       Assert::AreEqual(1, v.MaxAxis());
       Assert::AreEqual(0, v.MinAxis());
-      Assert::AreEqual(Sulfur::Real(3.0), v.MaxAxisValue());
-      Assert::AreEqual(Sulfur::Real(-2.5), v.MinAxisValue());
+      Assert::AreEqual(Real(3.0), v.MaxAxisValue());
+      Assert::AreEqual(Real(-2.5), v.MinAxisValue());
 
-      v.Set(3.0, -2.5, 1.0);
+      v.Set(Real(3.0), Real(-2.5), Real(1.0));
       Assert::AreEqual(0, v.MaxAxis());
       Assert::AreEqual(1, v.MinAxis());
-      Assert::AreEqual(Sulfur::Real(3.0), v.MaxAxisValue());
-      Assert::AreEqual(Sulfur::Real(-2.5), v.MinAxisValue());
+      Assert::AreEqual(Real(3.0), v.MaxAxisValue());
+      Assert::AreEqual(Real(-2.5), v.MinAxisValue());
 
-      v.Set(0.0, 1.0, 2.0);
+      v.Set(Real(0.0), Real(1.0), Real(2.0));
       Assert::AreEqual(2, v.MaxAxis());
       Assert::AreEqual(0, v.MinAxis());
-      Assert::AreEqual(Sulfur::Real(2.0), v.MaxAxisValue());
-      Assert::AreEqual(Sulfur::Real(0.0), v.MinAxisValue());
+      Assert::AreEqual(Real(2.0), v.MaxAxisValue());
+      Assert::AreEqual(Real(0.0), v.MinAxisValue());
 
-      Assert::AreEqual(2, Sulfur::MaxAxis(v));
-      Assert::AreEqual(0, Sulfur::MinAxis(v));
-      Assert::AreEqual(Sulfur::Real(2.0), Sulfur::MaxAxisValue(v));
-      Assert::AreEqual(Sulfur::Real(0.0), Sulfur::MinAxisValue(v));
+      Assert::AreEqual(2, MaxAxis(v));
+      Assert::AreEqual(0, MinAxis(v));
+      Assert::AreEqual(Real(2.0), MaxAxisValue(v));
+      Assert::AreEqual(Real(0.0), MinAxisValue(v));
     }
 
     TEST_METHOD(Vector3Lerp)
     {
-      Sulfur::Vector3 v1(0.0, 3.0, 7.0);
-      Sulfur::Vector3 v2(-3.0, 5.0, -3.0);
-      Sulfur::Vector3 lerped = v1.Lerp(v2, 0.5);
+      Vector3 v1(Real(0.0), Real(3.0), Real(7.0));
+      Vector3 v2(Real(-3.0), Real(5.0), Real(-3.0));
+      Vector3 lerped = v1.Lerp(v2, Real(0.5));
 
-      Assert::AreEqual(Sulfur::Real(-1.5), lerped[0]);
-      Assert::AreEqual(Sulfur::Real(4.0), lerped[1]);
-      Assert::AreEqual(Sulfur::Real(2.0), lerped[2]);
+      Assert::AreEqual(Real(-1.5), lerped[0]);
+      Assert::AreEqual(Real(4.0), lerped[1]);
+      Assert::AreEqual(Real(2.0), lerped[2]);
 
-      lerped = Sulfur::Lerp(v1, v2, 0.5);
+      lerped = Lerp(v1, v2, Real(0.5));
 
-      Assert::AreEqual(Sulfur::Real(-1.5), lerped[0]);
-      Assert::AreEqual(Sulfur::Real(4.0), lerped[1]);
-      Assert::AreEqual(Sulfur::Real(2.0), lerped[2]);
+      Assert::AreEqual(Real(-1.5), lerped[0]);
+      Assert::AreEqual(Real(4.0), lerped[1]);
+      Assert::AreEqual(Real(2.0), lerped[2]);
     }
 
     TEST_METHOD(Vector3Rotate)
     {
-      Sulfur::Vector3 v(1.0, 0.0, 0.0);
-      Sulfur::Vector3 axis(0.0, 0.0, 1.0);
-      Sulfur::Vector3 vr = v.RotatedRad(axis, SF_PI / 2);
+      Vector3 v(Real(1.0), Real(0.0), Real(0.0));
+      Vector3 axis(Real(0.0), Real(0.0), Real(1.0));
+      Vector3 vr = v.RotatedRad(axis, SF_PI / 2);
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.0), vr[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.0), vr[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.0), vr[2]));
+      Assert::IsTrue(AreEqual(Real(0.0), vr[0]));
+      Assert::IsTrue(AreEqual(Real(1.0), vr[1]));
+      Assert::IsTrue(AreEqual(Real(0.0), vr[2]));
 
-      v.Set(0.5, 0.0, 0.34);
-      axis.Set(0.75, 0.245, 1.0);
+      v.Set(Real(0.5), Real(0.0), Real(0.34));
+      axis.Set(Real(0.75), Real(0.245), Real(1.0));
       axis.Normalize();
-      vr = Sulfur::RotateDeg(v, axis, 45.0);
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.49659735), vr[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.16762721), vr[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.30148333), vr[2]));
+      vr = RotateDeg(v, axis, Real(45.0));
+      Assert::IsTrue(AreEqual(Real(0.49659735), vr[0]));
+      Assert::IsTrue(AreEqual(Real(0.16762721), vr[1]));
+      Assert::IsTrue(AreEqual(Real(0.30148333), vr[2]));
     }
 
     TEST_METHOD(Vector3GetAngle)
     {
-      Sulfur::Vector3 v1(1.0, 0.0, 0.0);
-      Sulfur::Vector3 v2(0.0, 1.0, 0.0);
+      Vector3 v1(Real(1.0), Real(0.0), Real(0.0));
+      Vector3 v2(Real(0.0), Real(1.0), Real(0.0));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(SF_PI / 2), v1.GetAngle(v2)));
+      Assert::IsTrue(AreEqual(Real(SF_PI / 2), v1.GetAngle(v2)));
       
-      v1.Set(1.325, -0.342, 3.98);
-      v2.Set(-0.231, 2.2355, 2.5);
+      v1.Set(Real(1.325), Real(-0.342), Real(3.98));
+      v2.Set(Real(-0.231), Real(2.2355), Real(2.5));
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(0.89233154), v1.GetAngle(v2)));
+      Assert::IsTrue(AreEqual(Real(0.89233154), v1.GetAngle(v2)));
     }
 
     TEST_METHOD(Vector3OpAdd)
     {
-      Sulfur::Vector3 v1(1.2345, -0.9876, 4.435435);
-      Sulfur::Vector3 v2(-0.12313, 0.4234, 0.1313);
-      Sulfur::Vector3 res = v1 + v2;
+      Vector3 v1(Real(1.2345), Real(-0.9876), Real(4.435435));
+      Vector3 v2(Real(-0.12313), Real(0.4234), Real(0.1313));
+      Vector3 res = v1 + v2;
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.11137009), res[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-0.564200044), res[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(4.56673479), res[2]));
+      Assert::IsTrue(AreEqual(Real(1.11137009), res[0]));
+      Assert::IsTrue(AreEqual(Real(-0.564200044), res[1]));
+      Assert::IsTrue(AreEqual(Real(4.56673479), res[2]));
 
       v1 += v2;
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.11137009), v1[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-0.564200044), v1[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(4.56673479), v1[2]));
+      Assert::IsTrue(AreEqual(Real(1.11137009), v1[0]));
+      Assert::IsTrue(AreEqual(Real(-0.564200044), v1[1]));
+      Assert::IsTrue(AreEqual(Real(4.56673479), v1[2]));
     }
 
     TEST_METHOD(Vector3OpNeg)
     {
-      Sulfur::Vector3 v(1.0, -0.5, 3.45);
+      Vector3 v(Real(1.0), Real(-0.5), Real(3.45));
 
       v = -v;
 
-      Assert::AreEqual(Sulfur::Real(-1.0), v[0]);
-      Assert::AreEqual(Sulfur::Real(0.5), v[1]);
-      Assert::AreEqual(Sulfur::Real(-3.45), v[2]);
+      Assert::AreEqual(Real(-1.0), v[0]);
+      Assert::AreEqual(Real(0.5), v[1]);
+      Assert::AreEqual(Real(-3.45), v[2]);
     }
 
     TEST_METHOD(Vector3OpSub)
     {
-      Sulfur::Vector3 v1(1.2345, -0.9876, 4.435435);
-      Sulfur::Vector3 v2(-0.12313, 0.4234, 0.1313);
-      Sulfur::Vector3 res = v1 - v2;
+      Vector3 v1(Real(1.2345), Real(-0.9876), Real(4.435435));
+      Vector3 v2(Real(-0.12313), Real(0.4234), Real(0.1313));
+      Vector3 res = v1 - v2;
 
-      Assert::AreEqual(Sulfur::Real(1.35763), res[0]);
-      Assert::AreEqual(Sulfur::Real(-1.411), res[1]);
-      Assert::AreEqual(Sulfur::Real(4.304135), res[2]);
+      Assert::AreEqual(Real(1.35763), res[0]);
+      Assert::AreEqual(Real(-1.411), res[1]);
+      Assert::AreEqual(Real(4.304135), res[2]);
 
       v1 -= v2;
 
-      Assert::AreEqual(Sulfur::Real(1.35763), v1[0]);
-      Assert::AreEqual(Sulfur::Real(-1.411), v1[1]);
-      Assert::AreEqual(Sulfur::Real(4.304135), v1[2]);
+      Assert::AreEqual(Real(1.35763), v1[0]);
+      Assert::AreEqual(Real(-1.411), v1[1]);
+      Assert::AreEqual(Real(4.304135), v1[2]);
     }
 
     TEST_METHOD(Vector3OpScaling)
     {
-      Sulfur::Vector3 v(0.5, 23.16785, -3.5632);
-      Sulfur::Vector3 res = v * 2.5;
+      Vector3 v(Real(0.5), Real(23.16785), Real(-3.5632));
+      Vector3 res = v * 2.5;
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.25), res[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(57.919625), res[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-8.908), res[2]));
+      Assert::IsTrue(AreEqual(Real(1.25), res[0]));
+      Assert::IsTrue(AreEqual(Real(57.919625), res[1]));
+      Assert::IsTrue(AreEqual(Real(-8.908), res[2]));
   
       v *= 2.5;
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(1.25), v[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(57.919625), v[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-8.908), v[2]));
+      Assert::IsTrue(AreEqual(Real(1.25), v[0]));
+      Assert::IsTrue(AreEqual(Real(57.919625), v[1]));
+      Assert::IsTrue(AreEqual(Real(-8.908), v[2]));
 
-      v.Set(-1.5344, -5.24241, 9.4643);
+      v.Set(Real(-1.5344), Real(-5.24241), Real(9.4643));
       res = v / 1.5;
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(-1.022933333333), res[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-3.49494), res[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(6.30953360), res[2]));
+      Assert::IsTrue(AreEqual(Real(-1.022933333333), res[0]));
+      Assert::IsTrue(AreEqual(Real(-3.49494), res[1]));
+      Assert::IsTrue(AreEqual(Real(6.30953360), res[2]));
 
       v /= 1.5;
 
-      Assert::IsTrue(AreEqual(Sulfur::Real(-1.022933333333), v[0]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(-3.49494), v[1]));
-      Assert::IsTrue(AreEqual(Sulfur::Real(6.30953360), v[2]));
+      Assert::IsTrue(AreEqual(Real(-1.022933333333), v[0]));
+      Assert::IsTrue(AreEqual(Real(-3.49494), v[1]));
+      Assert::IsTrue(AreEqual(Real(6.30953360), v[2]));
     }
 
     TEST_METHOD(Vector3OpEquals)
     {
-      Sulfur::Vector3 v1(0.315, -45.1475, 9.31155);
-      Sulfur::Vector3 v2(0.315, -45.1475, 9.31155);
-      Sulfur::Vector3 v3(0.5322, 5.426731, 0.4424);
+      Vector3 v1(Real(0.315), Real(-45.1475), Real(9.31155));
+      Vector3 v2(Real(0.315), Real(-45.1475), Real(9.31155));
+      Vector3 v3(Real(0.5322), Real(5.426731), Real(0.4424));
 
       Assert::IsTrue(v1 == v2);
       Assert::IsTrue(v2 != v3);

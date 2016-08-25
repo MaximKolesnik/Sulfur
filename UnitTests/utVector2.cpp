@@ -5,6 +5,8 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
+#pragma warning(disable : 4305)
+
 namespace UnitTests
 {		
   template<typename T>
@@ -347,3 +349,5 @@ namespace UnitTests
     }
 	};
 }
+
+#pragma warning(default : 4305)

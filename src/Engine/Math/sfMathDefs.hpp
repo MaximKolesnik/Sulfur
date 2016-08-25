@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfMathDefs.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    8/22/2016
+
+\brief   Masks and definitions for math library
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 
 #include <immintrin.h>
@@ -7,6 +21,7 @@
 #include "../sfProjectDefs.hpp"
 #include "../Types/sfTypes.hpp"
 
+// Illegal calling convention for ctor/dtor
 #pragma warning(disable : 4166)
 
 namespace Sulfur
@@ -23,8 +38,9 @@ namespace Sulfur
 #ifdef SF_USE_SIMD
 #define SF_UT_EPSILON SF_EPSILON
 #else
-#define SF_UT_EPSILON Sulfur::Real(0.02) //There are some precision issues, when using unit test both for Simd and scalar math
-                                           //Since we are not going to use scalar in Release we want to make sure that at least works
+#define SF_UT_EPSILON Sulfur::Real(0.02) 
+//There are some precision issues when using unit test both for Simd and scalar math
+//Since we are not going to use scalar in Release we want to make sure that at least works
 #endif
 
 

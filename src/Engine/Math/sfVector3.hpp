@@ -1,10 +1,24 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfVector3.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    8/22/2016
+
+\brief   3D Vector
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 
-#include <assert.h>
 #include <limits>
 
 #include "../sfProjectDefs.hpp"
 #include "sfMathDefs.hpp"
+#include "../Error/sfError.hpp"
 
 namespace Sulfur
 {
@@ -151,14 +165,14 @@ namespace Sulfur
     //Nomralize the vector
     SF_FORCE_INLINE Vector3& SF_VEC_CALL Normalize(void)
     {
-      assert(!IsZeroEpsilon());
+      SF_ASSERT(!IsZeroEpsilon(), "Trying to normalize vector of length 0");
       return *this /= Length();
     }
 
     //Return normalized copy of the vector
     SF_FORCE_INLINE Vector3 SF_VEC_CALL Normalized(void) const
     {
-      assert(!IsZeroEpsilon());
+      SF_ASSERT(!IsZeroEpsilon(), "Trying to normalize vector of length 0");
       return *this / Length();
     }
 
@@ -366,7 +380,7 @@ namespace Sulfur
     {
       Real scalar = MathUtils::Sqrt(this->LengthSq() * other.LengthSq());
 
-      assert(scalar != 0);
+      SF_ASSERT(scalar != 0, "One of the vectors has length 0");
 
       return MathUtils::Acos(this->Dot(other) / scalar);
     }
@@ -455,7 +469,7 @@ namespace Sulfur
 
     SF_FORCE_INLINE Vector3 SF_VEC_CALL operator/(Real scalar) const
     {
-      assert(scalar != Real(0.0));
+      SF_ASSERT(scalar != Real(0.0), "Scaling by 1/0");
 #ifdef SF_USE_SIMD
       return Vector3(_mm_div_ps(m_data, _mm_set1_ps(scalar)));
 #else
@@ -466,7 +480,7 @@ namespace Sulfur
 
     SF_FORCE_INLINE Vector3& SF_VEC_CALL operator/=(Real scalar)
     {
-      assert(scalar != Real(0.0));
+      SF_ASSERT(scalar != Real(0.0), "Scaling by 1/0");
 #ifdef SF_USE_SIMD
       m_data = _mm_div_ps(m_data, _mm_set1_ps(scalar));
 #else
@@ -481,13 +495,13 @@ namespace Sulfur
     //Index access
     SF_FORCE_INLINE Real& SF_VEC_CALL operator[](int i)
     {
-      assert(i >= 0 && i <= 2);
+      SF_ASSERT(i >= 0 && i <= 2, "Index is out of range");
       return m_comps[i];
     }
 
     SF_FORCE_INLINE const Real& SF_VEC_CALL operator[](int i) const
     {
-      assert(i >= 0 && i <= 2);
+      SF_ASSERT(i >= 0 && i <= 2, "Index is out of range");
       return m_comps[i];
     }
 

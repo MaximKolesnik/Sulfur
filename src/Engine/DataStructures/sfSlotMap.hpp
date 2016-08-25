@@ -19,6 +19,7 @@ All content © 2015 DigiPen (USA) Corporation, all rights reserved.
 #include "../Types/sfIEntity.h"
 #include "../sfProjectDefs.hpp"
 #include "../Types/sfTypes.hpp"
+#include "../Error/sfError.hpp"
 
 //Should be moved somewhere like GameSettings???
 #define SF_MAX_OBJECTS    UINT64(2048)
@@ -55,7 +56,8 @@ namespace Sulfur
     {
       m_objects = new ObjectType[SF_MAX_OBJECTS];
 
-      assert(dynamic_cast<IEntity*>(m_objects) != nullptr);
+      SF_ASSERT(dynamic_cast<IEntity*>(m_objects) != nullptr,
+        "Only types with bas IEntity can be put in SlotMap");
     }
 
     virtual ~SlotMap()
@@ -65,10 +67,7 @@ namespace Sulfur
 
     virtual hndl Create(void) override
     {
-      if (m_freeList.empty())
-        assert(
-          !m_freeList.empty()
-          );
+      SF_ASSERT(!m_freeList.empty(), "SlotMap is full");
 
       UINT64 index = m_freeList.front();
       m_freeList.pop_front();
@@ -82,9 +81,7 @@ namespace Sulfur
     virtual hndl CreateAt(UINT64 index) override
     {
       auto it = std::find(m_freeList.begin(), m_freeList.end(), index);
-      assert(
-        it != m_freeList.end()
-        );
+      SF_ASSERT(it != m_freeList.end(), "Slot is unavailable");
 
       m_freeList.erase(it);
 
@@ -122,9 +119,8 @@ namespace Sulfur
     virtual void Erase(hndl handle) override
     {
       auto it = std::find(m_usedList.begin(), m_usedList.end(), handle);
-      assert(
-        it != m_usedList.end()
-        );
+      SF_ASSERT(it != m_usedList.end(),
+        "Trying to delete object in slot map that hasn't been initialized");
 
       m_usedList.erase(it);
       m_freeList.push_back(handle);
