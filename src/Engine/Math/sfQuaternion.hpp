@@ -96,13 +96,13 @@ namespace Sulfur
       __m128 s = _mm_set_ps(sy, cy, sy, cy);
       q1 = _mm_mul_ps(q1, s);
 
-      s = _mm_shuffle_ps(s, s, _MM_SHUFFLE(0, 1, 0, 1));
+      s = _mm_shuffle_ps(s, s, 0x11); //_MM_SHUFFLE(0, 1, 0, 1)
       q2 = _mm_mul_ps(q2, s);
 
       s = _mm_set_ps(cx, sx, sx, cx);
       q1 = _mm_mul_ps(q1, s);
 
-      s = _mm_shuffle_ps(s, s, _MM_SHUFFLE(1, 0, 0, 1));
+      s = _mm_shuffle_ps(s, s, 0x41); //_MM_SHUFFLE(1, 0, 0, 1)
       q2 = _mm_mul_ps(q2, s);
 
       m_data = _mm_add_ps(q1, q2);
@@ -269,11 +269,11 @@ namespace Sulfur
 #ifdef SF_USE_SIMD
       __m128 qMul = _mm_mul_ps(m_data, m_data);
       __m128 length = _mm_add_ps(qMul,
-        _mm_shuffle_ps(qMul, qMul, _MM_SHUFFLE(0, 1, 2, 3)));
+        _mm_shuffle_ps(qMul, qMul, 0x5B)); //_MM_SHUFFLE(0, 1, 2, 3)
       length = _mm_add_ps(length, 
-        _mm_shuffle_ps(qMul, qMul, _MM_SHUFFLE(1, 3, 3, 2)));
+        _mm_shuffle_ps(qMul, qMul, 0x7E)); //_MM_SHUFFLE(1, 3, 3, 2)
       length = _mm_add_ps(length,
-        _mm_shuffle_ps(qMul, qMul, _MM_SHUFFLE(2, 0, 0, 1)));
+        _mm_shuffle_ps(qMul, qMul, 0x81)); //_MM_SHUFFLE(2, 0, 0, 1)
 
       length = _mm_sqrt_ps(length);
       length = _mm_rcp_ps(length);
@@ -295,11 +295,11 @@ namespace Sulfur
 #ifdef SF_USE_SIMD
       __m128 qMul = _mm_mul_ps(m_data, m_data);
       __m128 length = _mm_add_ps(qMul,
-        _mm_shuffle_ps(qMul, qMul, _MM_SHUFFLE(0, 1, 2, 3)));
+        _mm_shuffle_ps(qMul, qMul, 0x5B)); //_MM_SHUFFLE(0, 1, 2, 3)
       length = _mm_add_ps(length,
-        _mm_shuffle_ps(qMul, qMul, _MM_SHUFFLE(1, 3, 3, 2)));
+        _mm_shuffle_ps(qMul, qMul, 0x7E)); //_MM_SHUFFLE(1, 3, 3, 2)
       length = _mm_add_ps(length,
-        _mm_shuffle_ps(qMul, qMul, _MM_SHUFFLE(2, 0, 0, 1)));
+        _mm_shuffle_ps(qMul, qMul, 0x81)); //_MM_SHUFFLE(2, 0, 0, 1)
 
       length = _mm_sqrt_ps(length);
       length = _mm_rcp_ps(length);
@@ -421,7 +421,7 @@ namespace Sulfur
       __m128 res = _mm_mul_ps(l, r);
 
       l = _mm_shuffle_ps(m_data, m_data, 0x66); //_MM_SHUFFLE(1, 2, 1, 2)
-      r = _mm_shuffle_ps(other.m_data, other.m_data, _MM_SHUFFLE(2, 0, 0, 2)); //_MM_SHUFFLE(1, 0, 0, 2)
+      r = _mm_shuffle_ps(other.m_data, other.m_data, 0x82); //_MM_SHUFFLE(2, 0, 0, 2)
 
       res = _mm_add_ps(res, _mm_mul_ps(l, r));
 
@@ -463,7 +463,7 @@ namespace Sulfur
       __m128 res = _mm_mul_ps(l, r);
 
       l = _mm_shuffle_ps(m_data, m_data, 0x66); //_MM_SHUFFLE(1, 2, 1, 2)
-      r = _mm_shuffle_ps(other.m_data, other.m_data, _MM_SHUFFLE(2, 0, 0, 2)); 
+      r = _mm_shuffle_ps(other.m_data, other.m_data, 0x82); //_MM_SHUFFLE(2, 0, 0, 2)
 
       res = _mm_add_ps(res, _mm_mul_ps(l, r));
 
@@ -497,18 +497,18 @@ namespace Sulfur
     SF_FORCE_INLINE Quaternion SF_VEC_CALL operator*(const Vector3 &v) const
     {
 #ifdef SF_USE_SIMD
-      __m128 q = _mm_shuffle_ps(m_data, m_data, _MM_SHUFFLE(0, 0, 0, 1));
-      __m128 mv = _mm_shuffle_ps(v.Get128(), v.Get128(), _MM_SHUFFLE(2, 1, 0, 0));
+      __m128 q = _mm_shuffle_ps(m_data, m_data, 0x1); //_MM_SHUFFLE(0, 0, 0, 1)
+      __m128 mv = _mm_shuffle_ps(v.Get128(), v.Get128(), 0x90); //_MM_SHUFFLE(2, 1, 0, 0)
 
       __m128 result = _mm_mul_ps(q, mv);
 
-      q = _mm_shuffle_ps(m_data, m_data, _MM_SHUFFLE(1, 3, 2, 2));
-      mv = _mm_shuffle_ps(v.Get128(), v.Get128(), _MM_SHUFFLE(1, 0, 2, 1));
+      q = _mm_shuffle_ps(m_data, m_data, 0x7A); //_MM_SHUFFLE(1, 3, 2, 2)
+      mv = _mm_shuffle_ps(v.Get128(), v.Get128(), 0x49); //_MM_SHUFFLE(1, 0, 2, 1)
 
       result = _mm_add_ps(result, _mm_mul_ps(q, mv));
 
-      q = _mm_shuffle_ps(m_data, m_data, _MM_SHUFFLE(2, 1, 3, 3));
-      mv = _mm_shuffle_ps(v.Get128(), v.Get128(), _MM_SHUFFLE(0, 2, 1, 2));
+      q = _mm_shuffle_ps(m_data, m_data, 0x9F); //_MM_SHUFFLE(2, 1, 3, 3)
+      mv = _mm_shuffle_ps(v.Get128(), v.Get128(), 0x26); //_MM_SHUFFLE(0, 2, 1, 2)
 
       q = _mm_mul_ps(q, mv);
 
@@ -605,18 +605,18 @@ namespace Sulfur
     const Quaternion &q)
   {
 #ifdef SF_USE_SIMD
-    __m128 mq = _mm_shuffle_ps(q.Get128(), q.Get128(), _MM_SHUFFLE(0, 0, 0, 1));
-    __m128 mv = _mm_shuffle_ps(v.Get128(), v.Get128(), _MM_SHUFFLE(2, 1, 0, 0));
+    __m128 mq = _mm_shuffle_ps(q.Get128(), q.Get128(), 0x1); //_MM_SHUFFLE(0, 0, 0, 1)
+    __m128 mv = _mm_shuffle_ps(v.Get128(), v.Get128(), 0x90); //_MM_SHUFFLE(2, 1, 0, 0)
 
     __m128 result = _mm_mul_ps(mq, mv);
 
-    mq = _mm_shuffle_ps(q.Get128(), q.Get128(), _MM_SHUFFLE(2, 1, 3, 2));
-    mv = _mm_shuffle_ps(v.Get128(), v.Get128(), _MM_SHUFFLE(0, 2, 1, 1));
+    mq = _mm_shuffle_ps(q.Get128(), q.Get128(), 0x9E); //_MM_SHUFFLE(2, 1, 3, 2)
+    mv = _mm_shuffle_ps(v.Get128(), v.Get128(), 0x25); //_MM_SHUFFLE(0, 2, 1, 1)
 
     result = _mm_add_ps(result, _mm_mul_ps(mq, mv));
 
-    mq = _mm_shuffle_ps(q.Get128(), q.Get128(), _MM_SHUFFLE(1, 3, 2, 3));
-    mv = _mm_shuffle_ps(v.Get128(), v.Get128(), _MM_SHUFFLE(1, 0, 2, 2));
+    mq = _mm_shuffle_ps(q.Get128(), q.Get128(), 0x7B); //_MM_SHUFFLE(1, 3, 2, 3)
+    mv = _mm_shuffle_ps(v.Get128(), v.Get128(), 0x4A); //_MM_SHUFFLE(1, 0, 2, 2)
 
     mq = _mm_mul_ps(mq, mv);
 

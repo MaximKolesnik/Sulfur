@@ -49,14 +49,14 @@ namespace Sulfur
       __m128 row0, row1, row2;
       __m128 qData = q.Get128();
       // Y Y W
-      row0 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 0, 2, 2));
+      row0 = _mm_shuffle_ps(qData, qData, 0xA); //_MM_SHUFFLE(0, 0, 2, 2)
       // X X Z
-      row1 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 3, 1, 1));
+      row1 = _mm_shuffle_ps(qData, qData, 0x35); //_MM_SHUFFLE(0, 3, 1, 1)
       // W W Y
-      row2 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 2, 0, 0));
+      row2 = _mm_shuffle_ps(qData, qData, 0x20); //_MM_SHUFFLE(0, 2, 0, 0)
 
       // Y X Y Z
-      __m128 temp = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(3, 2, 1, 2));
+      __m128 temp = _mm_shuffle_ps(qData, qData, 0xE6); //_MM_SHUFFLE(3, 2, 1, 2)
       row0 = _mm_mul_ps(row0, temp);
       row1 = _mm_mul_ps(row1, temp);
       row2 = _mm_mul_ps(row2, temp);
@@ -66,14 +66,14 @@ namespace Sulfur
       row2 = _mm_xor_ps(row2, _mm_set_ps(+0.0, +0.0, +0.0, -0.0));
 
       // Z Z X W
-      temp = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 1, 3, 3));
+      temp = _mm_shuffle_ps(qData, qData, 0x1F); //_MM_SHUFFLE(0, 1, 3, 3)
 
       row0 = _mm_add_ps(row0,
-        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 3, 0, 3)), temp));
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, 0x33), temp)); //_MM_SHUFFLE(0, 3, 0, 3)
       row1 = _mm_add_ps(row1,
-        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(1, 0, 3, 0)), temp));
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, 0x4C), temp)); //_MM_SHUFFLE(1, 0, 3, 0)
       row2 = _mm_add_ps(row2,
-        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 1, 2, 1)), temp));
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, 0x19), temp)); //_MM_SHUFFLE(0, 1, 2, 1)
 
       row0 = _mm_xor_ps(row0, _mm_set_ps(+0.0, +0.0, -0.0, +0.0));
       row1 = _mm_xor_ps(row1, _mm_set_ps(+0.0, -0.0, +0.0, +0.0));
@@ -259,14 +259,14 @@ namespace Sulfur
       __m128 row0, row1, row2;
       __m128 qData = q.Get128();
       // Y Y W
-      row0 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 0, 2, 2));
+      row0 = _mm_shuffle_ps(qData, qData, 0xA); //_MM_SHUFFLE(0, 0, 2, 2)
       // X X Z
-      row1 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 3, 1, 1));
+      row1 = _mm_shuffle_ps(qData, qData, 0x35); //_MM_SHUFFLE(0, 3, 1, 1)
       // W W Y
-      row2 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 2, 0, 0));
+      row2 = _mm_shuffle_ps(qData, qData, 0x20); //_MM_SHUFFLE(0, 2, 0, 0)
 
       // Y X Y Z
-      __m128 temp = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(3, 2, 1, 2));
+      __m128 temp = _mm_shuffle_ps(qData, qData, 0xE6); //_MM_SHUFFLE(3, 2, 1, 2)
       row0 = _mm_mul_ps(row0, temp);
       row1 = _mm_mul_ps(row1, temp);
       row2 = _mm_mul_ps(row2, temp);
@@ -276,14 +276,14 @@ namespace Sulfur
       row2 = _mm_xor_ps(row2, _mm_set_ps(+0.0, +0.0, +0.0, -0.0));
 
       // Z Z X W
-      temp = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 1, 3, 3));
+      temp = _mm_shuffle_ps(qData, qData, 0x1F); //_MM_SHUFFLE(0, 1, 3, 3)
 
       row0 = _mm_add_ps(row0,
-        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 3, 0, 3)), temp));
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, 0x33), temp)); //_MM_SHUFFLE(0, 3, 0, 3)
       row1 = _mm_add_ps(row1,
-        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(1, 0, 3, 0)), temp));
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, 0x4C), temp)); //_MM_SHUFFLE(1, 0, 3, 0)
       row2 = _mm_add_ps(row2,
-        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 1, 2, 1)), temp));
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, 0x19), temp)); //_MM_SHUFFLE(0, 1, 2, 1)
 
       row0 = _mm_xor_ps(row0, _mm_set_ps(+0.0, +0.0, -0.0, +0.0));
       row1 = _mm_xor_ps(row1, _mm_set_ps(+0.0, -0.0, +0.0, +0.0));
