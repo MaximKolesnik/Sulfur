@@ -39,7 +39,86 @@ namespace Sulfur
       m_rows[3] = other.m_rows[3];
     }
 
-    SF_FORCE_INLINE SF_VEC_CALL Matrix4(Real e00, Real e01, Real e02, Real e03,
+    SF_FORCE_INLINE SF_VEC_CALL Matrix4(const Quaternion &q)
+    {
+      Real s = q.Length();
+      SF_ASSERT(s != 0, "Quaternion of length 0");
+      s = Real(2.0) / s;
+
+#ifdef SF_USE_SIMD
+      __m128 row0, row1, row2;
+      __m128 qData = q.Get128();
+      // Y Y W
+      row0 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 0, 2, 2));
+      // X X Z
+      row1 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 3, 1, 1));
+      // W W Y
+      row2 = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 2, 0, 0));
+
+      // Y X Y Z
+      __m128 temp = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(3, 2, 1, 2));
+      row0 = _mm_mul_ps(row0, temp);
+      row1 = _mm_mul_ps(row1, temp);
+      row2 = _mm_mul_ps(row2, temp);
+
+      row0 = _mm_xor_ps(row0, _mm_set_ps(+0.0, +0.0, -0.0, +0.0));
+      row1 = _mm_xor_ps(row1, _mm_set_ps(+0.0, -0.0, +0.0, +0.0));
+      row2 = _mm_xor_ps(row2, _mm_set_ps(+0.0, +0.0, +0.0, -0.0));
+
+      // Z Z X W
+      temp = _mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 1, 3, 3));
+
+      row0 = _mm_add_ps(row0,
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 3, 0, 3)), temp));
+      row1 = _mm_add_ps(row1,
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(1, 0, 3, 0)), temp));
+      row2 = _mm_add_ps(row2,
+        _mm_mul_ps(_mm_shuffle_ps(qData, qData, _MM_SHUFFLE(0, 1, 2, 1)), temp));
+
+      row0 = _mm_xor_ps(row0, _mm_set_ps(+0.0, +0.0, -0.0, +0.0));
+      row1 = _mm_xor_ps(row1, _mm_set_ps(+0.0, -0.0, +0.0, +0.0));
+
+      __m128 scalar = _mm_set1_ps(s);
+      row0 = _mm_mul_ps(scalar, row0);
+      row1 = _mm_mul_ps(scalar, row1);
+      row2 = _mm_mul_ps(scalar, row2);
+
+      row0 = _mm_xor_ps(row0, _mm_set_ps(+0.0, +0.0, +0.0, -0.0));
+      row1 = _mm_xor_ps(row1, _mm_set_ps(+0.0, +0.0, -0.0, +0.0));
+      row2 = _mm_xor_ps(row2, _mm_set_ps(+0.0, -0.0, +0.0, +0.0));
+
+      row0 = _mm_add_ps(_mm_set_ps(0.0, 0.0, 0.0, 1.0), row0);
+      row1 = _mm_add_ps(_mm_set_ps(0.0, 0.0, 1.0, 0.0), row1);
+      row2 = _mm_add_ps(_mm_set_ps(0.0, 1.0, 0.0, 0.0), row2);
+
+      m_rows[0].Set(row0);
+      m_rows[1].Set(row1);
+      m_rows[2].Set(row2);
+      m_rows[3].Set(0.0, 0.0, 0.0, 1.0);
+      m_rows[0][3] = 0.0;
+      m_rows[1][3] = 0.0;
+      m_rows[2][3] = 0.0;
+#else
+      Real xy = s * q[1] * q[2];
+      Real wz = s * q[0] * q[3];
+      Real xz = s * q[1] * q[3];
+      Real wy = s * q[0] * q[2];
+      Real yz = s * q[2] * q[3];
+      Real wx = s * q[0] * q[1];
+      Real yy = s * q[2] * q[2];
+      Real xx = s * q[1] * q[1];
+      Real zz = s * q[3] * q[3];
+
+      Set(
+        1 - yy - zz, xy - wz, xz + wy, 0.0,
+        xy + wz, 1 - xx - zz, yz - wx, 0.0,
+        xz - wy, yz + wx, 1 - xx - yy, 0.0,
+        0.0, 0.0, 0.0, 1.0
+        );
+#endif
+    }
+
+    SF_FORCE_INLINE explicit SF_VEC_CALL Matrix4(Real e00, Real e01, Real e02, Real e03,
                                         Real e10, Real e11, Real e12, Real e13,
                                         Real e20, Real e21, Real e22, Real e23,
                                         Real e30, Real e31, Real e32, Real e33)
@@ -50,7 +129,7 @@ namespace Sulfur
       m_rows[3].Set(e30, e31, e32, e33);
     }
 
-    SF_FORCE_INLINE SF_VEC_CALL Matrix4(const Vector4 &v0, const Vector4 &v1,
+    SF_FORCE_INLINE explicit SF_VEC_CALL Matrix4(const Vector4 &v0, const Vector4 &v1,
       const Vector4 &v2, const Vector4 &v3)
     {
       m_rows[0] = v0;
@@ -60,7 +139,7 @@ namespace Sulfur
     }
 
     // Will set e33 to 1.0
-    SF_FORCE_INLINE SF_VEC_CALL Matrix4(const Vector3 &v0, const Vector3 &v1,
+    SF_FORCE_INLINE explicit SF_VEC_CALL Matrix4(const Vector3 &v0, const Vector3 &v1,
       const Vector3 &v2, const Vector3 &v3)
     {
       m_rows[0].Set(v0.GetX(), v1.GetX(), v2.GetX(), v3.GetX());
@@ -173,6 +252,7 @@ namespace Sulfur
     SF_FORCE_INLINE void SetRotation(const Quaternion &q)
     {
       Real s = q.Length();
+      SF_ASSERT(s != 0, "Quaternion of length 0");
       s = Real(2.0) / s;
 
 #ifdef SF_USE_SIMD

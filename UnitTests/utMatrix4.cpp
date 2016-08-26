@@ -186,11 +186,11 @@ namespace UnitTests
       Matrix4 mqX, mqY, mqZ;
       Quaternion q;
 
-      q.SetRotation(Vector3::c_xAxis, 30.0 * SF_RADS_PER_DEG);
+      q.Set(Vector3::c_xAxis, 30.0 * SF_RADS_PER_DEG);
       mqX.SetRotation(q);
-      q.SetRotation(Vector3::c_zAxis, 45 * SF_RADS_PER_DEG);
+      q.Set(Vector3::c_zAxis, 45 * SF_RADS_PER_DEG);
       mqY.SetRotation(q);
-      q.SetRotation(Vector3::c_yAxis, 70 * SF_RADS_PER_DEG);
+      q.Set(Vector3::c_yAxis, 70 * SF_RADS_PER_DEG);
       mqZ.SetRotation(q);
 
       Assert::IsTrue(AreEqual(mRotX[0][0], mqX[0][0]));

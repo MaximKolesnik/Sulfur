@@ -71,6 +71,11 @@ namespace Sulfur
       return std::acos(real);
     }
 
+    SF_FORCE_INLINE Real Atan2(Real real1, Real real2)
+    {
+      return std::atan2(real1, real2);
+    }
+
     SF_FORCE_INLINE Real Abs(Real real)
     {
       return std::abs(real);

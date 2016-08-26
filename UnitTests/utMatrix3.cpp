@@ -147,7 +147,7 @@ namespace UnitTests
       mq.SetRotationDeg(90.0, 0.0, 0.0);
 
       Quaternion q;
-      q.SetRotation(Vector3(1.0, 0.0, 0.0), SF_PI / 2);
+      q.Set(Vector3(1.0, 0.0, 0.0), SF_PI / 2);
       m.SetRotation(q);
 
       Assert::IsTrue(AreEqual(mq[0][0], m[0][0]));

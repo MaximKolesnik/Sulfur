@@ -39,6 +39,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math\sfMatrix3.cpp" />
     <ClCompile Include="Math\sfMatrix4.cpp" />
+    <ClCompile Include="Math\sfQuaternion.cpp" />
     <ClCompile Include="Math\sfVector2.cpp" />
     <ClCompile Include="Math\sfVector3.cpp" />
     <ClCompile Include="Math\sfVector4.cpp" />
@@ -82,6 +83,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
