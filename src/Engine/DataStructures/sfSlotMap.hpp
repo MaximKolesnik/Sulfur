@@ -2,27 +2,36 @@
 /*!
 \par     Sulfur
 \file    sfSlotMap.hpp
-\author  Dylan Norris
-\par     DP email: d.norris\@digipen.edu
-\date    8/23/2016
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik\@digipen.edu
+\date    8/26/2016
 
-\brief   Templated slot map and handles
+\brief   Templated slot map and handles. Used for Entities only.
+         Memory Page is deallocated if there is more than one unused page
+         Pages are deallocated only from the end
 
 All content © 2015 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 
+/*******************************************************************************
+Maxim Kolesnik: TODO: Consider deallocating pages at any place in a list,
+inerting missing handles when they are needed
+                TODO: Use bitset for used list??
+*******************************************************************************/
+
 #pragma once
 
-#include <deque>
+#include <list>
+#include <iterator>
+#include <vector>
 
 #include "../Types/sfIEntity.h"
 #include "../sfProjectDefs.hpp"
 #include "../Types/sfTypes.hpp"
+#include "../Settings/EngineSettings.h"
 #include "../Error/sfError.hpp"
-
-//Should be moved somewhere like GameSettings???
-#define SF_MAX_OBJECTS    UINT64(2048)
+#include "sfOrderedDeque.hpp"
 
 namespace Sulfur
 {
@@ -31,165 +40,294 @@ namespace Sulfur
   public:
     ISlotMap(void)
     {
-      for (UINT64 i = 0; i < SF_MAX_OBJECTS; ++i)
-        m_freeList.push_back(i);
+
     }
 
     virtual ~ISlotMap(void) {};
-    virtual hndl Create(void) = 0;
-    virtual hndl CreateAt(UINT64 index) = 0;
-    virtual void Clear(void) = 0;
-    virtual IEntity* Get(const hndl handle) = 0;
-    virtual void Erase(hndl handle) = 0;
-    virtual UINT64 IndexOf(IEntity *object) = 0;
-
-  protected:
-    std::deque<UINT64> m_freeList;
-    std::deque<UINT64> m_usedList;
+    virtual HNDL Create(void) = 0;
+    virtual void CreateAt(const HNDL hndl) = 0;
+    virtual IEntity* At(const HNDL hndl) const = 0;
+    virtual void Erase(const HNDL hndl) = 0;
+    virtual UINT64 GetNumberOfAllocPages(void) const = 0;
   };
 
-  template <typename ObjectType>
+  //Has to be IEntity or derived from it
+  template <typename EntityType>
   class SlotMap : public ISlotMap
   {
   public:
-    SlotMap() : ISlotMap()
-    {
-      m_objects = new ObjectType[SF_MAX_OBJECTS];
+    SlotMap(void);
+    virtual ~SlotMap(void);
 
-      SF_ASSERT(dynamic_cast<IEntity*>(m_objects) != nullptr,
-        "Only types with bas IEntity can be put in SlotMap");
-    }
-
-    virtual ~SlotMap()
-    {
-      delete[]m_objects;
-    }
-
-    virtual hndl Create(void) override
-    {
-      SF_ASSERT(!m_freeList.empty(), "SlotMap is full");
-
-      UINT64 index = m_freeList.front();
-      m_freeList.pop_front();
-
-      new (m_objects + index) ObjectType();
-      m_usedList.push_back(index);
-
-      return index;
-    }
-
-    virtual hndl CreateAt(UINT64 index) override
-    {
-      auto it = std::find(m_freeList.begin(), m_freeList.end(), index);
-      SF_ASSERT(it != m_freeList.end(), "Slot is unavailable");
-
-      m_freeList.erase(it);
-
-      new (m_objects + index) ObjectType();
-      m_usedList.push_back(index);
-
-      return index;
-    }
-
-    virtual void Clear() override
-    {
-      m_freeList.clear();
-
-      while (!m_usedList.empty())
-      {
-        ObjectType *object = m_objects + m_usedList.front();
-        object->~ObjectType();
-        m_usedList.pop_front();
-      }
-
-      for (UINT64 i = 0; i < SF_MAX_OBJECTS; ++i)
-        m_freeList.push_back(i);
-    }
-
-    virtual ObjectType* Get(const hndl handle) override
-    {
-      if (!handle) return nullptr;
-
-      UINT64 index = handle;
-      if (index >= SF_MAX_OBJECTS) return nullptr;
-
-      return &m_objects[handle];
-    }
-
-    virtual void Erase(hndl handle) override
-    {
-      auto it = std::find(m_usedList.begin(), m_usedList.end(), handle);
-      SF_ASSERT(it != m_usedList.end(),
-        "Trying to delete object in slot map that hasn't been initialized");
-
-      m_usedList.erase(it);
-      m_freeList.push_back(handle);
-      m_objects[handle].~ObjectType();
-      handle = SF_MAX_OBJECTS;
-    }
-
-    virtual UINT64 IndexOf(IEntity *object) override
-    {
-      return (UINT64)(static_cast<ObjectType*>(object) - m_objects);
-    }
+    virtual HNDL Create(void) override;
+    virtual void CreateAt(const HNDL hndl) override;
+    virtual EntityType* At(const HNDL hndl) const override;
+    virtual void Erase(const HNDL hndl) override;
+    virtual UINT64 GetNumberOfAllocPages(void) const override;
 
   private:
-    ObjectType *m_objects;
+
+    struct MemPage
+    {
+      EntityType *m_memory = nullptr;
+      bool        m_full = false;
+      UINT64      m_used = 0;
+
+      HNDL        m_firstHndl = 0;
+
+      std::list<HNDL> *m_freeList = nullptr;
+    };
+
+    struct Comparator
+    {
+      bool operator() (const MemPage *a, const MemPage *b) const
+      {
+        return a->m_firstHndl < b->m_firstHndl;
+      }
+    };
+
+    typedef OrderedDeque<MemPage*, Comparator> PageQueue;
+
+    MemPage* _AllocateNewPage(HNDL firstHndl);
+    void _ConstructPageFreeList(HNDL firstHndl, std::list<HNDL> *&freeList);
+    bool _IsFree(UINT64 pageNum, UINT64 index) const;
+
+    MemPage *m_head = nullptr;
+    std::vector<MemPage*> m_pages;
+    PageQueue m_pageQueue; //pages that can be swapped with main free list
   };
 
-  /*template <typename ObjectType, SIZE_T MaxObjects>
-  struct Handle
+  template <typename EntityType>
+  SlotMap<EntityType>::SlotMap(void) : m_pageQueue(Comparator())
   {
+    SF_CRITICAL_ERR_EXP(EngineSettings::SlotMapInitNumOfPages != 0,
+      "Initial number of pages in SlotMap is 0");
+    SF_CRITICAL_ERR_EXP(EngineSettings::SlotMapObjsPerPage > 1,
+      "Number of objects per page is less than 2");
 
-    ENGINE_API Handle() : slotMapHandle(nullptr) {}
-    ENGINE_API Handle(SIZE_T index) { slotMapHandle = MAKE_SLOT_MAP_HANDLE(index); }
-    ENGINE_API Handle(ObjectType *object) { slotMapHandle = MAKE_SLOT_MAP_HANDLE(GetSlotMap().IndexOf(object)); }
+    //Create first page
+    MemPage *newPage = _AllocateNewPage(0);
+    m_head = newPage;
 
-    ENGINE_API static SlotMap<ObjectType, MaxObjects>& GetSlotMap(void)
+    m_pages.push_back(newPage);
+
+    //Allocate rest of the pages
+    for (int i = 1; i < EngineSettings::SlotMapInitNumOfPages; ++i)
     {
-      static SlotMap<ObjectType, MaxObjects> instance;
-      slotMap = &instance;
-      return instance;
+      MemPage *newPage = _AllocateNewPage(i * EngineSettings::SlotMapObjsPerPage);
+      m_pages.push_back(newPage);
+      m_pageQueue.push(newPage);
+    }
+  }
+
+  template <typename EntityType>
+  SlotMap<EntityType>::~SlotMap(void)
+  {
+    for (int i = 0; i < m_pages.size(); ++i)
+    {
+      free(m_pages[i]->m_memory);
+      delete m_pages[i]->m_freeList;
+    }
+  }
+
+  template <typename EntityType>
+  HNDL SlotMap<EntityType>::Create(void)
+  {
+    SF_ASSERT(!m_head->m_freeList->empty(), "SlotMap: head free list is empty");
+
+    HNDL newHndl = m_head->m_freeList->front();
+    m_head->m_freeList->pop_front();
+
+    //Locate the page and index
+    UINT64 pageNum = newHndl / EngineSettings::SlotMapObjsPerPage;
+    UINT64 index = newHndl % EngineSettings::SlotMapObjsPerPage;
+
+    new (m_pages[pageNum]->m_memory + index) EntityType();
+
+    //Swap free list if it is empty or create a new page
+    if (m_head->m_freeList->empty())
+    {
+      m_pages[pageNum]->m_full = true;
+
+      if (m_pageQueue.empty())
+      {
+        MemPage *newPage = _AllocateNewPage(m_pages.back()->m_firstHndl
+          + EngineSettings::SlotMapObjsPerPage);
+        m_pages.push_back(newPage);
+        m_head = newPage;
+      }
+      else
+      {
+        m_head = m_pageQueue.front();
+        m_pageQueue.pop_front();
+      }
     }
 
-    ENGINE_API operator bool() const { return (slotMapHandle && GetSlotMap().Get(slotMapHandle) != nullptr); }
-    ENGINE_API operator SIZE_T() const { return *slotMapHandle; }
+    ++m_pages[pageNum]->m_used;
 
-    ENGINE_API operator ObjectType*() { return GetSlotMap().Get(slotMapHandle); }
-    ENGINE_API operator const ObjectType*() const { return GetSlotMap().Get(slotMapHandle); }
+    SF_ASSERT(m_pages[pageNum]->m_used <= EngineSettings::SlotMapObjsPerPage,
+      "Memory page indicates that it has more objects than objs per page")
 
-    ENGINE_API ObjectType* operator->() { return GetSlotMap().Get(slotMapHandle); }
-    ENGINE_API const ObjectType* operator->() const { return GetSlotMap().Get(slotMapHandle); }
+    return newHndl;
+  }
 
-    ENGINE_API bool operator==(const Handle<ObjectType, MaxObjects>& rhs) { return *slotMapHandle == *(rhs.slotMapHandle); }
-    ENGINE_API bool operator!=(const Handle<ObjectType, MaxObjects>& rhs) { return *slotMapHandle != *(rhs.slotMapHandle); }
+  template <typename EntityType>
+  void SlotMap<EntityType>::CreateAt(const HNDL hndl)
+  {
+    SF_ASSERT(hndl != SF_INV_HANDLE, "Invalid handle");
 
-    ENGINE_API static Handle Create()
+    //Locate the page and index
+    UINT64 pageNum = hndl / EngineSettings::SlotMapObjsPerPage;
+    UINT64 index = hndl % EngineSettings::SlotMapObjsPerPage;
+
+    if (m_pages.size() <= pageNum)
     {
-      Handle handle;
-      handle.slotMapHandle = GetSlotMap().Create();
-      return handle;
+      for (UINT64 i = m_pages.size(); i <= pageNum; ++i)
+      {
+        MemPage *newPage = _AllocateNewPage(m_pages.back()->m_firstHndl
+          + EngineSettings::SlotMapObjsPerPage);
+        m_pages.push_back(newPage);
+        m_pageQueue.push(newPage);
+      }
     }
 
-    ENGINE_API static Handle CreateAt(SIZE_T index)
+    std::list<HNDL> *pageFreeList = m_pages[pageNum]->m_freeList;
+
+    SF_CRITICAL_ERR_EXP(_IsFree(pageNum, index), "Handle is being used");
+    SF_ASSERT(
+      std::find(std::begin(*pageFreeList),std::end(*pageFreeList), hndl) 
+      != std::end(*pageFreeList), "Handle is not on a free list");
+
+    pageFreeList->remove(hndl);
+    ++m_pages[pageNum]->m_used;
+
+    SF_ASSERT(m_pages[pageNum]->m_used <= EngineSettings::SlotMapObjsPerPage,
+      "Memory page indicates that it has more objects than objs per page")
+
+    new (m_pages[pageNum]->m_memory + index) EntityType();
+  }
+
+  //Nullptr may be returned
+  template <typename EntityType>
+  typename EntityType* SlotMap<EntityType>::At(const HNDL hndl) const
+  {
+    SF_ASSERT(hndl != SF_INV_HANDLE, "Invalid hndl");
+
+    //Locate the page and index
+    UINT64 pageNum = hndl / EngineSettings::SlotMapObjsPerPage;
+    UINT64 index = hndl % EngineSettings::SlotMapObjsPerPage;
+
+    SF_ASSERT(m_pages.size() >= pageNum, "Object does not exist");
+    SF_ASSERT(_IsFree(pageNum, index), "Object does not exist");
+
+    if (_IsFree(pageNum, index))
     {
-      Handle handle;
-      handle.slotMapHandle = GetSlotMap().CreateAt(index);
-      return handle;
+      SF_WARNING("SlotMap return nullptr");
+      return nullptr;
     }
 
-    ENGINE_API static void FreeAll()
+    return &(m_pages[pageNum]->m_memory[index]);
+  }
+
+  template <typename EntityType>
+  void SlotMap<EntityType>::Erase(const HNDL hndl)
+  {
+    //Locate the page and index
+    UINT64 pageNum = hndl / EngineSettings::SlotMapObjsPerPage;
+    UINT64 index = hndl % EngineSettings::SlotMapObjsPerPage;
+
+    SF_ASSERT(m_pages.size() >= pageNum, "Object does not exist");
+    SF_ASSERT(!_IsFree(pageNum, index), "Object does not exist");
+
+    if (m_pages[pageNum]->m_full)
     {
-      GetSlotMap().Clear();
+      m_pages[pageNum]->m_full = false;
+      //Swap free lists if current one has greater hndls
+      if (m_head->m_firstHndl > hndl)
+      {
+        m_pageQueue.push(m_head);
+        m_head = m_pages[pageNum];
+      }
     }
 
-    SIZE_T GetIndex() const { return *slotMapHandle; }
-    void SetIndex(SIZE_T index) { slotMapHandle = MAKE_SLOT_MAP_HANDLE(index); }
+    --m_pages[pageNum]->m_used;
+    SF_ASSERT(m_pages[pageNum]->m_used >= 0, 
+      "Number of used object is less than 0");
 
-    void Delete() { GetSlotMap().Erase(slotMapHandle); }
+    m_pages[pageNum]->m_memory[index].~EntityType();
+    //Write dealloc pattern
+    memset(reinterpret_cast<void*>(m_pages[pageNum]->m_memory + index),
+      0, sizeof(EntityType));
+    m_pages[pageNum]->m_freeList->push_front(hndl);
 
-  private:
-    SlotMapHandle slotMapHandle;
-    static SlotMap<ObjectType, MaxObjects> *slotMap;
-  };*/
+    //Try to deallocate pages
+    SF_ASSERT(m_pageQueue.size() >= 1, "Page queue is empty");
+    for (UINT64 i = m_pageQueue.size() - 1; i >= 1; --i)
+    {
+      //Leave one free page on the queue
+      //Counting a page on the main free list
+      //when we remove all elements we will have two empty pages
+      if (m_pageQueue[i]->m_used == 0
+        &&
+        m_pageQueue[i - 1]->m_used == 0)
+      {
+        SF_ASSERT(m_pageQueue[i]->m_freeList->size() == EngineSettings::SlotMapObjsPerPage,
+          "Deallocating not empty page");
+
+        free(m_pageQueue[i]->m_memory);
+        delete m_pageQueue[i]->m_freeList;
+
+        m_pageQueue.pop_back();
+        //Pages in the queue are sorted, so remove back element
+        m_pages.pop_back();
+        continue;
+      }
+      //If last page was not deallocated, than most likely there is
+      //nothing to deallocate
+      else
+        break;
+    }
+  }
+
+  template <typename EntityType>
+  UINT64 SlotMap<EntityType>::GetNumberOfAllocPages(void) const
+  {
+    return m_pages.size();
+  }
+
+  template <typename EntityType>
+  typename SlotMap<EntityType>::MemPage* 
+    SlotMap<EntityType>::_AllocateNewPage(HNDL firstHndl)
+  {
+    MemPage *newPage = new MemPage();
+    newPage->m_memory = 
+      (EntityType*)malloc(sizeof(EntityType) * EngineSettings::SlotMapObjsPerPage);
+   
+    memset((void*)(newPage->m_memory), 0, 
+      sizeof(EntityType) * EngineSettings::SlotMapObjsPerPage);
+
+    newPage->m_freeList = new std::list<HNDL>();
+
+    _ConstructPageFreeList(firstHndl, newPage->m_freeList);
+    newPage->m_firstHndl = firstHndl;
+
+    return newPage;
+  }
+
+  template <typename EntityType>
+  void SlotMap<EntityType>::_ConstructPageFreeList(HNDL firstHndl, std::list<HNDL> *&freeList)
+  {
+    UINT64 maxHndls = firstHndl + EngineSettings::SlotMapObjsPerPage;
+    for (UINT64 i = firstHndl; i < maxHndls; ++i)
+      freeList->push_back(i);
+  }
+
+  template <typename EntityType>
+  bool SlotMap<EntityType>::_IsFree(UINT64 pageNum, UINT64 index) const
+  {
+    static const char testBlock[sizeof(EntityType)];
+
+    return !memcmp(reinterpret_cast<void*>(m_pages[pageNum]->m_memory + index), 
+      testBlock, sizeof(EntityType));
+  }
 }

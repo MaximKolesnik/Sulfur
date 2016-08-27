@@ -15,6 +15,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #pragma once
 
 #include "../Logger/sfLogger.hpp"
+#include <Winuser.h>
 
 /*******************************************************************************
  Maxim Kolesnik: TODO: Block all threads when MessageBox is displayed?
@@ -72,10 +73,10 @@ if (!(exp)) \
 }
 
 #else
-#define SF_LOG_WARNING(message)
-#define SF_LOG_WARNING_EXP(exp, message)
-#define SF_LOG_WARNING_MB(message)
-#define SF_LOG_WARNING_EXP_MB(exp, message)
+#define SF_WARNING(message)
+#define SF_WARNING_EXP(exp, message)
+#define SF_WARNING_MB(message)
+#define SF_WARNING_EXP_MB(exp, message)
 #define SF_ASSERT(exp, message)
 #endif
 

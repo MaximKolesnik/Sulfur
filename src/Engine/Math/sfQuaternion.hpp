@@ -76,6 +76,9 @@ namespace Sulfur
           axis.GetZ() * scalar);
     }
 
+    void SF_VEC_CALL Set(const Matrix3 &m);
+    void SF_VEC_CALL Set(const Matrix4 &m);
+
     //XZY
     SF_FORCE_INLINE void SF_VEC_CALL SetEuler(Real roll, Real pitch, Real yaw)
     {
@@ -269,7 +272,7 @@ namespace Sulfur
 #ifdef SF_USE_SIMD
       __m128 qMul = _mm_mul_ps(m_data, m_data);
       __m128 length = _mm_add_ps(qMul,
-        _mm_shuffle_ps(qMul, qMul, 0x5B)); //_MM_SHUFFLE(0, 1, 2, 3)
+        _mm_shuffle_ps(qMul, qMul, 0x1B)); //_MM_SHUFFLE(0, 1, 2, 3)
       length = _mm_add_ps(length, 
         _mm_shuffle_ps(qMul, qMul, 0x7E)); //_MM_SHUFFLE(1, 3, 3, 2)
       length = _mm_add_ps(length,
@@ -295,7 +298,7 @@ namespace Sulfur
 #ifdef SF_USE_SIMD
       __m128 qMul = _mm_mul_ps(m_data, m_data);
       __m128 length = _mm_add_ps(qMul,
-        _mm_shuffle_ps(qMul, qMul, 0x5B)); //_MM_SHUFFLE(0, 1, 2, 3)
+        _mm_shuffle_ps(qMul, qMul, 0x1B)); //_MM_SHUFFLE(0, 1, 2, 3)
       length = _mm_add_ps(length,
         _mm_shuffle_ps(qMul, qMul, 0x7E)); //_MM_SHUFFLE(1, 3, 3, 2)
       length = _mm_add_ps(length,

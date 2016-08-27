@@ -9,7 +9,6 @@
 #include "Math\sfMatrix3.hpp"
 #include "Math\sfMatrix4.hpp"
 
-
 void test(void)
 {
   int i = 0;
@@ -23,7 +22,7 @@ int main(int argc, char** argv)
     4, 5, 7, 9,
     10, 15, 5, 4,
     47, 65, 13, 8);
-    
+
   float *mf = new float[16];
   mf[0] = 1, mf[1] = 3, mf[2] = 2, mf[3] = 5,
     mf[4] = 4, mf[5] = 5, mf[6] = 7, mf[7] = 9,

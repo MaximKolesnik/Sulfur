@@ -16,7 +16,7 @@ namespace Sulfur
     virtual void Update(Real dt) = 0;
     virtual IEntity* Clone(void) const = 0;
 
-    hndl GetOwner(void) const
+    HNDL GetOwner(void) const
     {
       return m_hndl;
     }
@@ -26,9 +26,8 @@ namespace Sulfur
       return m_name;
     }
 
-  protected:
-
+  //protected:
     std::string m_name;
-    hndl m_hndl;
+    HNDL m_hndl;
   };
 }

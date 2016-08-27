@@ -72,6 +72,9 @@
     <ClInclude Include="sfSulfurPCH.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DataStructures\sfOrderedDeque.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\sfMatrix3.cpp">

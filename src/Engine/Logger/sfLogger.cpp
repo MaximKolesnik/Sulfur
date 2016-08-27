@@ -16,7 +16,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fileapi.h>
-#include <Winuser.h>
 
 #include <ctime>
 

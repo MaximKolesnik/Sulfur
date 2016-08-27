@@ -23,5 +23,7 @@ namespace Sulfur
   typedef uint32_t UINT32;
   typedef uint64_t UINT64;
 
-  typedef UINT64 hndl;
+  //Handles
+  typedef UINT64 HNDL;
+#define SF_INV_HANDLE UINT64_MAX
 }

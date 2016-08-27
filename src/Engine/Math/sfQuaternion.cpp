@@ -119,4 +119,96 @@ namespace Sulfur
   {
     return Matrix4(*this);
   }
+
+  void SF_VEC_CALL Quaternion::Set(const Matrix3 &m)
+  {
+    Real trace = m[0][0] + m[1][1] + m[2][2];
+    Quaternion q;
+
+    if (trace > 0)
+    {
+      Real s = MathUtils::Sqrt(Real(trace + 1.0)) * Real(2.0);
+      Set(
+        (Real)0.25 * s,
+        (Real)(m[2][1] - m[1][2]) / s,
+        (Real)(m[0][2] - m[2][0]) / s,
+        (Real)(m[1][0] - m[0][1]) / s);
+    }
+    else if ((m[0][0] > m[1][1]) && (m[0][0] > m[2][2]))
+    {
+      Real s = MathUtils::Sqrt(Real(1.0 + m[0][0] - m[1][1] - m[2][2])) * 2;
+      Set(
+        (Real)(m[2][1] - m[1][2]) / s,
+        (Real)0.25 * s,
+        (Real)(m[0][1] + m[1][0]) / s,
+        (Real)(m[0][2] + m[2][0]) / s
+        );
+    }
+    else if (m[1][1] > m[2][2])
+    {
+      Real s = MathUtils::Sqrt(Real(1.0 + m[1][1] - m[0][0] - m[2][2])) * 2;
+      Set(
+        (Real)(m[0][2] - m[2][0]) / s,
+        (Real)(m[0][1] + m[1][0]) / s,
+        (Real)0.25 * s,
+        (Real)(m[1][2] + m[2][1]) / s
+        );
+    }
+    else
+    {
+      Real s = MathUtils::Sqrt(Real(1.0 + m[2][2] - m[0][0] - m[1][1])) * 2;
+      Set(
+        (Real)(m[1][0] - m[0][1]) / s,
+        (Real)(m[0][2] + m[2][0]) / s,
+        (Real)(m[1][2] + m[2][1]) / s,
+        (Real)0.25 * s
+        );
+    }
+  }
+
+  void SF_VEC_CALL Quaternion::Set(const Matrix4 &m)
+  {
+    Real trace = m[0][0] + m[1][1] + m[2][2];
+    Quaternion q;
+
+    if (trace > 0)
+    {
+      Real s = MathUtils::Sqrt(Real(trace + 1.0)) * Real(2.0);
+      Set(
+        (Real)0.25 * s,
+        (Real)(m[2][1] - m[1][2]) / s,
+        (Real)(m[0][2] - m[2][0]) / s,
+        (Real)(m[1][0] - m[0][1]) / s);
+    }
+    else if ((m[0][0] > m[1][1]) && (m[0][0] > m[2][2]))
+    {
+      Real s = MathUtils::Sqrt(Real(1.0 + m[0][0] - m[1][1] - m[2][2])) * 2;
+      Set(
+        (Real)(m[2][1] - m[1][2]) / s,
+        (Real)0.25 * s,
+        (Real)(m[0][1] + m[1][0]) / s,
+        (Real)(m[0][2] + m[2][0]) / s
+        );
+    }
+    else if (m[1][1] > m[2][2])
+    {
+      Real s = MathUtils::Sqrt(Real(1.0 + m[1][1] - m[0][0] - m[2][2])) * 2;
+      Set(
+        (Real)(m[0][2] - m[2][0]) / s,
+        (Real)(m[0][1] + m[1][0]) / s,
+        (Real)0.25 * s,
+        (Real)(m[1][2] + m[2][1]) / s
+        );
+    }
+    else
+    {
+      Real s = MathUtils::Sqrt(Real(1.0 + m[2][2] - m[0][0] - m[1][1])) * 2;
+      Set(
+        (Real)(m[1][0] - m[0][1]) / s,
+        (Real)(m[0][2] + m[2][0]) / s,
+        (Real)(m[1][2] + m[2][1]) / s,
+        (Real)0.25 * s
+        );
+    }
+  }
 }
