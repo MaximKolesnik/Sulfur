@@ -75,6 +75,15 @@
     <ClInclude Include="DataStructures\sfOrderedDeque.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DataStructures\sfBST.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataStructures\sfAVL.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataStructures\sfRBT.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\sfMatrix3.cpp">

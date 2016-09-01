@@ -6,7 +6,7 @@
 \par     DP email: maxim.kolesnik\@digipen.edu
 \date    8/26/2016
 
-\brief   Templated slot map and handles. Used for Entities only.
+\brief   Templated slot map. Used for Entities only.
          Memory Page is deallocated if there is more than one unused page
          Pages are deallocated only from the end
 

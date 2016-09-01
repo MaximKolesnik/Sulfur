@@ -13,7 +13,10 @@
   <ItemGroup>
     <ClInclude Include="Components\sfTransform.hpp" />
     <ClInclude Include="Core\sfCore.hpp" />
+    <ClInclude Include="DataStructures\sfAVL.hpp" />
+    <ClInclude Include="DataStructures\sfBST.hpp" />
     <ClInclude Include="DataStructures\sfOrderedDeque.hpp" />
+    <ClInclude Include="DataStructures\sfRBT.hpp" />
     <ClInclude Include="DataStructures\sfSlotMap.hpp" />
     <ClInclude Include="Error\sfError.hpp" />
     <ClInclude Include="template.hpp" />

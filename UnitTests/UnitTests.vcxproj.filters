@@ -44,5 +44,14 @@
     <ClCompile Include="utSlotMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utBST.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utAVL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utRBT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
