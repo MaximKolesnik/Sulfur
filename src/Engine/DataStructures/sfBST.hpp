@@ -14,11 +14,14 @@ All content © 2015 DigiPen (USA) Corporation, all rights reserved.
 
 #pragma once
 
+#include <functional>
+
 #include "../Types/sfTypes.hpp"
 
 namespace Sulfur
 {
-  template <typename DataType>
+  template <class DataType, class Comparator = std::less<DataType>,
+            class EqualityComp = std::equal_to<DataType> >
   class BST
   {
   public:
@@ -31,7 +34,8 @@ namespace Sulfur
     };
     typedef bool(*CallBackFunc)(const Node *data);
 
-    BST(void);
+    BST(Comparator comparator = Comparator(), 
+      EqualityComp equalityComp = EqualityComp());
     BST(const BST &other);
     ~BST(void);
 
@@ -67,34 +71,46 @@ namespace Sulfur
     void _InOrderTraverse(const Node *node, CallBackFunc func) const;
     void _PostOrderTraverse(const Node *node, CallBackFunc func) const;
 
+    Comparator m_comparator;
+    EqualityComp m_equalityComp;
     UINT64 m_count;
     Node  *m_root;
   };
 
-  template <typename DataType>
-  BST<DataType>::BST(void) : m_count(0), m_root(nullptr)
+  template <class DataType, class Comparator, class EqualityComp>
+  BST<DataType, Comparator, EqualityComp>::
+    BST(Comparator comparator = Comparator(), EqualityComp equalityComp = EqualityComp())
+    : m_count(0), m_root(nullptr), m_comparator(comparator), 
+      m_equalityComp(equalityComp)
   {
 
   }
 
-  template <typename DataType>
-  BST<DataType>::BST(const BST &other)
+  template <class DataType, class Comparator, class EqualityComp>
+  BST<DataType, Comparator, EqualityComp>::BST(const BST &other)
   {
+    m_comparator = other.m_comparator;
+    m_equalityComp = other.m_equalityComp;
+
     m_count = other->m_count;
 
     _CopyNodes(&m_root, nullptr, other->m_root);
   }
 
-  template <typename DataType>
-  BST<DataType>::~BST(void)
+  template <class DataType, class Comparator, class EqualityComp>
+  BST<DataType, Comparator, EqualityComp>::~BST(void)
   {
     this->Clear();
   }
 
-  template <typename DataType>
-  const typename BST<DataType>& BST<DataType>::operator=(const BST &other)
+  template <class DataType, class Comparator, class EqualityComp>
+  const typename BST<DataType, Comparator, EqualityComp>&
+    BST<DataType, Comparator, EqualityComp>::operator=(const BST &other)
   {
     this->Clear();
+
+    m_comparator = other.m_comparator;
+    m_equalityComp = other.m_equalityComp;
 
     m_count = other.m_count;
     _CopyNodes(&m_root, other->m_root);
@@ -102,8 +118,9 @@ namespace Sulfur
     return *this;
   }
 
-  template <typename DataType>
-  bool BST<DataType>::Insert(const typename DataType &val)
+  template <class DataType, class Comparator, class EqualityComp>
+  bool BST<DataType, Comparator, EqualityComp>::
+    Insert(const typename DataType &val)
   {
     bool result = _Insert(&m_root, val);
     if(result)
@@ -112,8 +129,9 @@ namespace Sulfur
     return result;
   }
 
-  template <typename DataType>
-  bool BST<DataType>::Remove(const typename DataType &val)
+  template <class DataType, class Comparator, class EqualityComp>
+  bool BST<DataType, Comparator, EqualityComp>::
+    Remove(const typename DataType &val)
   {
     bool result = _Remove(&m_root, val);
     if (result)
@@ -122,51 +140,57 @@ namespace Sulfur
     return result;
   }
 
-  template <typename DataType>
-  void BST<DataType>::Clear(void)
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::Clear(void)
   {
     _Clear(&m_root);
     m_count = 0;
   }
 
-  template <typename DataType>
-  bool BST<DataType>::Find(const typename DataType &data) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool BST<DataType, Comparator, EqualityComp>::
+    Find(const typename DataType &data) const
   {
     return _Find(m_root, data);
   }
 
-  template <typename DataType>
-  bool BST<DataType>::Empty(void) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool BST<DataType, Comparator, EqualityComp>::Empty(void) const
   {
     return m_count == 0;
   }
 
-  template <typename DataType>
-  UINT64 BST<DataType>::Size(void) const
+  template <class DataType, class Comparator, class EqualityComp>
+  UINT64 BST<DataType, Comparator, EqualityComp>::Size(void) const
   {
     return m_count;
   }
 
-  template <typename DataType>
-  void BST<DataType>::BreadthFirstTraverse(CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::
+    BreadthFirstTraverse(CallBackFunc func) const
   {
     _BreadthFirstTraverse(m_root, func);
   }
 
-  template <typename DataType>
-  void BST<DataType>::InOrderTraverse(CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::
+    InOrderTraverse(CallBackFunc func) const
   {
     _InOrderTraverse(m_root, func);
   }
 
-  template <typename DataType>
-  void BST<DataType>::PostOrderTraverse(CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::
+    PostOrderTraverse(CallBackFunc func) const
   {
     _PostOrderTraverse(m_root, func);
   }
 
-  template <typename DataType>
-  typename BST<DataType>::Node* BST<DataType>::_CreateNode(const typename DataType &data) const
+  template <class DataType, class Comparator, class EqualityComp>
+  typename BST<DataType, Comparator, EqualityComp>::Node*
+    BST<DataType, Comparator, EqualityComp>::
+    _CreateNode(const typename DataType &data) const
   {
     Node *newNode = new Node();
 
@@ -176,8 +200,9 @@ namespace Sulfur
     return newNode;
   }
 
-  template <typename DataType>
-  bool BST<DataType>::_Insert(Node **node, const typename DataType &val)
+  template <class DataType, class Comparator, class EqualityComp>
+  bool BST<DataType, Comparator, EqualityComp>::
+    _Insert(Node **node, const typename DataType &val)
   {
     if (*node == nullptr)
     {
@@ -185,24 +210,25 @@ namespace Sulfur
       return true;
     }
 
-    if ((*node)->m_data == val)
+    if (m_equalityComp((*node)->m_data, val))
       return false;
 
-    if ((*node)->m_data > val)
+    if (m_comparator(val, (*node)->m_data))
       return _Insert(&(*node)->m_left, val);
     else
       return _Insert(&(*node)->m_right, val);
   }
 
-  template <typename DataType>
-  bool BST<DataType>::_Remove(Node **node, const DataType &val)
+  template <class DataType, class Comparator, class EqualityComp>
+  bool BST<DataType, Comparator, EqualityComp>::
+    _Remove(Node **node, const DataType &val)
   {
     if ((*node) == nullptr)
       return false;
 
-    if (val < (*node)->m_data)
+    if (m_comparator(val, (*node)->m_data))
       return _Remove(&(*node)->m_left, val);
-    else if (val > (*node)->m_data)
+    else if (m_comparator((*node)->m_data, val))
       return _Remove(&(*node)->m_right, val);
     else
     {
@@ -235,8 +261,8 @@ namespace Sulfur
     }
   }
 
-  template <typename DataType>
-  void BST<DataType>::_Clear(Node **node)
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::_Clear(Node **node)
   {
     if ((*node) == nullptr)
       return;
@@ -248,22 +274,24 @@ namespace Sulfur
     *node = nullptr;
   }
 
-  template <typename DataType>
-  bool BST<DataType>::_Find(const Node *node, const typename DataType &val) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool BST<DataType, Comparator, EqualityComp>::
+    _Find(const Node *node, const typename DataType &val) const
   {
     if (node == nullptr)
       return false;
 
-    if (val < node->m_data)
+    if (m_comparator(val, node->m_data))
       return _Find(node->m_left, val);
-    if (val > node->m_data)
+    if (m_comparator(node->m_data, val))
       return _Find(node->m_right, val);
 
     return true;
   }
 
-  template <typename DataType>
-  void BST<DataType>::_CopyNodes(Node **dest, const Node *source)
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::
+    _CopyNodes(Node **dest, const Node *source)
   {
     if (!source)
       return;
@@ -274,8 +302,9 @@ namespace Sulfur
     _CopyNodes(dest->m_right, source->m_right);
   }
 
-  template <typename DataType>
-  void BST<DataType>::_BreadthFirstTraverse(const Node *node, CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::
+    _BreadthFirstTraverse(const Node *node, CallBackFunc func) const
   {
     if (!node)
       return;
@@ -285,8 +314,9 @@ namespace Sulfur
     _BreadthFirstTraverse(node->right, func);
   }
 
-  template <typename DataType>
-  void BST<DataType>::_InOrderTraverse(const Node *node, CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::
+    _InOrderTraverse(const Node *node, CallBackFunc func) const
   {
     if (!node)
       return;
@@ -296,8 +326,9 @@ namespace Sulfur
     _BreadthFirstTraverse(node->right, func);
   }
 
-  template <typename DataType>
-  void BST<DataType>::_PostOrderTraverse(const Node *node, CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void BST<DataType, Comparator, EqualityComp>::
+    _PostOrderTraverse(const Node *node, CallBackFunc func) const
   {
     if (!node)
       return;

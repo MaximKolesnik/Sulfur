@@ -16,7 +16,8 @@ All content © 2015 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  template <typename DataType>
+  template <class DataType, class Comparator = std::less<DataType>,
+            class EqualityComp = std::equal_to<DataType> >
   class RBT
   {
   public:
@@ -32,7 +33,8 @@ namespace Sulfur
       Node *m_right = nullptr;
     };
 
-    RBT(void);
+    RBT(Comparator comparator = Comparator(),
+      EqualityComp equalityComp = EqualityComp());
     RBT(const RBT &other);
     ~RBT(void);
 
@@ -61,32 +63,39 @@ namespace Sulfur
     bool _Find(const Node *node, const typename DataType &val) const;
     Node* _RemoveRebalanceRight(Node *node, bool &done);
     Node* _RemoveRebalanceLeft(Node *node, bool &done);
+
+    Comparator m_comparator;
+    EqualityComp m_equalityComp;
     UINT64 m_count;
     Node *m_root;
   };
 
-  template <typename DataType>
-  RBT<DataType>::RBT(void) : m_count(0), m_root(nullptr)
+  template <class DataType, class Comparator, class EqualityComp>
+  RBT<DataType, Comparator, EqualityComp>::RBT(Comparator comparator = Comparator(),
+    EqualityComp equalityComp = EqualityComp()) 
+    : m_count(0), m_root(nullptr), m_comparator(comparator),
+      m_equalityComp(equalityComp)
   {
 
   }
 
-  template <typename DataType>
-  RBT<DataType>::RBT(const RBT &other)
+  template <class DataType, class Comparator, class EqualityComp>
+  RBT<DataType, Comparator, EqualityComp>::RBT(const RBT &other)
   {
     m_count = other.m_count;
 
     _CopyNodes(&m_root, other.m_root);
   }
 
-  template <typename DataType>
-  RBT<DataType>::~RBT(void)
+  template <class DataType, class Comparator, class EqualityComp>
+  RBT<DataType, Comparator, EqualityComp>::~RBT(void)
   {
     Clear();
   }
 
-  template <typename DataType>
-  const RBT<DataType>& RBT<DataType>::operator=(const RBT &other)
+  template <class DataType, class Comparator, class EqualityComp>
+  const RBT<DataType, Comparator, EqualityComp>& 
+    RBT<DataType, Comparator, EqualityComp>::operator=(const RBT &other)
   {
     this->Clear();
 
@@ -96,8 +105,8 @@ namespace Sulfur
     return *this;
   }
 
-  template <typename DataType>
-  bool RBT<DataType>::Insert(const DataType &val)
+  template <class DataType, class Comparator, class EqualityComp>
+  bool RBT<DataType, Comparator, EqualityComp>::Insert(const DataType &val)
   {
     bool res = false;
     m_root = _Insert(m_root, val, res);
@@ -109,8 +118,8 @@ namespace Sulfur
     return res;
   }
 
-  template <typename DataType>
-  bool RBT<DataType>::Remove(const DataType &val)
+  template <class DataType, class Comparator, class EqualityComp>
+  bool RBT<DataType, Comparator, EqualityComp>::Remove(const DataType &val)
   {
     bool done = false, result = false;
 
@@ -124,43 +133,44 @@ namespace Sulfur
     return result;
   }
 
-  template <typename DataType>
-  void RBT<DataType>::Clear(void)
+  template <class DataType, class Comparator, class EqualityComp>
+  void RBT<DataType, Comparator, EqualityComp>::Clear(void)
   {
     _Clear(&m_root);
     m_count = 0;
   }
 
-  template <typename DataType>
-  bool RBT<DataType>::Find(const DataType &val) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool RBT<DataType, Comparator, EqualityComp>::Find(const DataType &val) const
   {
     return _Find(m_root, val);
   }
 
-  template <typename DataType>
-  bool RBT<DataType>::Empty(void) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool RBT<DataType, Comparator, EqualityComp>::Empty(void) const
   {
     return m_count == 0;
   }
 
-  template <typename DataType>
-  UINT64 RBT<DataType>::Size(void) const
+  template <class DataType, class Comparator, class EqualityComp>
+  UINT64 RBT<DataType, Comparator, EqualityComp>::Size(void) const
   {
     return m_count;
   }
 
-  template <typename DataType>
-  typename RBT<DataType>::Node* 
-    RBT<DataType>::_Insert(Node *node, typename const DataType &val, bool &result)
+  template <class DataType, class Comparator, class EqualityComp>
+  typename RBT<DataType, Comparator, EqualityComp>::Node*
+    RBT<DataType, Comparator, EqualityComp>::
+    _Insert(Node *node, typename const DataType &val, bool &result)
   {
     if (!node)
     {
       node = _CreateNode(val);
       result = true;
     }
-    else if (val != node->m_data)
+    else if (!m_equalityComp(val, node->m_data))
     {
-      if (val < node->m_data)
+      if (m_comparator(val, node->m_data))
       {
         node->m_left = _Insert(node->m_left, val, result);
 
@@ -211,15 +221,15 @@ namespace Sulfur
     return node;
   }
 
-  template <typename DataType>
-  typename RBT<DataType>::Node* 
-    RBT<DataType>::_Remove(Node *node, DataType val, bool &result, bool &done)
+  template <class DataType, class Comparator, class EqualityComp>
+  typename RBT<DataType, Comparator, EqualityComp>::Node*
+    RBT<DataType, Comparator, EqualityComp>::_Remove(Node *node, DataType val, bool &result, bool &done)
   {
     if (!node)
       done = true;
     else
     {
-      if (node->m_data == val)
+      if (m_equalityComp(node->m_data, val))
       {
         if (!node->m_left)
         {
@@ -269,7 +279,7 @@ namespace Sulfur
         }
       }
 
-      if (node->m_data < val)
+      if (m_comparator(node->m_data, val))
       {
         node->m_right = _Remove(node->m_right, val, result, done);
 
@@ -287,15 +297,16 @@ namespace Sulfur
     return node;
   }
 
-  template <typename DataType>
-  bool RBT<DataType>::_IsRed(const Node *node) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool RBT<DataType, Comparator, EqualityComp>::_IsRed(const Node *node) const
   {
     return (node != nullptr) && node->m_color == Node::Red;
   }
 
-  template <typename DataType>
-  typename RBT<DataType>::Node* 
-    RBT<DataType>::_CreateNode(const typename DataType &val) const
+  template <class DataType, class Comparator, class EqualityComp>
+  typename RBT<DataType, Comparator, EqualityComp>::Node*
+    RBT<DataType, Comparator, EqualityComp>::
+    _CreateNode(const typename DataType &val) const
   {
     Node *newNode = new Node();
 
@@ -306,8 +317,9 @@ namespace Sulfur
     return newNode;
   }
 
-  template <typename DataType>
-  typename RBT<DataType>::Node* RBT<DataType>::_RotateLeft(Node *node)
+  template <class DataType, class Comparator, class EqualityComp>
+  typename RBT<DataType, Comparator, EqualityComp>::Node* 
+    RBT<DataType, Comparator, EqualityComp>::_RotateLeft(Node *node)
   {
     Node *newRoot = node->m_right;
     node->m_right = newRoot->m_left;
@@ -319,8 +331,9 @@ namespace Sulfur
     return newRoot;
   }
 
-  template <typename DataType>
-  typename RBT<DataType>::Node* RBT<DataType>::_RotateRight(Node *node)
+  template <class DataType, class Comparator, class EqualityComp>
+  typename RBT<DataType, Comparator, EqualityComp>::Node* 
+    RBT<DataType, Comparator, EqualityComp>::_RotateRight(Node *node)
   {
     Node *newRoot = node->m_left;
     node->m_left = newRoot->m_right;
@@ -332,8 +345,9 @@ namespace Sulfur
     return newRoot;
   }
 
-  template <typename DataType>
-  void RBT<DataType>::_CopyNodes(Node **dest, const Node *source)
+  template <class DataType, class Comparator, class EqualityComp>
+  void RBT<DataType, Comparator, EqualityComp>::
+    _CopyNodes(Node **dest, const Node *source)
   {
     if (!source)
       return;
@@ -345,8 +359,8 @@ namespace Sulfur
     _CopyNodes(&(*dest)->m_right, source->m_right);
   }
 
-  template <typename DataType>
-  void RBT<DataType>::_Clear(Node **node)
+  template <class DataType, class Comparator, class EqualityComp>
+  void RBT<DataType, Comparator, EqualityComp>::_Clear(Node **node)
   {
     if ((*node) == nullptr)
       return;
@@ -358,23 +372,25 @@ namespace Sulfur
     (*node) = nullptr;
   }
 
-  template <typename DataType>
-  bool RBT<DataType>::_Find(const Node *node, const typename DataType &val) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool RBT<DataType, Comparator, EqualityComp>::
+    _Find(const Node *node, const typename DataType &val) const
   {
     if (node == nullptr)
       return false;
 
-    if (val < node->m_data)
+    if (m_comparator(val, node->m_data))
       return _Find(node->m_left, val);
-    if (val > node->m_data)
+    if (m_comparator(node->m_data, val))
       return _Find(node->m_right, val);
 
     return true;
   }
 
-  template <typename DataType>
-  typename RBT<DataType>::Node* 
-    RBT<DataType>::_RemoveRebalanceRight(Node *node, bool &done)
+  template <class DataType, class Comparator, class EqualityComp>
+  typename RBT<DataType, Comparator, EqualityComp>::Node*
+    RBT<DataType, Comparator, EqualityComp>::
+    _RemoveRebalanceRight(Node *node, bool &done)
   {
     Node *parent = node;
     Node *sibling = node->m_left;
@@ -424,9 +440,10 @@ namespace Sulfur
     return node;
   }
 
-  template <typename DataType>
-  typename RBT<DataType>::Node* 
-    RBT<DataType>::_RemoveRebalanceLeft(Node *node, bool &done)
+  template <class DataType, class Comparator, class EqualityComp>
+  typename RBT<DataType, Comparator, EqualityComp>::Node*
+    RBT<DataType, Comparator, EqualityComp>::
+    _RemoveRebalanceLeft(Node *node, bool &done)
   {
     Node *parent = node;
     Node *sibling = node->m_right;

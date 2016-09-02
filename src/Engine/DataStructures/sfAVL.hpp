@@ -18,7 +18,8 @@ All content © 2015 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  template <typename DataType>
+  template <class DataType, class Comparator = std::less<DataType>,
+            class EqualityComp = std::equal_to<DataType> >
   class AVL
   {
   public:
@@ -34,7 +35,8 @@ namespace Sulfur
     };
     typedef bool(*CallBackFunc)(const Node *data);
 
-    AVL(void);
+    AVL(Comparator comparator = Comparator(),
+      EqualityComp equalityComp = EqualityComp());
     AVL(const AVL &other);
     ~AVL(void);
 
@@ -75,34 +77,46 @@ namespace Sulfur
     void _InOrderTraverse(const Node *node, CallBackFunc func) const;
     void _PostOrderTraverse(const Node *node, CallBackFunc func) const;
 
+    Comparator m_comparator;
+    EqualityComp m_equalityComp;
     UINT64 m_count;
     Node  *m_root;
   };
 
-  template <typename DataType>
-  AVL<DataType>::AVL(void) : m_count(0), m_root(nullptr)
+  template <class DataType, class Comparator, class EqualityComp>
+  AVL<DataType, Comparator, EqualityComp>::AVL(Comparator comparator = Comparator(),
+    EqualityComp equalityComp = EqualityComp()) 
+    : m_count(0), m_root(nullptr), m_comparator(comparator), 
+      m_equalityComp(equalityComp)
   {
 
   }
 
-  template <typename DataType>
-  AVL<DataType>::AVL(const AVL &other)
+  template <class DataType, class Comparator, class EqualityComp>
+  AVL<DataType, Comparator, EqualityComp>::AVL(const AVL &other)
   {
+    m_comparator = other.m_comparator;
+    m_equalityComp = other.m_equalityComp;
+
     m_count = other.m_count;
 
     _CopyNodes(&m_root, nullptr, other.m_root);
   }
 
-  template <typename DataType>
-  AVL<DataType>::~AVL(void)
+  template <class DataType, class Comparator, class EqualityComp>
+  AVL<DataType, Comparator, EqualityComp>::~AVL(void)
   {
     this->Clear();
   }
 
-  template <typename DataType>
-  const typename AVL<DataType>& AVL<DataType>::operator=(const AVL &other)
+  template <class DataType, class Comparator, class EqualityComp>
+  const typename AVL<DataType, Comparator, EqualityComp>& 
+    AVL<DataType, Comparator, EqualityComp>::operator=(const AVL &other)
   {
     this->Clear();
+
+    m_comparator = other.m_comparator;
+    m_equalityComp = other.m_equalityComp;
 
     m_count = other.m_count;
     _CopyNodes(&m_root, nullptr, other.m_root);
@@ -110,8 +124,9 @@ namespace Sulfur
     return *this;
   }
 
-  template <typename DataType>
-  bool AVL<DataType>::Insert(const typename DataType &val)
+  template <class DataType, class Comparator, class EqualityComp>
+  bool AVL<DataType, Comparator, EqualityComp>::
+    Insert(const typename DataType &val)
   {
     bool result = _Insert(&m_root, nullptr, val);
     if (result)
@@ -120,8 +135,9 @@ namespace Sulfur
     return result;
   }
 
-  template <typename DataType>
-  bool AVL<DataType>::Remove(const typename DataType &val)
+  template <class DataType, class Comparator, class EqualityComp>
+  bool AVL<DataType, Comparator, EqualityComp>::
+    Remove(const typename DataType &val)
   {
     Node *node = m_root, *parent = m_root, *delNode = nullptr,
       *child = m_root;
@@ -132,7 +148,7 @@ namespace Sulfur
       node = child;
       child = (val >= node->m_data) ? node->m_right : node->m_left;
 
-      if (val == node->m_data)
+      if (m_equalityComp(val, node->m_data))
         delNode = node;
     }
 
@@ -141,7 +157,7 @@ namespace Sulfur
       delNode->m_data = node->m_data;
       child = node->m_left ? node->m_left : node->m_right;
 
-      if (m_root->m_data == val)
+      if (m_equalityComp(m_root->m_data, val))
         m_root = child;
       else
       {
@@ -160,51 +176,56 @@ namespace Sulfur
     return false;
   }
 
-  template <typename DataType>
-  void AVL<DataType>::Clear(void)
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::Clear(void)
   {
     _Clear(&m_root);
     m_count = 0;
   }
 
-  template <typename DataType>
-  bool AVL<DataType>::Find(const typename DataType &data) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool AVL<DataType, Comparator, EqualityComp>::
+    Find(const typename DataType &data) const
   {
     return _Find(m_root, data);
   }
 
-  template <typename DataType>
-  bool AVL<DataType>::Empty(void) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool AVL<DataType, Comparator, EqualityComp>::Empty(void) const
   {
     return m_count == 0;
   }
 
-  template <typename DataType>
-  UINT64 AVL<DataType>::Size(void) const
+  template <class DataType, class Comparator, class EqualityComp>
+  UINT64 AVL<DataType, Comparator, EqualityComp>::Size(void) const
   {
     return m_count;
   }
 
-  template <typename DataType>
-  void AVL<DataType>::BreadthFirstTraverse(CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    BreadthFirstTraverse(CallBackFunc func) const
   {
     _BreadthFirstTraverse(m_root, func);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::InOrderTraverse(CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    InOrderTraverse(CallBackFunc func) const
   {
     _InOrderTraverse(m_root, func);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::PostOrderTraverse(CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    PostOrderTraverse(CallBackFunc func) const
   {
     _PostOrderTraverse(m_root, func);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_UpdateBalance(Node *node)
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    _UpdateBalance(Node *node)
   {
     node->m_balanceFactor = _Height(node->m_left) - _Height(node->m_right);
 
@@ -215,8 +236,9 @@ namespace Sulfur
       _UpdateBalance(node->m_parent);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_Rebalance(Node **node)
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    _Rebalance(Node **node)
   {
     if ((*node)->m_balanceFactor < 0)
     {
@@ -240,8 +262,8 @@ namespace Sulfur
     }
   }
 
-  template <typename DataType>
-  INT64 AVL<DataType>::_Height(const Node *node) const
+  template <class DataType, class Comparator, class EqualityComp>
+  INT64 AVL<DataType, Comparator, EqualityComp>::_Height(const Node *node) const
   {
     if (!node)
       return 0;
@@ -252,8 +274,8 @@ namespace Sulfur
     return 1 + ((lh > rh) ? lh : rh);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_RotateRight(Node *node)
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::_RotateRight(Node *node)
   {
     Node *rotRoot = node->m_left;
     node->m_left = rotRoot->m_right;
@@ -279,8 +301,8 @@ namespace Sulfur
     node->m_balanceFactor = _Height(node->m_left) - _Height(node->m_right);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_RotateLeft(Node *node)
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::_RotateLeft(Node *node)
   {
     Node *rotRoot = node->m_right;
     node->m_right = rotRoot->m_left;
@@ -306,9 +328,10 @@ namespace Sulfur
     node->m_balanceFactor = _Height(node->m_left) - _Height(node->m_right);
   }
 
-  template <typename DataType>
-  typename AVL<DataType>::Node* 
-    AVL<DataType>::_CreateNode(Node *parent, const typename DataType &data) const
+  template <class DataType, class Comparator, class EqualityComp>
+  typename AVL<DataType, Comparator, EqualityComp>::Node*
+    AVL<DataType, Comparator, EqualityComp>::
+    _CreateNode(Node *parent, const typename DataType &data) const
   {
     Node *newNode = new Node();
 
@@ -320,8 +343,8 @@ namespace Sulfur
     return newNode;
   }
 
-  template <typename DataType>
-  bool AVL<DataType>::_Insert(Node **node, Node *parent,
+  template <class DataType, class Comparator, class EqualityComp>
+  bool AVL<DataType, Comparator, EqualityComp>::_Insert(Node **node, Node *parent,
     const typename DataType &val)
   {
     if ((*node) == nullptr)
@@ -331,16 +354,17 @@ namespace Sulfur
       return true;
     }
 
-    if (val < (*node)->m_data)
+    if (m_comparator(val, (*node)->m_data))
       return _Insert(&(*node)->m_left, *node, val);
-    else if (val >(*node)->m_data)
+    else if (m_comparator((*node)->m_data, val))
       return _Insert(&(*node)->m_right, *node, val);
 
     return false;
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_CopyNodes(Node **dest, Node *parent, const Node *source)
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    _CopyNodes(Node **dest, Node *parent, const Node *source)
   {
     if (!source)
       return;
@@ -351,8 +375,8 @@ namespace Sulfur
     _CopyNodes(&(*dest)->m_right, *dest, source->m_right);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_Clear(Node **node)
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::_Clear(Node **node)
   {
     if ((*node) == nullptr)
       return;
@@ -364,22 +388,24 @@ namespace Sulfur
     (*node) = nullptr;
   }
 
-  template <typename DataType>
-  bool AVL<DataType>::_Find(const Node *node, const typename DataType &val) const
+  template <class DataType, class Comparator, class EqualityComp>
+  bool AVL<DataType, Comparator, EqualityComp>::
+    _Find(const Node *node, const typename DataType &val) const
   {
     if (node == nullptr)
       return false;
 
-    if (val < node->m_data)
+    if (m_comparator(val, node->m_data))
       return _Find(node->m_left, val);
-    if (val > node->m_data)
+    if (m_comparator(node->m_data, val))
       return _Find(node->m_right, val);
 
     return true;
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_BreadthFirstTraverse(const Node *node, CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    _BreadthFirstTraverse(const Node *node, CallBackFunc func) const
   {
     if (!node)
       return;
@@ -389,8 +415,9 @@ namespace Sulfur
     _BreadthFirstTraverse(node->right, func);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_InOrderTraverse(const Node *node, CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    _InOrderTraverse(const Node *node, CallBackFunc func) const
   {
     if (!node)
       return;
@@ -400,8 +427,9 @@ namespace Sulfur
     _BreadthFirstTraverse(node->right, func);
   }
 
-  template <typename DataType>
-  void AVL<DataType>::_PostOrderTraverse(const Node *node, CallBackFunc func) const
+  template <class DataType, class Comparator, class EqualityComp>
+  void AVL<DataType, Comparator, EqualityComp>::
+    _PostOrderTraverse(const Node *node, CallBackFunc func) const
   {
     if (!node)
       return;
