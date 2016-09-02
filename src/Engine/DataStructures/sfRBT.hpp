@@ -1,12 +1,12 @@
 /******************************************************************************/
 /*!
 \par     Sulfur
-\file    sfAVL.hpp
+\file    sfRBT.hpp
 \author  Maxim Kolesnik
 \par     DP email: maxim.kolesnik\@digipen.edu
 \date    8/29/2016
 
-\brief   AVL tree
+\brief   Red-Black tree
 
 All content © 2015 DigiPen (USA) Corporation, all rights reserved.
 */

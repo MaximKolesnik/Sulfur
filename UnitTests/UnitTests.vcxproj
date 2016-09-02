@@ -171,6 +171,7 @@
     </ClCompile>
     <ClCompile Include="utAVL.cpp" />
     <ClCompile Include="utBST.cpp" />
+    <ClCompile Include="utHeap.cpp" />
     <ClCompile Include="utMatrix3.cpp" />
     <ClCompile Include="utMatrix4.cpp" />
     <ClCompile Include="utQuaternion.cpp" />
