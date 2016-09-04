@@ -27,12 +27,15 @@ namespace Sulfur
   {
   public:
     Heap(size_t initialCapacity = 0, Comparator comparator = Comparator());
+    Heap(const Heap &other);
+
+    const Heap& operator=(const Heap &other);
 
     //Test function
-    bool IsHeap(void) const;
+    virtual bool IsHeap(void) const;
 
-    void Insert(const T &val);
-    void Delete(const size_t index);
+    virtual void Insert(const T &val);
+    virtual void Delete(const size_t index);
 
     //Depending on given comparator, could be min or max
     const T& GetRoot(void) const;
@@ -41,16 +44,19 @@ namespace Sulfur
     //Root is located at index 1
     //Null parent is located at 0
     size_t Size(void) const { return m_heap.size() - 1; }
-  private:
-    void _PercolateUp(const size_t index);
-    void _PercolateDown(const size_t index);
+
+  protected:
+    virtual void _PercolateUp(const size_t index);
+    virtual void _PercolateDown(const size_t index);
     size_t _GetParent(const size_t childInd) const { return childInd / 2; }
     size_t _GetLeftChild(const size_t parentInd) const { return 2 * parentInd; }
     size_t _GetRightChild(const size_t parentInd) const { return 2 * parentInd + 1;}
-    bool _IsHeap(const size_t parent) const;
 
     std::vector<T> m_heap;
     Comparator m_comparator;
+
+  private:
+    bool _IsHeap(const size_t parent) const;
   };
 
   template <class T, class Comparator = std::less<T> >
@@ -59,6 +65,23 @@ namespace Sulfur
     : m_heap(std::vector<T>(1)), m_comparator(comparator)
   {
     m_heap.reserve(initialCapacity + 1);
+  }
+
+  template <class T, class Comparator>
+  Heap<T, Comparator>::Heap(const Heap &other)
+  {
+    m_heap = ohter.m_heap;
+    m_comparator = ohter.m_comparator;
+  }
+
+  template <class T, class Comparator>
+  const typename Heap<T, Comparator>& 
+    Heap<T, Comparator>::operator=(const Heap &other)
+  {
+    m_heap = ohter.m_heap;
+    m_comparator = ohter.m_comparator;
+
+    return *this;
   }
 
   template <class T, class Comparator = std::less<T> >

@@ -80,5 +80,10 @@ namespace Sulfur
     {
       return std::abs(real);
     }
+
+    SF_FORCE_INLINE Real Log2(Real real)
+    {
+      return std::log2(real);
+    }
   }
 }

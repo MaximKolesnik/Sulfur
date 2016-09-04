@@ -16,6 +16,7 @@
     <ClInclude Include="DataStructures\sfAVL.hpp" />
     <ClInclude Include="DataStructures\sfBST.hpp" />
     <ClInclude Include="DataStructures\sfHeap.hpp" />
+    <ClInclude Include="DataStructures\sfMinMaxHeap.hpp" />
     <ClInclude Include="DataStructures\sfOrderedDeque.hpp" />
     <ClInclude Include="DataStructures\sfRBT.hpp" />
     <ClInclude Include="DataStructures\sfSlotMap.hpp" />
