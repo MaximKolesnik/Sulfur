@@ -21,6 +21,7 @@
     <ClInclude Include="DataStructures\sfRBT.hpp" />
     <ClInclude Include="DataStructures\sfSlotMap.hpp" />
     <ClInclude Include="Error\sfError.hpp" />
+    <ClInclude Include="Modules\Timer\sfTimer.hpp" />
     <ClInclude Include="template.hpp" />
     <ClInclude Include="Factories\sfComponentFactory.hpp" />
     <ClInclude Include="Logger\sfLogger.hpp" />
@@ -49,6 +50,7 @@
     <ClCompile Include="Math\sfVector2.cpp" />
     <ClCompile Include="Math\sfVector3.cpp" />
     <ClCompile Include="Math\sfVector4.cpp" />
+    <ClCompile Include="Modules\Timer\sfTimer.cpp" />
     <ClCompile Include="sfSulfurPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
