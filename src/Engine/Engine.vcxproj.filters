@@ -93,6 +93,24 @@
     <ClInclude Include="Modules\Timer\sfTimer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Managers\TaskManager\sfTaskManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\TaskManager\sfWorker.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\TaskManager\sfTask.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\TaskManager\sfTaskRegistry.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\TaskManager\sfDependencyGraph.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math\sfMatrix3.cpp">
@@ -132,6 +150,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Modules\Timer\sfTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\TaskManager\sfTaskManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\TaskManager\sfWorker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\TaskManager\sfTask.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\TaskManager\sfDependencyGraph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

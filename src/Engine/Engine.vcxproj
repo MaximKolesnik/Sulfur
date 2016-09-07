@@ -21,6 +21,12 @@
     <ClInclude Include="DataStructures\sfRBT.hpp" />
     <ClInclude Include="DataStructures\sfSlotMap.hpp" />
     <ClInclude Include="Error\sfError.hpp" />
+    <ClInclude Include="Managers\TaskManager\sfDependencyGraph.hpp" />
+    <ClInclude Include="Managers\TaskManager\sfTask.hpp" />
+    <ClInclude Include="Managers\TaskManager\sfTaskManager.hpp" />
+    <ClInclude Include="Managers\TaskManager\sfTaskRegistry.hpp" />
+    <ClInclude Include="Managers\TaskManager\sfWorker.hpp" />
+    <ClInclude Include="test.hpp" />
     <ClInclude Include="Modules\Timer\sfTimer.hpp" />
     <ClInclude Include="template.hpp" />
     <ClInclude Include="Factories\sfComponentFactory.hpp" />
@@ -44,6 +50,10 @@
     <ClCompile Include="Factories\sfComponentFactory.cpp" />
     <ClCompile Include="Logger\sfLogger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Managers\TaskManager\sfDependencyGraph.cpp" />
+    <ClCompile Include="Managers\TaskManager\sfTask.cpp" />
+    <ClCompile Include="Managers\TaskManager\sfTaskManager.cpp" />
+    <ClCompile Include="Managers\TaskManager\sfWorker.cpp" />
     <ClCompile Include="Math\sfMatrix3.cpp" />
     <ClCompile Include="Math\sfMatrix4.cpp" />
     <ClCompile Include="Math\sfQuaternion.cpp" />
@@ -55,6 +65,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{74E88DFB-F41F-45EF-A54F-EB874762B79E}</ProjectGuid>
@@ -64,7 +75,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
