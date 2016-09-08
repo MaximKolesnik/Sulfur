@@ -1020,6 +1020,45 @@ namespace Sulfur
       return *this;
     }
 
+    SF_FORCE_INLINE Vector3 SF_VEC_CALL TranformNormal(const Vector3 &n)
+    {
+#ifdef SF_USE_SIMD
+      __m128 v = _mm_set_ps(0.0, n[2], n[1], n[0]);
+      __m128 mx = _mm_mul_ps(m_rows[0].Get128(), v);
+      __m128 w = _mm_shuffle_ps(mx, mx, 0xFF); //_MM_SHUFFLE(3, 3, 3, 3)
+      __m128 z = _mm_shuffle_ps(mx, mx, 0xAA); //_MM_SHUFFLE(2, 2, 2, 2)
+      __m128 y = _mm_shuffle_ps(mx, mx, 0x55); //_MM_SHUFFLE(1, 1, 1, 1)
+
+      mx = _mm_add_ps(mx, w);
+      mx = _mm_add_ps(mx, z);
+      mx = _mm_add_ps(mx, y);
+
+      __m128 my = _mm_mul_ps(m_rows[1].Get128(), v);
+      w = _mm_shuffle_ps(my, my, 0xFF); //_MM_SHUFFLE(3, 3, 3, 3)
+      z = _mm_shuffle_ps(my, my, 0xAA); //_MM_SHUFFLE(2, 2, 2, 2)
+      y = _mm_shuffle_ps(my, my, 0x55); //_MM_SHUFFLE(1, 1, 1, 1)
+
+      my = _mm_add_ps(my, w);
+      my = _mm_add_ps(my, z);
+      my = _mm_add_ps(my, y);
+
+      __m128 mz = _mm_mul_ps(m_rows[2].Get128(), v);
+      w = _mm_shuffle_ps(mz, mz, 0xFF); //_MM_SHUFFLE(3, 3, 3, 3)
+      z = _mm_shuffle_ps(mz, mz, 0xAA); //_MM_SHUFFLE(2, 2, 2, 2)
+      y = _mm_shuffle_ps(mz, mz, 0x55); //_MM_SHUFFLE(1, 1, 1, 1)
+
+      mz = _mm_add_ps(mz, w);
+      mz = _mm_add_ps(mz, z);
+      mz = _mm_add_ps(mz, y);
+
+      return Vector3(_mm_cvtss_f32(mx), _mm_cvtss_f32(my), _mm_cvtss_f32(mz));
+#else
+      return Vector3(m_rows[0][0] * n[0] + m_rows[0][1] * n[1] + m_rows[0][2] * n[2],
+        m_rows[1][0] * n[0] + m_rows[1][1] * n[1] + m_rows[1][2] * n[2],
+        m_rows[2][0] * n[0] + m_rows[2][1] * n[1] + m_rows[2][2] * n[2]);
+#endif
+    }
+
     SF_FORCE_INLINE Vector3 SF_VEC_CALL GetColumn(int i) const
     {
       SF_ASSERT(0 <= i && i < 4, "Index is out of range");

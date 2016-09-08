@@ -844,6 +844,39 @@ namespace UnitTests
       Assert::IsTrue(m1 != m2);
       Assert::IsFalse(m1 == m2);
     }
+
+    TEST_METHOD(Matrix4TransformNormal)
+    {
+      Matrix4 m1, m2;
+
+      m1.Set(
+        2.0, -3.0, 4.5, -5.7,
+        5.0, 10.0, 14.0, -7.4,
+        -4.5, -1.5, 2.6, 25.2,
+        -9.2, -12.4, 4.7, 6.3
+        );
+
+      m2.Set(
+        4.1, 5.5, -3.2, 6.0,
+        -15.0, -15.0, -7.0, 8.0,
+        5.0, 1.5, -2.0, -25.0,
+        0.0, 0.0, 0.0, 1.0
+        );
+      
+      Vector3 r1(3.1, -2.0, 15.2);
+      r1 = m1.TranformNormal(r1);
+
+      Assert::IsTrue(AreEqual(Real(80.6), r1[0]));
+      Assert::IsTrue(AreEqual(Real(208.3), r1[1]));
+      Assert::IsTrue(AreEqual(Real(28.5699959), r1[2]));
+
+      Vector3 r2(-124.54, 22.1, 51.98);
+      r2 = m2.TranformNormal(r2);
+
+      Assert::IsTrue(AreEqual(Real(-555.399963), r2[0]));
+      Assert::IsTrue(AreEqual(Real(1172.73999), r2[1]));
+      Assert::IsTrue(AreEqual(Real(-693.510010), r2[2]));
+    }
   };
 }
 
