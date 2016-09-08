@@ -3,23 +3,18 @@
 #include "Core/sfCore.hpp"
 #include "Managers\TaskManager\sfTaskManager.hpp"
 
-#pragma optimize("", off)
+#include "test.hpp"
 
-void testTask2(int counter)
-{
-  counter = 50;
-  std::cout << "Inside job:" << counter << std::endl;
-}
+#pragma optimize("", off)
 
 int main(int argc, char** argv)
 {
   Sulfur::TaskManager *man = Sulfur::TaskManager::Instance();
-  int counter = 100;
-  man->EnqueueSubTask(testTask2, counter);
+  
+  man->AddIndependentNode("testTask");
+  man->CompleteGraph();
 
   man->RunTasks();
-
-  std::cout << "Outside job:" << counter << std::endl;
 
   system("pause");
 }

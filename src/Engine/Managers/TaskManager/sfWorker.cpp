@@ -32,15 +32,20 @@ namespace Sulfur
     {
       std::unique_lock<std::mutex> lock(taskManager->m_queueMutex); //lock queue
 
-      while (taskManager->m_taskQueue.empty())
-        taskManager->m_stopCondition.wait(lock);
+      while (!taskManager->m_destroy && taskManager->m_taskQueue.empty())
+        taskManager->m_wakeUpCondition.wait(lock);
+
+      if (taskManager->m_destroy)
+        return;
 
       ITask *task = taskManager->m_taskQueue.front();
       taskManager->m_taskQueue.pop_front();
 
-      lock.release();                                               //release queue
+      lock.unlock();                                               //release queue
 
       (*task)();
+
+      taskManager->_ProcessCompletedTask(task);
     }
   }
 }

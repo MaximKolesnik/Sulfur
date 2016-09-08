@@ -36,6 +36,9 @@ namespace Sulfur
     bool TryPullTask(std::string &taskName);
     bool AreAllTasksDone(void) const;
 
+    //Resets dependency counts.
+    void Restart(void);
+
     void NotifyTaskCompletion(const std::string &taskName);
   private:
     const std::string c_startingNode = "DepGraphStart";

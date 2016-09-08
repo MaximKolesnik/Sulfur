@@ -4,5 +4,5 @@
 
 namespace Sulfur
 {
-  DECLARE_TASK(testTask);
+  SF_DECLARE_TASK(testTask);
 }

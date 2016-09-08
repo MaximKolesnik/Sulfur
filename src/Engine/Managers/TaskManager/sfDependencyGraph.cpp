@@ -20,6 +20,8 @@ namespace Sulfur
   {
     m_nodeMap[c_startingNode] = DepNode(c_startingNode);
     m_nodeMap[c_endNode] = DepNode(c_endNode);
+
+    m_adjacencyList[c_startingNode];
   }
 
   void DependencyGraph::AddIndependentNode(const std::string &taskName)
@@ -35,7 +37,8 @@ namespace Sulfur
     if (m_nodeMap.find(dependencyName) == m_nodeMap.end())
       m_nodeMap[dependencyName] = DepNode(dependencyName);
 
-    auto item = m_adjacencyList[dependencyName];
+    m_adjacencyList[taskName];
+    auto &item = m_adjacencyList[dependencyName];
     item.push_back(&m_nodeMap[taskName]);
   }
 
@@ -80,6 +83,12 @@ namespace Sulfur
   bool DependencyGraph::AreAllTasksDone(void) const
   {
     return m_nodeMap.at(c_endNode).m_depCount == 0;
+  }
+
+  void DependencyGraph::Restart(void)
+  {
+    _ResetCounts();
+    _EnqueueFirstTasks();
   }
 
   void DependencyGraph::_ResetCounts(void)

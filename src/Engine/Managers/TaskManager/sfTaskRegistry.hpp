@@ -16,6 +16,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include <unordered_map>
 #include <string>
+#include <condition_variable>
 
 #include "sfTask.hpp"
 
@@ -45,11 +46,10 @@ namespace Sulfur
     template <MainTaskPtr>
     class TaskRegistration;
   }
-}
 
-#define DECLARE_TASK(TaskName)                                \
+#define SF_DECLARE_TASK(TaskName)                             \
 void TaskName(void);                                          \
-namespace TaskRegistry                                        \
+namespace TaskRegistry { namespace                            \
 {                                                             \
 template <MainTaskPtr>                                        \
 class TaskRegistration;                                       \
@@ -60,7 +60,31 @@ class TaskRegistration;                                       \
   };                                                          \
     const Entry<TaskName> &TaskRegistration<TaskName>::entry  \
     = Entry<TaskName>(std::string(#TaskName), TaskName);      \
-}                                                             
+}     }                                                         
 
-#define DEFINE_TASK(TaskName) \
-void TaskName(void)
+#define SF_DEFINE_TASK(TaskName)                    \
+void TaskName(void)                                 \
+{                                                   \
+  UINT32 _local_SubTaskCounter = 0;                 \
+  std::condition_variable_any _local_SubTaskCounterCV;  
+
+#define SF_END_DEFINE_TASK(TaskName) }       
+
+#define SF_DEFINE_SUBTASK(TaskName, ...)                \
+void TaskName(__VA_ARGS__)                               \
+{                                                       \
+UINT32 _local_SubTaskCounter = 0;                       \
+std::condition_variable_any _local_SubTaskCounterCV;        
+
+#define SF_END_DEFINE_SUBTASK(TaskName) }
+
+#define SF_WAIT_FOR_SUBTASKS()                              \
+static std::recursive_mutex _static_mutex;                            \
+static std::unique_lock<std::recursive_mutex> lock(_static_mutex);    \
+while (_local_SubTaskCounter)                              \
+{                                                           \
+  _local_SubTaskCounterCV.wait(lock);                        \
+  --_local_SubTaskCounter;                                  \
+}
+
+}

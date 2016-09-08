@@ -28,6 +28,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
   class Worker;
+  class DependencyGraph;
 
   class TaskManager
   {
@@ -36,14 +37,24 @@ namespace Sulfur
 
     void RunTasks(void);
 
+    void AddIndependentNode(const std::string &taskName);
+    void AddDependentNode(const std::string &taskName, const std::string &dependencyName);
+    void CompleteGraph(void);
+
     template <class... Args>
-    void EnqueueSubTask(void(*funcPtr)(Args...), Args... args)
+    void EnqueueSubTask(void(*funcPtr)(Args...), std::condition_variable_any &cv,
+      Args... args)
     {
-      m_taskQueue.push_back(new Task<Args...>(funcPtr, std::forward<Args...>(args)...));
+      m_queueMutex.lock();
+
+      m_taskQueue.push_back(new Task<Args...>(funcPtr, cv, std::forward<Args...>(args)...));
+      m_wakeUpCondition.notify_one();
+
+      m_queueMutex.unlock();
     }
 
   private:
-    static TaskManager *m_instance;
+    //static TaskManager *m_instance;
 
     friend class Worker;
 
@@ -53,8 +64,10 @@ namespace Sulfur
     TaskManager(const TaskManager &) = delete;
     TaskManager& operator=(const TaskManager&) = delete;
 
+    void _ProcessCompletedTask(ITask *task);
+
     UINT32 m_numThreads; //hardware concurrent threads
-    
+
     std::vector<std::thread*> m_activeWorkers;
 
     std::unordered_map<std::thread::id, std::thread*> m_workersWaiting;
@@ -62,15 +75,19 @@ namespace Sulfur
 
     std::deque<ITask*> m_taskQueue;
     std::mutex m_queueMutex;
+    std::mutex m_graphMutex;
 
-    std::condition_variable m_stopCondition; //suspend threads if there is nothing to do
-    bool m_stop; //If tasks are currently being processed
+    std::condition_variable m_wakeUpCondition;
+    bool m_destroy;
 
     std::unordered_map<std::string, ITask*> m_mainTaskRegistry;
+
+    DependencyGraph *m_depGraph;
   };
 
-// Job name must be unique
-#define SF_DECLARE_TASK(FuncName) \
-Sulfur::TaskManager::Instance()->RegisterTask(#FuncName, FuncName) 
+#define SF_ENQUEUE_SUBTASK(FuncPtr, ...) \
+++_local_SubTaskCounter;                                 \
+Sulfur::TaskManager::Instance()->EnqueueSubTask(FuncPtr, \
+  _local_SubTaskCounterCV, __VA_ARGS__)
 
 }
