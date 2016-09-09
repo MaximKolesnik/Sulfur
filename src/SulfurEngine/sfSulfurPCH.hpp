@@ -4,6 +4,7 @@
 #include <comdef.h>
 #include <fileapi.h>
 #include <string>
+#include <iostream>
 
 // STL
 #include <vector>

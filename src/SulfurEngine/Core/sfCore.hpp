@@ -1,9 +1,11 @@
 #pragma once
+#include <iostream>
 #include "Types/sfSingleton.h"
 #include "Modules/Window/sfWindow.hpp"
 
 namespace Sulfur
 {
+
   class Core
   {
     SINGLETON(Core)
@@ -18,4 +20,5 @@ namespace Sulfur
     Window *m_window;
 
   };
+
 }

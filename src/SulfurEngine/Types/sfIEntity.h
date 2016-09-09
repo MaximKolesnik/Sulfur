@@ -1,13 +1,14 @@
 #pragma once
 
 #include <string>
-
 #include "sfTypes.hpp"
+#include "Reflection/sfReflection.hpp"
 
 namespace Sulfur
 {
-  class IEntity
-  {
+
+  SF_REFLECTED_CLASS(IEntity)
+
   public:
     IEntity(void) {}
     virtual ~IEntity(void) {};
@@ -21,13 +22,9 @@ namespace Sulfur
       return m_hndl;
     }
 
-    const std::string& GetName(void) const
-    {
-      return m_name;
-    }
+    SF_PUBLIC_PROPERTY(std::string, name, Name, "Name");
 
   //protected:
-    std::string m_name;
     HNDL m_hndl;
   };
 }

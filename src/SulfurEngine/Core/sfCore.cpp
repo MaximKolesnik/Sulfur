@@ -1,4 +1,5 @@
 #include "sfCore.hpp"
+#include "Components/sfTransform.hpp"
 
 // Modules
 #include "Modules/Window/sfWindowManager.hpp"
@@ -32,6 +33,21 @@ void Core::StartUp(HWND windowHandle)
 
     m_window = WindowManager::Instance()->NewWindow(description);
   }
+
+  Transform transform;
+  ReflectionBase *reflBase = &transform;
+
+  ReflectionBase::PropertyList props;
+  std::string name = transform.GetProperty("Name");
+  transform.GetProperties(props);
+
+  ReflectionBase::PropertyList propsVirtual;
+  std::string nameVirtual = reflBase->GetProperty("Name");
+  reflBase->GetProperties(propsVirtual);
+  
+  ReflectionBase::PropertyList propsStatic;
+  std::string nameStatic = Transform::Property("Name");
+  Transform::Properties(propsStatic);
 
   GraphicsManager::Instance()->Init(*m_window);
 }
