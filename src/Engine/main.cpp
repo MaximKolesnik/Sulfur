@@ -7,14 +7,24 @@
 
 #pragma optimize("", off)
 
+using namespace Sulfur;
+
+
 int main(int argc, char** argv)
 {
   Sulfur::TaskManager *man = Sulfur::TaskManager::Instance();
   
   man->AddIndependentNode("testTask");
+  man->AddDependentNode("testTask2", "testTask");
+  man->AddDependentNode("testTask3", "testTask");
+  man->AddDependentNode("testTask4", "testTask3");
   man->CompleteGraph();
 
-  man->RunTasks();
+  int i = 0;
+  while (i < 2)
+  { 
+    man->RunTasks();
+  }
 
   system("pause");
 }

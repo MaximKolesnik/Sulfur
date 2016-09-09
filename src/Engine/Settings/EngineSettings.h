@@ -15,5 +15,9 @@ namespace Sulfur
 
     //Frame
     const Real DefaultFPS = Real(1.0) / 60;
+
+    //Fiber
+    const UINT64 FiberStackSize = 0;          //If 0, uses default stack size for exe
+    const UINT64 FiberReservedStackSize = 0;  //If 0, uses default reserved stack size for exe
   };
 }

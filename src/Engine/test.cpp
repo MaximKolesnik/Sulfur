@@ -4,28 +4,31 @@
 
 namespace Sulfur
 {
-  SF_DEFINE_SUBTASK(SubSubTask, int i)
-  {
-    std::cout << "SubSubTask " << i << std::endl;
-  }SF_END_DEFINE_SUBTASK(SubSubTask);
-
-  SF_DEFINE_SUBTASK(SubTask1, int i)
-  {
-    SF_ENQUEUE_SUBTASK(SubSubTask, 1);
-    SF_WAIT_FOR_SUBTASKS();
-
-    std::cout << "SubTask " << i << std::endl;
-  } SF_END_DEFINE_SUBTASK(SubTask1);
-
   SF_DEFINE_TASK(testTask)
   {
-    SF_ENQUEUE_SUBTASK(SubTask1, 1);
-    SF_ENQUEUE_SUBTASK(SubTask1, 2);
-    SF_ENQUEUE_SUBTASK(SubTask1, 3);
-    SF_ENQUEUE_SUBTASK(SubTask1, 4);
-    SF_ENQUEUE_SUBTASK(SubTask1, 5);
-    SF_WAIT_FOR_SUBTASKS();
+    std::cout << "testTask started" << std::endl;
 
     std::cout << "testTask is done" << std::endl;
   } SF_END_DEFINE_TASK(testTask);
+
+  SF_DEFINE_TASK(testTask2)
+  {
+    std::cout << "testTask2 started" << std::endl;
+
+    std::cout << "testTask2 is done" << std::endl;
+  } SF_END_DEFINE_TASK(testTask2);
+
+  SF_DEFINE_TASK(testTask3)
+  {
+    std::cout << "testTask3 started" << std::endl;
+
+    std::cout << "testTask3 is done" << std::endl;
+  } SF_END_DEFINE_TASK(testTask3);
+
+  SF_DEFINE_TASK(testTask4)
+  {
+    std::cout << "testTask4 started" << std::endl;
+
+    std::cout << "testTask4 is done" << std::endl;
+  } SF_END_DEFINE_TASK(testTask4);
 }

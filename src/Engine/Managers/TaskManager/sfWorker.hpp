@@ -14,18 +14,25 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #pragma once
 
-#include <thread>
+#include <WinBase.h>
+
 
 namespace Sulfur
 {
-  class Worker
+  class TaskManager;
+
+  typedef HANDLE Thread;
+  typedef HANDLE Fiber;
+
+  struct WorkerThread
   {
-  public:
-    Worker(void);
-    void operator()(void);
+    Thread m_threadHandle = NULL;
+    Fiber  m_selfFiberHandle = NULL;
 
-    std::thread::id GetThreadId(void) const { return std::this_thread::get_id(); }
+    UINT32 m_coreAffinity = -1;
 
-   private:
+    TaskManager *m_taskManager = nullptr;
   };
+
+  DWORD WINAPI WorkerThreadRoutine(LPVOID lpParam);
 }

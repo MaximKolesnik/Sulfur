@@ -19,33 +19,28 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  Worker::Worker(void)
+  DWORD WINAPI WorkerThreadRoutine(LPVOID lpParam)
   {
+    WorkerThread *thisThread = reinterpret_cast<WorkerThread*>(lpParam);
 
-  }
+    ConvertThreadToFiber(NULL);
+    thisThread->m_selfFiberHandle = GetCurrentFiber();
 
-  void Worker::operator()(void)
-  {
-    TaskManager *taskManager = TaskManager::Instance();
-
-    while (true)
+    bool flag = false;
+    while (!flag)
     {
-      std::unique_lock<std::mutex> lock(taskManager->m_queueMutex); //lock queue
+      ITask *task = thisThread->m_taskManager->PullTask();
+      if (task)
+      { 
+        task->m_worker = thisThread;
+        SwitchToFiber(task->m_fiber);
+      }
 
-      while (!taskManager->m_destroy && taskManager->m_taskQueue.empty())
-        taskManager->m_wakeUpCondition.wait(lock);
-
-      if (taskManager->m_destroy)
-        return;
-
-      ITask *task = taskManager->m_taskQueue.front();
-      taskManager->m_taskQueue.pop_front();
-
-      lock.unlock();                                               //release queue
-
-      (*task)();
-
-      taskManager->_ProcessCompletedTask(task);
+      flag = thisThread->m_taskManager->IsDone();
     }
+
+    ConvertFiberToThread();
+
+    return 0;
   }
 }

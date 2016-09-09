@@ -21,9 +21,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include <stack>
 #include <unordered_map>
 #include <deque>
+#include <WinBase.h>
 
 #include "../../Types/sfTypes.hpp"
 #include "sfTask.hpp"
+#include "sfWorker.hpp"
 
 namespace Sulfur
 {
@@ -40,6 +42,9 @@ namespace Sulfur
     void AddIndependentNode(const std::string &taskName);
     void AddDependentNode(const std::string &taskName, const std::string &dependencyName);
     void CompleteGraph(void);
+    bool IsDone(void) const;
+
+    ITask* PullTask(void);
 
     template <class... Args>
     void EnqueueSubTask(void(*funcPtr)(Args...), std::condition_variable_any &cv,
@@ -47,15 +52,13 @@ namespace Sulfur
     {
       m_queueMutex.lock();
 
-      m_taskQueue.push_back(new Task<Args...>(funcPtr, cv, std::forward<Args...>(args)...));
+      m_taskQueue.push_back(new Task<Args...>(funcPtr, std::forward<Args...>(args)...));
       m_wakeUpCondition.notify_one();
 
       m_queueMutex.unlock();
     }
-
+    void _ProcessCompletedTask(ITask *task);
   private:
-    //static TaskManager *m_instance;
-
     friend class Worker;
 
     TaskManager(void);
@@ -64,14 +67,11 @@ namespace Sulfur
     TaskManager(const TaskManager &) = delete;
     TaskManager& operator=(const TaskManager&) = delete;
 
-    void _ProcessCompletedTask(ITask *task);
+    void _CreateWorkerThreads(void);
 
     UINT32 m_numThreads; //hardware concurrent threads
 
-    std::vector<std::thread*> m_activeWorkers;
-
-    std::unordered_map<std::thread::id, std::thread*> m_workersWaiting;
-    std::stack<std::thread*> m_freeWorkers;
+    WorkerThread *m_workers;
 
     std::deque<ITask*> m_taskQueue;
     std::mutex m_queueMutex;
@@ -84,10 +84,4 @@ namespace Sulfur
 
     DependencyGraph *m_depGraph;
   };
-
-#define SF_ENQUEUE_SUBTASK(FuncPtr, ...) \
-++_local_SubTaskCounter;                                 \
-Sulfur::TaskManager::Instance()->EnqueueSubTask(FuncPtr, \
-  _local_SubTaskCounterCV, __VA_ARGS__)
-
 }
