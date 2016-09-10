@@ -35,19 +35,22 @@ void Core::StartUp(HWND windowHandle)
   }
 
   Transform transform;
-  ReflectionBase *reflBase = &transform;
+  transform.SetPropertyValue("Name", std::string("TransformName"));
 
-  ReflectionBase::PropertyList props;
-  std::string name = transform.GetProperty("Name");
-  transform.GetProperties(props);
+  transform.SetTranslation(Vector3(100.0f, 0.0f, 0.0f));
+  transform.SetRotationEulerXZY(0.0f, 0.0f, 0.0f);
+  transform.SetScale(Vector3(1.0f, 1.0f, 1.0f));
 
-  ReflectionBase::PropertyList propsVirtual;
-  std::string nameVirtual = reflBase->GetProperty("Name");
-  reflBase->GetProperties(propsVirtual);
-  
-  ReflectionBase::PropertyList propsStatic;
-  std::string nameStatic = Transform::Property("Name");
-  Transform::Properties(propsStatic);
+  std::ofstream file("test.bin", std::ios_base::binary);
+  Serialization::Serialize(file, transform);
+  file.close();
+
+  Transform transform2;
+  std::ifstream infile("test.bin", std::ios_base::binary);
+  Serialization::Deserialize(infile, transform2);
+
+  ReflectionBase::PropertyList properties;
+  Transform::Properties(properties);
 
   GraphicsManager::Instance()->Init(*m_window);
 }
