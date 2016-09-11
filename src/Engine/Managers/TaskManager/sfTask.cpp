@@ -17,14 +17,5 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  VOID CALLBACK FiberRoutine(PVOID lpParam)
-  {
-    ITask *task = reinterpret_cast<ITask*>(GetFiberData());
-
-    task->Execute();
-
-    task->m_worker->m_taskManager->_ProcessCompletedTask(task);
-    SwitchToFiber(task->m_worker->m_selfFiberHandle);
-    Fib
-  }
+  
 }

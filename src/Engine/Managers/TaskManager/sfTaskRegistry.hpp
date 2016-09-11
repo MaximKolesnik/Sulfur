@@ -24,7 +24,7 @@ namespace Sulfur
 {
   namespace TaskRegistry
   {
-    typedef std::unordered_map<std::string, MainTaskPtr> REGMAP;
+    typedef std::unordered_map<std::string, TaskPtr> REGMAP;
 
     inline REGMAP& GetRegistry(void)
     {
@@ -32,26 +32,31 @@ namespace Sulfur
       return reg;
     }
 
-    template <MainTaskPtr>
+    template <TaskPtr>
     class Entry
     {
     public:
-      Entry(const std::string &name, MainTaskPtr funcPtr)
+      Entry(const std::string &name, TaskPtr funcPtr)
       {
         REGMAP &reg = GetRegistry();
         reg.emplace(name, funcPtr);
       }
     };
 
-    template <MainTaskPtr>
+    template <TaskPtr>
     class TaskRegistration;
   }
 
+
+#define SF_UNIQUE_NAME( prefix ) SF_JOIN( prefix, __LINE__ )
+#define SF_JOIN( symbol1, symbol2 ) SF_DO_JOIN( symbol1, symbol2 )
+#define SF_DO_JOIN( symbol1, symbol2 ) symbol1##symbol2
+
 #define SF_DECLARE_TASK(TaskName)                             \
-void TaskName(void);                                          \
+VOID CALLBACK TaskName(PVOID lpParam);                        \
 namespace TaskRegistry { namespace                            \
 {                                                             \
-template <MainTaskPtr>                                        \
+template <TaskPtr>                                            \
 class TaskRegistration;                                       \
   template <>                                                 \
   class TaskRegistration<TaskName>                            \
@@ -62,29 +67,43 @@ class TaskRegistration;                                       \
     = Entry<TaskName>(std::string(#TaskName), TaskName);      \
 }     }                                                         
 
-#define SF_DEFINE_TASK(TaskName)                    \
-void TaskName(void)                                 \
-{                                                   \
-  UINT32 _local_SubTaskCounter = 0;                 \
-  std::condition_variable_any _local_SubTaskCounterCV;  
+#define SF_DEFINE_TASK(TaskName)                                    \
+VOID CALLBACK TaskName(PVOID lpParam)                               \
+{                                                                   \
+  Task *_taskData = reinterpret_cast<Task*>(lpParam);               \
+  TaskStart:                                                        \
+if (_taskData->m_done)                                              \
+    SwitchToFiber(_taskData->m_executingWorker->m_selfFiberHandle); 
 
-#define SF_END_DEFINE_TASK(TaskName) }       
 
-#define SF_DEFINE_SUBTASK(TaskName, ...)                \
-void TaskName(__VA_ARGS__)                               \
-{                                                       \
-UINT32 _local_SubTaskCounter = 0;                       \
-std::condition_variable_any _local_SubTaskCounterCV;        
+#define SF_END_DEFINE_TASK(TaskName) \
+_taskData->m_done = true;             \
+ goto TaskStart;}       
 
-#define SF_END_DEFINE_SUBTASK(TaskName) }
-
-#define SF_WAIT_FOR_SUBTASKS()                              \
-static std::recursive_mutex _static_mutex;                            \
-static std::unique_lock<std::recursive_mutex> lock(_static_mutex);    \
-while (_local_SubTaskCounter)                              \
-{                                                           \
-  _local_SubTaskCounterCV.wait(lock);                        \
-  --_local_SubTaskCounter;                                  \
+#define SF_ENQUEUE_JOB(TaskName, DataPtr) \
+{                                         \
+  static int _id = 0;                     \
+  _taskData->m_executingWorker->m_taskManager->EnqueueTask(TaskName, \
+  (uintptr_t)&_id, DataPtr, #TaskName, _taskData);                    \
 }
 
+#define SF_YEILD_AND_WAIT()                                       \
+while (_taskData->m_waitingCounter.m_counter != 0)                \
+{                                                                 \
+  _taskData->m_waiting = true;                                    \
+  SwitchToFiber(_taskData->m_executingWorker->m_selfFiberHandle); \
 }
+
+#define SF_GET_FIBER_DATA(Type) \
+reinterpret_cast<Type*>(_taskData->m_data)
+}
+
+/*if (_taskData->m_done)                                            \
+{                                                                 \
+if (_taskData->m_waitingTaskCounter)                            \
+{                                                               \
+SF_ASSERT(_taskData->m_waitingTaskCounter.load() > 0,         \
+"Waiting counter is invalid");                              \
+--_taskData->m_waitingTaskCounter;
+
+}*/

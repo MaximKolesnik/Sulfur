@@ -29,7 +29,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  class Worker;
   class DependencyGraph;
 
   class TaskManager
@@ -39,27 +38,25 @@ namespace Sulfur
 
     void RunTasks(void);
 
-    void AddIndependentNode(const std::string &taskName);
-    void AddDependentNode(const std::string &taskName, const std::string &dependencyName);
+    void AddNode(const std::string &taskName);
+    //Task that is first to update, does not depend on anything
+    void SetStartingTask(const std::string &taskName);
+    void SetDependency(const std::string &taskName, const std::string &dependsOn);
     void CompleteGraph(void);
     bool IsDone(void) const;
 
-    ITask* PullTask(void);
+    Task* PullTask(WorkerThread *pullingWorker);
 
-    template <class... Args>
-    void EnqueueSubTask(void(*funcPtr)(Args...), std::condition_variable_any &cv,
-      Args... args)
-    {
-      m_queueMutex.lock();
+    void EnqueueTask(TaskPtr funcPtr, uintptr_t id, void *dataPtr,
+      const std::string &name, Task *parentTask);
 
-      m_taskQueue.push_back(new Task<Args...>(funcPtr, std::forward<Args...>(args)...));
-      m_wakeUpCondition.notify_one();
-
-      m_queueMutex.unlock();
-    }
-    void _ProcessCompletedTask(ITask *task);
   private:
-    friend class Worker;
+    friend DWORD WINAPI WorkerThreadRoutine(LPVOID lpParam);
+    friend WorkerThread;
+    friend Task;
+
+    //Map for waking tasks with thread affinity;
+    typedef std::unordered_map<Thread, std::list<Task*> > TaskMapThread;
 
     TaskManager(void);
     ~TaskManager(void);
@@ -68,19 +65,29 @@ namespace Sulfur
     TaskManager& operator=(const TaskManager&) = delete;
 
     void _CreateWorkerThreads(void);
+    void _ProcessCompletedTask(Task *task);
+    void _ProcessWaitingTask(Task *task);
+    Task* _PullAwakeTask(WorkerThread *pullingWorker);
+    void _ResumeThreads(void);
 
     UINT32 m_numThreads; //hardware concurrent threads
 
     WorkerThread *m_workers;
 
-    std::deque<ITask*> m_taskQueue;
+    std::deque<Task*> m_taskQueue;
+    TaskMapThread m_awakeTasks;
+    std::list<Task*> m_waitingTasks;
+
     std::mutex m_queueMutex;
+    std::mutex m_waitingTasksMutex;
+    std::mutex m_awakeTasksMutex;
     std::mutex m_graphMutex;
+    std::mutex m_dynamicTasksMutex;
 
-    std::condition_variable m_wakeUpCondition;
-    bool m_destroy;
-
-    std::unordered_map<std::string, ITask*> m_mainTaskRegistry;
+    //Task instances with no data placement
+    std::unordered_map<std::string, Task*> m_taskRegistry;
+    //Enqueued tasks with data placement
+    std::unordered_map<uintptr_t, Task*> m_dynamicTasks;
 
     DependencyGraph *m_depGraph;
   };

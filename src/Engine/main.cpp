@@ -14,16 +14,16 @@ int main(int argc, char** argv)
 {
   Sulfur::TaskManager *man = Sulfur::TaskManager::Instance();
   
-  man->AddIndependentNode("testTask");
-  man->AddDependentNode("testTask2", "testTask");
-  man->AddDependentNode("testTask3", "testTask");
-  man->AddDependentNode("testTask4", "testTask3");
+  man->AddNode("testTask");
+  man->SetStartingTask("testTask");
   man->CompleteGraph();
 
   int i = 0;
   while (i < 2)
   { 
     man->RunTasks();
+    std::cout << "-----------------------" << std::endl;
+    ++i;
   }
 
   system("pause");

@@ -23,12 +23,14 @@ namespace Sulfur
   {
   public:
     DependencyGraph(void);
+    ~DependencyGraph(void);
 
-    //Add first nodes in update sequence
-    void AddIndependentNode(const std::string &taskName);
-    void AddDependentNode(const std::string &taskName, const std::string &dependencyName);
+    void AddNode(const std::string &taskName);
+    //Task that is first to update, does not depend on anything
+    void SetStartingTask(const std::string &taskName);
+    void SetDependency(const std::string &taskName, const std::string &dependsOn);
 
-    //Finishes the graph adding dummy end node
+    //Finishes the graph adding dummy end node and start node
     //Every node that is not passed as dependency will be considered as final task
     //and linked to the end node
     void CompleteGraph(void);
@@ -70,7 +72,7 @@ namespace Sulfur
     void _EnqueueFirstTasks(void);
 
     //List is going to contain a pointer to a node from NodeMap
-    // key is a dependency, list of items is list of task that are executed after
+    // key is a dependency, list of items is list of tasks that are executed after
     // key task
     typedef std::unordered_map<DepNode, std::list<DepNode*>, NodeHash> AdjacencyList;
     //NodeMap is used to contain all nodes for shared storage

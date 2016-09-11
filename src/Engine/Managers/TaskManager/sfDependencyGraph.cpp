@@ -13,6 +13,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 
 #include "sfDependencyGraph.hpp"
+#include "../../Error/sfError.hpp"
 
 namespace Sulfur
 {
@@ -24,21 +25,37 @@ namespace Sulfur
     m_adjacencyList[c_startingNode];
   }
 
-  void DependencyGraph::AddIndependentNode(const std::string &taskName)
+  DependencyGraph::~DependencyGraph(void)
   {
-    AddDependentNode(taskName, c_startingNode);
+
   }
 
-  void DependencyGraph::AddDependentNode(const std::string &taskName, 
-    const std::string &dependencyName)
+  void DependencyGraph::AddNode(const std::string &taskName)
   {
-    if (m_nodeMap.find(taskName) == m_nodeMap.end())
-      m_nodeMap[taskName] = DepNode(taskName);
-    if (m_nodeMap.find(dependencyName) == m_nodeMap.end())
-      m_nodeMap[dependencyName] = DepNode(dependencyName);
+    SF_ASSERT(m_nodeMap.find(taskName) == m_nodeMap.end(), 
+      "Task is inseted to the graph");
 
+    m_nodeMap[taskName] = DepNode(taskName);
     m_adjacencyList[taskName];
-    auto &item = m_adjacencyList[dependencyName];
+  }
+
+  void DependencyGraph::SetStartingTask(const std::string &taskName)
+  {
+    SF_ASSERT(m_nodeMap.find(taskName) != m_nodeMap.end(),
+      "Task is not inseted to the graph");
+
+    m_adjacencyList[c_startingNode].push_back(&m_nodeMap[taskName]);
+  }
+
+  void DependencyGraph::SetDependency(const std::string &taskName,
+    const std::string &dependsOn)
+  {
+    SF_ASSERT(m_nodeMap.find(taskName) != m_nodeMap.end(),
+      "Task is not inseted to the graph");
+    SF_ASSERT(m_nodeMap.find(dependsOn) != m_nodeMap.end(),
+      "Dependency should be inserted to the graph");
+
+    auto &item = m_adjacencyList[dependsOn];
     item.push_back(&m_nodeMap[taskName]);
   }
 
@@ -55,6 +72,9 @@ namespace Sulfur
 
   void DependencyGraph::NotifyTaskCompletion(const std::string &taskName)
   {
+    if (m_nodeMap.find(taskName) == m_nodeMap.end())
+      return;
+
     const std::list<DepNode*> &depList = m_adjacencyList[taskName];
 
     for (auto &it : depList)

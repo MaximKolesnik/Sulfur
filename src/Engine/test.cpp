@@ -8,13 +8,18 @@ namespace Sulfur
   {
     std::cout << "testTask started" << std::endl;
 
+    int i = 2;
+    SF_ENQUEUE_JOB(testTask2, &i);
+    SF_YEILD_AND_WAIT() 
     std::cout << "testTask is done" << std::endl;
   } SF_END_DEFINE_TASK(testTask);
 
   SF_DEFINE_TASK(testTask2)
   {
     std::cout << "testTask2 started" << std::endl;
-
+    std::cout << *SF_GET_FIBER_DATA(int) << std::endl;
+    SF_ENQUEUE_JOB(testTask3, nullptr);
+    SF_YEILD_AND_WAIT()
     std::cout << "testTask2 is done" << std::endl;
   } SF_END_DEFINE_TASK(testTask2);
 

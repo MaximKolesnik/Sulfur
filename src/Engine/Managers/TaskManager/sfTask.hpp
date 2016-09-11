@@ -14,80 +14,47 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #pragma once
 
-#include <functional>
+#include <atomic>
+#include <string>
 
 #include "sfWorker.hpp"
-#include "../../Settings/EngineSettings.h"
 
 namespace Sulfur
 {
-  typedef void(*MainTaskPtr)(void);
+  struct Task;
+  class TaskManager;
 
-  VOID CALLBACK FiberRoutine(PVOID lpParam);
-
-  class ITask
+  typedef VOID (CALLBACK *TaskPtr)(PVOID lpParam);
+  
+  struct Task
   {
-  public:
-    ITask(const std::string &taskName) : m_name(taskName), m_fiber(NULL) {};
-    virtual ~ITask(void)
+    struct Counter
     {
-      DeleteFiber(m_fiber);
+      std::atomic<INT32> m_counter = 0;
+      Task *m_waitingTask = nullptr;
+    };
+
+    Task(const std::string &name, TaskPtr funcPtr) : m_funcPtr(funcPtr), 
+      m_taskName(name) 
+    {
+      m_waitingCounter.m_waitingTask = this;
     }
 
-    virtual void Execute(void) = 0;
+    const TaskPtr m_funcPtr;
 
-    const std::string GetName(void) const { return m_name; }
+    Counter m_waitingCounter; //this task waking counter
+    Counter *m_waitingTaskCounter = nullptr; //counter of a task that is waiting on this task
 
-    std::string m_name;
-    Fiber m_fiber;
-    WorkerThread *m_worker; //set by worker
-  };
+    Fiber m_fiber = NULL;
+    std::string m_taskName = "_NotAssigned";
 
-  template <class... Args>
-  class Task : public ITask //Used as a subTask
-  {
-    typedef void(*FuncPtr)(Args...);
-  public:
-    Task(FuncPtr funcPtr, Args... args) 
-      : ITask("__SubTask")
-    {
-      auto binder = std::bind(funcPtr, std::forward<Args...>(args)...);
-      m_boundFunc = [binder] {binder();};
+    WorkerThread *m_executingWorker = nullptr;
 
-      m_fiber = CreateFiberEx(EngineSettings::FiberStackSize,
-        EngineSettings::FiberReservedStackSize, FIBER_FLAG_FLOAT_SWITCH,
-        FiberRoutine, this);
-    }
+    bool m_done = false;
+    bool m_waiting = false;
 
-    virtual ~Task(void) {};
+    void *m_data = nullptr;
 
-    virtual void Execute(void) override
-    {
-      m_boundFunc();
-    }
-
-  private:
-    std::function<void()> m_boundFunc;
-  };
-
-  template <>
-  class Task<void> : public ITask
-  {
-  public:
-    Task(const std::string &name, MainTaskPtr funcPtr)
-      : ITask(name), m_funcPtr(funcPtr)
-    {
-      m_fiber = CreateFiberEx(EngineSettings::FiberStackSize,
-        EngineSettings::FiberReservedStackSize, FIBER_FLAG_FLOAT_SWITCH,
-        FiberRoutine, this);
-    }
-
-    virtual void Execute(void) override
-    {
-      m_funcPtr();
-    }
-
-  private:
-    MainTaskPtr m_funcPtr;
+    TaskManager *m_taskManager = nullptr;
   };
 }

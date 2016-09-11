@@ -20,6 +20,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
   class TaskManager;
+  struct Task;
 
   typedef HANDLE Thread;
   typedef HANDLE Fiber;
@@ -30,6 +31,13 @@ namespace Sulfur
     Fiber  m_selfFiberHandle = NULL;
 
     UINT32 m_coreAffinity = -1;
+
+    Task *m_currentTask = nullptr;
+
+    CRITICAL_SECTION   m_suspendedCS;
+    CONDITION_VARIABLE m_suspendedCV;
+
+    bool m_exit = false;
 
     TaskManager *m_taskManager = nullptr;
   };

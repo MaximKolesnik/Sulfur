@@ -22,21 +22,46 @@ namespace Sulfur
   DWORD WINAPI WorkerThreadRoutine(LPVOID lpParam)
   {
     WorkerThread *thisThread = reinterpret_cast<WorkerThread*>(lpParam);
-
+    
     ConvertThreadToFiber(NULL);
-    thisThread->m_selfFiberHandle = GetCurrentFiber();
 
-    bool flag = false;
-    while (!flag)
+    while (true)
     {
-      ITask *task = thisThread->m_taskManager->PullTask();
-      if (task)
-      { 
-        task->m_worker = thisThread;
-        SwitchToFiber(task->m_fiber);
+      if (thisThread->m_coreAffinity != 0)
+      {
+        EnterCriticalSection(&thisThread->m_suspendedCS);
+        SleepConditionVariableCS(&thisThread->m_suspendedCV, &thisThread->m_suspendedCS, INFINITE);
+        LeaveCriticalSection(&thisThread->m_suspendedCS);
       }
 
-      flag = thisThread->m_taskManager->IsDone();
+      if (thisThread->m_exit)
+        break;
+
+      thisThread->m_selfFiberHandle = GetCurrentFiber();
+
+      while (true)
+      {
+        Task *task = thisThread->m_taskManager->PullTask(thisThread);
+        if (task)
+        {
+          task->m_executingWorker = thisThread;
+          task->m_done = false;
+          task->m_waiting = false;
+
+          SwitchToFiber(task->m_fiber);
+
+          if (task->m_done)
+            thisThread->m_taskManager->_ProcessCompletedTask(task);
+          else if (task->m_waiting)
+            thisThread->m_taskManager->_ProcessWaitingTask(task);
+
+          if (thisThread->m_taskManager->IsDone())
+            break;
+        }
+      }
+
+      if (thisThread->m_coreAffinity == 0)
+        thisThread->m_exit = true;
     }
 
     ConvertFiberToThread();
