@@ -51,10 +51,12 @@ public:
   SF_PRIVATE_PROPERTY(Vector3, scale, Scale, "Scale")
   SF_PRIVATE_PROPERTY(Vector3, translation, Translation, "Translation")
   SF_PRIVATE_PROPERTY(Quaternion, rotation, Rotation, "Rotation")
-  SF_PRIVATE_PROPERTY_READ_ONLY(Matrix4, transformMatrix, TransformMatrix, "Transform")
-  SF_PRIVATE_PROPERTY_READ_ONLY(Vector3, right, Right, "Right")
-  SF_PRIVATE_PROPERTY_READ_ONLY(Vector3, up, Up, "Up")
-  SF_PRIVATE_PROPERTY_READ_ONLY(Vector3, forward, Forward, "Forward")
+
+private:
+  Matrix4 m_transformMatrix;
+  Vector3 m_right;
+  Vector3 m_up;
+  Vector3 m_forward;
 
 };
 

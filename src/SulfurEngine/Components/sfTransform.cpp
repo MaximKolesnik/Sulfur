@@ -23,8 +23,6 @@ Maxim Kolesnik: TODO: Write Clone() as soon as object and component factory
 namespace Sulfur
 {
 
-SF_SERIALIZABLE(Transform)
-
   Transform::Transform(void) : IEntity()
   {
   }

@@ -17,30 +17,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Math/sfVector3.hpp"
 #include "Math/sfVector4.hpp"
 #include "Math/sfQuaternion.hpp"
+#include "Math/sfMatrix3.hpp"
 #include "Math/sfMatrix4.hpp"
 
 namespace Sulfur
 {
-
-template <>
-void Serialization::Serialize<ReflectionBase>(std::ostream& str, const ReflectionBase& value)
-{
-  ReflectionBase::PropertyList properties;
-  value.GetProperties(properties);
-
-  for (Property* prop : properties)
-    prop->Serialize(str, &value);
-}
-
-template <>
-void Serialization::Deserialize<ReflectionBase>(std::istream& str, ReflectionBase& value)
-{
-  ReflectionBase::PropertyList properties;
-  value.GetProperties(properties);
-
-  for (Property* prop : properties)
-    prop->Deserialize(str, &value);
-}
 
 template <>
 void Serialization::Serialize<std::string>(std::ostream& str, const std::string& value)
@@ -64,62 +45,11 @@ void Serialization::Deserialize<std::string>(std::istream& str, std::string& val
   delete[] buffer;
 }
 
-template <>
-void Serialization::Serialize<Vector2>(std::ostream& str, const Vector2& value)
-{
-  str.write(reinterpret_cast<const char*>(&value), sizeof(value));
-}
-
-template <>
-void Serialization::Deserialize<Vector2>(std::istream& str, Vector2& value)
-{
-  str.read(reinterpret_cast<char *>(&value), sizeof(value));
-}
-
-template <>
-void Serialization::Serialize<Vector3>(std::ostream& str, const Vector3& value)
-{
-  str.write(reinterpret_cast<const char*>(&value), sizeof(value));
-}
-
-template <>
-void Serialization::Deserialize<Vector3>(std::istream& str, Vector3& value)
-{
-  str.read(reinterpret_cast<char *>(&value), sizeof(value));
-}
-
-template <>
-void Serialization::Serialize<Vector4>(std::ostream& str, const Vector4& value)
-{
-  str.write(reinterpret_cast<const char*>(&value), sizeof(value));
-}
-
-template <>
-void Serialization::Deserialize<Vector4>(std::istream& str, Vector4& value)
-{
-  str.read(reinterpret_cast<char *>(&value), sizeof(value));
-}
-
-template <>
-void Serialization::Serialize<Quaternion>(std::ostream& str, const Quaternion& value)
-{
-  str.write(reinterpret_cast<const char*>(&value), sizeof(value));
-}
-
-template <>
-void Serialization::Deserialize<Quaternion>(std::istream& str, Quaternion& value)
-{
-  str.read(reinterpret_cast<char *>(&value), sizeof(value));
-}
-
-template <>
-void Serialization::Serialize<Matrix4>(std::ostream& str, const Matrix4& value)
-{
-}
-
-template <>
-void Serialization::Deserialize<Matrix4>(std::istream& str, Matrix4& value)
-{
-}
+BASE_TYPE_SERIALIZATION_DEFAULT(Vector2)
+BASE_TYPE_SERIALIZATION_DEFAULT(Vector3)
+BASE_TYPE_SERIALIZATION_DEFAULT(Vector4)
+BASE_TYPE_SERIALIZATION_DEFAULT(Quaternion)
+BASE_TYPE_SERIALIZATION_DEFAULT(Matrix3)
+BASE_TYPE_SERIALIZATION_DEFAULT(Matrix4)
 
 }

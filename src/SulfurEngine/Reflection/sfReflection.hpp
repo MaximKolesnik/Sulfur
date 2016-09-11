@@ -129,10 +129,6 @@ static Property* FindProperty(const std::string& name) { \
 } \
 private:
 
-#define SF_SERIALIZABLE(name) \
-template <> void Serialization::Serialize<name>(std::ostream& str, const name& value) { Serialization::Serialize<ReflectionBase>(str, value); } \
-template <> void Serialization::Deserialize<name>(std::istream& str, name& value) { Serialization::Deserialize<ReflectionBase>(str, value); } 
-
 #define SF_REFLECTED_CLASS(name) SF_REFLECTED_CLASS_DERIVED(name, ReflectionBase)
 
 #define SF_PRIVATE_PROPERTY(type, name, upperName, display) \
@@ -164,6 +160,22 @@ protected: \
 type m_##name; \
 public: \
   const type& Get##upperName() const { return m_##name; } \
+  void Set##upperName(const type& value) { m_##name = value; }
+
+#define SF_PROTECTED_PROPERTY_READ_ONLY(type, name, upperName, display) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, &Get##upperName, nullptr); } \
+protected: \
+type m_##name; \
+public: \
+  const type& Get##upperName() const { return m_##name; }
+
+#define SF_PROTECTED_PROPERTY_WRITE_ONLY(type, name, upperName, display) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, nullptr, &Set##upperName); } \
+protected: \
+type m_##name; \
+public: \
   void Set##upperName(const type& value) { m_##name = value; }
 
 #define SF_PUBLIC_PROPERTY(type, name, upperName, display) \
