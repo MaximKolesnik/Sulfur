@@ -1,6 +1,4 @@
-obj/
-bin/
-ipch/
-*.db
-*.opendb
-*.sdf
+[Bb]uilds*/
+[Ww]orkspaces*/
+[Ll]ogs*/
+*.sbin
