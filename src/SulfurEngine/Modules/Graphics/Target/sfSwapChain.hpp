@@ -27,7 +27,11 @@ namespace Sulfur
 
     void Present(bool vsync);
 
+    void Resize(UINT32 width, UINT32 height);
     Texture2D& GetBackBuffer();
+
+  private:
+    void UpdateBackBuffer();
 
   private:
     Texture2D m_backBuffer;

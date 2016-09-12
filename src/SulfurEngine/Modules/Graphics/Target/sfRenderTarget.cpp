@@ -19,6 +19,7 @@ namespace Sulfur
 void RenderTarget::Init(D3D11Device& device, Texture2D& texture)
 {
   m_texture = texture;
+  m_device = &device;
   
   // TODO: Add multiple render targets for texture arrays
   D3D11_RENDER_TARGET_VIEW_DESC rtvDescription;
@@ -45,11 +46,23 @@ void RenderTarget::Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& descrip
 void RenderTarget::Free()
 {
   m_texture.Free();
+  WrapperBase::Free();
+}
+
+void RenderTarget::Resize(UINT32 width, UINT32 height)
+{
+  D3D11_TEXTURE2D_DESC description = m_texture.GetDescription();
+  description.Width = width;
+  description.Height = height;
+
+  Free();
+  Init(*m_device, description);
 }
 
 void RenderTarget::Set(D3D11Context& context)
 {
   context.GetD3DResource()->OMSetRenderTargets(1, &m_resource, nullptr);
+  context.SetViewport((Real)m_texture.GetDescription().Width, (Real)m_texture.GetDescription().Height);
 }
 
 void RenderTarget::Set(D3D11Context& context, DepthBuffer& depthBuffer)
@@ -61,6 +74,11 @@ void RenderTarget::Clear(D3D11Context& context, const Vector4& color)
 {
   FLOAT c[4] = { color.GetX(), color.GetY(), color.GetZ(), color.GetW() };
   context.GetD3DResource()->ClearRenderTargetView(m_resource, c);
+}
+
+const Texture2D* RenderTarget::GetTexture() const
+{
+  return &m_texture;
 }
 
 }
