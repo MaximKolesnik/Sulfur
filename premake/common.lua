@@ -45,6 +45,7 @@ premakeDef = {
 	-- includeDirs : Array of additional include directories for this project
 	-- defines : Array of defines for this project
 	-- pch : Precompiled header file name, without extension
+	-- qtModules : Array of qt modules to link (see qt/qtmodules.lua for modules)
 	projects = {},
 
 }
@@ -168,7 +169,13 @@ function CreateProject(projName, projKind, proj)
 	end
 	
 	project(projName)
-	kind(projKind)
+	language(proj.language)
+	
+	if (projKind == "Qt") then
+		kind "WindowedApp"
+	else
+		kind(projKind)
+	end
 	
 	filename(projName)
 	location("../workspaces/"..premakeDef.workspace.name.."/".._ACTION.."/Projects/")
@@ -187,15 +194,13 @@ function CreateProject(projName, projKind, proj)
 		forceincludes(proj.pchHeader)
 	end
 
-	if (proj.language == "Qt") then
+	if (projKind == "Qt") then
 		language("C++")
 		qt.enable()
-		qtpath "../dependencies/Qt"
+		qtpath "../dependencies/qt"
 		qtgenerateddir("../src/"..projName.."/GeneratedFiles")
-		qtmodules { "core", "gui", "widgets" }
+		qtmodules(proj.qtModules)
 		qtprefix "Qt5"
-	else
-		language(proj.language)
 	end
 	
 	-- Project configurations

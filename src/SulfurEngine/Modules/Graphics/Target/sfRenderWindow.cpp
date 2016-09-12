@@ -20,6 +20,7 @@ namespace Sulfur
 void RenderWindow::Init(D3D11Device& device, Window& window)
 {
   m_window = &window;
+  m_window->RegisterCallbackOnSize(this, &RenderWindow::Resize);
 
   DXGI_SWAP_CHAIN_DESC swapChainDesc;
   swapChainDesc.BufferDesc.Width = 0;
@@ -51,6 +52,13 @@ void RenderWindow::Free()
 void RenderWindow::Present(bool vsync)
 {
   m_swapChain.Present(vsync);
+}
+
+void RenderWindow::Resize(UINT32 width, UINT32 height)
+{
+  WrapperBase::Free();
+  m_swapChain.Resize(width, height);
+  RenderTarget::Init(*m_device, m_swapChain.GetBackBuffer());
 }
 
 }

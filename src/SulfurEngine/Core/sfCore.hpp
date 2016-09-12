@@ -13,7 +13,10 @@ namespace Sulfur
   public:
     void StartUp(HWND windowHandle = nullptr);
     void GameLoop(void);
+    void Frame(void);
     void ShutDown(void);
+
+    void OnWindowClose();
 
   private:
     bool m_running;

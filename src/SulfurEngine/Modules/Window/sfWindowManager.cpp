@@ -44,12 +44,8 @@ Window* WindowManager::NewWindow(const WindowDescription& description)
 
 void WindowManager::Update()
 {
-  MSG msg = { 0 };
-  while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-  {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
+  for (Window *window : m_windows)
+    window->Update();
 }
 
 }

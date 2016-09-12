@@ -38,7 +38,11 @@ namespace Sulfur
 
     virtual void Free()
     {
-      if (m_resource) m_resource->Release();
+      if (m_resource)
+      {
+        m_resource->Release();
+        m_resource = nullptr;
+      }
     }
 
     RESOURCE_TYPE* GetD3DResource() const

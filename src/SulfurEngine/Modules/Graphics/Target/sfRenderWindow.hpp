@@ -29,6 +29,8 @@ namespace Sulfur
 
     void Present(bool vsync = false);
 
+    virtual void Resize(UINT32 width, UINT32 height) override;
+
   private:
     Window *m_window;
     SwapChain m_swapChain;

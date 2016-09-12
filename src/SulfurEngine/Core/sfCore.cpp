@@ -31,26 +31,32 @@ void Core::StartUp(HWND windowHandle)
     description.Title = "Sulfur Engine";
 
     m_window = WindowManager::Instance()->NewWindow(description);
+    m_window->RegisterCallbackOnClose(this, &Core::OnWindowClose);
   }
 
   GraphicsManager::Instance()->Init(*m_window);
+  m_running = true;
 }
 
 void Core::GameLoop(void)
 {
-  m_running = true;
   while (m_running)
-  {
-    WindowManager::Instance()->Update();
-    GraphicsManager::Instance()->Update();
+    Frame();
+}
 
-    if (m_window->IsClosed())
-      m_running = false;
-  }
+void Core::Frame(void)
+{
+  WindowManager::Instance()->Update();
+  GraphicsManager::Instance()->Update();
 }
 
 void Core::ShutDown(void)
 {
+}
+
+void Core::OnWindowClose()
+{
+  m_running = false;
 }
 
 }

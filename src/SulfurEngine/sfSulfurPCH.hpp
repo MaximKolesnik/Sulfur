@@ -5,6 +5,9 @@
 #include <fileapi.h>
 #include <string>
 #include <iostream>
+#include <functional>
+#include <type_traits>
+#include <utility>
 
 // STL
 #include <vector>
