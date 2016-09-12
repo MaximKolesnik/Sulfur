@@ -37,11 +37,6 @@ namespace Sulfur
 
   }
 
-  void Transform::Update(Real dt)
-  {
-
-  }
-
   Transform* Transform::Clone(void) const
   {
     SF_CRITICAL_ERR("Transform::Clone() is not implemented");

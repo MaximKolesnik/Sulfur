@@ -12,7 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
-#include "Types/sfSingleton.h"
+#include "Types/sfSingleton.hpp"
 #include "Math/sfVector3.hpp"
 #include "Math/sfVector4.hpp"
 #include "Math/sfMatrix4.hpp"

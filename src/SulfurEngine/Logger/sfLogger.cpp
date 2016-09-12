@@ -26,20 +26,14 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  Logger *Logger::m_instance = Logger::Instance();
-
   Logger* Logger::Instance(void)
   {
-    if (!m_instance)
-    {
-      m_instance = new Logger();
-      m_instance->Initialize();
-    }
+    static Logger instance;
 
-    return m_instance;
+    return &instance;
   }
 
-  void Logger::Initialize(void)
+  Logger::Logger(void)
   {
     // Show console window
     if (EngineSettings::ShowConsole)
@@ -70,7 +64,7 @@ namespace Sulfur
     if (stat(EngineSettings::LogDir.c_str(), &info) != 0)
       directoryExists = CreateDirectory(EngineSettings::LogDir.c_str(), NULL);
 
-    SF_CRITICAL_ERR_EXP(directoryExists, 
+    SF_CRITICAL_ERR_EXP(directoryExists,
       "Log directory does not exist and cannot be created");
 
     //Create log file

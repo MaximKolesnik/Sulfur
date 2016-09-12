@@ -86,8 +86,8 @@ SF_WARNING_MB(text); \
 #define SF_ASSERT(exp, message) \
 if (!(exp)) \
 { \
-  Sulfur::Logger::Instance()->Log(message, __FILE__, __FUNCTION__, __LINE__, "ASSERT"); \
-  assert(false && message); \
+  Sulfur::Logger::Instance()->Log((message), __FILE__, __FUNCTION__, __LINE__, "ASSERT"); \
+  assert(false); \
 }
 
 #else

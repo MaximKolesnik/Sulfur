@@ -14,6 +14,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "sfComponentFactory.hpp"
 #include "../Components/sfTransform.hpp"
+#include "Types\sfObject.hpp"
+#include "Factories\sfObjectFactory.hpp"
 
 namespace Sulfur
 {
@@ -30,6 +32,42 @@ namespace Sulfur
     return m_instance;
   }
 
+  IEntity* ComponentFactory::CreateComponent(const std::string &name)
+  {
+    SF_ASSERT(m_compMap.find(name) != m_compMap.end(),
+      "Component is not registered");
+
+    auto &map = m_compMap[name];
+    HNDL newHndl = map->Create();
+
+    //Set component info
+    IEntity *newComp = map->At(newHndl);
+    newComp->m_hndl = newHndl;
+    newComp->m_name = name;
+
+    return newComp;
+  }
+
+  void ComponentFactory::DeleteComponent(const std::string &name, const HNDL handle)
+  {
+    SF_ASSERT(m_compMap.find(name) != m_compMap.end(), name + " component is not registered");
+    SF_ASSERT(handle != SF_INV_HANDLE, "Invalid handle");
+
+    Object *obj = ObjectFactory::Instance()->GetObject(m_compMap[name]->At(handle)->m_owner);
+
+    SF_ASSERT(obj->m_components.find(name) != obj->m_components.end(), 
+      name + " component is not attadched");
+    SF_ASSERT(obj->m_components[name] == handle, name + " component handle does not match")
+
+    obj->m_components.erase(name);
+    m_compMap[name]->Erase(handle);
+  }
+
+  void ComponentFactory::DeleteComponent(const IEntity *component)
+  {
+
+  }
+
   void ComponentFactory::Initialize(void)
   {
     this->RegisterComponent<Transform>();
@@ -42,6 +80,16 @@ namespace Sulfur
 
   ComponentFactory::~ComponentFactory(void)
   {
+    for (auto &it : m_compMap)
+      delete it.second;
+  }
 
+  std::string ComponentFactory::_RemoveScope(std::string name) const
+  {
+    size_t scopePos = name.find_last_of(":");
+    if (scopePos == std::string::npos)
+      return name;
+    else
+      return name.substr(scopePos + 1);
   }
 }

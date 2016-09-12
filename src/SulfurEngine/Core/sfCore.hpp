@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "Types/sfSingleton.h"
+#include "Types/sfSingleton.hpp"
 #include "Modules/Window/sfWindow.hpp"
 
 namespace Sulfur

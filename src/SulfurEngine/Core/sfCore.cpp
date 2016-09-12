@@ -18,6 +18,7 @@ Core::~Core()
 
 void Core::StartUp(HWND windowHandle)
 {
+  
   // Start engine in existing window
   if (windowHandle != nullptr)
     m_window = WindowManager::Instance()->AddWindow(windowHandle);

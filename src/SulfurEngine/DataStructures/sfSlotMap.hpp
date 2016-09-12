@@ -26,7 +26,7 @@ inerting missing handles when they are needed
 #include <iterator>
 #include <vector>
 
-#include "../Types/sfIEntity.h"
+#include "../Types/sfIEntity.hpp"
 #include "../sfProjectDefs.hpp"
 #include "../Types/sfTypes.hpp"
 #include "../Settings/EngineSettings.h"
@@ -222,7 +222,7 @@ namespace Sulfur
 
     if (_IsFree(pageNum, index))
     {
-      SF_WARNING("SlotMap return nullptr");
+      SF_WARNING("SlotMap returned nullptr");
       return nullptr;
     }
 

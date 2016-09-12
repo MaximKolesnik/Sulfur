@@ -18,9 +18,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include <string>
 
 #include "../DataStructures/sfSlotMap.hpp"
+#include "Types\sfIEntity.hpp"
 #include "../Error/sfError.hpp"
-
-#define TO_STRING(x) #x
 
 namespace Sulfur
 {
@@ -28,6 +27,13 @@ namespace Sulfur
   {
   public:
     static ComponentFactory* Instance(void);
+
+    IEntity* CreateComponent(const std::string &name);
+    template <class CompType>
+    CompType* CreateComponent(void);
+
+    void DeleteComponent(const std::string &name, const HNDL handle);
+    void DeleteComponent(const IEntity *component);
 
   private:
     ComponentFactory(void);
@@ -42,6 +48,8 @@ namespace Sulfur
     template <typename CompType>
     void RegisterComponent(void);
 
+    std::string _RemoveScope(const std::string name) const;
+
     static ComponentFactory *m_instance;
 
     std::unordered_map<std::string, ISlotMap*> m_compMap;
@@ -53,7 +61,7 @@ namespace Sulfur
     ISlotMap* newSlotMap = new SlotMap<CompType>();
 
     auto result =  m_compMap.insert(
-      std::make_pair(TO_STRING(CompType), newSlotMap));
+      std::make_pair(_RemoveScope(typeid(CompType).name()), newSlotMap));
 
     SF_ASSERT(result.second, "Component is already registered");
 
@@ -61,4 +69,24 @@ namespace Sulfur
       delete newSlotMap;
   }
 
+  template <class CompType>
+  CompType* ComponentFactory::CreateComponent(void)
+  {
+    std::string compName = _RemoveScope(typeid(CompType).name());
+    SF_ASSERT(m_compMap.find(compName) != m_compMap.end(),
+      "Component is not registered");
+
+    auto &map = m_compMap[compName];
+    HNDL newHndl = map->Create();
+
+    //Set component info
+    CompType *newComp = static_cast<CompType*>(map->At(newHndl));
+    newComp->m_hndl = newHndl;
+    newComp->m_name = name;
+
+    return newComp;
+  }
+
+#define SF_CREATE_COMP(Type) \
+  return Sulfur::ComponentFactory::Instance()->CreateComponent<Type>()
 }

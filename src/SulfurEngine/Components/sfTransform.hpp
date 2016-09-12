@@ -14,7 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #pragma once
 
-#include "../Types/sfIEntity.h"
+#include "../Types/sfIEntity.hpp"
 #include "../Types/sfTypes.hpp"
 #include "../Math/sfVector3.hpp"
 #include "../Math/sfMatrix4.hpp"
@@ -31,7 +31,6 @@ public:
   virtual ~Transform(void);
 
   virtual void Initialize(void) override;
-  virtual void Update(Real dt) override;
   virtual Transform* Clone(void) const override;
 
   void SetRotationDeg(const Vector3 &axis, const Real &angleDeg)
@@ -60,5 +59,4 @@ private:
 
 };
 
-  //REGISTER_COMPONENT(Transform)
 }

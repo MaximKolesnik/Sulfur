@@ -29,12 +29,8 @@ namespace Sulfur
       const std::string &functionName, UINT64 lineNumber, const std::string &type);
 
   private:
-    static Logger *m_instance;
-
-    Logger() {};
+    Logger(void);
     ~Logger(void);
-
-    void Initialize(void);
 
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;

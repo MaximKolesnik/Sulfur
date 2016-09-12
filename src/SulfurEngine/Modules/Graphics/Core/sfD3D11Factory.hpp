@@ -12,7 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
-#include "Types/sfSingleton.h"
+#include "Types/sfSingleton.hpp"
 #include "sfD3D11Wrapper.hpp"
 #include "sfD3D11Adapter.hpp"
 
