@@ -35,6 +35,10 @@ namespace Sulfur
     void DeleteComponent(const std::string &name, const HNDL handle);
     void DeleteComponent(const IEntity *component);
 
+    IEntity* GetComponent(const std::string &name, HNDL handle);
+    template <class CompType>
+    CompType* GetComponent(HNDL handle);
+
   private:
     ComponentFactory(void);
     ~ComponentFactory(void);
@@ -74,7 +78,7 @@ namespace Sulfur
   {
     std::string compName = _RemoveScope(typeid(CompType).name());
     SF_ASSERT(m_compMap.find(compName) != m_compMap.end(),
-      "Component is not registered");
+      compName + " is not registered");
 
     auto &map = m_compMap[compName];
     HNDL newHndl = map->Create();
@@ -87,6 +91,21 @@ namespace Sulfur
     return newComp;
   }
 
+  template <class CompType>
+  CompType* ComponentFactory::GetComponent(HNDL handle)
+  {
+    SF_ASSERT(handle != SF_INV_HANDLE, "Invalid handle");
+
+    std::string compName = _RemoveScope(typeid(CompType).name());
+    SF_ASSERT(m_compMap.find(compName) != m_compMap.end(),
+      compName + " is not registered");
+
+    return static_cast<CompType*>(m_compMap[compName]->At(handle));
+  }
+
 #define SF_CREATE_COMP(Type) \
   return Sulfur::ComponentFactory::Instance()->CreateComponent<Type>()
+
+#define SF_GET_COMP(Type, Handle) \
+ return Sulfur::ComponentFactory::Instance()->GetComponent<Type>(Handle)
 }

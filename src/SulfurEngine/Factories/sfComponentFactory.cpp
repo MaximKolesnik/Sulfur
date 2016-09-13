@@ -84,7 +84,17 @@ namespace Sulfur
       delete it.second;
   }
 
-  std::string ComponentFactory::_RemoveScope(std::string name) const
+  IEntity* ComponentFactory::GetComponent(const std::string &name, 
+    HNDL handle)
+  {
+    SF_ASSERT(handle != SF_INV_HANDLE, "Invalid handle");
+    SF_ASSERT(m_compMap.find(name) != m_compMap.end(),
+      name + " is not registered");
+
+    return m_compMap[name]->At(handle);
+  }
+
+  std::string ComponentFactory::_RemoveScope(const std::string name) const
   {
     size_t scopePos = name.find_last_of(":");
     if (scopePos == std::string::npos)
