@@ -19,12 +19,14 @@ Maxim Kolesnik: TODO: Write Clone() as soon as object and component factory
 
 #include "sfTransform.hpp"
 #include "../Error/sfError.hpp"
+#include "Factories\sfComponentFactory.hpp"
 
 namespace Sulfur
 {
 
   Transform::Transform(void) : IEntity()
   {
+    
   }
 
   Transform::~Transform(void)
@@ -39,7 +41,12 @@ namespace Sulfur
 
   Transform* Transform::Clone(void) const
   {
-    SF_CRITICAL_ERR("Transform::Clone() is not implemented");
-    return nullptr;
+    Transform *newTransform = SF_CREATE_COMP(Transform);
+
+    newTransform->m_scale = m_scale;
+    newTransform->m_translation = m_translation;
+    newTransform->m_rotation = m_rotation;
+
+    return newTransform;
   }
 }

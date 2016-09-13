@@ -30,8 +30,8 @@ public:
   Transform(void);
   virtual ~Transform(void);
 
-  virtual void Initialize(void) override;
-  virtual Transform* Clone(void) const override;
+  virtual void Initialize(void) override final;
+  virtual Transform* Clone(void) const override final;
 
   void SetRotationDeg(const Vector3 &axis, const Real &angleDeg)
   {

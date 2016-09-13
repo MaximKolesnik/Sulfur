@@ -24,6 +24,8 @@ namespace Sulfur
   class ObjectFactory;
   class ComponentFactory;
 
+  //Owner handle from IEntity is used to identify parent
+  //SF_INV_HANDLE means object has no parent
   class Object : public IEntity
   {
   public:
@@ -36,13 +38,17 @@ namespace Sulfur
     virtual Object* Clone(void) const override final;
 
     void SetParent(HNDL parent);
-    HNDL GetParent(void) const { return m_parent; }
+    HNDL GetParent(void) const { return m_owner; }
+
+    void AttachComponent(IEntity *component);
+
+    bool HasDescendant(HNDL handle) const;
 
   private:
     friend class ObjectFactory;
     friend class ComponentFactory;
 
-    HNDL m_parent; //SF_INV_HANDLE means no parent
+    void _CloneChildren(Object *parent, const ChildrenMap &children) const;
 
     std::unordered_map<std::string, HNDL> m_components;
 

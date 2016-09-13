@@ -48,6 +48,7 @@ namespace Sulfur
     virtual void CreateAt(const HNDL hndl) = 0;
     virtual IEntity* At(const HNDL hndl) const = 0;
     virtual void Erase(const HNDL hndl) = 0;
+    virtual void Clear(void) = 0;
     virtual UINT64 GetNumberOfAllocPages(void) const = 0;
   };
 
@@ -63,6 +64,7 @@ namespace Sulfur
     virtual void CreateAt(const HNDL hndl) override;
     virtual EntityType* At(const HNDL hndl) const override;
     virtual void Erase(const HNDL hndl) override;
+    virtual void Clear(void) override;
     virtual UINT64 GetNumberOfAllocPages(void) const override;
 
   private:
@@ -262,7 +264,8 @@ namespace Sulfur
 
     //Try to deallocate pages
     SF_ASSERT(m_pageQueue.size() >= 1, "Page queue is empty");
-    for (UINT64 i = m_pageQueue.size() - 1; i >= 1; --i)
+    for (UINT64 i = m_pageQueue.size() - 1; 
+      i >= EngineSettings::SlotMapInitNumOfPages - 1; --i)
     {
       //Leave one free page on the queue
       //Counting a page on the main free list
@@ -287,6 +290,35 @@ namespace Sulfur
       else
         break;
     }
+  }
+
+  template <typename EntityType>
+  void SlotMap<EntityType>::Clear(void)
+  {
+    //Restore default number of pages
+    for (INT64 i = m_pages.size() - 1; i >= EngineSettings::SlotMapInitNumOfPages; --i)
+    {
+      delete m_pages[i]->m_freeList;
+      delete m_pages[i];
+      m_pages.pop_back();
+    }
+
+    //Reset pages
+    for (auto &it : m_pages)
+    {
+      it->m_full = false;
+      it->m_used = 0;
+      it->m_freeList->clear();
+      memset((void*)(it->m_memory), 0,
+        sizeof(EntityType) * EngineSettings::SlotMapObjsPerPage);
+
+      for (HNDL i = it->m_firstHndl; i < EngineSettings::SlotMapObjsPerPage; ++i)
+        it->m_freeList->push_back(i);
+    }
+    m_pageQueue.clear();
+
+    for (auto it : m_pages)
+      m_pageQueue.push(it);
   }
 
   template <typename EntityType>

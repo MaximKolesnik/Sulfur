@@ -13,6 +13,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 
 #include "sfObjectFactory.hpp"
+#include "sfComponentFactory.hpp"
+#include "Components\sfTransform.hpp"
 
 namespace Sulfur
 {
@@ -22,10 +24,21 @@ namespace Sulfur
 
   ObjectFactory::~ObjectFactory(void)
   {
-
   }
 
   Object* ObjectFactory::CreateObject(const std::string &name)
+  {
+    Object *newObj = CreateEmptyObject(name);
+
+    Transform *trans = SF_CREATE_COMP(Transform);
+
+    newObj->AttachComponent(trans);
+    trans->Initialize();
+
+    return newObj;
+  }
+
+  Object* ObjectFactory::CreateEmptyObject(const std::string &name)
   {
     HNDL handle = m_objects.Create();
     SF_ASSERT(handle != SF_INV_HANDLE, "Object creation failed");
@@ -56,16 +69,22 @@ namespace Sulfur
   {
     for (auto &handle : m_objectsToDelete)
     {
-      //First destroy children
+      Object *obj = this->GetObject(handle);
+      if (obj) //Object may already be deleted
+        _Destroy(this->GetObject(handle));
     }
   }
 
   void ObjectFactory::_Destroy(Object *obj)
   {
-    if (obj->m_children.empty())
-      return;
+    if (!obj->m_children.empty())
+    {
+      for (auto &it : obj->m_children)
+        _Destroy(it.second);
+    }
 
-
+    for (auto &it : obj->m_components)
+      ComponentFactory::Instance()->DeleteComponent(it.first, it.second);
 
     m_objects.Erase(obj->m_hndl);
   }

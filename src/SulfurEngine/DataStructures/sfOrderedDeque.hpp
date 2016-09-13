@@ -261,7 +261,7 @@ namespace Sulfur
 
     void clear(void) noexcept
     {
-      m_deque.clear()
+      m_deque.clear();
     }
 
   private:

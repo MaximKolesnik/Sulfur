@@ -53,11 +53,11 @@ namespace Sulfur
     SF_ASSERT(m_compMap.find(name) != m_compMap.end(), name + " component is not registered");
     SF_ASSERT(handle != SF_INV_HANDLE, "Invalid handle");
 
-    Object *obj = ObjectFactory::Instance()->GetObject(m_compMap[name]->At(handle)->m_owner);
+    Object *obj = SF_GET_OBJECT(m_compMap[name]->At(handle)->m_owner);
 
     SF_ASSERT(obj->m_components.find(name) != obj->m_components.end(), 
       name + " component is not attadched");
-    SF_ASSERT(obj->m_components[name] == handle, name + " component handle does not match")
+    SF_ASSERT(obj->m_components[name] == handle, name + " component handle does not match");
 
     obj->m_components.erase(name);
     m_compMap[name]->Erase(handle);
@@ -65,7 +65,20 @@ namespace Sulfur
 
   void ComponentFactory::DeleteComponent(const IEntity *component)
   {
+    HNDL handle = component->m_hndl;
+    const std::string &name = component->m_name;
 
+    SF_ASSERT(m_compMap.find(name) != m_compMap.end(), name + " component is not registered");
+    SF_ASSERT(handle != SF_INV_HANDLE, "Invalid handle");
+
+    Object *obj = SF_GET_OBJECT(m_compMap[name]->At(handle)->m_owner);
+
+    SF_ASSERT(obj->m_components.find(name) != obj->m_components.end(),
+      name + " component is not attadched");
+    SF_ASSERT(obj->m_components[name] == handle, name + " component handle does not match");
+
+    obj->m_components.erase(name);
+    m_compMap[name]->Erase(handle);
   }
 
   void ComponentFactory::Initialize(void)

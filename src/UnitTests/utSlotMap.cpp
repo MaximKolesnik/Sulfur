@@ -84,7 +84,7 @@ namespace UnitTests
         hndls.pop_back();
       }
 
-      Assert::IsTrue(slotMap.GetNumberOfAllocPages() == 2);
+      Assert::IsTrue(slotMap.GetNumberOfAllocPages() == 3);
     }
 
     TEST_METHOD(SlotMap6)
@@ -109,7 +109,7 @@ namespace UnitTests
         hndls.pop_back();
       }
 
-      Assert::IsTrue(slotMap.GetNumberOfAllocPages() == 2);
+      Assert::IsTrue(slotMap.GetNumberOfAllocPages() == 3);
     }
 
     //Take too long, but it passes
@@ -137,5 +137,31 @@ namespace UnitTests
 
       Assert::IsTrue(slotMap.GetNumberOfAllocPages() == 2);
     }*/
+
+    TEST_METHOD(SlotMap8)
+    {
+      SlotMap<Transform> slotMap;
+      std::vector<HNDL> hndls;
+      Sulfur::UINT64 numAllocs = 1000 * EngineSettings::SlotMapObjsPerPage;
+
+      for (Sulfur::UINT64 i = 0; i < numAllocs; ++i)
+        hndls.push_back(i);
+
+      std::random_shuffle(hndls.begin(), hndls.end());
+
+      for (auto &it : hndls)
+        slotMap.CreateAt(it);
+
+      slotMap.Clear();
+
+      Assert::IsTrue(slotMap.GetNumberOfAllocPages() == 3);
+
+      for (auto &it : hndls)
+        slotMap.CreateAt(it);
+
+      std::random_shuffle(hndls.begin(), hndls.end());
+      for (auto &it : hndls)
+        slotMap.Erase(it);
+    }
   };
 }

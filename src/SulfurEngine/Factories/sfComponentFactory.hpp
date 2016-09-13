@@ -86,7 +86,7 @@ namespace Sulfur
     //Set component info
     CompType *newComp = static_cast<CompType*>(map->At(newHndl));
     newComp->m_hndl = newHndl;
-    newComp->m_name = name;
+    newComp->m_name = compName;
 
     return newComp;
   }
@@ -104,8 +104,9 @@ namespace Sulfur
   }
 
 #define SF_CREATE_COMP(Type) \
-  return Sulfur::ComponentFactory::Instance()->CreateComponent<Type>()
+Sulfur::ComponentFactory::Instance()->CreateComponent<Type>()
 
 #define SF_GET_COMP(Type, Handle) \
- return Sulfur::ComponentFactory::Instance()->GetComponent<Type>(Handle)
+Sulfur::ComponentFactory::Instance()->GetComponent<Type>(Handle)
+
 }

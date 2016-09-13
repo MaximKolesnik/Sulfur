@@ -9,6 +9,7 @@ namespace Sulfur
 
   class ComponentFactory;
   class ObjectFactory;
+  class Object;
 
   SF_REFLECTED_CLASS(IEntity)
 
@@ -34,6 +35,7 @@ namespace Sulfur
   protected:
     friend class ComponentFactory;
     friend class ObjectFactory;
+    friend class Object;
 
     HNDL m_owner;
 
