@@ -107,6 +107,15 @@ namespace Sulfur
     return m_compMap[name]->At(handle);
   }
 
+  ComponentFactory::ComponentData 
+    ComponentFactory::GetComponentData(const std::string &compName)
+  {
+    SF_ASSERT(m_compMap.find(compName) != m_compMap.end(),
+      compName + " is not registered");
+
+    return ComponentData(m_compMap[compName]);
+  }
+
   std::string ComponentFactory::_RemoveScope(const std::string name) const
   {
     size_t scopePos = name.find_last_of(":");

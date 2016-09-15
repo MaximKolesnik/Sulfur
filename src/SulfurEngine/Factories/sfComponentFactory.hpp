@@ -26,6 +26,8 @@ namespace Sulfur
   class ComponentFactory
   {
   public:
+    class ComponentData;
+
     static ComponentFactory* Instance(void);
 
     IEntity* CreateComponent(const std::string &name);
@@ -38,6 +40,10 @@ namespace Sulfur
     IEntity* GetComponent(const std::string &name, HNDL handle);
     template <class CompType>
     CompType* GetComponent(HNDL handle);
+
+    ComponentData GetComponentData(const std::string &compName);
+    template <class CompType>
+    ComponentData GetComponentData(void);
 
   private:
     ComponentFactory(void);
@@ -57,6 +63,27 @@ namespace Sulfur
     static ComponentFactory *m_instance;
 
     std::unordered_map<std::string, ISlotMap*> m_compMap;
+
+  public:
+
+    class ComponentData
+    {
+    public:
+      ComponentData(ISlotMap *slotMap) : m_slotMap(slotMap) {}
+
+      ISlotMap::UnorderedIterator begin(void)
+      {
+        return m_slotMap->begin();
+      }
+
+      ISlotMap::UnorderedIterator end(void)
+      {
+        return m_slotMap->end();
+      }
+
+    private:
+      ISlotMap *m_slotMap;
+    };
   };
 
   template <typename CompType>
@@ -103,10 +130,23 @@ namespace Sulfur
     return static_cast<CompType*>(m_compMap[compName]->At(handle));
   }
 
+  template <class CompType>
+  ComponentFactory::ComponentData
+    ComponentFactory::GetComponentData(void)
+  {
+    std::string compName = _RemoveScope(typeid(CompType).name());
+    SF_ASSERT(m_compMap.find(compName) != m_compMap.end(),
+      compName + " is not registered");
+
+    return ComponentData(m_compMap[compName]);
+  }
+
 #define SF_CREATE_COMP(Type) \
 Sulfur::ComponentFactory::Instance()->CreateComponent<Type>()
 
 #define SF_GET_COMP(Type, Handle) \
 Sulfur::ComponentFactory::Instance()->GetComponent<Type>(Handle)
 
+#define SF_GET_COMP_DATA(Type) \
+Sulfur::ComponentFactory::Instance()->GetComponentData<Type>()
 }

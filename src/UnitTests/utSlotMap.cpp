@@ -3,6 +3,7 @@
 
 #include <stack>
 #include <algorithm>
+#include <set>
 
 #include "Types/sfTypes.hpp"
 
@@ -162,6 +163,34 @@ namespace UnitTests
       std::random_shuffle(hndls.begin(), hndls.end());
       for (auto &it : hndls)
         slotMap.Erase(it);
+    }
+
+    TEST_METHOD(SlotMap9)
+    {
+      SlotMap<Transform> slotMap;
+      std::stack<HNDL> iteratedHandles;
+      std::set<HNDL> iterSet;
+      std::vector<HNDL> hndls;
+      Sulfur::UINT64 numAllocs = 10 * EngineSettings::SlotMapObjsPerPage;
+
+      for (Sulfur::UINT64 i = 0; i < numAllocs; ++i)
+        hndls.push_back(i);
+
+      std::random_shuffle(hndls.begin(), hndls.end());
+
+      for (auto &it : hndls)
+        slotMap.CreateAt(it);
+
+      auto &it = slotMap.begin();
+
+      for (auto it : slotMap)
+      {
+        /*iteratedHandles.push();
+        auto res = iterSet.insert(it->GetHndl());
+        Assert::IsTrue(res.second);*/
+      }
+
+      Assert::IsTrue(hndls.size() == iteratedHandles.size());
     }
   };
 }

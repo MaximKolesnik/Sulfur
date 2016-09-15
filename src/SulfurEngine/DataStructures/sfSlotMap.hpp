@@ -23,8 +23,8 @@ inerting missing handles when they are needed
 #pragma once
 
 #include <list>
-#include <iterator>
 #include <vector>
+#include <unordered_set>
 
 #include "../Types/sfIEntity.hpp"
 #include "../sfProjectDefs.hpp"
@@ -38,6 +38,67 @@ namespace Sulfur
   class ISlotMap
   {
   public:
+    class UnorderedIterator
+    {
+    public:
+      UnorderedIterator(ISlotMap *map, bool begin)
+      {
+        m_map = map;
+        m_usedHandles = &(map->m_usedHandles);
+
+        if (begin)
+          m_it = (*m_usedHandles).begin();
+        else
+          m_it = (*m_usedHandles).end();
+      }
+
+      UnorderedIterator& operator++(void)
+      {
+        ++m_it;
+        return *this;
+      }
+
+      UnorderedIterator operator++(int)
+      {
+        UnorderedIterator temp = *this;
+        
+        return ++(*this);
+      }
+
+      UnorderedIterator& operator--(void)
+      {
+        --m_it;
+        return *this;
+      }
+
+      UnorderedIterator operator--(int)
+      {
+        UnorderedIterator temp = *this;
+
+        return --(*this);
+      }
+
+      bool operator==(UnorderedIterator &it) const
+      {
+        return m_it == it.m_it;
+      }
+
+      bool operator!=(UnorderedIterator &it) const
+      {
+        return m_it != it.m_it;
+      }
+
+      IEntity* operator*(void)
+      {
+        return m_map->At(*m_it);
+      }
+
+    private:
+      ISlotMap *m_map;
+      std::unordered_set<HNDL> *m_usedHandles;
+      std::unordered_set<HNDL>::iterator m_it;
+    };
+
     ISlotMap(void)
     {
 
@@ -50,6 +111,12 @@ namespace Sulfur
     virtual void Erase(const HNDL hndl) = 0;
     virtual void Clear(void) = 0;
     virtual UINT64 GetNumberOfAllocPages(void) const = 0;
+
+    virtual UnorderedIterator begin(void) = 0;
+    virtual UnorderedIterator end(void) = 0;
+
+  protected:
+    std::unordered_set<HNDL> m_usedHandles;
   };
 
   //Has to be IEntity or derived from it
@@ -67,8 +134,16 @@ namespace Sulfur
     virtual void Clear(void) override;
     virtual UINT64 GetNumberOfAllocPages(void) const override;
 
-  private:
+    virtual UnorderedIterator begin(void) override
+    {
+      return UnorderedIterator(this, true);
+    }
+    virtual UnorderedIterator end(void) override
+    {
+      return UnorderedIterator(this, false);
+    }
 
+  private:
     struct MemPage
     {
       EntityType *m_memory = nullptr;
@@ -168,8 +243,9 @@ namespace Sulfur
     ++m_pages[pageNum]->m_used;
 
     SF_ASSERT(m_pages[pageNum]->m_used <= EngineSettings::SlotMapObjsPerPage,
-      "Memory page indicates that it has more objects than objs per page")
+      "Memory page indicates that it has more objects than objs per page");
 
+    m_usedHandles.insert(newHndl);
     return newHndl;
   }
 
@@ -204,8 +280,9 @@ namespace Sulfur
     ++m_pages[pageNum]->m_used;
 
     SF_ASSERT(m_pages[pageNum]->m_used <= EngineSettings::SlotMapObjsPerPage,
-      "Memory page indicates that it has more objects than objs per page")
+      "Memory page indicates that it has more objects than objs per page");
 
+    m_usedHandles.insert(hndl);
     new (m_pages[pageNum]->m_memory + index) EntityType();
   }
 
@@ -220,7 +297,7 @@ namespace Sulfur
     UINT64 index = hndl % EngineSettings::SlotMapObjsPerPage;
 
     SF_ASSERT(m_pages.size() >= pageNum, "Object does not exist");
-    SF_ASSERT(_IsFree(pageNum, index), "Object does not exist");
+    SF_ASSERT(!_IsFree(pageNum, index), "Object does not exist");
 
     if (_IsFree(pageNum, index))
     {
@@ -252,6 +329,7 @@ namespace Sulfur
       }
     }
 
+    m_usedHandles.erase(hndl);
     --m_pages[pageNum]->m_used;
     SF_ASSERT(m_pages[pageNum]->m_used >= 0, 
       "Number of used object is less than 0");
@@ -319,6 +397,8 @@ namespace Sulfur
 
     for (auto it : m_pages)
       m_pageQueue.push(it);
+
+    m_usedHandles.clear();
   }
 
   template <typename EntityType>
