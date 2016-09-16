@@ -48,9 +48,9 @@ public:
     m_rotation.SetEuler(roll, pitch, yaw);
   }
 
-  SF_PRIVATE_PROPERTY(Vector3, scale, Scale, "Scale")
   SF_PRIVATE_PROPERTY(Vector3, translation, Translation, "Translation")
   SF_PRIVATE_PROPERTY(Quaternion, rotation, Rotation, "Rotation")
+  SF_PRIVATE_PROPERTY(Vector3, scale, Scale, "Scale")
 
 private:
   Matrix4 m_transformMatrix;

@@ -22,6 +22,13 @@ EditorWindow::EditorWindow(QWidget *parent)
 {
   resize(1920, 1080);
 
+  const TypeInfo *typeInfo = SF_TYPE_INFO(Transform);
+
+  m_transform.SetTranslation(Vector3(0.0f, 100.0f, 0.0f));
+  m_transform.SetRotationEulerXZY(0.0f, 0.0f, 0.0f);
+  m_transform.SetScale(Vector3(1.0f, 1.0f, 1.0f));
+  m_transform.m_name = "Transform";
+
   m_game = new GameWidget();
   setCentralWidget(m_game);
 

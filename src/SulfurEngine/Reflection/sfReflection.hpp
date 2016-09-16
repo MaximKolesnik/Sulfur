@@ -96,10 +96,14 @@ namespace Sulfur
     }
 
   };
+
+  template <> const TypeInfo TypeInfoRegistry<ReflectionBase>::s_typeInfo = TypeInfo("ReflectionBase", TypeInfo::IdGen(), true);
   
 }
 
 #define SF_REFLECTED_CLASS_DERIVED(name, baseType) \
+class name; \
+SF_REGISTER_REFLECTED_TYPE(name) \
 class name : public baseType { \
 private: \
 typedef name ThisType; \

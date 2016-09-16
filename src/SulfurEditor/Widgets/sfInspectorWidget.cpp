@@ -13,13 +13,18 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfInspectorWidget.hpp"
 
+// Editors
+#include "Editors/sfVector3Editor.hpp"
+#include "Editors/sfQuaternionEditor.hpp"
+#include "Editors/sfStringEditor.hpp"
+
 namespace Sulfur
 {
 
 InspectorWidget::InspectorWidget(QWidget *parent)
   : QWidget(parent), m_object(nullptr)
 {
-  m_layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
+  m_layout = new QVBoxLayout();
   setLayout(m_layout);
 }
 
@@ -36,10 +41,18 @@ void InspectorWidget::SetObject(ReflectionBase *object)
 
   for (Property *prop : properties)
   {
-    QLabel *label = new QLabel();
-    label->setText(prop->GetName().c_str());
-    m_layout->addWidget(label);
+    PropertyEditor *editor = nullptr;
+
+    if (prop->GetTypeInfo()->IsDerivedFrom<ReflectionBase>()) editor = new PropertyEditor(m_object, prop);
+    else if (prop->IsType<Vector3>()) editor = new Vector3Editor(m_object, prop);
+    else if (prop->IsType<Quaternion>()) editor = new QuaternionEditor(m_object, prop);
+    else if (prop->IsType<std::string>()) editor = new StringEditor(m_object, prop);
+    else editor = new PropertyEditor(m_object, prop);
+
+    m_layout->addWidget(editor, 0, Qt::AlignTop);
   }
+
+  m_layout->insertStretch(-1, 1);
 }
 
 void InspectorWidget::UpdateValues()

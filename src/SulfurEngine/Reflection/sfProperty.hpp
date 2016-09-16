@@ -13,10 +13,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include "sfSerialization.hpp"
+#include "sfTypeInfo.hpp"
 
 namespace Sulfur
 {
-	
+
   class Property
   {
   
@@ -43,6 +44,14 @@ namespace Sulfur
     {
       SetValue(reinterpret_cast<void *>(&classInstance), reinterpret_cast<const void *>(&value));
     }
+
+    template <typename Type>
+    bool IsType() const
+    {
+      return SF_TYPE_ID(Type) == GetTypeInfo()->GetId();
+    }
+
+    virtual const TypeInfo* GetTypeInfo() const = 0;
 
   public:
     virtual void Serialize(std::ostream& str, const void *classInstance) = 0;
@@ -76,6 +85,11 @@ namespace Sulfur
       SetValue(classInstance, reinterpret_cast<const void *>(&value));
     }
 
+    virtual const TypeInfo* GetTypeInfo() const override
+    {
+      return &TypeInfoRegistry<PropertyType>::s_typeInfo;
+    }
+
   };
 
   template <typename ClassType, typename PropertyType>
@@ -95,10 +109,10 @@ namespace Sulfur
   protected:
     virtual const void* GetValue(const void *classInstance)
     {
-      /*SF_CRITICAL_ERR_EXP(
+      SF_CRITICAL_ERR_EXP(
         m_getter != nullptr,
         "Property is write-only"
-        );*/
+        );
 
       const ClassType& ci = *reinterpret_cast<const ClassType*>(classInstance);
       return reinterpret_cast<const void *>(&(ci.*m_getter)());
@@ -106,10 +120,10 @@ namespace Sulfur
 
     virtual void SetValue(void *classInstance, const void *value)
     {
-      /*SF_CRITICAL_ERR_EXP(
+      SF_CRITICAL_ERR_EXP(
         m_setter != nullptr,
         "Property is read-only"
-        );*/
+        );
       if (m_setter == nullptr)
         return;
 
