@@ -1,5 +1,6 @@
 #include "Windows/sfEditorWindow.hpp"
 #include <QtWidgets/QApplication>
+#include "Reflection/sfReflection.hpp"
 
 int main(int argc, char *argv[])
 {

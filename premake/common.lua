@@ -2,12 +2,6 @@ require "xcode"
 require "qt" 
 local qt = premake.extensions.qt
 
-if _ACTION == "clean" then
-  os.rmdir("../workspaces")
-  os.rmdir("../builds")
-  os.exit()
-end
-
 -- Premake definition
 premakeDef = {
 
@@ -162,7 +156,7 @@ end
 -- CreateProjects
 -- Generates premake code for the given project
 function CreateProject(projName, projKind, proj)
-	if (projKind == "WindowedApp" or projKind == "ConsoleApp") then
+	if (projKind == "WindowedApp" or projKind == "ConsoleApp" or projKind == "Qt") then
 		group("Executables")
 	else
 		group("Libraries")
@@ -269,25 +263,39 @@ end
 -- RunPremake
 -- Generates the premake code to generate the workspace
 function RunPremake()
-	AddLibraryProjectDepends()
-	
-	workspace(premakeDef.workspace.name)
-	startproject(premakeDef.workspace.startupProject)
-	filename(premakeDef.workspace.name)
-	location("../workspaces/"..premakeDef.workspace.name.."/".._ACTION)
-	flags(premakeDef.workspace.flags)
-	defines(premakeDef.workspace.defines)
-	configurations(GetConfigurationNames())
-	
-	if (_ACTION == "gmake") then
-		toolset "clang"
+	if _ACTION == "clean" then
+		os.rmdir("../workspaces")
+		os.rmdir("../builds")
+	  
+	  -- Remove GeneratedFiles folder from Qt projects
+		for projName, proj in pairs(premakeDef.projects) do
+			if proj.kind == "Qt" then
+				os.rmdir("../src/"..projName.."/GeneratedFiles")
+			end
+		end
+	  
+	  os.exit()
+	else
+		AddLibraryProjectDepends()
+		
+		workspace(premakeDef.workspace.name)
+		startproject(premakeDef.workspace.startupProject)
+		filename(premakeDef.workspace.name)
+		location("../workspaces/"..premakeDef.workspace.name.."/".._ACTION)
+		flags(premakeDef.workspace.flags)
+		defines(premakeDef.workspace.defines)
+		configurations(GetConfigurationNames())
+		
+		if (_ACTION == "gmake") then
+			toolset "clang"
+		end
+		
+		if (premakeDef.workspace.characterSet ~= nil) then
+			characterset(premakeDef.workspace.characterSet)
+		end
+		
+		CreatePlatforms()
+		CreateConfigurations()
+		CreateProjects()
 	end
-	
-	if (premakeDef.workspace.characterSet ~= nil) then
-		characterset(premakeDef.workspace.characterSet)
-	end
-	
-	CreatePlatforms()
-	CreateConfigurations()
-	CreateProjects()
 end
