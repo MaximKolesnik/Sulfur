@@ -32,6 +32,15 @@ namespace Sulfur
     return m_instance;
   }
 
+  bool ComponentFactory::IsRegistered(const std::string &compType) const
+  {
+    auto res = m_compMap.find(compType);
+
+    if (res != m_compMap.end())
+      return true;
+    return false;
+  }
+
   IEntity* ComponentFactory::CreateComponent(const std::string &name)
   {
     SF_ASSERT(m_compMap.find(name) != m_compMap.end(),
@@ -83,7 +92,7 @@ namespace Sulfur
 
   void ComponentFactory::Initialize(void)
   {
-    this->RegisterComponent<Transform>();
+    this->_RegisterComponent<Transform>();
   }
 
   ComponentFactory::ComponentFactory(void)
@@ -98,13 +107,13 @@ namespace Sulfur
   }
 
   IEntity* ComponentFactory::GetComponent(const std::string &name, 
-    HNDL handle)
+    HNDL handle) const
   {
     SF_ASSERT(handle != SF_INV_HANDLE, "Invalid handle");
     SF_ASSERT(m_compMap.find(name) != m_compMap.end(),
       name + " is not registered");
 
-    return m_compMap[name]->At(handle);
+    return m_compMap.at(name)->At(handle);
   }
 
   ComponentFactory::ComponentData 

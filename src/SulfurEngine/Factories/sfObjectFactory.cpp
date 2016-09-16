@@ -71,20 +71,42 @@ namespace Sulfur
     {
       Object *obj = this->GetObject(handle);
       if (obj) //Object may already be deleted
-        _Destroy(this->GetObject(handle));
+        _Destroy(obj);
     }
+
+    m_objectsToDelete.clear();
   }
 
   void ObjectFactory::_Destroy(Object *obj)
   {
     if (!obj->m_children.empty())
     {
-      for (auto &it : obj->m_children)
-        _Destroy(it.second);
+      auto childIt = obj->m_children.begin();
+      while (childIt != obj->m_children.end())
+      {
+        Object *child = childIt->second;
+
+        ++childIt;
+
+        _Destroy(child);
+      }
     }
 
-    for (auto &it : obj->m_components)
-      ComponentFactory::Instance()->DeleteComponent(it.first, it.second);
+    if (obj->m_owner != SF_INV_HANDLE)
+    {
+      Object *parent = SF_GET_OBJECT(obj->m_owner);
+      parent->m_children.erase(obj->m_hndl);
+    }
+
+    auto compIt = obj->m_components.begin();
+    while (compIt != obj->m_components.end())
+    {
+      std::string name = compIt->first;
+      HNDL handle = compIt->second;
+      ++compIt;
+
+      ComponentFactory::Instance()->DeleteComponent(name, handle);
+    }
 
     m_objects.Erase(obj->m_hndl);
   }

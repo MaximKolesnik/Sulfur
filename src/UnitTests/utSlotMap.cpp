@@ -10,6 +10,9 @@
 #include "DataStructures/sfSlotMap.hpp"
 #include "Components/sfTransform.hpp"
 
+#include "Factories\sfObjectFactory.hpp"
+#include "Factories\sfComponentFactory.hpp"
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace Sulfur;
 
@@ -167,30 +170,26 @@ namespace UnitTests
 
     TEST_METHOD(SlotMap9)
     {
-      SlotMap<Transform> slotMap;
-      std::stack<HNDL> iteratedHandles;
-      std::set<HNDL> iterSet;
-      std::vector<HNDL> hndls;
-      Sulfur::UINT64 numAllocs = 10 * EngineSettings::SlotMapObjsPerPage;
-
-      for (Sulfur::UINT64 i = 0; i < numAllocs; ++i)
-        hndls.push_back(i);
-
-      std::random_shuffle(hndls.begin(), hndls.end());
-
-      for (auto &it : hndls)
-        slotMap.CreateAt(it);
-
-      auto &it = slotMap.begin();
-
-      for (auto it : slotMap)
+      std::vector<HNDL> createdTransforms;
+      std::vector<HNDL> iteratedTransforms;
+      for (int i = 0; i < 20000; ++i)
       {
-        /*iteratedHandles.push();
-        auto res = iterSet.insert(it->GetHndl());
-        Assert::IsTrue(res.second);*/
+        Object *obj = SF_CREATE_OBJECT("Default");
+        createdTransforms.push_back(obj->GetComponentHandle<Transform>());
       }
 
-      Assert::IsTrue(hndls.size() == iteratedHandles.size());
+      auto compData = SF_GET_COMP_DATA(Transform);
+
+      for (auto it = compData.begin(); it != compData.end(); ++it)
+        iteratedTransforms.push_back((*it)->GetHndl());
+
+      Assert::IsTrue(createdTransforms.size() == iteratedTransforms.size());
+
+      for (auto it : iteratedTransforms)
+      {
+        auto res = std::find(createdTransforms.begin(), createdTransforms.end(), it);
+        Assert::IsTrue(res != createdTransforms.end());
+      }
     }
   };
 }

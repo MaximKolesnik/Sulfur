@@ -35,20 +35,7 @@ namespace Sulfur
 
   Object* Object::Clone(void) const
   {
-    Object *clone = SF_CREATE_EMPTY_OBJECT(m_name);
-    clone->SetParent(this->m_owner);
-
-    //Clone components
-    for (auto &it : m_components)
-    {
-      IEntity *compToClone = ComponentFactory::Instance()->GetComponent(it.first, it.second);
-
-      clone->AttachComponent(compToClone->Clone());
-    }
-
-    _CloneChildren(clone, m_children);
-
-    return clone;
+    return _Clone(this);
   }
 
   void Object::SetParent(HNDL parent)
@@ -82,7 +69,7 @@ namespace Sulfur
     }
     else //Parent is not set
     {
-      auto &newParentChildren = ObjectFactory::Instance()->GetObject(m_owner)->m_children;
+      auto &newParentChildren = ObjectFactory::Instance()->GetObject(parent)->m_children;
 
       SF_ASSERT(newParentChildren.find(m_hndl) == newParentChildren.end(),
         "Object is already set as child");
@@ -116,11 +103,71 @@ namespace Sulfur
     return false;
   }
 
+  bool Object::HasComponent(const std::string &compType) const
+  {
+    SF_ASSERT(ComponentFactory::Instance()->IsRegistered(compType), 
+      compType + " is not registered");
+
+    auto res = m_components.find(compType);
+
+    if (res != m_components.end())
+      return true;
+    return false;
+  }
+
+  HNDL Object::GetComponentHandle(const std::string &compType) const
+  {
+    auto res = m_components.find(compType);
+
+    if (res != m_components.end())
+      return res->second;
+    
+    return SF_INV_HANDLE;
+  }
+
+  IEntity* Object::GetComponent(const std::string &compType) const
+  {
+    auto res = m_components.find(compType);
+
+    if (res != m_components.end())
+      return SF_GET_COMP_STR(compType, res->second);
+    return nullptr;
+  }
+
+  std::string Object::_RemoveScope(const std::string name) const
+  {
+    size_t scopePos = name.find_last_of(":");
+    if (scopePos == std::string::npos)
+      return name;
+    else
+      return name.substr(scopePos + 1);
+  }
+
+  Object*Object::_Clone(const Object *obj) const
+  {
+    Object *clone = SF_CREATE_EMPTY_OBJECT(m_name);
+
+    if (obj->m_owner != SF_INV_HANDLE)
+      clone->SetParent(obj->m_owner);
+
+    //Clone components
+    for (auto &it : m_components)
+    {
+      IEntity *compToClone = ComponentFactory::Instance()->GetComponent(it.first, it.second);
+
+      clone->AttachComponent(compToClone->Clone());
+    }
+
+    _CloneChildren(clone, m_children);
+
+    return clone;
+  }
+
   void Object::_CloneChildren(Object *parent, const ChildrenMap &children) const
   {
     for (auto &it : children)
     {
-      Object *cloneChild = it.second->Clone();
+      Object *cloneChild = it.second->_Clone(parent);
       cloneChild->SetParent(parent->m_hndl);
     }
   }

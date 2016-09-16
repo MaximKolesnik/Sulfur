@@ -24,7 +24,6 @@ inerting missing handles when they are needed
 
 #include <list>
 #include <vector>
-#include <unordered_set>
 
 #include "../Types/sfIEntity.hpp"
 #include "../sfProjectDefs.hpp"
@@ -38,65 +37,85 @@ namespace Sulfur
   class ISlotMap
   {
   public:
-    class UnorderedIterator
+    class Iterator
     {
     public:
-      UnorderedIterator(ISlotMap *map, bool begin)
+      Iterator(ISlotMap *slotMap, HNDL index)
+        : m_slotMap(slotMap), m_index(index)
       {
-        m_map = map;
-        m_usedHandles = &(map->m_usedHandles);
 
-        if (begin)
-          m_it = (*m_usedHandles).begin();
-        else
-          m_it = (*m_usedHandles).end();
       }
 
-      UnorderedIterator& operator++(void)
+      Iterator& operator++(void)
       {
-        ++m_it;
+        HNDL lastHndl = m_slotMap->_LastHandle();
+        SF_ASSERT(m_index != lastHndl, "Iterator is at end already");
+
+        HNDL newIndex = m_index + 1;
+        while (newIndex < lastHndl && m_slotMap->_IsFree(newIndex))
+          ++newIndex;
+
+        m_index = ((newIndex >= lastHndl) 
+          ? m_slotMap->_LastHandle() : newIndex);
+
         return *this;
       }
 
-      UnorderedIterator operator++(int)
+      Iterator& operator++(int)
       {
-        UnorderedIterator temp = *this;
-        
-        return ++(*this);
+        Iterator temp = *this;
+
+        ++(*this);
+
+        return temp;
       }
 
-      UnorderedIterator& operator--(void)
+      Iterator& operator--(void)
       {
-        --m_it;
+        SF_ASSERT(m_index != 0, "Iterator is at end already");
+
+        HNDL newIndex = m_index - 1;
+        while (m_slotMap->_IsFree(newIndex))
+          --newIndex;
+
+        m_index = ((newIndex < 0) ? 0 : newIndex);
+
         return *this;
       }
 
-      UnorderedIterator operator--(int)
+      Iterator& operator--(int)
       {
-        UnorderedIterator temp = *this;
+        Iterator temp = *this;
 
-        return --(*this);
+        --(*this);
+
+        return temp;
       }
 
-      bool operator==(UnorderedIterator &it) const
+      IEntity* operator*(void) const
       {
-        return m_it == it.m_it;
+        return m_slotMap->At(m_index);
       }
 
-      bool operator!=(UnorderedIterator &it) const
+      Iterator& operator=(const Iterator &other)
       {
-        return m_it != it.m_it;
+        m_slotMap = other.m_slotMap;
+        m_index = other.m_index;
       }
 
-      IEntity* operator*(void)
+      bool operator==(const Iterator &other) const
       {
-        return m_map->At(*m_it);
+        return m_index == other.m_index;
+      }
+
+      bool operator!=(const Iterator &other) const
+      {
+        return !(*this == other);
       }
 
     private:
-      ISlotMap *m_map;
-      std::unordered_set<HNDL> *m_usedHandles;
-      std::unordered_set<HNDL>::iterator m_it;
+      ISlotMap *m_slotMap;
+      HNDL m_index;
     };
 
     ISlotMap(void)
@@ -112,11 +131,13 @@ namespace Sulfur
     virtual void Clear(void) = 0;
     virtual UINT64 GetNumberOfAllocPages(void) const = 0;
 
-    virtual UnorderedIterator begin(void) = 0;
-    virtual UnorderedIterator end(void) = 0;
+    virtual Iterator begin(void) = 0;
+    virtual Iterator end(void) = 0;
 
   protected:
-    std::unordered_set<HNDL> m_usedHandles;
+    virtual bool _IsFree(UINT64 pageNum, UINT64 index) const = 0;
+    virtual bool _IsFree(HNDL handle) const = 0;
+    virtual HNDL _LastHandle(void) const = 0;
   };
 
   //Has to be IEntity or derived from it
@@ -134,13 +155,13 @@ namespace Sulfur
     virtual void Clear(void) override;
     virtual UINT64 GetNumberOfAllocPages(void) const override;
 
-    virtual UnorderedIterator begin(void) override
+    virtual Iterator begin(void) override
     {
-      return UnorderedIterator(this, true);
+      return Iterator(this, 0);
     }
-    virtual UnorderedIterator end(void) override
+    virtual Iterator end(void) override
     {
-      return UnorderedIterator(this, false);
+      return Iterator(this, _LastHandle());
     }
 
   private:
@@ -167,7 +188,9 @@ namespace Sulfur
 
     MemPage* _AllocateNewPage(HNDL firstHndl);
     void _ConstructPageFreeList(HNDL firstHndl, std::list<HNDL> *&freeList);
-    bool _IsFree(UINT64 pageNum, UINT64 index) const;
+    virtual bool _IsFree(UINT64 pageNum, UINT64 index) const override;
+    virtual bool _IsFree(HNDL handle) const override;
+    virtual HNDL _LastHandle(void) const override;
 
     MemPage *m_head = nullptr;
     std::vector<MemPage*> m_pages;
@@ -245,7 +268,6 @@ namespace Sulfur
     SF_ASSERT(m_pages[pageNum]->m_used <= EngineSettings::SlotMapObjsPerPage,
       "Memory page indicates that it has more objects than objs per page");
 
-    m_usedHandles.insert(newHndl);
     return newHndl;
   }
 
@@ -282,7 +304,6 @@ namespace Sulfur
     SF_ASSERT(m_pages[pageNum]->m_used <= EngineSettings::SlotMapObjsPerPage,
       "Memory page indicates that it has more objects than objs per page");
 
-    m_usedHandles.insert(hndl);
     new (m_pages[pageNum]->m_memory + index) EntityType();
   }
 
@@ -297,7 +318,6 @@ namespace Sulfur
     UINT64 index = hndl % EngineSettings::SlotMapObjsPerPage;
 
     SF_ASSERT(m_pages.size() >= pageNum, "Object does not exist");
-    SF_ASSERT(!_IsFree(pageNum, index), "Object does not exist");
 
     if (_IsFree(pageNum, index))
     {
@@ -329,7 +349,6 @@ namespace Sulfur
       }
     }
 
-    m_usedHandles.erase(hndl);
     --m_pages[pageNum]->m_used;
     SF_ASSERT(m_pages[pageNum]->m_used >= 0, 
       "Number of used object is less than 0");
@@ -377,6 +396,7 @@ namespace Sulfur
     for (INT64 i = m_pages.size() - 1; i >= EngineSettings::SlotMapInitNumOfPages; --i)
     {
       delete m_pages[i]->m_freeList;
+      free(m_pages[i]->m_memory);
       delete m_pages[i];
       m_pages.pop_back();
     }
@@ -390,15 +410,14 @@ namespace Sulfur
       memset((void*)(it->m_memory), 0,
         sizeof(EntityType) * EngineSettings::SlotMapObjsPerPage);
 
-      for (HNDL i = it->m_firstHndl; i < EngineSettings::SlotMapObjsPerPage; ++i)
+      for (HNDL i = it->m_firstHndl; i < 
+        it->m_firstHndl + EngineSettings::SlotMapObjsPerPage; ++i)
         it->m_freeList->push_back(i);
     }
     m_pageQueue.clear();
 
     for (auto it : m_pages)
       m_pageQueue.push(it);
-
-    m_usedHandles.clear();
   }
 
   template <typename EntityType>
@@ -441,5 +460,24 @@ namespace Sulfur
 
     return !memcmp(reinterpret_cast<void*>(m_pages[pageNum]->m_memory + index), 
       testBlock, sizeof(EntityType));
+  }
+
+  template <typename EntityType>
+  bool SlotMap<EntityType>::_IsFree(HNDL handle) const
+  {
+    //Locate the page and index
+    UINT64 pageNum = handle / EngineSettings::SlotMapObjsPerPage;
+    UINT64 index = handle % EngineSettings::SlotMapObjsPerPage;
+
+    static const char testBlock[sizeof(EntityType)];
+
+    return !memcmp(reinterpret_cast<void*>(m_pages[pageNum]->m_memory + index),
+      testBlock, sizeof(EntityType));
+  }
+
+  template <typename EntityType>
+  HNDL SlotMap<EntityType>::_LastHandle(void) const
+  {
+    return m_pages.back()->m_firstHndl + EngineSettings::SlotMapObjsPerPage;
   }
 }
