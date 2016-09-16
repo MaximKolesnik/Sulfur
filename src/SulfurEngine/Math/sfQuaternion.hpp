@@ -117,7 +117,7 @@ namespace Sulfur
       m_comps[3] = cx * sy * cz - sx * cy * sz;
     }
 
-    SF_FORCE_INLINE void SF_VEC_CALL GetEulerXYZ(Real &roll, Real &pitch, Real &yaw)
+    SF_FORCE_INLINE void SF_VEC_CALL GetEulerXYZ(Real &roll, Real &pitch, Real &yaw) const
     {
       Real test = m_comps[1] * m_comps[2] + m_comps[3] * m_comps[0];
       if (test > 0.499) 

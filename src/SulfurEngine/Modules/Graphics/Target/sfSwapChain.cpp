@@ -20,7 +20,31 @@ namespace Sulfur
 void SwapChain::Init(D3D11Device& device, DXGI_SWAP_CHAIN_DESC& description)
 {
   WrapperBase::Init(D3D11Factory::Instance()->CreateSwapChain(device.GetD3DResource(), description));
+  UpdateBackBuffer();  
+}
 
+void SwapChain::Present(bool vsync)
+{
+  m_resource->Present(vsync ? 1 : 0, 0);
+}
+
+void SwapChain::Resize(UINT32 width, UINT32 height)
+{
+  m_backBuffer.Free();
+  SF_CRITICAL_ERR_HRESULT(
+    m_resource->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0),
+    "Failed to resize swap chain"
+    )
+  UpdateBackBuffer();
+}
+
+Texture2D& SwapChain::GetBackBuffer()
+{
+  return m_backBuffer;
+}
+
+void SwapChain::UpdateBackBuffer()
+{
   ID3D11Texture2D *buffer = nullptr;
 
   SF_CRITICAL_ERR_HRESULT(
@@ -29,16 +53,6 @@ void SwapChain::Init(D3D11Device& device, DXGI_SWAP_CHAIN_DESC& description)
     );
 
   m_backBuffer.Init(buffer);
-}
-
-void SwapChain::Present(bool vsync)
-{
-  m_resource->Present(vsync ? 1 : 0, 0);
-}
-
-Texture2D& SwapChain::GetBackBuffer()
-{
-  return m_backBuffer;
 }
 
 }

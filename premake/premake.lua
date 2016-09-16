@@ -86,12 +86,20 @@ premakeDef.projects["UnitTests"] = {
 -- Executable Projects --------------------------------------------------------
 -------------------------------------------------------------------------------
 
+premakeDef.projects["SulfurEditor"] = {
+	language = "C++",
+	qtModules = { "core", "gui", "widgets" },
+	kind = "Qt",
+	dependencies = { "SulfurEngine" },
+	pchHeader = "sfEditorPCH.hpp",
+	pchSource = "sfEditorPCH.cpp"
+}
+
 premakeDef.projects["SulfurGame"] = {
 	language = "C++",
 	kind = "WindowedApp",
 	dependencies = { "SulfurEngine" }
 }
-
 
 premakeDef.projects["ShaderCompiler"] = {
 	language = "C++",
