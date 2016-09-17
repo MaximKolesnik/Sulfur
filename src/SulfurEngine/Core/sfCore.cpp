@@ -1,4 +1,5 @@
 #include "sfCore.hpp"
+#include "Components/sfCamera.hpp"
 
 // Modules
 #include "Modules/Window/sfWindowManager.hpp"

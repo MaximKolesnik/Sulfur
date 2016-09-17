@@ -15,6 +15,9 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Components/sfTransform.hpp"
+#include "Factories/sfComponentFactory.hpp"
+#include "Factories/sfObjectFactory.hpp"
 
 namespace Sulfur
 {
@@ -63,32 +66,23 @@ void RenderGbuffer::Process()
   perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, 3.14159f / 4.0f, 0.1f, 1000.0f);
   m_perFrameData->SetData(m_context, perFrame);
 
+  ComponentFactory::ComponentData componentData = ComponentFactory::Instance()->GetComponentData<MeshRenderer>();
+  for (auto it = componentData.begin(); it != componentData.end(); ++it)
+    RenderMeshRenderer(static_cast<MeshRenderer*>(*it));
+}
+
+
+void RenderGbuffer::RenderMeshRenderer(MeshRenderer *meshRenderer)
+{
+  Object *object = ObjectFactory::Instance()->GetObject(meshRenderer->GetOwner());
+  Transform* transform = object->GetComponent<Transform>();
+  transform->Update();
+
   PerObjectData perObject;
-  perObject.WorldMatrix.SetTransformation(Vector3(rx, ry, rz), Vector3(100.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0, 200.0f));
+  perObject.WorldMatrix = transform->GetTransformMatrix();
   m_perObjectData->SetData(m_context, perObject);
 
-  DebugDraw::Instance()->DrawSphere(perObject.WorldMatrix, 50.0f);
-
-  DebugDraw::Instance()->DrawBox(perObject.WorldMatrix);
-
-  perObject.WorldMatrix.SetTransformation(Vector3(rx, ry, rz), Vector3(75.0f, 75.0f, 75.0f), Vector3(0.0f, 0.0, 200.0f));
-  DebugDraw::Instance()->DrawBox(perObject.WorldMatrix);
-
-  perObject.WorldMatrix.SetTransformation(Vector3(rx, ry, rz), Vector3(50.0f, 50.0f, 50.0f), Vector3(0.0f, 0.0, 200.0f));
-  DebugDraw::Instance()->DrawBox(perObject.WorldMatrix);
-
-  perObject.WorldMatrix.SetTransformation(Vector3(rx, ry, rz), Vector3(25.0f, 25.0f, 25.0f), Vector3(0.0f, 0.0, 200.0f));
-  DebugDraw::Instance()->DrawBox(perObject.WorldMatrix);
-
-  perObject.WorldMatrix.SetRotationRad(rx, ry, rz);
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(50.0f, 0.0, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(0.0f, 50.0, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(0.0f, 0.0, 50.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(-50.0f, 0.0, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(0.0f, -50.0, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(0.0f, 0.0, -50.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-
-  m_boxMesh.Draw(m_context);
+  meshRenderer->GetMesh().Draw(m_context);
 }
 
 }

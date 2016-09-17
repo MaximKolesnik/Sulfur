@@ -12,6 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfVector3Editor.hpp"
+#include "Math/sfVector3.hpp"
 
 namespace Sulfur
 {

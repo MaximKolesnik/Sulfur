@@ -43,7 +43,9 @@ namespace Sulfur
       Iterator(ISlotMap *slotMap, HNDL index)
         : m_slotMap(slotMap), m_index(index)
       {
-
+        HNDL lastHndl = m_slotMap->_LastHandle();
+        while (m_index < lastHndl && m_slotMap->_IsFree(m_index))
+          ++m_index;
       }
 
       Iterator& operator++(void)

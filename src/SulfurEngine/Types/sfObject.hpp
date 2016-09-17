@@ -26,10 +26,10 @@ namespace Sulfur
 
   //Owner handle from IEntity is used to identify parent
   //SF_INV_HANDLE means object has no parent
-  class Object : public IEntity
-  {
+  SF_REFLECTED_CLASS_DERIVED(Object, IEntity)
   public:
     typedef std::unordered_map<HNDL, Object*> ChildrenMap;
+    typedef std::unordered_map<std::string, HNDL> ComponentMap;
 
     Object(void);
     virtual ~Object(void);
@@ -67,7 +67,7 @@ namespace Sulfur
 
     void _CloneChildren(Object *parent, const ChildrenMap &children) const;
 
-    std::unordered_map<std::string, HNDL> m_components;
+    SF_PRIVATE_PROPERTY(ComponentMap, components, Components, "Components")
 
     ChildrenMap m_children;
   };

@@ -49,4 +49,18 @@ namespace Sulfur
 
     return newTransform;
   }
+
+  void Transform::Update()
+  {
+    m_transformMatrix.SetTransformation(m_rotation, m_scale, m_translation);
+    m_right = m_transformMatrix.TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
+    m_up = m_transformMatrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
+    m_forward = m_transformMatrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
+  }
+
+  const Matrix4& Transform::GetTransformMatrix() const
+  {
+    return m_transformMatrix;
+  }
+
 }

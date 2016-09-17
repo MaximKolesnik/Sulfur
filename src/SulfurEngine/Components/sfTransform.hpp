@@ -33,6 +33,8 @@ public:
   virtual void Initialize(void) override final;
   virtual Transform* Clone(void) const override final;
 
+  void Update();
+
   void SetRotationDeg(const Vector3 &axis, const Real &angleDeg)
   {
     m_rotation.Set(axis, angleDeg * SF_DEGS_PER_RAD);
@@ -46,6 +48,8 @@ public:
   {
     m_rotation.SetEuler(roll, pitch, yaw);
   }
+
+  const Matrix4& GetTransformMatrix() const;
 
   SF_PRIVATE_PROPERTY(Vector3, translation, Translation, "Translation")
   SF_PRIVATE_PROPERTY(Quaternion, rotation, Rotation, "Rotation")

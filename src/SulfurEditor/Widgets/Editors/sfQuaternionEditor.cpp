@@ -12,6 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfQuaternionEditor.hpp"
+#include "Math/sfQuaternion.hpp"
 
 namespace Sulfur
 {

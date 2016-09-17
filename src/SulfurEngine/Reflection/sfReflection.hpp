@@ -97,7 +97,7 @@ namespace Sulfur
 
   };
 
-  template <> const TypeInfo TypeInfoRegistry<ReflectionBase>::s_typeInfo = TypeInfo("ReflectionBase", TypeInfo::IdGen(), true);
+  template <> const TypeInfo TypeInfoRegistry<ReflectionBase>::s_typeInfo = TypeInfo("ReflectionBase", TypeInfo::IdGen(), nullptr, {});
   
 }
 
