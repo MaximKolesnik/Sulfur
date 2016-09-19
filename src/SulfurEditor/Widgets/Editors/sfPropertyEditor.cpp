@@ -21,6 +21,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfVector3Editor.hpp"
 #include "sfQuaternionEditor.hpp"
 #include "sfStringEditor.hpp"
+#include "sfEnumEditor.hpp"
 
 namespace Sulfur
 {
@@ -48,6 +49,7 @@ PropertyEditor* CreatePropertyEditor(const TypeInfo *typeInfo, Args...args)
   case LIST: return new PropertyEditor(args...);
   case MAP: return new PropertyEditor(args...);
   case NONE:
+    if (typeInfo->IsEnumType()) return new EnumEditor(args...);
     if (typeInfo == SF_TYPE_INFO(Object)) return new ObjectEditor(args...);
     if (typeInfo->IsDerivedFrom<ReflectionBase>()) return new ReflectedObjectEditor(args...);
     if (typeInfo == SF_TYPE_INFO(Real)) return new RealEditor(args...);

@@ -43,6 +43,11 @@ EditorWindow::EditorWindow(QWidget *parent)
   m_inspector->SetObject(testObject);
   inspectorDock->setWidget(m_inspector);
 
+  QObject::connect(
+    m_inspector, &InspectorWidget::ObjectChanged,
+    this, &EditorWindow::OnObjectChanged
+    );
+
   addDockWidget(Qt::RightDockWidgetArea, inspectorDock);
 
   QDockWidget *sceneDock = new QDockWidget(tr("Scene"), this);
@@ -51,6 +56,11 @@ EditorWindow::EditorWindow(QWidget *parent)
   m_sceneBrowser = new SceneBrowserWidget(sceneDock);
   m_sceneBrowser->SetScene(&SceneManager::Instance()->GetScene());
   sceneDock->setWidget(m_sceneBrowser);
+
+  QObject::connect(
+    m_sceneBrowser, &SceneBrowserWidget::ObjectSelected,
+    this, &EditorWindow::OnObjectSelected
+    );
 
   addDockWidget(Qt::LeftDockWidgetArea, sceneDock);
 
@@ -73,6 +83,11 @@ EditorWindow::EditorWindow(QWidget *parent)
   resourceBrowserDock->raise();
 
   setCorner(Qt::Corner::BottomRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
+
+  CreateMenuBar();
+
+  m_toolBar = new QToolBar();
+  addToolBar(m_toolBar);
 }
 
 EditorWindow::~EditorWindow()
@@ -82,6 +97,29 @@ EditorWindow::~EditorWindow()
 void EditorWindow::Frame()
 {
   m_game->Frame();
+}
+
+void EditorWindow::CreateMenuBar()
+{
+  m_menuBar = new QMenuBar();
+  setMenuBar(m_menuBar);
+
+  QMenu *fileMenu = new QMenu("File");
+  fileMenu->addAction("New Project...");
+  fileMenu->addAction("Open Project...");
+  fileMenu->addAction("Save Project");
+  fileMenu->addAction("Save Project As...");
+  m_menuBar->addMenu(fileMenu);
+}
+
+void EditorWindow::OnObjectSelected(Object *object)
+{
+  m_inspector->SetObject(object);
+}
+
+void EditorWindow::OnObjectChanged()
+{
+  m_sceneBrowser->UpdateSelectedObjects();
 }
 
 }

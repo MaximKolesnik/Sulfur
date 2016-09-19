@@ -40,13 +40,13 @@ void ObjectEditor::UpdateValue()
 
 
   Object *object = const_cast<Object*>(&GetValue<Object>());
-  m_childrenLayout->addWidget(PropertyEditor::Create(&object->m_name, SF_TYPE_INFO(std::string)));
+  AddChild(PropertyEditor::Create(object, object->GetProperty("Name")));
 
   auto& components = object->GetComponents();
   for (auto& componentPair : components)
   {
     IEntity *component = ComponentFactory::Instance()->GetComponent(componentPair.first, componentPair.second);
-    m_childrenLayout->addWidget(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)), 0, Qt::AlignTop);
+    AddChild(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)));
   }
 }
 

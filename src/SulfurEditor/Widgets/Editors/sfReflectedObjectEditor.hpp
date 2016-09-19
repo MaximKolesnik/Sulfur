@@ -12,12 +12,12 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
-#include "sfContainerEditor.hpp"
+#include "sfCollapsableEditor.hpp"
 
 namespace Sulfur
 {
 	
-  class ReflectedObjectEditor : public ContainerEditor
+  class ReflectedObjectEditor : public CollapsableEditor
   {
     Q_OBJECT
 

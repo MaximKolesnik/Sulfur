@@ -44,6 +44,15 @@ void SceneBrowserWidget::SetScene(Scene *scene)
     AddObject(object, m_sceneTree->invisibleRootItem());
 }
 
+void SceneBrowserWidget::UpdateSelectedObjects()
+{
+  QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
+  if (selection.empty()) return;
+
+  Object *object = ObjectFactory::Instance()->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
+  selection.front()->setText(0, object->m_name.c_str());
+}
+
 void SceneBrowserWidget::Setup()
 {
   setContentsMargins(0, 0, 0, 0);
@@ -55,6 +64,10 @@ void SceneBrowserWidget::Setup()
   m_sceneTree = new QTreeWidget();
   m_sceneTree->setHeaderHidden(true);
   m_layout->addWidget(m_sceneTree);
+  QObject::connect(
+    m_sceneTree, &QTreeWidget::itemSelectionChanged,
+    this, &SceneBrowserWidget::OnSceneTreeSelectionChanged
+    );
 }
 
 void SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
@@ -63,12 +76,23 @@ void SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
 
   // Add object
   QTreeWidgetItem *item = new QTreeWidgetItem({ object->m_name.c_str() });
+  item->setData(0, Qt::UserRole, QVariant::fromValue(objectHandle));
   root->addChild(item);
 
   // Add children
   auto& children = object->GetChildren();
   for (auto& child : children)
     AddObject(child.first, item);
+}
+
+void SceneBrowserWidget::OnSceneTreeSelectionChanged()
+{
+  QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
+  if (selection.empty())
+    emit ObjectSelected(nullptr);
+
+  Object *object = ObjectFactory::Instance()->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
+  emit ObjectSelected(object);
 }
 
 }

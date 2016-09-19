@@ -35,6 +35,16 @@ namespace Sulfur
     void Frame();
 
   private:
+    void CreateMenuBar();
+
+  public slots:
+    void OnObjectSelected(Object *object);
+    void OnObjectChanged();
+
+  private:
+    QMenuBar *m_menuBar;
+    QToolBar *m_toolBar;
+
     GameWidget *m_game;
     InspectorWidget *m_inspector;
     ResourceBrowserWidget *m_resourceBrowser;

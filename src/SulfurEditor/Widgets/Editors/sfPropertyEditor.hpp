@@ -48,7 +48,12 @@ namespace Sulfur
         *reinterpret_cast<T*>(m_ptr) = value;
       else
         m_property->SetValue(*m_object, value);
+
+      emit ValueChanged();
     }
+
+  signals:
+    void ValueChanged();
 
   protected:
     ReflectionBase *m_object;

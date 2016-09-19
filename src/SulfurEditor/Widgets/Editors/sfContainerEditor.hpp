@@ -26,7 +26,12 @@ namespace Sulfur
     ContainerEditor(void *ptr, QWidget *parent = 0);
     ~ContainerEditor();
 
+    void AddChild(PropertyEditor *editor);
+
     void ClearLayout();
+
+  public slots:
+    void OnChildChanged();
 
   private:
     void Setup();
@@ -34,7 +39,6 @@ namespace Sulfur
 
   protected:
     QBoxLayout *m_mainLayout;
-    QPushButton *m_collapseButton;
 
     QWidget *m_childrenWidget;
     QBoxLayout *m_childrenLayout;

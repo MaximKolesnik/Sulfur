@@ -28,9 +28,17 @@ namespace Sulfur
 
     void SetScene(Scene *scene);
 
+    void UpdateSelectedObjects();
+
   private:
     void Setup();
     void AddObject(HNDL objectHandle, QTreeWidgetItem *root);
+
+  public slots:
+    void OnSceneTreeSelectionChanged();
+
+  signals:
+    void ObjectSelected(Object *object);
 
   private:
     Scene *m_scene;

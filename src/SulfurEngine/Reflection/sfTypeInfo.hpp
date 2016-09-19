@@ -24,8 +24,8 @@ template <> const TypeInfo Sulfur::TypeInfoRegistry<std::list<type>>::s_typeInfo
 template <> const TypeInfo Sulfur::TypeInfoRegistry<std::unordered_map<std::string, type>>::s_typeInfo("std::unordered_map", TypeInfo::IdGen(), nullptr, {}, { SF_TYPE_INFO(std::string), SF_TYPE_INFO(type) });
 
 #define SF_REGISTER_ENUM_TYPE(type, values, ...) SF_REGISTER_TYPE(type, nullptr, values, ##__VA_ARGS__)
-#define SF_REGISTER_BASE_TYPE(type) SF_REGISTER_TYPE(type, nullptr, {})
-#define SF_REGISTER_REFLECTED_TYPE(type, baseType) SF_REGISTER_TYPE(type, SF_TYPE_INFO(baseType), {})
+#define SF_REGISTER_BASE_TYPE(type) SF_REGISTER_TYPE(type, nullptr)
+#define SF_REGISTER_REFLECTED_TYPE(type, baseType) SF_REGISTER_TYPE(type, SF_TYPE_INFO(baseType))
 
 namespace Sulfur
 {
@@ -64,6 +64,11 @@ public:
   const TypeInfo *GetParentClass() const { return m_parentClass; }
   const TypesList& GetTemplateTypes() const { return m_templateTypes; }
   const EnumValuesList& GetEnumValues() const { return m_enumValues; }
+
+  bool IsEnumType() const
+  {
+    return !m_enumValues.empty();
+  }
 
   template <typename Type>
   bool IsDerivedFrom() const

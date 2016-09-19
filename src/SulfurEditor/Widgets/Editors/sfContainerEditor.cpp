@@ -32,6 +32,16 @@ ContainerEditor::~ContainerEditor()
 {
 }
 
+void ContainerEditor::AddChild(PropertyEditor *editor)
+{
+  QObject::connect(
+    editor, &PropertyEditor::ValueChanged,
+    this, &ContainerEditor::OnChildChanged
+    );
+
+  m_childrenLayout->addWidget(editor, 0, Qt::AlignTop);
+}
+
 void ContainerEditor::Setup()
 {
   m_mainLayout = CreateLayout();
@@ -39,10 +49,6 @@ void ContainerEditor::Setup()
 
   m_childrenLayout = CreateLayout();
   setContentsMargins(0, 0, 0, 0);
-
-  //m_collapseButton = new QPushButton();
-  //if (m_property != nullptr) m_collapseButton->setText(m_property->GetName().c_str());
-  //m_mainLayout->addWidget(m_collapseButton);
 
   m_childrenWidget = new QWidget();
   m_childrenWidget->setLayout(m_childrenLayout);
@@ -64,6 +70,11 @@ QBoxLayout* ContainerEditor::CreateLayout()
   QBoxLayout *layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
   layout->setMargin(0);
   return layout;
+}
+
+void ContainerEditor::OnChildChanged()
+{
+  emit ValueChanged();
 }
 
 }

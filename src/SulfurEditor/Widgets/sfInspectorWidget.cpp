@@ -39,4 +39,9 @@ void InspectorWidget::CreateLayout()
   setLayout(m_layout);
 }
 
+void InspectorWidget::OnPropertyChanged()
+{
+  emit ObjectChanged();
+}
+
 }

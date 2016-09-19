@@ -17,13 +17,13 @@ namespace Sulfur
 {
 
 ReflectedObjectEditor::ReflectedObjectEditor(ReflectionBase *object, Property *prop, QWidget *parent)
-  : ContainerEditor(object, prop, parent)
+  : CollapsableEditor(object, prop, parent)
 {
   UpdateValue();
 }
 
 ReflectedObjectEditor::ReflectedObjectEditor(void *ptr, QWidget *parent)
-  : ContainerEditor(ptr, parent)
+  : CollapsableEditor(ptr, parent)
 {
   UpdateValue();
 }
@@ -40,9 +40,12 @@ void ReflectedObjectEditor::UpdateValue()
   ReflectionBase::PropertyList properties;
   m_object->GetProperties(properties);
 
+  m_collapseButton->setText(m_object->GetTypeInfo()->GetName().c_str());
+
   for (Property *prop : properties)
   {
-    m_childrenLayout->addWidget(PropertyEditor::Create(m_object, prop), 0, Qt::AlignTop);
+    if (prop->GetName() != "Name") // TODO: Find a better way to do this
+      AddChild(PropertyEditor::Create(m_object, prop));
   }
 }
 

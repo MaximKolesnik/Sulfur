@@ -31,10 +31,17 @@ namespace Sulfur
     {
       m_object = object;
 
-      delete m_layout;
+      QWidget().setLayout(m_layout);
       CreateLayout();
 
-      m_layout->addWidget(PropertyEditor::Create(object, SF_TYPE_INFO(T)));
+      PropertyEditor *editor = PropertyEditor::Create(object, SF_TYPE_INFO(T));
+
+      QObject::connect(
+        editor, &PropertyEditor::ValueChanged,
+        this, &InspectorWidget::OnPropertyChanged
+        );
+
+      m_layout->addWidget(editor);
       m_layout->insertStretch(-1, 1);
     }
 
@@ -42,6 +49,12 @@ namespace Sulfur
 
   private:
     void CreateLayout();
+
+  public slots:
+    void OnPropertyChanged();
+
+  signals:
+    void ObjectChanged();
   
   private:
     ReflectionBase *m_object;

@@ -54,6 +54,7 @@ void StringEditor::OnValueChanged(const QString& value)
 {
   SetValue(std::string(value.toUtf8().data()));
   UpdateValue();
+  emit ValueChanged();
 }
 
 }

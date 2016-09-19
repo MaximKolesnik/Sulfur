@@ -72,6 +72,11 @@ namespace Sulfur
       list.insert(list.end(), GetPropertyList().begin(), GetPropertyList().end());
     }
 
+    virtual const TypeInfo* GetTypeInfo() const
+    {
+      return SF_TYPE_INFO(ReflectionBase);
+    }
+
   protected:
     static PropertyList& GetPropertyList() 
     { 
@@ -113,6 +118,7 @@ static PropertyList& GetPropertyList() { static PropertyList propertyList; retur
 static PropertyMap& GetPropertyMap() { static PropertyMap propertyMap; return propertyMap; } \
 static void RegisterProperty(Property *prop) { GetPropertyList().push_back(prop); GetPropertyMap()[prop->GetName()] = prop; } \
 public: \
+virtual const TypeInfo* GetTypeInfo() const override { return SF_TYPE_INFO(name); } \
 virtual Property* GetProperty(const std::string& name) const { \
   PropertyMap& propertyMap = GetPropertyMap(); \
   auto it = propertyMap.find(name); \

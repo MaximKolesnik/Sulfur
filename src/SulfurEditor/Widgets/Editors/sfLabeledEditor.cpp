@@ -46,6 +46,7 @@ void LabeledEditor::CreateLabel()
   m_label = new QLabel();
   m_label->setText(m_property->GetName().c_str());
   m_label->setMinimumWidth(125);
+  m_label->setMaximumWidth(125);
   m_layout->addWidget(m_label);
 }
 
