@@ -13,6 +13,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfEditorWindow.hpp"
 #include "Widgets/sfGameWidget.hpp"
+#include "Modules/Scene/sfSceneManager.hpp"
+#include "Factories/sfObjectFactory.hpp"
 
 namespace Sulfur
 {
@@ -35,11 +37,22 @@ EditorWindow::EditorWindow(QWidget *parent)
   QDockWidget *inspectorDock = new QDockWidget(tr("Inspector"), this);
   inspectorDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
+  Object *testObject = ObjectFactory::Instance()->GetObject(SceneManager::Instance()->GetScene().GetRootObjects()[0]);
+
   m_inspector = new InspectorWidget(inspectorDock);
-  m_inspector->SetObject(&m_transform);
+  m_inspector->SetObject(testObject);
   inspectorDock->setWidget(m_inspector);
 
   addDockWidget(Qt::RightDockWidgetArea, inspectorDock);
+
+  QDockWidget *sceneDock = new QDockWidget(tr("Scene"), this);
+  sceneDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
+
+  m_sceneBrowser = new SceneBrowserWidget(sceneDock);
+  m_sceneBrowser->SetScene(&SceneManager::Instance()->GetScene());
+  sceneDock->setWidget(m_sceneBrowser);
+
+  addDockWidget(Qt::LeftDockWidgetArea, sceneDock);
 
   QDockWidget *resourceBrowserDock = new QDockWidget(tr("Resources"), this);
   resourceBrowserDock->setAllowedAreas(Qt::DockWidgetArea_Mask);

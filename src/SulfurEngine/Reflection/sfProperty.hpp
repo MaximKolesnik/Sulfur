@@ -45,10 +45,9 @@ namespace Sulfur
       SetValue(reinterpret_cast<void *>(&classInstance), reinterpret_cast<const void *>(&value));
     }
 
-    template <typename Type>
-    bool IsType() const
+    UINT32 GetTypeId() const
     {
-      return SF_TYPE_ID(Type) == GetTypeInfo()->GetId();
+      return GetTypeInfo()->GetId();
     }
 
     virtual const TypeInfo* GetTypeInfo() const = 0;

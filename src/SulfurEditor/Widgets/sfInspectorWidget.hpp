@@ -13,6 +13,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include "Reflection/sfReflection.hpp"
+#include "Editors/sfPropertyEditor.hpp"
 
 namespace Sulfur
 {
@@ -25,8 +26,22 @@ namespace Sulfur
     InspectorWidget(QWidget *parent = 0);
     ~InspectorWidget();
 
-    void SetObject(ReflectionBase *object);
+    template <typename T>
+    void SetObject(T *object)
+    {
+      m_object = object;
+
+      delete m_layout;
+      CreateLayout();
+
+      m_layout->addWidget(PropertyEditor::Create(object, SF_TYPE_INFO(T)));
+      m_layout->insertStretch(-1, 1);
+    }
+
     void UpdateValues();
+
+  private:
+    void CreateLayout();
   
   private:
     ReflectionBase *m_object;

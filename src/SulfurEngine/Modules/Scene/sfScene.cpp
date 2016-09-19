@@ -20,10 +20,11 @@ namespace Sulfur
 HNDL Scene::CreateObject(const std::string& name, HNDL parent)
 {
   HNDL objHandle = ObjectFactory::Instance()->CreateObject(name)->GetHndl();
-  ObjectFactory::Instance()->GetObject(objHandle)->SetParent(parent);
 
   if (parent == SF_INV_HANDLE)
     m_rootObjects.push_back(objHandle);
+  else
+    ObjectFactory::Instance()->GetObject(objHandle)->SetParent(parent);
 
   return objHandle;
 }

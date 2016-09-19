@@ -18,6 +18,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 // Components
 #include "Components/sfTransform.hpp"
+#include "Components/sfCamera.hpp"
 #include "Components/sfMeshRenderer.hpp"
 
 namespace Sulfur
@@ -96,6 +97,7 @@ namespace Sulfur
   void ComponentFactory::Initialize(void)
   {
     this->_RegisterComponent<Transform>();
+    this->_RegisterComponent<Camera>();
     this->_RegisterComponent<MeshRenderer>();
   }
 

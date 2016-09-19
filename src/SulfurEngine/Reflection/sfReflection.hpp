@@ -97,13 +97,13 @@ namespace Sulfur
 
   };
 
-  template <> const TypeInfo TypeInfoRegistry<ReflectionBase>::s_typeInfo = TypeInfo("ReflectionBase", TypeInfo::IdGen(), nullptr, {});
+  template <> const TypeInfo TypeInfoRegistry<ReflectionBase>::s_typeInfo("ReflectionBase", TypeInfo::IdGen(), nullptr, {}, {});
   
 }
 
 #define SF_REFLECTED_CLASS_DERIVED(name, baseType) \
 class name; \
-SF_REGISTER_REFLECTED_TYPE(name) \
+SF_REGISTER_REFLECTED_TYPE(name, baseType) \
 class name : public baseType { \
 private: \
 typedef name ThisType; \
@@ -137,7 +137,7 @@ private:
 
 #define SF_PRIVATE_PROPERTY(type, name, upperName, display) \
 private: \
-static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, &Get##upperName, &Set##upperName); } \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &Get##upperName, &Set##upperName); } \
 type m_##name; \
 public: \
   const type& Get##upperName() const { return m_##name; } \
@@ -145,21 +145,21 @@ public: \
 
 #define SF_PRIVATE_PROPERTY_READ_ONLY(type, name, upperName, display) \
 private: \
-static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, &Get##upperName, nullptr); } \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &Get##upperName, nullptr); } \
 type m_##name; \
 public: \
   const type& Get##upperName() const { return m_##name; }
 
 #define SF_PRIVATE_PROPERTY_WRITE_ONLY(type, name, upperName, display) \
 private: \
-static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, nullptr, &Set##upperName); } \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, nullptr, &Set##upperName); } \
 type m_##name; \
 public: \
   void Set##upperName(const type& value) { m_##name = value; }
 
 #define SF_PROTECTED_PROPERTY(type, name, upperName, display) \
 private: \
-static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, &Get##upperName, &Set##upperName); } \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &Get##upperName, &Set##upperName); } \
 protected: \
 type m_##name; \
 public: \
@@ -176,7 +176,7 @@ public: \
 
 #define SF_PROTECTED_PROPERTY_WRITE_ONLY(type, name, upperName, display) \
 private: \
-static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, nullptr, &Set##upperName); } \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, nullptr, &Set##upperName); } \
 protected: \
 type m_##name; \
 public: \
@@ -184,6 +184,6 @@ public: \
 
 #define SF_PUBLIC_PROPERTY(type, name, upperName, display) \
 private: \
-static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new DirectAccessProperty<ThisType, type>(#upperName, (UINT32)offsetof(ThisType, m_##name)); } \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new DirectAccessProperty<ThisType, type>(display, (UINT32)offsetof(ThisType, m_##name)); } \
 public: \
 type m_##name;

@@ -8,7 +8,7 @@ namespace Sulfur
 
   class Core
   {
-    SINGLETON(Core)
+    SF_SINGLETON(Core)
 
   public:
     void StartUp(HWND windowHandle = nullptr);

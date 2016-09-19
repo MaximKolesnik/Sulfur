@@ -12,20 +12,24 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
-#include "sfPropertyEditor.hpp"
+#include "sfLabeledEditor.hpp"
 
 namespace Sulfur
 {
 	
-  class QuaternionEditor : public PropertyEditor
+  class QuaternionEditor : public LabeledEditor
   {
     Q_OBJECT
 
   public:
     QuaternionEditor(ReflectionBase *object, Property *prop, QWidget *parent = 0);
+    QuaternionEditor(void *ptr, QWidget *parent = 0);
     ~QuaternionEditor();
 
     virtual void UpdateValue() override;
+
+  private:
+    void CreateEdits();
 
   public slots:
     void OnValueChanged(const QString& value);

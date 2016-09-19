@@ -26,9 +26,9 @@ namespace Sulfur
 {
   class ObjectFactory
   {
-    PRIVATE_CTOR_DTOR(ObjectFactory);
-    FORBID_COPY(ObjectFactory);
-    SINGLETON_INSTANCE(ObjectFactory);
+    SF_PRIVATE_CTOR_DTOR(ObjectFactory);
+    SF_FORBID_COPY(ObjectFactory);
+    SF_SINGLETON_INSTANCE(ObjectFactory);
   public:
     Object* CreateObject(const std::string &name = "DefaultObject");
     //Without Transform

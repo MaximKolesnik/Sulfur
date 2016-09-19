@@ -12,26 +12,61 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfPropertyEditor.hpp"
+#include "Types/sfObject.hpp"
+
+// Editors
+#include "sfObjectEditor.hpp"
+#include "sfReflectedObjectEditor.hpp"
+#include "sfRealEditor.hpp"
+#include "sfVector3Editor.hpp"
+#include "sfQuaternionEditor.hpp"
+#include "sfStringEditor.hpp"
 
 namespace Sulfur
 {
 
 PropertyEditor::PropertyEditor(ReflectionBase *object, Property *prop, QWidget *parent)
-  : QWidget(parent), m_object(object), m_property(prop)
+  : QWidget(parent), m_object(object), m_property(prop), m_ptr(nullptr)
 {
-  m_layout = new QBoxLayout(QBoxLayout::Direction::LeftToRight);
-  m_layout->setMargin(0);
-  setLayout(m_layout);
-  setContentsMargins(0, 0, 0, 0);
+}
 
-  QLabel *label = new QLabel();
-  label->setText(prop->GetName().c_str());
-  label->setMinimumWidth(125);
-  m_layout->addWidget(label);
+PropertyEditor::PropertyEditor(void *ptr, QWidget *parent)
+  : QWidget(parent), m_object(nullptr), m_property(nullptr), m_ptr(ptr)
+{
 }
 
 PropertyEditor::~PropertyEditor()
 {
+}
+
+template <typename...Args>
+PropertyEditor* CreatePropertyEditor(const TypeInfo *typeInfo, Args...args)
+{
+  switch (typeInfo->GetContainerType())
+  {
+  case VECTOR: return new PropertyEditor(args...);
+  case LIST: return new PropertyEditor(args...);
+  case MAP: return new PropertyEditor(args...);
+  case NONE:
+    if (typeInfo == SF_TYPE_INFO(Object)) return new ObjectEditor(args...);
+    if (typeInfo->IsDerivedFrom<ReflectionBase>()) return new ReflectedObjectEditor(args...);
+    if (typeInfo == SF_TYPE_INFO(Real)) return new RealEditor(args...);
+    if (typeInfo == SF_TYPE_INFO(Vector3)) return new Vector3Editor(args...);
+    if (typeInfo == SF_TYPE_INFO(Quaternion)) return new QuaternionEditor(args...);
+    if (typeInfo == SF_TYPE_INFO(std::string)) return new StringEditor(args...);
+  }
+
+  return new PropertyEditor(args...);
+}
+
+PropertyEditor* PropertyEditor::Create(ReflectionBase *object, Property *prop)
+{
+  return CreatePropertyEditor(prop->GetTypeInfo(), object, prop);
+}
+
+PropertyEditor* PropertyEditor::PropertyEditor::Create(void *ptr, const TypeInfo *typeInfo)
+{
+  return CreatePropertyEditor(typeInfo, ptr);
 }
 
 }

@@ -20,7 +20,7 @@ namespace Sulfur
 	
   class WindowManager
   {
-    SINGLETON(WindowManager)
+    SF_SINGLETON(WindowManager)
 
   public:
     Window* AddWindow(HWND handle);

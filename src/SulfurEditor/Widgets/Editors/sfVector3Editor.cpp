@@ -18,20 +18,16 @@ namespace Sulfur
 {
 
 Vector3Editor::Vector3Editor(ReflectionBase *object, Property *prop, QWidget *parent)
-  : PropertyEditor(object, prop, parent)
+  : LabeledEditor(object, prop, parent)
 {
-  for (UINT32 i = 0; i < 3; ++i)
-  {
-    m_edits[i] = new QLineEdit();
-    m_edits[i]->setValidator(new QDoubleValidator());
-    m_layout->addWidget(m_edits[i]);
+  CreateEdits();
+  UpdateValue();
+}
 
-    QObject::connect(
-      m_edits[i], &QLineEdit::textEdited,
-      this, &Vector3Editor::OnValueChanged
-      );
-  }  
-
+Vector3Editor::Vector3Editor(void *ptr, QWidget *parent)
+  : LabeledEditor(ptr, parent)
+{
+  CreateEdits();
   UpdateValue();
 }
 
@@ -47,6 +43,20 @@ void Vector3Editor::UpdateValue()
   m_edits[2]->setText(QString::number(val.GetZ()));
 }
 
+void Vector3Editor::CreateEdits()
+{
+  for (UINT32 i = 0; i < 3; ++i)
+  {
+    m_edits[i] = new QLineEdit();
+    m_edits[i]->setValidator(new QDoubleValidator());
+    m_layout->addWidget(m_edits[i]);
+
+    QObject::connect(
+      m_edits[i], &QLineEdit::textEdited,
+      this, &Vector3Editor::OnValueChanged
+      );
+  }
+}
 
 void Vector3Editor::OnValueChanged(const QString& value)
 {

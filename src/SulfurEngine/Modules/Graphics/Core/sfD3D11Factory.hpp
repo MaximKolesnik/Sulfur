@@ -21,7 +21,7 @@ namespace Sulfur
 	
   class D3D11Factory : public D3D11ResourceWrapper<IDXGIFactory>
   {
-    SINGLETON(D3D11Factory)
+    SF_SINGLETON(D3D11Factory)
 
   public:
     typedef std::vector<D3D11Adapter> AdapterList;

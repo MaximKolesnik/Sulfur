@@ -23,7 +23,7 @@ namespace Sulfur
 	
   class GraphicsManager
   {
-    SINGLETON(GraphicsManager)
+    SF_SINGLETON(GraphicsManager)
 
   public:
     void Init(Window& window);

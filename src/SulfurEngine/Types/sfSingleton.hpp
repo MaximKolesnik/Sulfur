@@ -13,29 +13,29 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 
-#define PRIVATE_CTOR_DTOR(className) \
+#define SF_PRIVATE_CTOR_DTOR(className) \
 private: \
 className(); \
 ~className();
 
-#define PRIVATE_CTOR_DTOR_EMPTY(className) \
+#define SF_PRIVATE_CTOR_DTOR_EMPTY(className) \
 private: \
 className() {} \
 ~className() {}
 
-#define FORBID_COPY(className) \
+#define SF_FORBID_COPY(className) \
 private: \
 className(const className&) = delete; \
 className& operator=(const className&) = delete;
 
-#define SINGLETON_INSTANCE(className) \
+#define SF_SINGLETON_INSTANCE(className) \
 public: \
 static className* Instance(void) { \
   static className instance; \
   return &instance; \
 }                    
 
-#define SINGLETON(className) \
-SINGLETON_INSTANCE(className) \
-FORBID_COPY(className) \
-PRIVATE_CTOR_DTOR(className)
+#define SF_SINGLETON(className) \
+SF_SINGLETON_INSTANCE(className) \
+SF_FORBID_COPY(className) \
+SF_PRIVATE_CTOR_DTOR(className)

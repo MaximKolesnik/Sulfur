@@ -1,58 +1,59 @@
 /******************************************************************************/
 /*!
 \par     Sulfur
-\file    sfStringEditor.cpp
+\file    sfRealEditor.cpp
 \author  Dylan Norris
 \par     DP email: d.norris@digipen.edu
 \date    9/12/2016
 
-\brief   String property editor
+\brief   Real property editor
 
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
-#include "sfStringEditor.hpp"
+#include "sfRealEditor.hpp"
 
 namespace Sulfur
 {
 
-StringEditor::StringEditor(ReflectionBase *object, Property *prop, QWidget *parent)
+RealEditor::RealEditor(ReflectionBase *object, Property *prop, QWidget *parent)
   : LabeledEditor(object, prop, parent)
 {
   CreateEdit();
   UpdateValue();
 }
 
-StringEditor::StringEditor(void *ptr, QWidget *parent)
+RealEditor::RealEditor(void *ptr, QWidget *parent)
   : LabeledEditor(ptr, parent)
 {
   CreateEdit();
   UpdateValue();
 }
 
-StringEditor::~StringEditor()
+RealEditor::~RealEditor()
 {
 }
 
-void StringEditor::UpdateValue()
+void RealEditor::UpdateValue()
 {
-  m_edit->setText(GetValue<std::string>().c_str());
+  m_edit->setText(QString::number(GetValue<Real>()));
 }
 
-void StringEditor::CreateEdit()
+void RealEditor::CreateEdit()
 {
   m_edit = new QLineEdit();
+  m_edit->setValidator(new QDoubleValidator());
   m_layout->addWidget(m_edit);
 
   QObject::connect(
     m_edit, &QLineEdit::textEdited,
-    this, &StringEditor::OnValueChanged
+    this, &RealEditor::OnValueChanged
     );
 }
 
-void StringEditor::OnValueChanged(const QString& value)
+void RealEditor::OnValueChanged(const QString& value)
 {
-  SetValue(std::string(value.toUtf8().data()));
+  SetValue((Real)value.toDouble());
   UpdateValue();
 }
 
