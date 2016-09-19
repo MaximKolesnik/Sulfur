@@ -14,7 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #pragma once
 
-#include <unordered_map>
+#include <unordered_set>
 
 #include "Types\sfIEntity.hpp"
 #include "Types\sfTypes.hpp"
@@ -29,7 +29,7 @@ namespace Sulfur
   class Object : public IEntity
   {
   public:
-    typedef std::unordered_map<HNDL, Object*> ChildrenMap;
+    typedef std::unordered_set<HNDL> ChildrenSet;
 
     Object(void);
     virtual ~Object(void);
@@ -40,7 +40,7 @@ namespace Sulfur
     void SetParent(HNDL parent);
     HNDL GetParent(void) const { return m_owner; }
 
-    ChildrenMap GetChildren(void) const { return m_children; }
+    ChildrenSet GetChildren(void) const { return m_children; }
 
     void AttachComponent(IEntity *component);
 
@@ -65,11 +65,11 @@ namespace Sulfur
     std::string _RemoveScope(const std::string name) const;
     Object* _Clone(const Object *obj) const;
 
-    void _CloneChildren(Object *parent, const ChildrenMap &children) const;
+    void _CloneChildren(Object *parent, const ChildrenSet &children) const;
 
     std::unordered_map<std::string, HNDL> m_components;
 
-    ChildrenMap m_children;
+    ChildrenSet m_children;
   };
 
   template <class CompType>

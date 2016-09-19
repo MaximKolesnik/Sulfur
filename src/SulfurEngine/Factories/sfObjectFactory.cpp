@@ -84,7 +84,7 @@ namespace Sulfur
       auto childIt = obj->m_children.begin();
       while (childIt != obj->m_children.end())
       {
-        Object *child = childIt->second;
+        Object *child = SF_GET_OBJECT(*childIt);
 
         ++childIt;
 

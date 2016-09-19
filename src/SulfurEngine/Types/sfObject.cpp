@@ -64,7 +64,7 @@ namespace Sulfur
         SF_ASSERT(newParentChildren.find(m_hndl) == newParentChildren.end(),
           "Object is already set as child");
 
-        newParentChildren[m_hndl] = this;
+        newParentChildren.insert(m_hndl);
       }
     }
     else //Parent is not set
@@ -74,7 +74,7 @@ namespace Sulfur
       SF_ASSERT(newParentChildren.find(m_hndl) == newParentChildren.end(),
         "Object is already set as child");
 
-      newParentChildren[m_hndl] = this;
+      newParentChildren.insert(m_hndl);
     }
 
     m_owner = parent;
@@ -94,9 +94,9 @@ namespace Sulfur
   {
     for (auto &it : m_children)
     {
-      if (it.first == handle)
+      if (it == handle)
         return true;
-      else if (it.second->HasDescendant(handle))
+      else if (SF_GET_OBJECT(it)->HasDescendant(handle))
         return true;
     }
 
@@ -163,11 +163,11 @@ namespace Sulfur
     return clone;
   }
 
-  void Object::_CloneChildren(Object *parent, const ChildrenMap &children) const
+  void Object::_CloneChildren(Object *parent, const ChildrenSet &children) const
   {
     for (auto &it : children)
     {
-      Object *cloneChild = it.second->_Clone(parent);
+      Object *cloneChild = SF_GET_OBJECT(it)->_Clone(parent);
       cloneChild->SetParent(parent->m_hndl);
     }
   }

@@ -17,7 +17,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace Sulfur;
 
 //only for test 4
-bool TestChildren(Object::ChildrenMap &children)
+bool TestChildren(Object::ChildrenSet &children)
 {
   bool res = true;
 
@@ -26,10 +26,10 @@ bool TestChildren(Object::ChildrenMap &children)
 
   for (auto it : children)
   {
-    if (!it.second->HasComponent<Transform>())
+    if (!SF_GET_OBJECT(it)->HasComponent<Transform>())
       return false;
     
-    res = res && TestChildren(it.second->GetChildren());
+    res = res && TestChildren(SF_GET_OBJECT(it)->GetChildren());
   }
 
   return res;
