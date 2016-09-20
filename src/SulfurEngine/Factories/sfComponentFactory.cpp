@@ -45,6 +45,11 @@ namespace Sulfur
     return false;
   }
 
+  const std::vector<std::string>& ComponentFactory::GetComponentTypes() const
+  {
+    return m_componentTypes;
+  }
+
   IEntity* ComponentFactory::CreateComponent(const std::string &name)
   {
     SF_ASSERT(m_compMap.find(name) != m_compMap.end(),

@@ -24,7 +24,8 @@ Maxim Kolesnik: TODO: Write Clone() as soon as object and component factory
 namespace Sulfur
 {
 
-  Transform::Transform(void) : IEntity()
+  Transform::Transform(void) 
+    : IEntity(), m_translation(0.0f, 0.0f, 0.0f), m_rotation(1.0f, 0.0f, 0.0f, 0.0f), m_scale(1.0f, 1.0f, 1.0f)
   {
     
   }

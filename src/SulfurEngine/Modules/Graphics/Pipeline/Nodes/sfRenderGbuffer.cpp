@@ -74,15 +74,20 @@ void RenderGbuffer::Process()
 
 void RenderGbuffer::RenderMeshRenderer(MeshRenderer *meshRenderer)
 {
-  Object *object = ObjectFactory::Instance()->GetObject(meshRenderer->GetOwner());
-  Transform* transform = object->GetComponent<Transform>();
-  transform->Update();
+  Mesh *mesh = meshRenderer->GetMesh();
 
-  PerObjectData perObject;
-  perObject.WorldMatrix = transform->GetTransformMatrix();
-  m_perObjectData->SetData(m_context, perObject);
+  if (mesh != nullptr)
+  {
+    Object *object = ObjectFactory::Instance()->GetObject(meshRenderer->GetOwner());
+    Transform* transform = object->GetComponent<Transform>();
+    transform->Update();
 
-  meshRenderer->GetMesh().Draw(m_context);
+    PerObjectData perObject;
+    perObject.WorldMatrix = transform->GetTransformMatrix();
+    m_perObjectData->SetData(m_context, perObject);
+
+    mesh->Draw(m_context);
+  }
 }
 
 }

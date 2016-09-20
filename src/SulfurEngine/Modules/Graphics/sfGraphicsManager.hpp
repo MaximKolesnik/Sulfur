@@ -31,6 +31,8 @@ namespace Sulfur
 
     void Update();
 
+    D3D11Device& GetDevice();
+
   private:
     void InitDevice();
 

@@ -29,6 +29,12 @@ namespace Sulfur
 
     virtual void UpdateValue() override;
 
+  public slots:
+    void OnAddComponentClicked();
+
+  private:
+    QToolButton *m_newComponentButton;
+
   };
   
 }

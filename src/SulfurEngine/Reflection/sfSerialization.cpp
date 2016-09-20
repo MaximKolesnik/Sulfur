@@ -19,6 +19,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Math/sfQuaternion.hpp"
 #include "Math/sfMatrix3.hpp"
 #include "Math/sfMatrix4.hpp"
+#include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 
 namespace Sulfur
 {
@@ -61,5 +62,6 @@ BASE_TYPE_SERIALIZATION_DEFAULT(Vector4)
 BASE_TYPE_SERIALIZATION_DEFAULT(Quaternion)
 BASE_TYPE_SERIALIZATION_DEFAULT(Matrix3)
 BASE_TYPE_SERIALIZATION_DEFAULT(Matrix4)
+BASE_TYPE_SERIALIZATION_DEFAULT(Vertex)
 
 }

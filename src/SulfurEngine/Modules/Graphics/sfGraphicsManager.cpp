@@ -50,6 +50,11 @@ void GraphicsManager::Update()
   m_renderWindow.Present();
 }
 
+D3D11Device& GraphicsManager::GetDevice()
+{
+  return m_device;
+}
+
 void GraphicsManager::InitDevice()
 {
   m_device.Init(D3D11Factory::Instance()->GetAdapters()[0]);

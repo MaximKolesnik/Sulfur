@@ -24,11 +24,11 @@ public:
   virtual void Initialize(void) override final;
   virtual MeshRenderer* Clone(void) const override final;
 
-  Mesh& GetMesh();
-  void SetMesh(const Mesh& mesh);
+  Mesh* GetMesh();
+  void SetMesh(Mesh* mesh);
 
 private:
-  Mesh m_mesh;
+  Mesh *m_mesh;
   
 };
   

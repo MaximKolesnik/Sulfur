@@ -18,6 +18,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Factories/sfComponentFactory.hpp"
 #include "Factories/sfObjectFactory.hpp"
 #include "Components/sfCamera.hpp"
+#include "Components/sfMeshRenderer.hpp"
+#include "Modules/Graphics/sfGraphicsManager.hpp"
 
 namespace Sulfur
 {
@@ -35,6 +37,12 @@ GameWidget::GameWidget(QWidget *parent)
   HNDL root0 = scene.CreateObject("Camera");
   Object *object = ObjectFactory::Instance()->GetObject(root0);
   object->AttachComponent(ComponentFactory::Instance()->CreateComponent<Camera>());
+
+  MeshRenderer *renderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
+  renderer->SetMesh(new Mesh());
+  renderer->GetMesh()->Init(GraphicsManager::Instance()->GetDevice());
+  renderer->GetMesh()->CreateBox(100.0f, 100.0f, 100.0f);
+  object->AttachComponent(renderer);
 
   HNDL sub0 = scene.CreateObject("Sub 0", root0);
   HNDL sub1 = scene.CreateObject("Sub 1", root0);

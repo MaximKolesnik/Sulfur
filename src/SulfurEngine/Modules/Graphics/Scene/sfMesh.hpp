@@ -12,6 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
+#include "Reflection/sfReflection.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Modules/Graphics/Core/sfD3D11Device.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfD3D11VertexBuffer.hpp"
@@ -20,8 +21,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 	
-  class Mesh
-  {
+  SF_REFLECTED_CLASS(Mesh)
+
+  public:
+  typedef std::vector<Vertex> VertexList;
+  typedef std::vector<UINT32> IndexList;
   
   public:
     void Init(D3D11Device& device);
@@ -48,11 +52,11 @@ namespace Sulfur
     bool m_buffersCreated;
     bool m_valid;
 
-    std::vector<Vertex> m_vertices;
-    std::vector<UINT32> m_indices;
+    SF_PRIVATE_PROPERTY_READ_ONLY(VertexList, vertices, Vertices, "Vertices")
+    SF_PRIVATE_PROPERTY_READ_ONLY(IndexList, indices, Indices, "Indices")
+    SF_PRIVATE_PROPERTY(UINT32, topology, Topology, "Topology")
 
     D3D11Device *m_device;
-    D3D11_PRIMITIVE_TOPOLOGY m_topology;
     D3D11VertexBuffer m_vertexBuffer;
     D3D11IndexBuffer m_indexBuffer;
 
