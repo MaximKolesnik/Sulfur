@@ -31,6 +31,7 @@ namespace Sulfur
 
   public slots:
     void OnAddComponentClicked();
+    void OnAddComponent(QAction *action);
 
   private:
     QToolButton *m_newComponentButton;

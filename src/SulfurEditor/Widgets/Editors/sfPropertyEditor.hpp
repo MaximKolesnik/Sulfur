@@ -17,7 +17,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 	
-  class PropertyEditor : public QWidget
+  class PropertyEditor : public QFrame
   {
     Q_OBJECT
 

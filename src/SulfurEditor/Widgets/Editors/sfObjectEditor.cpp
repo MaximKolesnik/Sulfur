@@ -50,29 +50,27 @@ void ObjectEditor::UpdateValue()
   }
 
   m_newComponentButton = new QToolButton();
+  m_newComponentButton->setText("Add Component");
+  m_newComponentButton->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
   m_childrenLayout->addWidget(m_newComponentButton);
 
   QObject::connect(
-    m_newComponentButton, &QPushButton::clicked,
+    m_newComponentButton, &QToolButton::clicked,
     this, &ObjectEditor::OnAddComponentClicked
     );
 
-  QMenu *menu = new QMenu();
-
-  auto& componentTypes = ComponentFactory::Instance()->GetComponentTypes();
-  for (const std::string& componentType : componentTypes)
-  {
-    if (!object->HasComponent(componentType))
-      menu->addAction(componentType.c_str());
-  }
-
-  m_newComponentButton->setMenu(menu);
+  QObject::connect(
+    m_newComponentButton, &QToolButton::triggered,
+    this, &ObjectEditor::OnAddComponent
+    );
 }
 
 void ObjectEditor::OnAddComponentClicked()
 {
   Object *object = const_cast<Object*>(&GetValue<Object>());
+
   QMenu *menu = new QMenu();
+  menu->setFixedWidth(m_newComponentButton->width());
 
   auto& componentTypes = ComponentFactory::Instance()->GetComponentTypes();
   for (const std::string& componentType : componentTypes)
@@ -82,6 +80,19 @@ void ObjectEditor::OnAddComponentClicked()
   }
 
   m_newComponentButton->setMenu(menu);
+  m_newComponentButton->showMenu();
+}
+
+void ObjectEditor::OnAddComponent(QAction *action)
+{
+  Object *object = const_cast<Object*>(&GetValue<Object>());
+
+  IEntity *component = ComponentFactory::Instance()->CreateComponent(action->text().toUtf8().data());
+  AddChild(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)));
+  m_childrenLayout->removeWidget(m_newComponentButton);
+  m_childrenLayout->addWidget(m_newComponentButton);
+
+  object->AttachComponent(component);
 }
 
 }

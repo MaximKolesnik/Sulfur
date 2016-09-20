@@ -27,12 +27,12 @@ namespace Sulfur
 {
 
 PropertyEditor::PropertyEditor(ReflectionBase *object, Property *prop, QWidget *parent)
-  : QWidget(parent), m_object(object), m_property(prop), m_ptr(nullptr)
+  : QFrame(parent), m_object(object), m_property(prop), m_ptr(nullptr)
 {
 }
 
 PropertyEditor::PropertyEditor(void *ptr, QWidget *parent)
-  : QWidget(parent), m_object(nullptr), m_property(nullptr), m_ptr(ptr)
+  : QFrame(parent), m_object(nullptr), m_property(nullptr), m_ptr(ptr)
 {
 }
 

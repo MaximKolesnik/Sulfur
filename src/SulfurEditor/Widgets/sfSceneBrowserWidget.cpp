@@ -63,10 +63,18 @@ void SceneBrowserWidget::Setup()
 
   m_sceneTree = new QTreeWidget();
   m_sceneTree->setHeaderHidden(true);
+  m_sceneTree->setDragEnabled(true);
+  m_sceneTree->setDragDropMode(QAbstractItemView::InternalMove);
   m_layout->addWidget(m_sceneTree);
+
   QObject::connect(
     m_sceneTree, &QTreeWidget::itemSelectionChanged,
     this, &SceneBrowserWidget::OnSceneTreeSelectionChanged
+    );
+
+  QObject::connect(
+    m_sceneTree->model(), &QAbstractItemModel::rowsInserted,
+    this, &SceneBrowserWidget::OnItemInserted
     );
 }
 
@@ -93,6 +101,19 @@ void SceneBrowserWidget::OnSceneTreeSelectionChanged()
 
   Object *object = ObjectFactory::Instance()->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
   emit ObjectSelected(object);
+}
+
+void SceneBrowserWidget::OnItemInserted(const QModelIndex& parent, int start, int end)
+{
+  if (parent.data().isNull()) return;
+
+  HNDL parentHandle = parent.data(Qt::UserRole).value<HNDL>();
+
+  for (int i = start; i <= end; ++i)
+  {
+    HNDL childHandle = parent.child(i, 0).data(Qt::UserRole).value<HNDL>();
+    ObjectFactory::Instance()->GetObject(childHandle)->SetParent(parentHandle);
+  }
 }
 
 }

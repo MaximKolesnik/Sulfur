@@ -40,7 +40,7 @@ namespace Sulfur
   protected:
     QBoxLayout *m_mainLayout;
 
-    QWidget *m_childrenWidget;
+    QFrame *m_childrenWidget;
     QBoxLayout *m_childrenLayout;
   
   };

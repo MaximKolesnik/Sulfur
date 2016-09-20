@@ -36,6 +36,7 @@ namespace Sulfur
 
   public slots:
     void OnSceneTreeSelectionChanged();
+    void OnItemInserted(const QModelIndex& parent, int start, int end);
 
   signals:
     void ObjectSelected(Object *object);
