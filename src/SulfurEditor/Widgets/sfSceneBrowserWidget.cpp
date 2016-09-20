@@ -90,7 +90,7 @@ void SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
   // Add children
   auto& children = object->GetChildren();
   for (auto& child : children)
-    AddObject(child.first, item);
+    AddObject(child, item);
 }
 
 void SceneBrowserWidget::OnSceneTreeSelectionChanged()

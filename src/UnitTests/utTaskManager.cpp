@@ -19,6 +19,7 @@ std::mutex testMutex;
 
 namespace Sulfur
 {
+#pragma optimize( "", off )
   SF_DEFINE_TASK(TestTask1)
   {
     testMutex.lock();
@@ -99,7 +100,7 @@ namespace Sulfur
     testMutex.unlock();
   } SF_END_DEFINE_TASK(TestTask9);
 }
-
+#pragma optimize( "", on ) 
 namespace UnitTests
 {
   TEST_CLASS(utTaskManager)
