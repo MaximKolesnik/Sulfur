@@ -37,4 +37,9 @@ void Scene::AddObject(HNDL object, HNDL parent)
     m_rootObjects.push_back(object);
 }
 
+void Scene::RemoveFromRoot(HNDL object)
+{
+  m_rootObjects.remove(object);
+}
+
 }

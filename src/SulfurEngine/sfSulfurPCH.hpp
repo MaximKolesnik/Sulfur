@@ -20,5 +20,6 @@
 
 // Engine
 #include "Types/sfTypes.hpp"
+#include "Settings/EngineSettings.h"
 #include "Logger/sfLogger.hpp"
 #include "Error/sfError.hpp"

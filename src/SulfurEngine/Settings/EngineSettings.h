@@ -8,7 +8,7 @@ namespace Sulfur
   {
     //Paths
     const std::string LogDir = "Logs\\";
-    const bool ShowConsole = true;
+    const bool ShowConsole = false;
 
     //SlotMap
     const INT64 SlotMapObjsPerPage    = 512;

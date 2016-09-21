@@ -40,7 +40,7 @@ void QuaternionEditor::UpdateValue()
   const Quaternion& val = GetValue<Quaternion>();
 
   Real euler[3];
-  val.GetEulerXYZ(euler[0], euler[1], euler[2]);
+  val.GetEulerXYZ(euler[0], euler[2], euler[1]);
 
   m_edits[0]->setText(QString::number(euler[0] * SF_DEGS_PER_RAD));
   m_edits[1]->setText(QString::number(euler[1] * SF_DEGS_PER_RAD));
@@ -67,8 +67,8 @@ void QuaternionEditor::OnValueChanged(const QString& value)
   Quaternion quat;
   quat.SetEuler(
     (Real)m_edits[0]->text().toDouble() * SF_RADS_PER_DEG,
-    (Real)m_edits[1]->text().toDouble() * SF_RADS_PER_DEG,
-    (Real)m_edits[2]->text().toDouble() * SF_RADS_PER_DEG
+    (Real)m_edits[2]->text().toDouble() * SF_RADS_PER_DEG,
+    (Real)m_edits[1]->text().toDouble() * SF_RADS_PER_DEG
     );
 
   SetValue(quat);

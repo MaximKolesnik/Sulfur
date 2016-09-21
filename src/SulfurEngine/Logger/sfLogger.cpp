@@ -93,7 +93,7 @@ namespace Sulfur
 
     m_logFile << finalMessage << std::endl;
 
-    if (EngineSettings::ShowConsole)
+    //if (EngineSettings::ShowConsole)
       std::cout << finalMessage;
   }
 

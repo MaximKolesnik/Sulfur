@@ -23,8 +23,9 @@ namespace Sulfur
   public:
     HNDL CreateObject(const std::string& name, HNDL parent = SF_INV_HANDLE);
     void AddObject(HNDL object, HNDL parent = SF_INV_HANDLE);
+    void RemoveFromRoot(HNDL object);
 
-    SF_PRIVATE_PROPERTY(std::vector<HNDL>, rootObjects, RootObjects, "Root Objects")
+    SF_PRIVATE_PROPERTY(std::list<HNDL>, rootObjects, RootObjects, "Root Objects")
     SF_PRIVATE_PROPERTY(HNDL, cameraObject, CameraObject, "Camera Object")
 
   };

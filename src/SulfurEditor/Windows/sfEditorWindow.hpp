@@ -18,7 +18,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Widgets/sfResourceBrowserWidget.hpp"
 #include "Widgets/sfOutputWidget.hpp"
 #include "Widgets/sfSceneBrowserWidget.hpp"
-#include "Components/sfTransform.hpp"
 
 namespace Sulfur
 {
@@ -50,7 +49,6 @@ namespace Sulfur
     ResourceBrowserWidget *m_resourceBrowser;
     OutputWidget *m_output;
     SceneBrowserWidget *m_sceneBrowser;
-    Transform m_transform;
 
   };
 

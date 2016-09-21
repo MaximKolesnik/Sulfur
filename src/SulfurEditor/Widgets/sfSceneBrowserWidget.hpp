@@ -32,11 +32,15 @@ namespace Sulfur
 
   private:
     void Setup();
-    void AddObject(HNDL objectHandle, QTreeWidgetItem *root);
+    void AddObject(HNDL objectHandle, QTreeWidgetItem *root = nullptr);
+    void AddObject(Object *object, QTreeWidgetItem *root = nullptr);
 
   public slots:
     void OnSceneTreeSelectionChanged();
     void OnItemInserted(const QModelIndex& parent, int start, int end);
+    void OnAddEmptyObject();
+    void OnAddCamera();
+    void OnAddCube();
 
   signals:
     void ObjectSelected(Object *object);
@@ -45,6 +49,7 @@ namespace Sulfur
     Scene *m_scene;
 
     QGridLayout *m_layout;
+    QToolButton *m_newObjectButton;
     QTreeWidget *m_sceneTree;
   
   };

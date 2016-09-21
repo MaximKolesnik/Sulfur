@@ -4,6 +4,7 @@
 // Modules
 #include "Modules/Window/sfWindowManager.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
+#include "Managers/TaskManager/sfTaskManager.hpp"
 #include "Logger/sfLogger.hpp"
 
 namespace Sulfur
@@ -38,6 +39,11 @@ void Core::StartUp(HWND windowHandle)
 
   GraphicsManager::Instance()->Init(*m_window);
   m_running = true;
+
+  TaskManager* tm = TaskManager::Instance();
+  tm->AddNode("UpdateTransforms");
+  tm->SetStartingTask("UpdateTransforms");
+  tm->CompleteGraph();
 }
 
 void Core::GameLoop(void)
@@ -49,6 +55,7 @@ void Core::GameLoop(void)
 void Core::Frame(void)
 {
   WindowManager::Instance()->Update();
+  TaskManager::Instance()->RunTasks();
   GraphicsManager::Instance()->Update();
 }
 

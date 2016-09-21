@@ -80,10 +80,10 @@ void RenderGbuffer::RenderMeshRenderer(MeshRenderer *meshRenderer)
   {
     Object *object = ObjectFactory::Instance()->GetObject(meshRenderer->GetOwner());
     Transform* transform = object->GetComponent<Transform>();
-    transform->Update();
+    //transform->Update();
 
     PerObjectData perObject;
-    perObject.WorldMatrix = transform->GetTransformMatrix();
+    perObject.WorldMatrix = transform->GetWorldMatrix();
     m_perObjectData->SetData(m_context, perObject);
 
     mesh->Draw(m_context);

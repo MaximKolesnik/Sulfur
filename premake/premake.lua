@@ -91,6 +91,7 @@ premakeDef.projects["SulfurEditor"] = {
 	qtModules = { "core", "gui", "widgets" },
 	kind = "Qt",
 	dependencies = { "SulfurEngine" },
+	defines = "SF_EDITOR",
 	pchHeader = "sfEditorPCH.hpp",
 	pchSource = "sfEditorPCH.cpp"
 }

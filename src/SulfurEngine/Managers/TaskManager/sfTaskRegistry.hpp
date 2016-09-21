@@ -81,10 +81,18 @@ _taskData->m_done = true;             \
  goto TaskStart;}       
 
 #define SF_ENQUEUE_JOB(TaskName, DataPtr) \
-{                                         \
+{{                                        \
   static int _id = 0;                     \
   _taskData->m_executingWorker->m_taskManager->EnqueueTask(TaskName, \
   (uintptr_t)&_id, DataPtr, #TaskName, _taskData);                    \
+}}
+
+#define SF_ENQUEUE_JOBS(TaskName, DataArr, NumJobs) \
+{                                         \
+  static int arr[NumJobs];                     \
+  for (int i = 0; i < NumJobs; ++i)                       \
+  _taskData->m_executingWorker->m_taskManager->EnqueueTask(TaskName, \
+  (uintptr_t)&(arr[i]), DataArr[i], #TaskName, _taskData);                    \
 }
 
 #define SF_YEILD_AND_WAIT()                                       \

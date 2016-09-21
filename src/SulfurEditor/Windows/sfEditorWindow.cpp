@@ -24,12 +24,13 @@ EditorWindow::EditorWindow(QWidget *parent)
 {
   resize(1920, 1080);
 
-  const TypeInfo *typeInfo = SF_TYPE_INFO(Transform);
+  QDockWidget *outputDock = new QDockWidget(tr("Output"), this);
+  outputDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
-  m_transform.SetTranslation(Vector3(0.0f, 100.0f, 0.0f));
-  m_transform.SetRotationEulerXZY(0.0f, 0.0f, 0.0f);
-  m_transform.SetScale(Vector3(1.0f, 1.0f, 1.0f));
-  m_transform.m_name = "Transform";
+  m_output = new OutputWidget(outputDock);
+  outputDock->setWidget(m_output);
+
+  addDockWidget(Qt::BottomDockWidgetArea, outputDock);
 
   m_game = new GameWidget();
   setCentralWidget(m_game);
@@ -37,10 +38,7 @@ EditorWindow::EditorWindow(QWidget *parent)
   QDockWidget *inspectorDock = new QDockWidget(tr("Inspector"), this);
   inspectorDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
-  Object *testObject = ObjectFactory::Instance()->GetObject(SceneManager::Instance()->GetScene().GetRootObjects()[0]);
-
   m_inspector = new InspectorWidget(inspectorDock);
-  m_inspector->SetObject(testObject);
   inspectorDock->setWidget(m_inspector);
 
   QObject::connect(
@@ -72,13 +70,7 @@ EditorWindow::EditorWindow(QWidget *parent)
 
   addDockWidget(Qt::BottomDockWidgetArea, resourceBrowserDock);
 
-  QDockWidget *outputDock = new QDockWidget(tr("Output"), this);
-  outputDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
-
-  m_output = new OutputWidget(outputDock);
-  outputDock->setWidget(m_output);
-
-  addDockWidget(Qt::BottomDockWidgetArea, outputDock);
+  
   tabifyDockWidget(resourceBrowserDock, outputDock);
   resourceBrowserDock->raise();
 

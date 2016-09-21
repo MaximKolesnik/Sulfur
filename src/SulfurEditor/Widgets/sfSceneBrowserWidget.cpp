@@ -13,6 +13,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfSceneBrowserWidget.hpp"
 #include "Factories/sfObjectFactory.hpp"
+#include "Factories/sfComponentFactory.hpp"
+#include "Components/sfCamera.hpp"
+#include "Components/sfMeshRenderer.hpp"
+#include "Modules/Graphics/sfGraphicsManager.hpp"
+#include "Modules/Scene/sfSceneManager.hpp"
 
 namespace Sulfur
 {
@@ -41,7 +46,7 @@ void SceneBrowserWidget::SetScene(Scene *scene)
 
   auto& rootObjects = scene->GetRootObjects();
   for (HNDL object : rootObjects)
-    AddObject(object, m_sceneTree->invisibleRootItem());
+    AddObject(object);
 }
 
 void SceneBrowserWidget::UpdateSelectedObjects()
@@ -56,6 +61,7 @@ void SceneBrowserWidget::UpdateSelectedObjects()
 void SceneBrowserWidget::Setup()
 {
   setContentsMargins(0, 0, 0, 0);
+  setMinimumWidth(350);
 
   m_layout = new QGridLayout();
   m_layout->setMargin(0);
@@ -65,7 +71,19 @@ void SceneBrowserWidget::Setup()
   m_sceneTree->setHeaderHidden(true);
   m_sceneTree->setDragEnabled(true);
   m_sceneTree->setDragDropMode(QAbstractItemView::InternalMove);
-  m_layout->addWidget(m_sceneTree);
+  m_layout->addWidget(m_sceneTree, 1, 0, 1, 2);
+
+  m_newObjectButton = new QToolButton();
+  m_newObjectButton->setMinimumWidth(100);
+  m_newObjectButton->setText("New");
+  m_newObjectButton->setPopupMode(QToolButton::InstantPopup);
+  m_layout->addWidget(m_newObjectButton, 0, 0);
+
+  QMenu *newObjectMenu = new QMenu();
+  newObjectMenu->addAction("Empty Object", this, &SceneBrowserWidget::OnAddEmptyObject);
+  newObjectMenu->addAction("Camera", this, &SceneBrowserWidget::OnAddCamera);
+  newObjectMenu->addAction("Cube", this, &SceneBrowserWidget::OnAddCube);
+  m_newObjectButton->setMenu(newObjectMenu);
 
   QObject::connect(
     m_sceneTree, &QTreeWidget::itemSelectionChanged,
@@ -80,11 +98,16 @@ void SceneBrowserWidget::Setup()
 
 void SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
 {
-  Object *object = ObjectFactory::Instance()->GetObject(objectHandle);
+  AddObject(ObjectFactory::Instance()->GetObject(objectHandle), root);
+}
+
+void SceneBrowserWidget::AddObject(Object *object, QTreeWidgetItem *root)
+{
+  if (root == nullptr) root = m_sceneTree->invisibleRootItem();
 
   // Add object
   QTreeWidgetItem *item = new QTreeWidgetItem({ object->m_name.c_str() });
-  item->setData(0, Qt::UserRole, QVariant::fromValue(objectHandle));
+  item->setData(0, Qt::UserRole, QVariant::fromValue(object->GetHndl()));
   root->addChild(item);
 
   // Add children
@@ -105,15 +128,53 @@ void SceneBrowserWidget::OnSceneTreeSelectionChanged()
 
 void SceneBrowserWidget::OnItemInserted(const QModelIndex& parent, int start, int end)
 {
-  if (parent.data().isNull()) return;
-
-  HNDL parentHandle = parent.data(Qt::UserRole).value<HNDL>();
+  HNDL parentHandle = SF_INV_HANDLE;
+  if (!parent.data().isNull())
+    parentHandle = parent.data(Qt::UserRole).value<HNDL>();
 
   for (int i = start; i <= end; ++i)
   {
     HNDL childHandle = parent.child(i, 0).data(Qt::UserRole).value<HNDL>();
-    ObjectFactory::Instance()->GetObject(childHandle)->SetParent(parentHandle);
+    Object *child = ObjectFactory::Instance()->GetObject(childHandle);
+
+    if (child->GetParent() == SF_INV_HANDLE)
+      m_scene->RemoveFromRoot(childHandle);
+    if (parentHandle == SF_INV_HANDLE)
+      m_scene->AddObject(childHandle);
+
+    child->SetParent(parentHandle);
   }
+}
+
+void SceneBrowserWidget::OnAddEmptyObject()
+{
+  Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject("Game Object"));
+  AddObject(object);
+}
+
+void SceneBrowserWidget::OnAddCamera()
+{
+  Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject("Camera"));
+
+  Camera *camera = ComponentFactory::Instance()->CreateComponent<Camera>();
+  object->AttachComponent(camera);
+
+  AddObject(object);
+}
+
+void SceneBrowserWidget::OnAddCube()
+{
+  Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject("Cube"));
+  MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
+
+  // TODO: Replace this after resource management is implemented, intentional leak right now
+  Mesh *mesh = new Mesh();
+  mesh->Init(GraphicsManager::Instance()->GetDevice());
+  mesh->CreateBox(1.0f, 1.0f, 1.0f);
+  meshRenderer->SetMesh(mesh);
+
+  object->AttachComponent(meshRenderer);
+  AddObject(object);
 }
 
 }

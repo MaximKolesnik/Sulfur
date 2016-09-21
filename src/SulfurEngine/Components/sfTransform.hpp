@@ -20,9 +20,13 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "../Math/sfMatrix4.hpp"
 #include "../Math/sfQuaternion.hpp"
 #include "../Factories/sfComponentFactory.hpp"
+#include "Managers/TaskManager/sfTaskRegistry.hpp"
 
 namespace Sulfur
 {
+
+SF_DECLARE_TASK(UpdateTransformHierarchy)
+SF_DECLARE_TASK(UpdateTransforms)
 
 SF_REFLECTED_CLASS_DERIVED(Transform, IEntity)
 
@@ -49,14 +53,16 @@ public:
     m_rotation.SetEuler(roll, pitch, yaw);
   }
 
-  const Matrix4& GetTransformMatrix() const;
+  const Matrix4& GetLocalMatrix() const;
+  const Matrix4& GetWorldMatrix() const;
 
   SF_PRIVATE_PROPERTY(Vector3, translation, Translation, "Translation")
   SF_PRIVATE_PROPERTY(Quaternion, rotation, Rotation, "Rotation")
   SF_PRIVATE_PROPERTY(Vector3, scale, Scale, "Scale")
 
 private:
-  Matrix4 m_transformMatrix;
+  Matrix4 m_localMatrix;
+  Matrix4 m_worldMatrix;
   Vector3 m_right;
   Vector3 m_up;
   Vector3 m_forward;
