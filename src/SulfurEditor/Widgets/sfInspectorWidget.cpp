@@ -22,7 +22,8 @@ InspectorWidget::InspectorWidget(QWidget *parent)
   : QWidget(parent), m_object(nullptr)
 {
   CreateLayout();
-  setMinimumWidth(400);
+  setMinimumSize(350, 175);
+  setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Ignored);
 }
 
 InspectorWidget::~InspectorWidget()

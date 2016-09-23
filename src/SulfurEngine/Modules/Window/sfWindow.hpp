@@ -32,6 +32,8 @@ namespace Sulfur
     void Update();
     void Free();
 
+    bool IsFocused() const;
+
     HWND GetHandle() const;
 
   private:

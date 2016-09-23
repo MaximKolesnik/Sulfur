@@ -21,7 +21,9 @@ OutputWidget::OutputWidget(QWidget *parent)
 {
   setReadOnly(true);
   m_oldStreamBuffer = std::cout.rdbuf(this);
-  std::cout << "test" << std::endl;
+
+  setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Ignored);
+  setMinimumSize(350, 175);
 }
 
 OutputWidget::~OutputWidget()

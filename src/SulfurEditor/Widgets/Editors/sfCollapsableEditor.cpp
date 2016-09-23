@@ -38,6 +38,11 @@ void CollapsableEditor::Setup()
   if (m_property != nullptr) m_collapseButton->setText(m_property->GetName().c_str());
   m_mainLayout->insertWidget(0, m_collapseButton);
 
+  // Bold font
+  QFont font = m_collapseButton->font();
+  font.setBold(true);
+  m_collapseButton->setFont(font);
+
   QObject::connect(
     m_collapseButton, &QPushButton::clicked,
     this, &CollapsableEditor::OnCollapseClicked

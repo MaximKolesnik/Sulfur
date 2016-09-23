@@ -20,6 +20,8 @@ ResourceBrowserWidget::ResourceBrowserWidget(QWidget *parent)
   : QWidget(parent)
 {
   m_splitter = new QSplitter(this);
+  setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Ignored);
+  setMinimumSize(350, 175);
 }
 
 ResourceBrowserWidget::~ResourceBrowserWidget()

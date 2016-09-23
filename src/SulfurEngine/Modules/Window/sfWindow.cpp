@@ -76,6 +76,11 @@ void Window::Free()
     DestroyWindow(m_handle);
 }
  
+bool Window::IsFocused() const
+{
+  return (GetFocus() == m_handle);
+}
+
 HWND Window::GetHandle() const
 {
   return m_handle;

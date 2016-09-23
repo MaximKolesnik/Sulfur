@@ -58,10 +58,25 @@ void SceneBrowserWidget::UpdateSelectedObjects()
   selection.front()->setText(0, object->m_name.c_str());
 }
 
+void SceneBrowserWidget::keyPressEvent(QKeyEvent *event)
+{
+  switch (event->key())
+  {
+  case Qt::Key_Delete:
+    DeleteSelectedObjects();
+    break;
+
+  default:
+    event->ignore();
+    return;
+  }
+}
+
 void SceneBrowserWidget::Setup()
 {
   setContentsMargins(0, 0, 0, 0);
-  setMinimumWidth(350);
+  setMinimumSize(350, 175);
+  setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Ignored);
 
   m_layout = new QGridLayout();
   m_layout->setMargin(0);
@@ -116,14 +131,37 @@ void SceneBrowserWidget::AddObject(Object *object, QTreeWidgetItem *root)
     AddObject(child, item);
 }
 
+void SceneBrowserWidget::DeleteSelectedObjects()
+{
+  QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
+  for (QTreeWidgetItem *item : selection)
+  {
+    HNDL objectHandle = selection.front()->data(0, Qt::UserRole).value<HNDL>();
+    QTreeWidgetItem *parent = item->parent();
+    if (parent == nullptr)
+    {
+      m_scene->RemoveFromRoot(objectHandle);
+      m_sceneTree->invisibleRootItem()->removeChild(item);
+    }
+    else
+    {
+      parent->removeChild(item);
+    }
+
+    ObjectFactory::Instance()->DestroyObject(objectHandle);
+  }
+}
+
 void SceneBrowserWidget::OnSceneTreeSelectionChanged()
 {
   QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
   if (selection.empty())
     emit ObjectSelected(nullptr);
-
-  Object *object = ObjectFactory::Instance()->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
-  emit ObjectSelected(object);
+  else
+  {
+    Object *object = ObjectFactory::Instance()->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
+    emit ObjectSelected(object);
+  }
 }
 
 void SceneBrowserWidget::OnItemInserted(const QModelIndex& parent, int start, int end)

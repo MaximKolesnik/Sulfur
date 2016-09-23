@@ -31,6 +31,8 @@ GameWidget::GameWidget(QWidget *parent)
   setAttribute(Qt::WA_NativeWindow, true);
 
   Core::Instance()->StartUp((HWND)winId());
+  //setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  //activateWindow();
 }
 
 GameWidget::~GameWidget()

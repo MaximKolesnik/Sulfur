@@ -30,10 +30,14 @@ namespace Sulfur
 
     void UpdateSelectedObjects();
 
+  protected:
+    virtual void keyPressEvent(QKeyEvent *event) override;
+
   private:
     void Setup();
     void AddObject(HNDL objectHandle, QTreeWidgetItem *root = nullptr);
     void AddObject(Object *object, QTreeWidgetItem *root = nullptr);
+    void DeleteSelectedObjects();
 
   public slots:
     void OnSceneTreeSelectionChanged();

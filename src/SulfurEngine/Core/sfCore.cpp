@@ -2,10 +2,15 @@
 #include "Components/sfCamera.hpp"
 
 // Modules
+#include "Modules/Input/sfInputManager.hpp"
 #include "Modules/Window/sfWindowManager.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
 #include "Managers/TaskManager/sfTaskManager.hpp"
 #include "Logger/sfLogger.hpp"
+
+// Factories
+#include "Factories/sfComponentFactory.hpp"
+#include "Factories/sfObjectFactory.hpp"
 
 namespace Sulfur
 {
@@ -37,6 +42,7 @@ void Core::StartUp(HWND windowHandle)
     m_window->RegisterCallbackOnClose(this, &Core::OnWindowClose);
   }
 
+  InputManager::Instance()->Init(m_window);
   GraphicsManager::Instance()->Init(*m_window);
   m_running = true;
 
@@ -55,8 +61,14 @@ void Core::GameLoop(void)
 void Core::Frame(void)
 {
   WindowManager::Instance()->Update();
+  InputManager::Instance()->Update();
   TaskManager::Instance()->RunTasks();
   GraphicsManager::Instance()->Update();
+
+  if (InputManager::Instance()->WasKeyPressed('A'))
+    std::cout << "A pressed" << std::endl;
+
+  ObjectFactory::Instance()->EndFrameCleanUp();
 }
 
 void Core::ShutDown(void)

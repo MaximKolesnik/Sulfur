@@ -48,6 +48,11 @@ void LabeledEditor::CreateLabel()
   m_label->setMinimumWidth(125);
   m_label->setMaximumWidth(125);
   m_layout->addWidget(m_label);
+
+  // Bold font
+  QFont font = m_label->font();
+  font.setBold(true);
+  m_label->setFont(font);
 }
 
 }
