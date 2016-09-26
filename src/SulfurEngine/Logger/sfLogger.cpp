@@ -21,7 +21,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include <ctime>
 
 #include "sfLogger.hpp"
-#include "../Settings/EngineSettings.h"
+#include "../Settings/sfEngineSettings.hpp"
 #include "../Error/sfError.hpp"
 
 namespace Sulfur

@@ -19,6 +19,7 @@ namespace Sulfur
 
     virtual void Initialize(void) = 0;
     virtual IEntity* Clone(void) const = 0;
+    virtual void Update(void) = 0;
 
     HNDL GetHndl(void) const
     {
@@ -32,7 +33,7 @@ namespace Sulfur
 
     SF_PUBLIC_PROPERTY(std::string, name, Name, "Name");
 
-  protected:
+  private:
     friend class ComponentFactory;
     friend class ObjectFactory;
     friend class Object;

@@ -20,5 +20,10 @@ namespace Sulfur
     //Fiber
     const UINT64 FiberStackSize = 0;          //If 0, uses default stack size for exe
     const UINT64 FiberReservedStackSize = 0;  //If 0, uses default reserved stack size for exe
+
+    //Scripts
+    const std::string ScriptDllOutputDir = "Scripts\\";
+    const std::string ScriptSourceFolder = "..\\src\\SulfurScripts\\";
+    const std::string ScriptIntermDir = "..\\builds\\obj\\Scripts\\";
   };
 }

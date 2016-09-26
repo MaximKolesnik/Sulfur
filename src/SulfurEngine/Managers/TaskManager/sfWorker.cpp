@@ -17,6 +17,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfTaskManager.hpp"
 #include "sfWorker.hpp"
 
+
 namespace Sulfur
 {
   DWORD WINAPI WorkerThreadRoutine(LPVOID lpParam)

@@ -28,7 +28,7 @@ inerting missing handles when they are needed
 #include "../Types/sfIEntity.hpp"
 #include "../sfProjectDefs.hpp"
 #include "../Types/sfTypes.hpp"
-#include "../Settings/EngineSettings.h"
+#include "../Settings/sfEngineSettings.hpp"
 #include "../Error/sfError.hpp"
 #include "sfOrderedDeque.hpp"
 

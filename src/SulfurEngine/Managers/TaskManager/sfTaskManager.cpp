@@ -17,7 +17,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "../../Error/sfError.hpp"
 #include "sfTaskRegistry.hpp"
 #include "sfDependencyGraph.hpp"
-#include "../../Settings/EngineSettings.h"
+#include "../../Settings/sfEngineSettings.hpp"
 
 namespace Sulfur
 {
@@ -133,22 +133,28 @@ namespace Sulfur
 
   TaskManager::~TaskManager(void)
   {
-   /* SF_ASSERT(m_workersWaiting.size() == 0, "There are workers waiting");
-
-    m_destroy = true;
-    m_wakeUpCondition.notify_all();
-
-    for (UINT32 i = 0; i < m_numThreads; ++i)
-      m_activeWorkers[i]->join();
-
-    for (auto &it : m_activeWorkers)
-      delete it;
-
-    while (!m_freeWorkers.empty())
+    for (UINT32 i = 1; i < m_numThreads; ++i)
     {
-      delete m_freeWorkers.top();
-      m_freeWorkers.pop();
-    }*/
+      m_workers[i].m_exit = true;
+      WakeConditionVariable(&m_workers[i].m_suspendedCV);
+      WaitForSingleObject(m_workers[i].m_threadHandle, INFINITE);
+    }
+
+    for (auto &it : m_taskRegistry)
+    {
+      Fiber fiber = it.second->m_fiber;
+      if (fiber)
+        DeleteFiber(fiber);
+      delete it.second;
+    }
+
+    for (auto &it : m_dynamicTasks)
+    {
+      Fiber fiber = it.second->m_fiber;
+      if (fiber)
+        DeleteFiber(fiber);
+      delete it.second;
+    }
   }
 
   void TaskManager::_ProcessCompletedTask(Task *task)

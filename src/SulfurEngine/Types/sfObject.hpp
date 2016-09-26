@@ -36,6 +36,7 @@ namespace Sulfur
 
     virtual void Initialize(void) override final;
     virtual Object* Clone(void) const override final;
+    virtual void Update(void) override final {};
 
     void SetParent(HNDL parent);
     HNDL GetParent(void) const { return m_owner; }

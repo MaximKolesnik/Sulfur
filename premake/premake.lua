@@ -41,6 +41,10 @@ premakeDef.dependencies["libpng"] = {
 	dependencies = { "zlib" }
 }
 
+premakeDef.dependencies["WinApi"] = {
+	debugLibs = { "Shlwapi.lib" },
+	releaseLibs = { "Shlwapi.lib" }
+}
 -------------------------------------------------------------------------------
 -- Configurations -------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -69,7 +73,7 @@ premakeDef.configurations["ReleaseSymbols"] = {
 premakeDef.projects["SulfurEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
-	dependencies = { "D3D11", "libpng" },
+	dependencies = { "D3D11", "libpng", "WinApi" },
 	pchHeader = "sfSulfurPCH.hpp",
 	pchSource = "sfSulfurPCH.cpp"
 }

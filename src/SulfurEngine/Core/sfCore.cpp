@@ -1,9 +1,11 @@
 #include "sfCore.hpp"
+#include <Windows.h>
 
 // Modules
 #include "Modules/Window/sfWindowManager.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
 #include "Logger/sfLogger.hpp"
+#include "Managers\ScriptManager\sfScriptManager.hpp"
 
 namespace Sulfur
 {
@@ -35,11 +37,13 @@ void Core::StartUp(HWND windowHandle)
   }
 
   GraphicsManager::Instance()->Init(*m_window);
+  ScriptManager::Instance()->Initialize();
 }
 
 void Core::GameLoop(void)
 {
   m_running = true;
+
   while (m_running)
   {
     WindowManager::Instance()->Update();
@@ -47,6 +51,8 @@ void Core::GameLoop(void)
 
     if (m_window->IsClosed())
       m_running = false;
+
+    ScriptManager::Instance()->Update();
   }
 }
 
