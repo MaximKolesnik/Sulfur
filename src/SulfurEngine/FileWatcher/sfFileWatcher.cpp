@@ -45,13 +45,30 @@ namespace Sulfur
       {
         do
         {
-          notifyStruct = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(&watchInfo[offset]);
+          notifyStruct = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(&watchInfo->m_buffer[offset]);
           int numChars = WideCharToMultiByte(CP_ACP, 0, notifyStruct->FileName,
             notifyStruct->FileNameLength / sizeof(WCHAR), file, MAX_PATH - 1, NULL, NULL);
 
           file[numChars] = '\0';
 
-          //process changes here
+          switch (notifyStruct->Action)
+          {
+          case FILE_ACTION_ADDED:
+            SF_LOG_MESSAGE("FILE_ADDED");
+            break;
+          case FILE_ACTION_REMOVED:
+            SF_LOG_MESSAGE("FILE_REMOVED");
+            break;
+          case FILE_ACTION_MODIFIED:
+            SF_LOG_MESSAGE("FILE_MODIFIED");
+            break;
+          case FILE_ACTION_RENAMED_OLD_NAME:
+            SF_LOG_MESSAGE("FILE_RENAMED_OLD");
+            break;
+          case FILE_ACTION_RENAMED_NEW_NAME:
+            SF_LOG_MESSAGE("FILE_RENAMED_NEW");
+            break;
+          }
 
           offset += notifyStruct->NextEntryOffset;
         } while (notifyStruct->NextEntryOffset != 0);
@@ -71,6 +88,7 @@ namespace Sulfur
     for (auto &it : m_dirsMap)
     {
       _StopWatch(it.second);
+      free(it.second->m_buffer);
       delete it.second;
     }
   }
@@ -99,8 +117,9 @@ namespace Sulfur
     newInfo->m_overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     newInfo->m_isRecursive = recursive;
     newInfo->m_stop = false;
-    newInfo->m_bufferSize = c_numFiles * sizeof(FILE_NOTIFY_INFORMATION);
-    newInfo->m_buffer = new BYTE[newInfo->m_bufferSize];
+    newInfo->m_bufferSize = DWORD(c_numFiles * sizeof(FILE_NOTIFY_INFORMATION));
+    newInfo->m_buffer 
+      = reinterpret_cast<BYTE*>(_aligned_malloc(newInfo->m_bufferSize, sizeof(DWORD)));
 
     BOOL result = ReadDirectoryChangesW(newInfo->m_dirHandle, newInfo->m_buffer, 
       newInfo->m_bufferSize, recursive,
@@ -110,7 +129,7 @@ namespace Sulfur
     if (result == 0)
     {
       SF_WARNING("Cannot start watcher");
-      delete newInfo->m_buffer;
+      free(newInfo->m_buffer);
       delete newInfo;
       return false;
     }
@@ -128,7 +147,7 @@ namespace Sulfur
 
     _StopWatch(it->second);
 
-    delete it->second->m_buffer;
+    free(it->second->m_buffer);
     delete it->second;
 
     m_dirsMap.erase(it);
