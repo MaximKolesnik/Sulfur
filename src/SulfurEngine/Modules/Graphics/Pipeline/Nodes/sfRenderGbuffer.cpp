@@ -19,6 +19,9 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Factories/sfComponentFactory.hpp"
 #include "Factories/sfObjectFactory.hpp"
 
+#include "Modules/Resource/sfResourceManager.hpp"
+#include "Modules/Resource/Importers/Texture/sfPngImporter.hpp"
+
 namespace Sulfur
 {
 
@@ -37,7 +40,7 @@ RenderGbuffer::RenderGbuffer(D3D11Device& device, RenderTarget *renderTarget)
   D3D11VertexShader vertexShader;
   vertexShader.Init(device, "./Shaders/VSTest.sbin");
 
-  m_texture.Init(device, "./Images/default.png");
+  m_texture = SF_RESOURCE_MANAGER(Texture2D)->LoadResource("Images/default.png");
 }
 
 RenderGbuffer::~RenderGbuffer()
@@ -59,7 +62,7 @@ void RenderGbuffer::Process()
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
 
-  m_texture.SetPixel(m_context, 0);
+  m_texture->SetPixel(m_context, 0);
 
   PerFrameData perFrame;
   perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));

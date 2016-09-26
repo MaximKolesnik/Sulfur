@@ -14,8 +14,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #pragma once
 
-#include <unordered_map>
-
 #include "Types\sfSingleton.hpp"
 #include "DataStructures\sfSlotMap.hpp"
 #include "Types\sfObject.hpp"
@@ -26,9 +24,8 @@ namespace Sulfur
 {
   class ObjectFactory
   {
-    SF_PRIVATE_CTOR_DTOR(ObjectFactory);
-    SF_FORBID_COPY(ObjectFactory);
-    SF_SINGLETON_INSTANCE(ObjectFactory);
+    SF_SINGLETON(ObjectFactory)
+
   public:
     Object* CreateObject(const std::string &name = "DefaultObject");
     //Without Transform
@@ -38,6 +35,9 @@ namespace Sulfur
     void DestroyObject(const HNDL object);
 
     void EndFrameCleanUp(void);
+
+    void Serialize(std::ostream& str) const;
+    void Deserialize(std::istream& str);
 
   private:
     void _Destroy(Object *obj);

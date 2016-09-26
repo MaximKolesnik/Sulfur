@@ -25,7 +25,7 @@ enum ProjectionType
 };
 
 SF_REGISTER_ENUM_TYPE(ProjectionType, "Orthographic", "Perspective")
-BASE_TYPE_SPECIALIZATION(ProjectionType)
+SF_BASE_TYPE_SPECIALIZATION(ProjectionType)
 
 
 SF_REFLECTED_CLASS_DERIVED(Camera, IEntity)

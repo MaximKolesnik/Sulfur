@@ -13,11 +13,12 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfTexture2D.hpp"
 #include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
-#include "Utils/sfFileUtils.hpp"
-#include <png.h>
+#include "Modules/Resource/sfResourceManager.hpp"
 
 namespace Sulfur
 {
+
+SF_REGISTER_RESOURCE_TYPE(Texture2D)
 
 void Texture2D::Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description, const BYTE *pixelData)
 {
@@ -54,43 +55,6 @@ void Texture2D::Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& descriptio
   // Create shader resource
   if ((description.BindFlags & D3D11_BIND_SHADER_RESOURCE) != 0)
     CreateShaderResourceView(device);
-}
-
-void Texture2D::Init(D3D11Device& device, const std::string& fileName)
-{
-  BYTE *pngImageData = FileUtils::ReadFile(fileName);
-  UINT32 size = FileUtils::GetFileSize(fileName);
-  png_image image = { 0 };
-  image.version = PNG_IMAGE_VERSION;
-
-  if (png_image_begin_read_from_memory(&image, pngImageData, size))
-  {
-    image.format = PNG_FORMAT_RGBA;
-    BYTE *pixelData = new BYTE[PNG_IMAGE_SIZE(image)];
-
-    if (png_image_finish_read(&image, nullptr, pixelData, image.width * 4, nullptr))
-    {
-      D3D11_TEXTURE2D_DESC description;
-      description.Width = image.width;
-      description.Height = image.height;
-      description.MipLevels = 1;
-      description.ArraySize = 1;
-      description.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-      description.SampleDesc.Count = 1;
-      description.SampleDesc.Quality = 0;
-      description.Usage = D3D11_USAGE_DEFAULT;
-      description.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-      description.CPUAccessFlags = 0;
-      description.MiscFlags = 0;
-
-      Init(device, description, pixelData);
-    }
-
-    delete[] pixelData;
-    png_image_free(&image);
-  }
-
-  delete[] pngImageData;
 }
 
 void Texture2D::SetPixel(D3D11Context& context, UINT32 slot)

@@ -40,8 +40,6 @@ namespace Sulfur
     void SetParent(HNDL parent);
     HNDL GetParent(void) const { return m_owner; }
 
-    ChildrenSet GetChildren(void) const { return m_children; }
-
     void AttachComponent(IEntity *component);
 
     bool HasDescendant(HNDL handle) const;
@@ -68,8 +66,7 @@ namespace Sulfur
     void _CloneChildren(Object *parent, const ChildrenSet &children) const;
 
     SF_PRIVATE_PROPERTY(ComponentMap, components, Components, "Components")
-
-    ChildrenSet m_children;
+    SF_PRIVATE_PROPERTY(ChildrenSet, children, Children, "Children")
   };
 
   template <class CompType>
@@ -111,4 +108,5 @@ namespace Sulfur
       return SF_GET_COMP_TYPE(CompType, res->second);
     return nullptr;
   }
+
 }

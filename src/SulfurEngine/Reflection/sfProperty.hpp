@@ -53,6 +53,7 @@ namespace Sulfur
     virtual const TypeInfo* GetTypeInfo() const = 0;
 
   public:
+    virtual UINT32 SerializedSize(const void *classInstance) = 0;
     virtual void Serialize(std::ostream& str, const void *classInstance) = 0;
     virtual void Deserialize(std::istream& str, void *classInstance) = 0;
 
@@ -72,12 +73,17 @@ namespace Sulfur
   public:
     TypedProperty(const std::string& name) : Property(name) {}
 
-    virtual void Serialize(std::ostream& str, const void *classInstance)
+    virtual UINT32 SerializedSize(const void *classInstance) override
+    {
+      return Serialization::SerializedSize(*reinterpret_cast<const PropertyType*>(GetValue(classInstance)));
+    }
+
+    virtual void Serialize(std::ostream& str, const void *classInstance) override
     {
       Serialization::Serialize(str, *reinterpret_cast<const PropertyType*>(GetValue(classInstance)));
     }
 
-    virtual void Deserialize(std::istream& str, void *classInstance)
+    virtual void Deserialize(std::istream& str, void *classInstance) override
     {
       PropertyType value;
       Serialization::Deserialize(str, value);

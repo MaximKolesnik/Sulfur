@@ -12,9 +12,12 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfMesh.hpp"
+#include "Modules/Resource/sfResourceManager.hpp"
 
 namespace Sulfur
 {
+
+SF_REGISTER_RESOURCE_TYPE(Mesh)
 
 void Mesh::Init(D3D11Device& device)
 {

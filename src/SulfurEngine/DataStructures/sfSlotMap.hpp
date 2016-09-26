@@ -37,10 +37,11 @@ namespace Sulfur
   class ISlotMap
   {
   public:
-    class Iterator
+    template <typename SlotMapType, typename EntityType>
+    class IteratorBase
     {
     public:
-      Iterator(ISlotMap *slotMap, HNDL index)
+      IteratorBase(SlotMapType *slotMap, HNDL index)
         : m_slotMap(slotMap), m_index(index)
       {
         HNDL lastHndl = m_slotMap->_LastHandle();
@@ -48,7 +49,7 @@ namespace Sulfur
           ++m_index;
       }
 
-      Iterator& operator++(void)
+      IteratorBase& operator++(void)
       {
         HNDL lastHndl = m_slotMap->_LastHandle();
         SF_ASSERT(m_index != lastHndl, "Iterator is at end already");
@@ -63,16 +64,16 @@ namespace Sulfur
         return *this;
       }
 
-      Iterator& operator++(int)
+      IteratorBase& operator++(int)
       {
-        Iterator temp = *this;
+        IteratorBase temp = *this;
 
         ++(*this);
 
         return temp;
       }
 
-      Iterator& operator--(void)
+      IteratorBase& operator--(void)
       {
         SF_ASSERT(m_index != 0, "Iterator is at end already");
 
@@ -85,45 +86,56 @@ namespace Sulfur
         return *this;
       }
 
-      Iterator& operator--(int)
+      IteratorBase& operator--(int)
       {
-        Iterator temp = *this;
+        IteratorBase temp = *this;
 
         --(*this);
 
         return temp;
       }
 
-      IEntity* operator*(void) const
+      EntityType* operator*(void) const
       {
         return m_slotMap->At(m_index);
       }
 
-      Iterator& operator=(const Iterator &other)
+      EntityType* operator->(void) const
+      {
+        return m_slotMap->At(m_index);
+      }
+
+      IteratorBase& operator=(const IteratorBase &other)
       {
         m_slotMap = other.m_slotMap;
         m_index = other.m_index;
       }
 
-      bool operator==(const Iterator &other) const
+      bool operator==(const IteratorBase &other) const
       {
         return m_index == other.m_index;
       }
 
-      bool operator!=(const Iterator &other) const
+      bool operator!=(const IteratorBase &other) const
       {
         return !(*this == other);
       }
 
     private:
-      ISlotMap *m_slotMap;
+      SlotMapType *m_slotMap;
       HNDL m_index;
     };
 
+    typedef IteratorBase<ISlotMap, IEntity> Iterator;
+    typedef IteratorBase<const ISlotMap, const IEntity> ConstIterator;
+
     ISlotMap(void)
+      : m_size(0)
     {
 
     }
+
+    UINT32 GetSize() const { return m_size; }
 
     virtual ~ISlotMap(void) {};
     virtual HNDL Create(void) = 0;
@@ -132,14 +144,20 @@ namespace Sulfur
     virtual void Erase(const HNDL hndl) = 0;
     virtual void Clear(void) = 0;
     virtual UINT64 GetNumberOfAllocPages(void) const = 0;
+    virtual void Serialize(std::ostream& str) const = 0;
+    virtual void Deserialize(std::istream& str) = 0;
 
     virtual Iterator begin(void) = 0;
     virtual Iterator end(void) = 0;
+    virtual ConstIterator begin(void) const = 0;
+    virtual ConstIterator end(void) const = 0;
 
   protected:
     virtual bool _IsFree(UINT64 pageNum, UINT64 index) const = 0;
     virtual bool _IsFree(HNDL handle) const = 0;
     virtual HNDL _LastHandle(void) const = 0;
+
+    UINT32 m_size;
   };
 
   //Has to be IEntity or derived from it
@@ -156,14 +174,27 @@ namespace Sulfur
     virtual void Erase(const HNDL hndl) override;
     virtual void Clear(void) override;
     virtual UINT64 GetNumberOfAllocPages(void) const override;
+    virtual void Serialize(std::ostream& str) const override;
+    virtual void Deserialize(std::istream& str) override;
 
     virtual Iterator begin(void) override
     {
       return Iterator(this, 0);
     }
+
     virtual Iterator end(void) override
     {
       return Iterator(this, _LastHandle());
+    }
+
+    virtual ConstIterator begin(void) const override
+    {
+      return ConstIterator(this, 0);
+    }
+
+    virtual ConstIterator end(void) const override
+    {
+      return ConstIterator(this, _LastHandle());
     }
 
   private:
@@ -266,6 +297,7 @@ namespace Sulfur
     }
 
     ++m_pages[pageNum]->m_used;
+    ++m_size;
 
     SF_ASSERT(m_pages[pageNum]->m_used <= EngineSettings::SlotMapObjsPerPage,
       "Memory page indicates that it has more objects than objs per page");
@@ -302,6 +334,7 @@ namespace Sulfur
 
     pageFreeList->remove(hndl);
     ++m_pages[pageNum]->m_used;
+    ++m_size;
 
     SF_ASSERT(m_pages[pageNum]->m_used <= EngineSettings::SlotMapObjsPerPage,
       "Memory page indicates that it has more objects than objs per page");
@@ -352,6 +385,7 @@ namespace Sulfur
     }
 
     --m_pages[pageNum]->m_used;
+    --m_size;
     SF_ASSERT(m_pages[pageNum]->m_used >= 0, 
       "Number of used object is less than 0");
 
@@ -420,12 +454,26 @@ namespace Sulfur
 
     for (auto it : m_pages)
       m_pageQueue.push(it);
+
+    m_size = 0;
   }
 
   template <typename EntityType>
   UINT64 SlotMap<EntityType>::GetNumberOfAllocPages(void) const
   {
     return m_pages.size();
+  }
+
+  template <typename EntityType>
+  void SlotMap<EntityType>::Serialize(std::ostream& str) const
+  {
+    Serialization::Serialize(str, *this);
+  }
+
+  template <typename EntityType>
+  void SlotMap<EntityType>::Deserialize(std::istream& str)
+  {
+    Serialization::Deserialize(str, *this);
   }
 
   template <typename EntityType>

@@ -21,7 +21,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 template <> const TypeInfo Sulfur::TypeInfoRegistry<type>::s_typeInfo(#type, TypeInfo::IdGen(), base, {__VA_ARGS__}, {}); \
 template <> const TypeInfo Sulfur::TypeInfoRegistry<std::vector<type>>::s_typeInfo("std::vector", TypeInfo::IdGen(), nullptr, {}, { SF_TYPE_INFO(type) }); \
 template <> const TypeInfo Sulfur::TypeInfoRegistry<std::list<type>>::s_typeInfo("std::list", TypeInfo::IdGen(), nullptr, {}, { SF_TYPE_INFO(type) }); \
-template <> const TypeInfo Sulfur::TypeInfoRegistry<std::unordered_map<std::string, type>>::s_typeInfo("std::unordered_map", TypeInfo::IdGen(), nullptr, {}, { SF_TYPE_INFO(std::string), SF_TYPE_INFO(type) });
+template <> const TypeInfo Sulfur::TypeInfoRegistry<std::unordered_map<std::string, type>>::s_typeInfo("std::unordered_map", TypeInfo::IdGen(), nullptr, {}, { SF_TYPE_INFO(std::string), SF_TYPE_INFO(type) }); \
+template <> const TypeInfo Sulfur::TypeInfoRegistry<std::unordered_set<type>>::s_typeInfo("std::unordered_set", TypeInfo::IdGen(), nullptr, {}, { SF_TYPE_INFO(type) });
 
 #define SF_REGISTER_ENUM_TYPE(type, values, ...) SF_REGISTER_TYPE(type, nullptr, values, ##__VA_ARGS__)
 #define SF_REGISTER_BASE_TYPE(type) SF_REGISTER_TYPE(type, nullptr)

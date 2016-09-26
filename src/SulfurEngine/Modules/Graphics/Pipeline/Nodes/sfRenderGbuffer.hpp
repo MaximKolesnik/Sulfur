@@ -46,7 +46,7 @@ namespace Sulfur
     RenderTarget *m_renderTarget;
     Mesh m_boxMesh;
 
-    Texture2D m_texture;
+    Texture2D *m_texture;
 
   };
   

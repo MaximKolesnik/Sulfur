@@ -171,4 +171,5 @@ namespace Sulfur
       cloneChild->SetParent(parent->m_hndl);
     }
   }
+
 }

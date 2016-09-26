@@ -1,33 +1,24 @@
 /******************************************************************************/
 /*!
 \par     Sulfur
-\file    sfCamera.cpp
+\file    sfFbxImporter.cpp
 \author  Dylan Norris
 \par     DP email: d.norris@digipen.edu
-\date    9/16/2016
+\date    9/24/2016
 
-\brief   Camera component
+\brief   FBX model importer
 
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
-#include "sfCamera.hpp"
-#include "Factories/sfComponentFactory.hpp"
+#include "sfFbxImporter.hpp"
 
 namespace Sulfur
 {
 
-SF_BASE_TYPE_SERIALIZATION_DEFAULT(ProjectionType)
-
-void Camera::Initialize(void)
+void FbxImporter::Load(BYTE *buffer, UINT32 bufferSize, Mesh *resource)
 {
 
-}
-
-Camera* Camera::Clone(void) const
-{
-  Camera *newCamera = SF_CREATE_COMP(Camera);
-  return newCamera;
 }
 
 }

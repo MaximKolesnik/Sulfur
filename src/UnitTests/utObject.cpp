@@ -17,7 +17,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace Sulfur;
 
 //only for test 4
-bool TestChildren(Object::ChildrenSet &children)
+bool TestChildren(const Object::ChildrenSet &children)
 {
   bool res = true;
 

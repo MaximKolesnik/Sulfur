@@ -12,6 +12,7 @@
 // STL
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 // Graphics API
 #include <d3d11.h>

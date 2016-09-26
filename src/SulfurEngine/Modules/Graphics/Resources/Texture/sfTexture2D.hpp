@@ -25,7 +25,6 @@ namespace Sulfur
   public:
     using WrapperBase::Init;
     void Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description, const BYTE *pixelData = nullptr);
-    void Init(D3D11Device& device, const std::string& fileName);
 
     void SetPixel(D3D11Context& context, UINT32 slot);
 

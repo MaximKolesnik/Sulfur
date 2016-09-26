@@ -59,10 +59,8 @@ namespace Sulfur
       PropertyMap& propertyMap = GetPropertyMap();
       auto it = propertyMap.find(name);
       
-      SF_CRITICAL_ERR_EXP(
-        it != propertyMap.end(),
-        "No property with the name given."
-        );
+      if (it == propertyMap.end())
+        return nullptr;
 
       return it->second;
     }
