@@ -14,11 +14,14 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfTexture2D.hpp"
 #include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
 #include "Modules/Resource/sfResourceManager.hpp"
+#include "Modules/Resource/Importers/Texture/sfPngImporter.hpp"
 
 namespace Sulfur
 {
 
 SF_REGISTER_RESOURCE_TYPE(Texture2D)
+  SF_IMPORTER(PngImporter, "png")
+SF_END_REGISTER_RESOURCE_TYPE()
 
 void Texture2D::Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description, const BYTE *pixelData)
 {

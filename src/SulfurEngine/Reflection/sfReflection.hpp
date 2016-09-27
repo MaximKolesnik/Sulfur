@@ -139,6 +139,16 @@ private:
 
 #define SF_REFLECTED_CLASS(name) SF_REFLECTED_CLASS_DERIVED(name, ReflectionBase)
 
+#define SF_PRIVATE_RESOURCE(type, name, upperName, display) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, std::string>(display, &Get##upperName, &Set##upperName); } \
+type *m_##name; \
+std::string m_resource##upperName; \
+public: \
+  const type*& Get##upperName() const { return m_##name; } \
+  void Set##upperName(const std::string& resourcePath) { m_##name = ResourceManager<type>::LoadResource(resourcePath); m_resource##upperName = resourcePath; }
+
+
 #define SF_PRIVATE_PROPERTY(type, name, upperName, display) \
 private: \
 static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &Get##upperName, &Set##upperName); } \

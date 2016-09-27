@@ -19,8 +19,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 
-SF_REGISTER_IMPORTER(PngImporter, Texture2D, "png")
-
 void PngImporter::Load(BYTE *buffer, UINT32 bufferSize, Texture2D *resource)
 {
   png_image image = { 0 };

@@ -91,11 +91,13 @@ namespace Sulfur
     }
 
     template <typename ImporterType>
-    static bool RegisterImporter(const std::string& ext)
+    static void RegisterImporter(const std::string& ext)
     {
-      AssertRegistered();
       GetImporters()[ext] = new ImporterType();
-      return true;
+    }
+
+    static void RegisterImporters()
+    {
     }
 
   private:
@@ -140,6 +142,7 @@ namespace Sulfur
     static bool RegisterResource(const std::string& name)
     {
       GetInfoList().push_back(ResourceInfo{ name, &ResourceManager<ResourceType>::UnloadAll });
+      ResourceManager<ResourceType>::RegisterImporters();
       return true;
     }
 
@@ -163,6 +166,11 @@ namespace Sulfur
   
 }
 
-#define SF_REGISTER_RESOURCE_TYPE(type) bool Sulfur::ResourceManager<type>::s_registered = ResourceRegistry::RegisterResource<type>(#type);
-#define SF_REGISTER_IMPORTER(importerType, resourceType, ext) static bool importerType##Registered = Sulfur::ResourceManager<resourceType>::RegisterImporter<importerType>(ext);
+#define SF_REGISTER_RESOURCE_TYPE(type) bool Sulfur::ResourceManager<type>::s_registered = ResourceRegistry::RegisterResource<type>(#type); \
+template <> void Sulfur::ResourceManager<type>::RegisterImporters() {
+
+#define SF_IMPORTER(importerType, ext) RegisterImporter<importerType>(ext);
+
+#define SF_END_REGISTER_RESOURCE_TYPE() }
+
 #define SF_RESOURCE_MANAGER(type) Sulfur::ResourceManager<type>::Instance()

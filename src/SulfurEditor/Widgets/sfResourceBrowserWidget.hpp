@@ -16,7 +16,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 	
-  class ResourceBrowserWidget : public QWidget
+  class ResourceBrowserWidget : public QSplitter
   {
     Q_OBJECT
 
@@ -24,8 +24,18 @@ namespace Sulfur
     ResourceBrowserWidget(QWidget *parent = 0);
     ~ResourceBrowserWidget();
   
+    void SetProjectRoot(const QString& root);
+
+  public slots:
+    void OnFolderSelected(const QModelIndex &current, const QModelIndex &previous);
+
   private:
-    QSplitter *m_splitter;
+    QString m_projectRoot;
+    QTreeView *m_folderTree;
+    QFileSystemModel *m_folderTreeModel;
+
+    QListView *m_fileList;
+    QFileSystemModel *m_fileListModel;
 
   };
   

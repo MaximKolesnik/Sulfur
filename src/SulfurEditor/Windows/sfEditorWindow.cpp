@@ -66,6 +66,7 @@ EditorWindow::EditorWindow(QWidget *parent)
   resourceBrowserDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
   m_resourceBrowser = new ResourceBrowserWidget(resourceBrowserDock);
+  m_resourceBrowser->SetProjectRoot(QDir::currentPath());
   resourceBrowserDock->setWidget(m_resourceBrowser);
 
   addDockWidget(Qt::BottomDockWidgetArea, resourceBrowserDock);

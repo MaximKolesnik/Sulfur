@@ -13,11 +13,14 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfMesh.hpp"
 #include "Modules/Resource/sfResourceManager.hpp"
+#include "Modules/Resource/Importers/Model/sfFbxImporter.hpp"
 
 namespace Sulfur
 {
 
 SF_REGISTER_RESOURCE_TYPE(Mesh)
+  SF_IMPORTER(FbxImporter, "fbx")
+SF_END_REGISTER_RESOURCE_TYPE()
 
 void Mesh::Init(D3D11Device& device)
 {
