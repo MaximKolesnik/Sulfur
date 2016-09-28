@@ -5,8 +5,10 @@
 #include "Modules/Input/sfInputManager.hpp"
 #include "Modules/Window/sfWindowManager.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
+#include "Modules/Resource/sfResourceManager.hpp"
 #include "Managers/TaskManager/sfTaskManager.hpp"
 #include "Logger/sfLogger.hpp"
+#include "Modules/Graphics/Scene/sfMesh.hpp"
 
 // Factories
 #include "Factories/sfComponentFactory.hpp"
@@ -41,6 +43,8 @@ void Core::StartUp(HWND windowHandle)
     m_window = WindowManager::Instance()->NewWindow(description);
     m_window->RegisterCallbackOnClose(this, &Core::OnWindowClose);
   }
+
+  ResourceManager<Mesh>::Instance()->LoadResource("Models/cube.fbx");
 
   InputManager::Instance()->Init(m_window);
   GraphicsManager::Instance()->Init(*m_window);

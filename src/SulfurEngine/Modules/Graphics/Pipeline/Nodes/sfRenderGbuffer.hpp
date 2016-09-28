@@ -44,7 +44,7 @@ namespace Sulfur
     D3D11PixelShader m_pixelShader;
 
     RenderTarget *m_renderTarget;
-    Mesh m_boxMesh;
+    Mesh *m_boxMesh;
 
     Texture2D *m_texture;
 

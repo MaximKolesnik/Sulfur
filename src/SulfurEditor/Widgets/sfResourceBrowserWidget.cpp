@@ -50,8 +50,9 @@ ResourceBrowserWidget::~ResourceBrowserWidget()
 void ResourceBrowserWidget::SetProjectRoot(const QString& root)
 {
   m_projectRoot = root;
-  m_folderTreeModel->setRootPath(root);
-  m_folderTree->setRootIndex(m_folderTreeModel->index(root));
+  QString resourcesPath = root + "/Resources";
+  m_folderTreeModel->setRootPath(resourcesPath);
+  m_folderTree->setRootIndex(m_folderTreeModel->index(resourcesPath));
 }
 
 void ResourceBrowserWidget::OnFolderSelected(const QModelIndex &current, const QModelIndex &previous)

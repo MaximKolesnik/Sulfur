@@ -64,10 +64,24 @@ void Mesh::Draw(D3D11Context& context)
   }
 }
 
-void Mesh::AddVertex(const Vertex& vertex)
+UINT32 Mesh::AddVertex(const Vertex& vertex)
 {
   m_vertices.push_back(vertex);
   m_valid = false;
+  return (UINT32)m_vertices.size() - 1;
+}
+
+UINT32 Mesh::AddUniqueVertex(const Vertex& vertex)
+{
+  //TODO: Optimizations
+  UINT32 vertexCount = (UINT32)m_vertices.size();
+  for (UINT32 i = 0; i < vertexCount; ++i)
+  {
+    if (memcmp(&vertex, &m_vertices[i], sizeof(Vertex)) == 0)
+      return i;
+  }
+
+  return AddVertex(vertex);
 }
 
 void Mesh::AddIndex(UINT32 index)

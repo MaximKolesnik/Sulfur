@@ -20,7 +20,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Factories/sfObjectFactory.hpp"
 
 #include "Modules/Resource/sfResourceManager.hpp"
-#include "Modules/Resource/Importers/Texture/sfPngImporter.hpp"
 
 namespace Sulfur
 {
@@ -34,13 +33,11 @@ RenderGbuffer::RenderGbuffer(D3D11Device& device, RenderTarget *renderTarget)
 
   m_pixelShader.Init(device, "./Shaders/PSTexture.sbin");
 
-  m_boxMesh.Init(device);
-  m_boxMesh.CreateCube(1.0f);
-
   D3D11VertexShader vertexShader;
   vertexShader.Init(device, "./Shaders/VSTest.sbin");
 
   m_texture = SF_RESOURCE_MANAGER(Texture2D)->LoadResource("Images/default.png");
+  m_boxMesh = SF_RESOURCE_MANAGER(Mesh)->LoadResource("Models/cube.fbx");
 }
 
 RenderGbuffer::~RenderGbuffer()

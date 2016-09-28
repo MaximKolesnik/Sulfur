@@ -53,13 +53,14 @@ namespace Sulfur
       ResourceType *resource = new ResourceType();
       m_resources[path] = resource;
 
+      std::string actualPath = "Resources/" + path;
       SF_CRITICAL_ERR_EXP(
-        FileUtils::FileExists(path),
+        FileUtils::FileExists(actualPath),
         std::string("File does not exist:") + path
         );
 
-      UINT32 fileSize = FileUtils::GetFileSize(path);
-      BYTE *fileData = FileUtils::ReadFile(path);
+      UINT32 fileSize = FileUtils::GetFileSize(actualPath);
+      BYTE *fileData = FileUtils::ReadFile(actualPath);
       it->second->Load(fileData, fileSize, resource);
 
       return resource;
@@ -121,8 +122,8 @@ namespace Sulfur
 
   };
 
-  template <typename ResourceType>
-  bool ResourceManager<ResourceType>::s_registered = false;
+  //template <typename ResourceType>
+  //bool ResourceManager<ResourceType>::s_registered = false;
 
   class ResourceRegistry
   {

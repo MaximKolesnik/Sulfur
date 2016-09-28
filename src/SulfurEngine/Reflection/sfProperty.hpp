@@ -66,7 +66,7 @@ namespace Sulfur
 
   };
 
-  template <typename ClassType, typename PropertyType, typename PropertyGetType>
+  template <typename ClassType, typename PropertyType>
   class TypedProperty : public Property
   {
 

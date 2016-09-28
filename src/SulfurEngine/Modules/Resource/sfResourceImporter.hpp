@@ -22,6 +22,7 @@ namespace Sulfur
   {
   
   public:
+    virtual ~IResourceImporter() {}
     virtual void Load(BYTE *buffer, UINT32 bufferSize, ResourceType *resource) = 0;
 
   };

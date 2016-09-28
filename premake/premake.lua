@@ -41,6 +41,13 @@ premakeDef.dependencies["libpng"] = {
 	dependencies = { "zlib" }
 }
 
+premakeDef.dependencies["fbx"] = {
+	debugLibs = { "libfbxsdk-mdd.lib" },
+	releaseLibs = { "libfbxsdk-md.lib" },
+	includeDirs = { "../dependencies/fbx/include" },
+	libraryDirs = { "../dependencies/fbx/lib" }
+}
+
 -------------------------------------------------------------------------------
 -- Configurations -------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -69,7 +76,7 @@ premakeDef.configurations["ReleaseSymbols"] = {
 premakeDef.projects["SulfurEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
-	dependencies = { "D3D11", "libpng" },
+	dependencies = { "D3D11", "libpng", "fbx" },
 	pchHeader = "sfSulfurPCH.hpp",
 	pchSource = "sfSulfurPCH.cpp"
 }

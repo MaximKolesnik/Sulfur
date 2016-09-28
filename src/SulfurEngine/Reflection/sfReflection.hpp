@@ -139,13 +139,16 @@ private:
 
 #define SF_REFLECTED_CLASS(name) SF_REFLECTED_CLASS_DERIVED(name, ReflectionBase)
 
-#define SF_PRIVATE_RESOURCE(type, name, upperName, display) \
+#define CONCAT(a, b) a##b
+
+#define SF_RESOURCE(type, name, upperName, display) \
 private: \
-static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, std::string>(display, &Get##upperName, &Set##upperName); } \
-type *m_##name; \
-std::string m_resource##upperName; \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, std::string>(display, &CONCAT(Get##upperName, ResourcePath), &Set##upperName); } \
+type *CONCAT(m_##name, Resource); \
+std::string CONCAT(m_##name, ResourcePath); \
 public: \
-  const type*& Get##upperName() const { return m_##name; } \
+  type* Get##upperName() const { return CONCAT(m_##name, Resource); } \
+  const std::string& CONCAT(Get##upperName, ResourcePath) const { return CONCAT(m_##name, ResourcePath); } \
   void Set##upperName(const std::string& resourcePath) { m_##name = ResourceManager<type>::LoadResource(resourcePath); m_resource##upperName = resourcePath; }
 
 

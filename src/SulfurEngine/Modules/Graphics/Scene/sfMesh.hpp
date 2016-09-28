@@ -33,7 +33,8 @@ namespace Sulfur
 
     void Draw(D3D11Context& context);
 
-    void AddVertex(const Vertex& vertex);
+    UINT32 AddVertex(const Vertex& vertex);
+    UINT32 AddUniqueVertex(const Vertex& vertex);
     void AddIndex(UINT32 index);
     void AddLine(UINT32 i0, UINT32 i1);
     void AddTriangle(UINT32 i0, UINT32 i1, UINT32 i2);

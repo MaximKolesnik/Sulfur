@@ -18,6 +18,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components/sfMeshRenderer.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
+#include "Modules/Resource/sfResourceManager.hpp"
 
 namespace Sulfur
 {
@@ -203,13 +204,9 @@ void SceneBrowserWidget::OnAddCamera()
 void SceneBrowserWidget::OnAddCube()
 {
   Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject("Cube"));
-  MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
 
-  // TODO: Replace this after resource management is implemented, intentional leak right now
-  Mesh *mesh = new Mesh();
-  mesh->Init(GraphicsManager::Instance()->GetDevice());
-  mesh->CreateBox(1.0f, 1.0f, 1.0f);
-  meshRenderer->SetMesh(mesh);
+  MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
+  meshRenderer->SetMesh(SF_RESOURCE_MANAGER(Mesh)->LoadResource("Models/cube.fbx"));
 
   object->AttachComponent(meshRenderer);
   AddObject(object);
