@@ -1,0 +1,6 @@
+@echo off
+echo Downloading dependencies...
+powershell -Command "(New-Object Net.WebClient).DownloadFile('https://dl.dropboxusercontent.com/s/5p3pkmc4x6xnda3/dependencies.zip?dl=0', 'dependencies.zip')"
+echo Extracting dependencies...
+bin\7z.exe x dependencies.zip -aoa
+del dependencies.zip
