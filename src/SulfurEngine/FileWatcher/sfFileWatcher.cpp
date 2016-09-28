@@ -16,71 +16,80 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-
-    BOOL _RefreshWatch( FileWatcher::WatchInfo *info, 
-      VOID (CALLBACK *func)(DWORD, DWORD, LPOVERLAPPED) )
+  namespace
+  {
+    BOOL RefreshWatch(FileWatcher::WatchInfo *info,
+      VOID(CALLBACK *func)(DWORD, DWORD, LPOVERLAPPED))
     {
       return ReadDirectoryChangesW(info->m_dirHandle, info->m_buffer,
         info->m_bufferSize, info->m_isRecursive,
         FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION,
         NULL, &info->m_overlapped, func);
     }
+  }
 
-    VOID CALLBACK FileIOCompletionRoutine(
-      DWORD        dwErrorCode,
-      DWORD        dwNumberOfBytesTransfered,
-      LPOVERLAPPED lpOverlapped
-      )
+  VOID CALLBACK FileIOCompletionRoutine(
+    DWORD        dwErrorCode,
+    DWORD        dwNumberOfBytesTransfered,
+    LPOVERLAPPED lpOverlapped
+    )
+  {
+    if (dwNumberOfBytesTransfered == 0)
+      return;
+
+    char file[MAX_PATH];
+    FILE_NOTIFY_INFORMATION *notifyStruct;
+    FileWatcher::WatchInfo *watchInfo = 
+      reinterpret_cast<FileWatcher::WatchInfo*>(lpOverlapped);
+    size_t offset = 0;
+
+    if (dwErrorCode == ERROR_SUCCESS)
     {
-      if (dwNumberOfBytesTransfered == 0)
-        return;
-
-      char file[MAX_PATH];
-      FILE_NOTIFY_INFORMATION *notifyStruct;
-      FileWatcher::WatchInfo *watchInfo = 
-        reinterpret_cast<FileWatcher::WatchInfo*>(lpOverlapped);
-      size_t offset = 0;
-
-      if (dwErrorCode == ERROR_SUCCESS)
+      do
       {
-        do
+        notifyStruct = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(&watchInfo->m_buffer[offset]);
+        int numChars = WideCharToMultiByte(CP_ACP, 0, notifyStruct->FileName,
+          notifyStruct->FileNameLength / sizeof(WCHAR), file, MAX_PATH - 1, NULL, NULL);
+
+        file[numChars] = '\0';
+
+        FileWatcher::ActionInfo actionInfo;
+        actionInfo.m_action = (FileWatcher::Action)notifyStruct->Action;
+        actionInfo.m_fileName = watchInfo->m_fileWatcher->_GetFileName(file);
+        actionInfo.m_path = watchInfo->m_fileWatcher->_GetPath(file);
+
+        watchInfo->m_fileWatcher->m_callback(actionInfo);
+
+        /*switch (notifyStruct->Action)
         {
-          notifyStruct = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(&watchInfo->m_buffer[offset]);
-          int numChars = WideCharToMultiByte(CP_ACP, 0, notifyStruct->FileName,
-            notifyStruct->FileNameLength / sizeof(WCHAR), file, MAX_PATH - 1, NULL, NULL);
+        case FILE_ACTION_ADDED:
+          SF_LOG_MESSAGE("FILE_ADDED");
+          break;
+        case FILE_ACTION_REMOVED:
+          SF_LOG_MESSAGE("FILE_REMOVED");
+          break;
+        case FILE_ACTION_MODIFIED:
+          SF_LOG_MESSAGE("FILE_MODIFIED");
+          break;
+        case FILE_ACTION_RENAMED_OLD_NAME:
+          SF_LOG_MESSAGE("FILE_RENAMED_OLD");
+          break;
+        case FILE_ACTION_RENAMED_NEW_NAME:
+          SF_LOG_MESSAGE("FILE_RENAMED_NEW");
+          break;
+        }*/
 
-          file[numChars] = '\0';
-
-          switch (notifyStruct->Action)
-          {
-          case FILE_ACTION_ADDED:
-            SF_LOG_MESSAGE("FILE_ADDED");
-            break;
-          case FILE_ACTION_REMOVED:
-            SF_LOG_MESSAGE("FILE_REMOVED");
-            break;
-          case FILE_ACTION_MODIFIED:
-            SF_LOG_MESSAGE("FILE_MODIFIED");
-            break;
-          case FILE_ACTION_RENAMED_OLD_NAME:
-            SF_LOG_MESSAGE("FILE_RENAMED_OLD");
-            break;
-          case FILE_ACTION_RENAMED_NEW_NAME:
-            SF_LOG_MESSAGE("FILE_RENAMED_NEW");
-            break;
-          }
-
-          offset += notifyStruct->NextEntryOffset;
-        } while (notifyStruct->NextEntryOffset != 0);
-      }
-
-      if (!watchInfo->m_stop)
-        _RefreshWatch(watchInfo, FileIOCompletionRoutine);
+        offset += notifyStruct->NextEntryOffset;
+      } while (notifyStruct->NextEntryOffset != 0);
     }
 
-  FileWatcher::FileWatcher(void)
-  {
+    if (!watchInfo->m_stop)
+      RefreshWatch(watchInfo, FileIOCompletionRoutine);
+  }
 
+  FileWatcher::FileWatcher(FileWatcherCallback func) : m_callback(func)
+  {
+    SF_ASSERT(func != nullptr, "Callback function must be set");
   }
 
   FileWatcher::~FileWatcher(void)
@@ -120,6 +129,7 @@ namespace Sulfur
     newInfo->m_bufferSize = DWORD(c_numFiles * sizeof(FILE_NOTIFY_INFORMATION));
     newInfo->m_buffer 
       = reinterpret_cast<BYTE*>(_aligned_malloc(newInfo->m_bufferSize, sizeof(DWORD)));
+    newInfo->m_fileWatcher = this;
 
     BOOL result = ReadDirectoryChangesW(newInfo->m_dirHandle, newInfo->m_buffer, 
       newInfo->m_bufferSize, recursive,
@@ -164,12 +174,28 @@ namespace Sulfur
 
     CancelIo(info->m_dirHandle);
 
-    _RefreshWatch(info, NULL);
+    RefreshWatch(info, NULL);
 
     if (!HasOverlappedIoCompleted(&info->m_overlapped))
       SleepEx(INFINITE, 1);
 
     CloseHandle(info->m_overlapped.hEvent);
     CloseHandle(info->m_dirHandle);
+  }
+
+  std::string FileWatcher::_GetFileName(const std::string &fileName) const
+  {
+    size_t pos = fileName.find_last_of("\\");
+    
+    if (pos == std::string::npos)
+      return fileName;
+    return fileName.substr(pos + 1);
+  }
+
+  std::string FileWatcher::_GetPath(const std::string &fileName) const
+  {
+    size_t pos = fileName.find_last_of("\\");
+
+    return fileName.substr(0, pos);
   }
 }

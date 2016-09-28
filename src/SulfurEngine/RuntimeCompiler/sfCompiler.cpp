@@ -6,7 +6,7 @@
 \par     DP email: maxim.kolesnik@digipen.edu
 \date    9/24/2016
 
-\brief   Runtime complier
+\brief   Runtime dll complier
 
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
@@ -78,7 +78,8 @@ namespace Sulfur
     _StartCompilerProcess();
   }
 
-  bool Compiler::Compile(const std::string &file)
+  bool Compiler::Compile(const std::string &cpps, const std::string &headers, 
+    const std::string &dllName)
   {
     SF_ASSERT(!m_VSPath.empty(), "Compiler is not supported");
 
@@ -93,26 +94,26 @@ namespace Sulfur
     struct stat info;
     BOOL res = true;
 
-    if (stat(EngineSettings::ScriptDllOutputDir.c_str(), &info) != 0)
-      BOOL res = CreateDirectory(EngineSettings::ScriptDllOutputDir.c_str(), NULL);
+    if (stat(m_outputDir.c_str(), &info) != 0)
+      BOOL res = CreateDirectory(m_outputDir.c_str(), NULL);
 
     SF_CRITICAL_ERR_EXP(res,
       "Script output dll directory does not exist and cannot be created");
 
     res = true;
 
-    if (stat(EngineSettings::ScriptIntermDir.c_str(), &info) != 0)
-      BOOL res = CreateDirectory(EngineSettings::ScriptIntermDir.c_str(), NULL);
+    if (stat(m_interDir.c_str(), &info) != 0)
+      BOOL res = CreateDirectory(m_interDir.c_str(), NULL);
 
     SF_CRITICAL_ERR_EXP(res,
       "Script output obj directory does not exist and cannot be created");
 
     std::string compilerFlags = " /W3 /WX /O2 /MD /LD ";
-    std::string outputFileName = _RemoveExtension(file) + ".dll";
-    std::string output = " /link /out:\"" + EngineSettings::ScriptDllOutputDir + outputFileName + "\" " ;
-    std::string interm = " /Fo\"" + EngineSettings::ScriptIntermDir + _RemoveExtension(file) + ".obj\" ";
+    std::string outputFileName = dllName + ".dll";
+    std::string output = " /link /out:\"" + m_outputDir + outputFileName + "\" " ;
+    std::string interm = " /Fo\"" + m_interDir + dllName + ".obj\" ";
 
-    std::string command = "cl " + EngineSettings::ScriptSourceFolder + file + interm + compilerFlags + output;
+    std::string command = "cl " + cpps + interm + compilerFlags + output;
     command += "\necho " + c_compilationComplete + "\n";
 
     _Write(command);
@@ -125,8 +126,12 @@ namespace Sulfur
   Compiler::~Compiler(void)
   {
     m_destroy = true;
+    _Write("echo Compiler is exiting\n");
+
     m_outputWorker->join();
     delete m_outputWorker;
+
+    TerminateProcess(m_cmdInfo.hProcess, 1);
 
     CloseHandle(m_cmdOutput);
     CloseHandle(m_cmdInput);
@@ -259,7 +264,6 @@ namespace Sulfur
       &m_cmdInfo);
 
     _Write(cmdCommand);
-    _Write("set\n");
 
     m_outputWorker = new std::thread(CompilerOutputWorker, this);
 

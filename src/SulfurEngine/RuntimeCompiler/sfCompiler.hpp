@@ -6,7 +6,7 @@
 \par     DP email: maxim.kolesnik@digipen.edu
 \date    9/24/2016
 
-\brief   Runtime complier
+\brief   Runtime dll complier
 
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
@@ -31,7 +31,12 @@ namespace Sulfur
 
     void Initialize(void);
 
-    bool Compile(const std::string &file);
+    void SetOutputDirectory(const std::string &outputDir) { m_outputDir = outputDir; }
+    void SetIntermediateDirectory(const std::string &interDir) { m_interDir = interDir; }
+
+    //Should have fullpath to files and space separated
+    bool Compile(const std::string &cpps, const std::string &headers,
+      const std::string &dllName);
     bool IsCompilationDone(void) const { return m_compilationDone; }
 
   private:
@@ -60,5 +65,9 @@ namespace Sulfur
     std::thread *m_outputWorker;
 
     bool m_destroy;
+
+    //Dirs
+    std::string m_outputDir;
+    std::string m_interDir;
   };
 }
