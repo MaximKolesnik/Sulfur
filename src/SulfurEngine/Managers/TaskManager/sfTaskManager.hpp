@@ -6,7 +6,8 @@
 \par     DP email: maxim.kolesnik@digipen.edu
 \date    9/5/2016
 
-\brief   Task manager
+\brief   Task manager. Used to update all components and systems
+         Main thread is used as a worker
 
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
@@ -43,7 +44,7 @@ namespace Sulfur
     void SetStartingTask(const std::string &taskName);
     void SetDependency(const std::string &taskName, const std::string &dependsOn);
     void CompleteGraph(void);
-    bool IsDone(void) const;
+    bool IsDone(void) const; //Are all tasks done for this frame
 
     Task* PullTask(WorkerThread *pullingWorker);
 

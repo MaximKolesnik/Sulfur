@@ -85,7 +85,7 @@ namespace Sulfur
       if (it->m_name == c_endNode)
         continue;
 
-      if (it->m_depCount == 0)
+      if (it->m_depCount == 0) //Dependencies are satisfied
         m_readyNodes.push(it);
     }
   }

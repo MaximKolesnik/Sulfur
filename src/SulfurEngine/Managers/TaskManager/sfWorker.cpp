@@ -28,6 +28,7 @@ namespace Sulfur
 
     while (true)
     {
+      //Sleep if we are not on a main thread
       if (thisThread->m_coreAffinity != 0)
       {
         EnterCriticalSection(&thisThread->m_suspendedCS);
@@ -51,6 +52,7 @@ namespace Sulfur
 
           SwitchToFiber(task->m_fiber);
 
+          //Process task
           if (task->m_done)
             thisThread->m_taskManager->_ProcessCompletedTask(task);
           else if (task->m_waiting)
@@ -61,6 +63,8 @@ namespace Sulfur
         }
       }
 
+      //Only exit it is main thread worker
+      //The rest should be runnning
       if (thisThread->m_coreAffinity == 0)
         thisThread->m_exit = true;
     }

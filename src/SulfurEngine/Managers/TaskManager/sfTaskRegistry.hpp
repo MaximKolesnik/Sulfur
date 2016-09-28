@@ -76,14 +76,14 @@ if (_taskData->m_done)                                              \
     SwitchToFiber(_taskData->m_executingWorker->m_selfFiberHandle); 
 
 
-#define SF_END_DEFINE_TASK(TaskName) \
+#define SF_END_DEFINE_TASK(TaskName)  \
 _taskData->m_done = true;             \
  goto TaskStart;}       
 
-#define SF_ENQUEUE_JOB(TaskName, DataPtr) \
-{                                         \
-  static int _id = 0;                     \
-  _taskData->m_executingWorker->m_taskManager->EnqueueTask(TaskName, \
+#define SF_ENQUEUE_JOB(TaskName, DataPtr)                             \
+{                                                                     \
+  static int _id = 0;                                                 \
+  _taskData->m_executingWorker->m_taskManager->EnqueueTask(TaskName,  \
   (uintptr_t)&_id, DataPtr, #TaskName, _taskData);                    \
 }
 
@@ -94,16 +94,7 @@ while (_taskData->m_waitingCounter.m_counter != 0)                \
   SwitchToFiber(_taskData->m_executingWorker->m_selfFiberHandle); \
 }
 
-#define SF_GET_FIBER_DATA(Type) \
+#define SF_GET_FIBER_DATA(Type)           \
 reinterpret_cast<Type*>(_taskData->m_data)
+
 }
-
-/*if (_taskData->m_done)                                            \
-{                                                                 \
-if (_taskData->m_waitingTaskCounter)                            \
-{                                                               \
-SF_ASSERT(_taskData->m_waitingTaskCounter.load() > 0,         \
-"Waiting counter is invalid");                              \
---_taskData->m_waitingTaskCounter;
-
-}*/
