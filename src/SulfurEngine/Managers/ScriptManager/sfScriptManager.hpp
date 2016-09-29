@@ -51,12 +51,17 @@ namespace Sulfur
 
     struct ScriptData
     {
-      ScriptData() : m_header(""), m_cpp("") {};
+      ScriptData() : m_header(""), m_cpp(""), m_libHandle(NULL),
+        m_compiled(false) {};
 
       std::string m_header;
       std::string m_cpp;
       std::string m_dllName;
       std::string m_relativePath; //relative to ScriptSourceDir
+      
+      HMODULE m_libHandle;
+
+      bool m_compiled;
     };
 
     std::string _GetDllName(const std::string &file) const;
@@ -69,6 +74,9 @@ namespace Sulfur
     bool _IsHeader(const std::string &fileName) const;
     std::string _RemoveExtension(const std::string &fileName) const;
 
+    std::vector<std::string> _GatherHeadersPathes(void) const;
+    std::vector<std::string> _GatherCppsPathes(void) const;
+
     ScriptMap m_scriptMap;
 
     Compiler *m_compiler;
@@ -76,7 +84,7 @@ namespace Sulfur
   };
 
 #define SF_SCRIPT(ScriptName)                               \
-class ScriptName : public IEntity                           \
+class ScriptName : public IEntity     \
 {                                                           \
   public:                                                   \
   ScriptName(void) : IEntity()                              \
@@ -85,14 +93,14 @@ class ScriptName : public IEntity                           \
   }                                                         \
                                                             \
   virtual ~ScriptName(void);                                \
-  virtual void Initialize(void) override final;             \
-  virtual IEntity* Clone(void) const override final         \
+  _declspec(dllexport) virtual void Initialize(void) override final;             \
+  _declspec(dllexport) virtual IEntity* Clone(void) const override final         \
   {                                                         \
     IEntity *clone = new ScriptName();                      \
     clone->m_name = m_name;                                 \
     return clone;                                           \
   }                                                         \
-  virtual void Update(void) overide final;                  \
+  _declspec(dllexport) virtual void Update(void) override final;                  \
 
 #define SF_END_SCRIPT(ScriptName) };
 

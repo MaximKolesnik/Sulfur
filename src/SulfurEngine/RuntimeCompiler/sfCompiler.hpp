@@ -31,12 +31,16 @@ namespace Sulfur
 
     void Initialize(void);
 
-    void SetOutputDirectory(const std::string &outputDir) { m_outputDir = outputDir; }
-    void SetIntermediateDirectory(const std::string &interDir) { m_interDir = interDir; }
+    void SetWorkingDirectory(const std::string &workingDirectory);
+    void SetOutputDirectoryRelative(const std::string &outputDir);
+    void SetIntermediateDirectoryRealtive(const std::string &interDir);
+    void SetIncludePathesRelative(const std::vector<std::string> &includePathes);
+
+    void AddIncludeFolderRelative(const std::string &includeFolder);
+    void RemoveIncludeFolderRelative(const std::string &includeFolder);
 
     //Should have fullpath to files and space separated
-    bool Compile(const std::string &cpps, const std::string &headers,
-      const std::string &dllName);
+    bool Compile(const std::string &relativeCpps, const std::string &dllName);
     bool IsCompilationDone(void) const { return m_compilationDone; }
 
   private:
@@ -47,6 +51,8 @@ namespace Sulfur
     void _Write(const std::string &input);
     void _WaitForCompletion(void);
     std::string _RemoveExtension(const std::string &file) const;
+
+    std::string _ConstructIncludeString(void) const;
 
     const std::string c_compilationComplete = "__COMPILATION_FINISHED__";
 
@@ -67,7 +73,9 @@ namespace Sulfur
     bool m_destroy;
 
     //Dirs
+    std::string m_workingDir;
     std::string m_outputDir;
     std::string m_interDir;
+    std::vector<std::string> m_includePathes;
   };
 }

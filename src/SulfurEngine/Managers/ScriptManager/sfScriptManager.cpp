@@ -83,14 +83,15 @@ namespace Sulfur
 
     PathCanonicalize(buffer, scriptPath.c_str());
 
-    m_fileWatcher->AddDirectoryToWatch(std::string(buffer));
+    m_compiler->SetWorkingDirectory(buffer);
+    m_compiler->AddIncludeFolderRelative("..\\SulfurEngine\\");
 
-    //m_compiler->Compile("sfTestScript.cpp");
+    m_fileWatcher->AddDirectoryToWatch(std::string(buffer));
   }
 
   void ScriptManager::RegisterScript(IEntity *scriptInstance)
   {
-
+    return;
   }
 
   void ScriptManager::Update(void) 
@@ -121,16 +122,41 @@ namespace Sulfur
     }
     else
       scriptData = scriptIt->second;
-
+    
     if (_IsHeader(fileName))
+    {
       scriptData->m_header = fileName;
+      scriptData->m_relativePath = actionInfo.m_path;
+      m_compiler->AddIncludeFolderRelative(scriptData->m_relativePath);
+    }
     else
       scriptData->m_cpp = fileName;
+
+    scriptData->m_dllName = scriptName;
 
     //Compile only when both header and cpp are located
     if (!scriptData->m_cpp.empty() && !scriptData->m_header.empty())
     {
-      //Compile
+      bool compilationRes 
+        = m_compiler->Compile(scriptData->m_relativePath + scriptData->m_cpp, scriptName);
+
+      if (compilationRes)
+      {
+        BOOL res = 1;
+        if (scriptData->m_libHandle != NULL)
+        {
+          res = FreeLibrary(scriptData->m_libHandle);
+          SF_ASSERT(res != 0, "Dll cannot be freed");
+        }
+
+        //Unload scripts here
+
+        scriptData->m_libHandle = LoadLibrary((scriptData->m_dllName + ".dll").c_str());
+        SF_ASSERT(scriptData->m_libHandle != NULL, "Dll was not loaded");
+
+        scriptData->m_compiled = true;
+        m_compiler->AddIncludeFolderRelative(scriptData->m_relativePath + scriptData->m_header);
+      }
     }
   }
 
@@ -166,5 +192,18 @@ namespace Sulfur
     SF_ASSERT(pos != std::string::npos, "File name does not have an extension");
 
     return fileName.substr(0, pos);
+  }
+
+  std::vector<std::string> ScriptManager::_GatherHeadersPathes(void) const
+  {
+    std::vector<std::string> pathes;
+
+    for (auto &it : m_scriptMap)
+    { 
+      if (!it.second->m_relativePath.empty())
+        pathes.push_back(it.second->m_relativePath);
+    }
+
+    return pathes;
   }
 }

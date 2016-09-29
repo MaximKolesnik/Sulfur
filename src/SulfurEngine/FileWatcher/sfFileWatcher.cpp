@@ -196,6 +196,8 @@ namespace Sulfur
   {
     size_t pos = fileName.find_last_of("\\");
 
+    if (pos == std::string::npos)
+      return "";
     return fileName.substr(0, pos);
   }
 }

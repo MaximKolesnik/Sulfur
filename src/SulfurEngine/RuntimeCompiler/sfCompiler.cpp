@@ -12,6 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 
+#include <Shlwapi.h>
 #include <iostream>
 
 #include "sfCompiler.hpp"
@@ -41,10 +42,15 @@ namespace Sulfur
 
         if (donePos == std::string::npos)
         {
-          size_t errorPos = stringBuffer.find(" : error ");
-          size_t fatalErrorPos = stringBuffer.find(" : fatal error ");
-
-          if (errorPos != std::string::npos || fatalErrorPos != std::string::npos)
+          size_t errorPos = stringBuffer.find(": error ");
+          size_t fatalErrorPos = stringBuffer.find(": fatal error ");
+          size_t cmdLineErrosPos = stringBuffer.find(": Command line error");
+          
+          if (errorPos != std::string::npos 
+            || 
+            fatalErrorPos != std::string::npos
+            ||
+            cmdLineErrosPos != std::string::npos)
           {
             compiler->m_compilationResMutex.lock();
             compiler->m_compiledWithoutErrors = false;
@@ -78,8 +84,35 @@ namespace Sulfur
     _StartCompilerProcess();
   }
 
-  bool Compiler::Compile(const std::string &cpps, const std::string &headers, 
-    const std::string &dllName)
+  void Compiler::SetWorkingDirectory(const std::string &workingDirectory)
+  {
+    m_workingDir = workingDirectory;
+
+    if (workingDirectory.back() != '\\')
+      m_workingDir += "\\";
+  }
+
+  void Compiler::SetOutputDirectoryRelative(const std::string &outputDir)
+  {
+    m_outputDir = m_workingDir + outputDir;
+  }
+
+  void Compiler::SetIntermediateDirectoryRealtive(const std::string &interDir)
+  {
+    m_interDir = m_workingDir + interDir;
+  }
+
+  void Compiler::SetIncludePathesRelative(const std::vector<std::string> &includePathes)
+  {
+    m_includePathes = includePathes;
+  }
+
+  void Compiler::AddIncludeFolderRelative(const std::string &includeFolder)
+  {
+    m_includePathes.push_back(includeFolder);
+  }
+
+  bool Compiler::Compile(const std::string &cpp, const std::string &dllName)
   {
     SF_ASSERT(!m_VSPath.empty(), "Compiler is not supported");
 
@@ -108,12 +141,13 @@ namespace Sulfur
     SF_CRITICAL_ERR_EXP(res,
       "Script output obj directory does not exist and cannot be created");
 
-    std::string compilerFlags = " /W3 /WX /O2 /MD /LD ";
+    std::string source = m_workingDir + cpp + " ";
+    std::string compilerFlags = " /W3 /WX /O2 /MD /LD /EHsc ";
     std::string outputFileName = dllName + ".dll";
     std::string output = " /link /out:\"" + m_outputDir + outputFileName + "\" " ;
     std::string interm = " /Fo\"" + m_interDir + dllName + ".obj\" ";
 
-    std::string command = "cl " + cpps + interm + compilerFlags + output;
+    std::string command = "cl " + source + _ConstructIncludeString() + interm + compilerFlags + output;
     command += "\necho " + c_compilationComplete + "\n";
 
     _Write(command);
@@ -296,5 +330,22 @@ namespace Sulfur
     size_t pos = file.find_last_of(".");
     SF_ASSERT(pos != std::string::npos, "File has no extension");
     return file.substr(0, pos);
+  }
+
+  std::string Compiler::_ConstructIncludeString(void) const
+  {
+    std::string includeString;
+    char buffer[MAX_PATH];
+
+    for (auto &it : m_includePathes)
+    {
+      std::string path = m_workingDir + it;
+      path.pop_back();
+      PathCanonicalize(buffer, path.c_str());
+
+      includeString += "/I\"" + std::string(buffer) + "\" ";
+    }
+
+    return includeString;
   }
 }
