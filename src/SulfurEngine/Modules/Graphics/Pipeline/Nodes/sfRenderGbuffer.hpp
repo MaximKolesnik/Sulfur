@@ -18,8 +18,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/Resources/Shader/sfD3D11VertexShader.hpp"
 #include "Modules/Graphics/Resources/Shader/sfD3D11PixelShader.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfD3D11ConstantBuffer.hpp"
-
 #include "Modules/Graphics/Resources/Texture/sfTexture2D.hpp"
+#include "Components/sfMeshRenderer.hpp"
 
 namespace Sulfur
 {
@@ -34,6 +34,9 @@ namespace Sulfur
     virtual void Process() override;
 
   private:
+    void RenderMeshRenderer(MeshRenderer *meshRenderer);
+
+  private:
     D3D11VertexShader m_vertexShader;
     D3D11ConstantBuffer *m_perFrameData;
     D3D11ConstantBuffer *m_perObjectData;
@@ -41,9 +44,9 @@ namespace Sulfur
     D3D11PixelShader m_pixelShader;
 
     RenderTarget *m_renderTarget;
-    Mesh m_boxMesh;
+    Mesh *m_boxMesh;
 
-    Texture2D m_texture;
+    Texture2D *m_texture;
 
   };
   

@@ -235,12 +235,22 @@ namespace Sulfur
       Real csxz = cz * sx;
 
       m1.Set(cx * cy, (-cx * sy * cz) + (sx * sz), (cx * sy * sz) + (sx * cz), trans[0],
-                            sy,        cy * cz,                   -cy * sz, trans[1],
-        -sx * cy,  (sx * sy * cz) + (cx * sz), (-sx * sy * sz) + (cx * cz), trans[2],
+        sy, cy * cz, -cy * sz, trans[1],
+        -sx * cy, (sx * sy * cz) + (cx * sz), (-sx * sy * sz) + (cx * cz), trans[2],
         0.0, 0.0, 0.0, 1.0);
       m2.SetScaling(scaling[0], scaling[1], scaling[2]);
 
       *this = (m1 * m2);
+    }
+
+    SF_FORCE_INLINE void SF_VEC_CALL SetTransformation(const Quaternion &rotation,
+      const Vector3 &scaling, const Vector3 &trans)
+    {
+      Matrix4 r(rotation), s, t;
+      s.SetScaling(scaling[0], scaling[1], scaling[2]);
+      t.SetTranslation(trans[0], trans[1], trans[2]);
+
+      *this = t * r * s;
     }
 
     SF_FORCE_INLINE void SF_VEC_CALL SetRotationDeg(Real roll, Real pitch, Real yaw)
@@ -1020,7 +1030,7 @@ namespace Sulfur
       return *this;
     }
 
-    SF_FORCE_INLINE Vector3 SF_VEC_CALL TranformNormal(const Vector3 &n)
+    SF_FORCE_INLINE Vector3 SF_VEC_CALL TransformNormal(const Vector3 &n)
     {
 #ifdef SF_USE_SIMD
       __m128 v = _mm_set_ps(0.0, n[2], n[1], n[0]);

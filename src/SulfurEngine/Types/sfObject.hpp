@@ -26,9 +26,9 @@ namespace Sulfur
 
   //Owner handle from IEntity is used to identify parent
   //SF_INV_HANDLE means object has no parent
-  class Object : public IEntity
-  {
+  SF_REFLECTED_CLASS_DERIVED(Object, IEntity)
   public:
+    typedef std::unordered_map<std::string, HNDL> ComponentMap;
     typedef std::unordered_set<HNDL> ChildrenSet;
 
     Object(void);
@@ -40,8 +40,6 @@ namespace Sulfur
 
     void SetParent(HNDL parent);
     HNDL GetParent(void) const { return m_owner; }
-
-    ChildrenSet GetChildren(void) const { return m_children; }
 
     void AttachComponent(IEntity *component);
 
@@ -68,9 +66,8 @@ namespace Sulfur
 
     void _CloneChildren(Object *parent, const ChildrenSet &children) const;
 
-    std::unordered_map<std::string, HNDL> m_components;
-
-    ChildrenSet m_children;
+    SF_PRIVATE_PROPERTY(ComponentMap, components, Components, "Components")
+    SF_PRIVATE_PROPERTY(ChildrenSet, children, Children, "Children")
   };
 
   template <class CompType>
@@ -112,4 +109,5 @@ namespace Sulfur
       return SF_GET_COMP_TYPE(CompType, res->second);
     return nullptr;
   }
+
 }

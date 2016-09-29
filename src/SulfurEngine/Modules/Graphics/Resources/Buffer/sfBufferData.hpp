@@ -6,6 +6,7 @@
 \brief   Direct3D 11 buffer structures
 ******************************************************************************/
 #pragma once
+#include "Reflection/sfReflection.hpp"
 #include "Math/sfVector2.hpp"
 #include "Math/sfVector3.hpp"
 #include "Math/sfVector4.hpp"
@@ -19,11 +20,22 @@ namespace Sulfur
 // Vertex buffers
 ///////////////////////////////////////////////////////////////////////////////
 
-struct Vertex
+class Vertex
 {
-  Vector4 position;
-  Vector2 texCoords;
-  Vector4 color;
+
+public:
+  Vertex(const Vector4& position = Vector4(),
+    const Vector2& texCoords = Vector2(),
+    const Vector4& color = Vector4())
+    : m_position(position), m_texCoords(texCoords), m_color(color)
+  {
+  }
+
+public:
+  Vector4 m_position;
+  Vector2 m_texCoords;
+  Vector4 m_color;
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////

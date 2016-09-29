@@ -13,9 +13,13 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 
 #include "sfComponentFactory.hpp"
-#include "../Components/sfTransform.hpp"
 #include "Types\sfObject.hpp"
 #include "Factories\sfObjectFactory.hpp"
+
+// Components
+#include "Components/sfTransform.hpp"
+#include "Components/sfCamera.hpp"
+#include "Components/sfMeshRenderer.hpp"
 
 namespace Sulfur
 {
@@ -39,6 +43,11 @@ namespace Sulfur
     if (res != m_compMap.end())
       return true;
     return false;
+  }
+
+  const std::vector<std::string>& ComponentFactory::GetComponentTypes() const
+  {
+    return m_componentTypes;
   }
 
   IEntity* ComponentFactory::CreateComponent(const std::string &name)
@@ -93,6 +102,8 @@ namespace Sulfur
   void ComponentFactory::Initialize(void)
   {
     this->_RegisterComponent<Transform>();
+    this->_RegisterComponent<Camera>();
+    this->_RegisterComponent<MeshRenderer>();
   }
 
   ComponentFactory::ComponentFactory(void)

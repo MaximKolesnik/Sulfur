@@ -15,6 +15,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Components/sfTransform.hpp"
+#include "Factories/sfComponentFactory.hpp"
+#include "Factories/sfObjectFactory.hpp"
+
+#include "Modules/Resource/sfResourceManager.hpp"
 
 namespace Sulfur
 {
@@ -28,13 +33,11 @@ RenderGbuffer::RenderGbuffer(D3D11Device& device, RenderTarget *renderTarget)
 
   m_pixelShader.Init(device, "./Shaders/PSTexture.sbin");
 
-  m_boxMesh.Init(device);
-  m_boxMesh.CreateCube(1.0f);
-
   D3D11VertexShader vertexShader;
   vertexShader.Init(device, "./Shaders/VSTest.sbin");
 
-  m_texture.Init(device, "./Images/default.png");
+  m_texture = SF_RESOURCE_MANAGER(Texture2D)->LoadResource("Images/default.png");
+  m_boxMesh = SF_RESOURCE_MANAGER(Mesh)->LoadResource("Models/cube.fbx");
 }
 
 RenderGbuffer::~RenderGbuffer()
@@ -56,41 +59,35 @@ void RenderGbuffer::Process()
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
 
-  m_texture.SetPixel(m_context, 0);
-
-  m_context.SetViewport(1280.0f, 720.0f);
+  m_texture->SetPixel(m_context, 0);
 
   PerFrameData perFrame;
   perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
-  perFrame.ProjMatrix.SetPerspectiveFovLH(1280.0f, 720.0f, 3.14159f / 4.0f, 0.1f, 1000.0f);
+  perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, 3.14159f / 4.0f, 0.1f, 1000.0f);
   m_perFrameData->SetData(m_context, perFrame);
 
-  PerObjectData perObject;
-  perObject.WorldMatrix.SetTransformation(Vector3(rx, ry, rz), Vector3(100.0f, 100.0f, 100.0f), Vector3(0.0f, 0.0, 200.0f));
-  m_perObjectData->SetData(m_context, perObject);
+  ComponentFactory::ComponentData componentData = ComponentFactory::Instance()->GetComponentData<MeshRenderer>();
+  for (auto it = componentData.begin(); it != componentData.end(); ++it)
+    RenderMeshRenderer(static_cast<MeshRenderer*>(*it));
+}
 
-  DebugDraw::Instance()->DrawSphere(perObject.WorldMatrix, 50.0f);
 
-  DebugDraw::Instance()->DrawBox(perObject.WorldMatrix);
+void RenderGbuffer::RenderMeshRenderer(MeshRenderer *meshRenderer)
+{
+  Mesh *mesh = meshRenderer->GetMesh();
 
-  perObject.WorldMatrix.SetTransformation(Vector3(rx, ry, rz), Vector3(75.0f, 75.0f, 75.0f), Vector3(0.0f, 0.0, 200.0f));
-  DebugDraw::Instance()->DrawBox(perObject.WorldMatrix);
+  if (mesh != nullptr)
+  {
+    Object *object = ObjectFactory::Instance()->GetObject(meshRenderer->GetOwner());
+    Transform* transform = object->GetComponent<Transform>();
+    //transform->Update();
 
-  perObject.WorldMatrix.SetTransformation(Vector3(rx, ry, rz), Vector3(50.0f, 50.0f, 50.0f), Vector3(0.0f, 0.0, 200.0f));
-  DebugDraw::Instance()->DrawBox(perObject.WorldMatrix);
+    PerObjectData perObject;
+    perObject.WorldMatrix = transform->GetWorldMatrix();
+    m_perObjectData->SetData(m_context, perObject);
 
-  perObject.WorldMatrix.SetTransformation(Vector3(rx, ry, rz), Vector3(25.0f, 25.0f, 25.0f), Vector3(0.0f, 0.0, 200.0f));
-  DebugDraw::Instance()->DrawBox(perObject.WorldMatrix);
-
-  perObject.WorldMatrix.SetRotationRad(rx, ry, rz);
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(50.0f, 0.0, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(0.0f, 50.0, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(0.0f, 0.0, 50.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(-50.0f, 0.0, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(0.0f, -50.0, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-  DebugDraw::Instance()->DrawVector(Vector3(0.0f, 0.0, 200.0f), perObject.WorldMatrix * Vector3(0.0f, 0.0, -50.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-
-  m_boxMesh.Draw(m_context);
+    mesh->Draw(m_context);
+  }
 }
 
 }

@@ -13,11 +13,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include "sfWindowDescription.hpp"
+#include "Utils/sfClassUtils.hpp"
 
 namespace Sulfur
 {
 	
-// TODO: Add messaging callbacks
   class Window
   {
 
@@ -29,11 +29,12 @@ namespace Sulfur
 
     void Init(HWND handle);
     void Init(const WindowDescription& description);
+    void Update();
     void Free();
 
-    HWND GetHandle() const;
+    bool IsFocused() const;
 
-    bool IsClosed() const;
+    HWND GetHandle() const;
 
   private:
     HWND CreateWnd(const WindowDescription& description);
@@ -42,8 +43,12 @@ namespace Sulfur
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
   private:
-    bool m_closed;
     HWND m_handle;
+    UINT32 m_size[2];
+
+    // Callback functions
+    SF_CALLBACK(OnSize, UINT32, UINT32)
+    SF_CALLBACK(OnClose)
 
   };
   

@@ -45,4 +45,12 @@ BYTE* FileUtils::ReadFile(const std::string& filePath)
   return buffer;
 }
 
+std::string FileUtils::GetExtension(const std::string& filePath)
+{
+  size_t index = filePath.find_last_of('.');
+  if (index == std::string::npos) return "";
+
+  return filePath.substr(index + 1);
+}
+
 }

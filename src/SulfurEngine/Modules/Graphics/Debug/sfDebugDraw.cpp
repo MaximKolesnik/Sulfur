@@ -43,29 +43,29 @@ void DebugDraw::DrawBox(const Matrix4& transform, Real w, Real h, Real d, const 
   UINT32 startVert = m_vertexCount;
   Real hw = w / 2.0f, hh = h / 2.0f, hd = d / 2.0f;
 
-  m_vertices[m_vertexCount].position = transform * Vector4(-hw, hh, hd, 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = transform * Vector4(-hw, hh, hd, 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
-  m_vertices[m_vertexCount].position = transform * Vector4(hw, hh, hd, 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = transform * Vector4(hw, hh, hd, 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
-  m_vertices[m_vertexCount].position = transform * Vector4(-hw, hh, -hd, 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = transform * Vector4(-hw, hh, -hd, 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
-  m_vertices[m_vertexCount].position = transform * Vector4(hw, hh, -hd, 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = transform * Vector4(hw, hh, -hd, 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
-  m_vertices[m_vertexCount].position = transform * Vector4(-hw, -hh, hd, 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = transform * Vector4(-hw, -hh, hd, 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
-  m_vertices[m_vertexCount].position = transform * Vector4(hw, -hh, hd, 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = transform * Vector4(hw, -hh, hd, 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
-  m_vertices[m_vertexCount].position = transform * Vector4(-hw, -hh, -hd, 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = transform * Vector4(-hw, -hh, -hd, 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
-  m_vertices[m_vertexCount].position = transform * Vector4(hw, -hh, -hd, 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = transform * Vector4(hw, -hh, -hd, 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
   // Top
   m_indices[m_indexCount++] = startVert + 0; m_indices[m_indexCount++] = startVert + 1;
@@ -127,11 +127,11 @@ void DebugDraw::DrawLine(const Vector3& p0, const Vector3& p1, const Vector4& co
 {
   UINT32 startVert = m_vertexCount;
 
-  m_vertices[m_vertexCount].position = Vector4(p0.GetX(), p0.GetY(), p0.GetZ(), 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = Vector4(p0.GetX(), p0.GetY(), p0.GetZ(), 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
-  m_vertices[m_vertexCount].position = Vector4(p1.GetX(), p1.GetY(), p1.GetZ(), 1.0f);
-  m_vertices[m_vertexCount++].color = color;
+  m_vertices[m_vertexCount].m_position = Vector4(p1.GetX(), p1.GetY(), p1.GetZ(), 1.0f);
+  m_vertices[m_vertexCount++].m_color = color;
 
   m_indices[m_indexCount++] = startVert + 0; m_indices[m_indexCount++] = startVert + 1;
 }
@@ -155,8 +155,8 @@ void DebugDraw::DrawCircle(const Vector3& center, const Vector3& normal, Real ra
   for (UINT32 i = 0; i < CIRCLE_SIDES; ++i)
   {
     Vector3 point = center + (MathUtils::Cos(angle) * right + MathUtils::Sin(angle) * up) * radius;
-    m_vertices[m_vertexCount].position = Vector4(point.GetX(), point.GetY(), point.GetZ(), 1.0f);
-    m_vertices[m_vertexCount++].color = color;
+    m_vertices[m_vertexCount].m_position = Vector4(point.GetX(), point.GetY(), point.GetZ(), 1.0f);
+    m_vertices[m_vertexCount++].m_color = color;
     m_indices[m_indexCount++] = startVert + i;
 
     if (i == CIRCLE_SIDES - 1)

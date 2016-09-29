@@ -14,7 +14,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "sfObjectFactory.hpp"
 #include "sfComponentFactory.hpp"
-#include "Components\sfTransform.hpp"
+#include "Components/sfTransform.hpp"
+#include "Reflection/sfSerialization.hpp"
 
 namespace Sulfur
 {
@@ -75,6 +76,20 @@ namespace Sulfur
     }
 
     m_objectsToDelete.clear();
+  }
+
+  void ObjectFactory::Serialize(std::ostream& str) const
+  {
+    Serialization::Serialize(str, m_objects);
+  }
+
+  void ObjectFactory::Deserialize(std::istream& str)
+  {
+    for (auto it = m_objects.begin(); it != m_objects.end(); ++it)
+      DestroyObject(it->GetHndl());
+    EndFrameCleanUp();
+
+    Serialization::Deserialize(str, m_objects);
   }
 
   void ObjectFactory::_Destroy(Object *obj)

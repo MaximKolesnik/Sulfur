@@ -23,13 +23,15 @@ namespace Sulfur
 	
   class GraphicsManager
   {
-    SINGLETON(GraphicsManager)
+    SF_SINGLETON(GraphicsManager)
 
   public:
     void Init(Window& window);
     void Free();
 
     void Update();
+
+    D3D11Device& GetDevice();
 
   private:
     void InitDevice();

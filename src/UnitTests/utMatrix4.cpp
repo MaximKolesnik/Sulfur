@@ -864,14 +864,14 @@ namespace UnitTests
         );
       
       Vector3 r1(3.1, -2.0, 15.2);
-      r1 = m1.TranformNormal(r1);
+      r1 = m1.TransformNormal(r1);
 
       Assert::IsTrue(AreEqual(Real(80.6), r1[0]));
       Assert::IsTrue(AreEqual(Real(208.3), r1[1]));
       Assert::IsTrue(AreEqual(Real(28.5699959), r1[2]));
 
       Vector3 r2(-124.54, 22.1, 51.98);
-      r2 = m2.TranformNormal(r2);
+      r2 = m2.TransformNormal(r2);
 
       Assert::IsTrue(AreEqual(Real(-555.399963), r2[0]));
       Assert::IsTrue(AreEqual(Real(1172.73999), r2[1]));

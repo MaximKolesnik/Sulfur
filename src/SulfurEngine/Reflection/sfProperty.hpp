@@ -13,10 +13,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include "sfSerialization.hpp"
+#include "sfTypeInfo.hpp"
 
 namespace Sulfur
 {
-	
+
   class Property
   {
   
@@ -44,7 +45,15 @@ namespace Sulfur
       SetValue(reinterpret_cast<void *>(&classInstance), reinterpret_cast<const void *>(&value));
     }
 
+    UINT32 GetTypeId() const
+    {
+      return GetTypeInfo()->GetId();
+    }
+
+    virtual const TypeInfo* GetTypeInfo() const = 0;
+
   public:
+    virtual UINT32 SerializedSize(const void *classInstance) = 0;
     virtual void Serialize(std::ostream& str, const void *classInstance) = 0;
     virtual void Deserialize(std::istream& str, void *classInstance) = 0;
 
@@ -64,16 +73,26 @@ namespace Sulfur
   public:
     TypedProperty(const std::string& name) : Property(name) {}
 
-    virtual void Serialize(std::ostream& str, const void *classInstance)
+    virtual UINT32 SerializedSize(const void *classInstance) override
+    {
+      return Serialization::SerializedSize(*reinterpret_cast<const PropertyType*>(GetValue(classInstance)));
+    }
+
+    virtual void Serialize(std::ostream& str, const void *classInstance) override
     {
       Serialization::Serialize(str, *reinterpret_cast<const PropertyType*>(GetValue(classInstance)));
     }
 
-    virtual void Deserialize(std::istream& str, void *classInstance)
+    virtual void Deserialize(std::istream& str, void *classInstance) override
     {
       PropertyType value;
       Serialization::Deserialize(str, value);
       SetValue(classInstance, reinterpret_cast<const void *>(&value));
+    }
+
+    virtual const TypeInfo* GetTypeInfo() const override
+    {
+      return &TypeInfoRegistry<PropertyType>::s_typeInfo;
     }
 
   };
@@ -95,10 +114,10 @@ namespace Sulfur
   protected:
     virtual const void* GetValue(const void *classInstance)
     {
-      /*SF_CRITICAL_ERR_EXP(
+      SF_CRITICAL_ERR_EXP(
         m_getter != nullptr,
         "Property is write-only"
-        );*/
+        );
 
       const ClassType& ci = *reinterpret_cast<const ClassType*>(classInstance);
       return reinterpret_cast<const void *>(&(ci.*m_getter)());
@@ -106,10 +125,10 @@ namespace Sulfur
 
     virtual void SetValue(void *classInstance, const void *value)
     {
-      /*SF_CRITICAL_ERR_EXP(
+      SF_CRITICAL_ERR_EXP(
         m_setter != nullptr,
         "Property is read-only"
-        );*/
+        );
       if (m_setter == nullptr)
         return;
 

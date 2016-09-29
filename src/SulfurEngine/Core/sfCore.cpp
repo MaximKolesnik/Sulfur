@@ -1,11 +1,20 @@
 #include "sfCore.hpp"
 #include <Windows.h>
+#include "Components/sfCamera.hpp"
 
 // Modules
+#include "Modules/Input/sfInputManager.hpp"
 #include "Modules/Window/sfWindowManager.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
+#include "Modules/Resource/sfResourceManager.hpp"
+#include "Managers/TaskManager/sfTaskManager.hpp"
 #include "Logger/sfLogger.hpp"
 #include "Managers\ScriptManager\sfScriptManager.hpp"
+#include "Modules/Graphics/Scene/sfMesh.hpp"
+
+// Factories
+#include "Factories/sfComponentFactory.hpp"
+#include "Factories/sfObjectFactory.hpp"
 
 namespace Sulfur
 {
@@ -34,30 +43,50 @@ void Core::StartUp(HWND windowHandle)
     description.Title = "Sulfur Engine";
 
     m_window = WindowManager::Instance()->NewWindow(description);
+    m_window->RegisterCallbackOnClose(this, &Core::OnWindowClose);
   }
 
+  ResourceManager<Mesh>::Instance()->LoadResource("Models/cube.fbx");
+
+  InputManager::Instance()->Init(m_window);
   GraphicsManager::Instance()->Init(*m_window);
   ScriptManager::Instance()->Initialize();
+  m_running = true;
+
+  TaskManager* tm = TaskManager::Instance();
+  tm->AddNode("UpdateTransforms");
+  tm->SetStartingTask("UpdateTransforms");
+  tm->CompleteGraph();
 }
 
 void Core::GameLoop(void)
 {
-  m_running = true;
 
   while (m_running)
-  {
-    WindowManager::Instance()->Update();
-    GraphicsManager::Instance()->Update();
+    Frame();
+}
 
-    if (m_window->IsClosed())
-      m_running = false;
+void Core::Frame(void)
+{
+  WindowManager::Instance()->Update();
+  InputManager::Instance()->Update();
+  TaskManager::Instance()->RunTasks();
+  GraphicsManager::Instance()->Update();
+
+  if (InputManager::Instance()->WasKeyPressed('A'))
+    std::cout << "A pressed" << std::endl;
 
     ScriptManager::Instance()->Update();
-  }
+  ObjectFactory::Instance()->EndFrameCleanUp();
 }
 
 void Core::ShutDown(void)
 {
+}
+
+void Core::OnWindowClose()
+{
+  m_running = false;
 }
 
 }

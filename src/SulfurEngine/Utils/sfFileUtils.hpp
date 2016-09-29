@@ -23,6 +23,7 @@ namespace Sulfur
     static bool FileExists(const std::string& filePath);
     static UINT32 GetFileSize(const std::string& filePath);
     static BYTE* ReadFile(const std::string& filePath);
+    static std::string GetExtension(const std::string& filePath);
 
   };
   

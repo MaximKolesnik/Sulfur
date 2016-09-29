@@ -5,10 +5,14 @@
 #include <fileapi.h>
 #include <string>
 #include <iostream>
+#include <functional>
+#include <type_traits>
+#include <utility>
 
 // STL
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 // Graphics API
 #include <d3d11.h>
@@ -17,5 +21,6 @@
 
 // Engine
 #include "Types/sfTypes.hpp"
+#include "Settings/EngineSettings.h"
 #include "Logger/sfLogger.hpp"
 #include "Error/sfError.hpp"

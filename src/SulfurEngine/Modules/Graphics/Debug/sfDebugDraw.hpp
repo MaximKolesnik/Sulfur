@@ -27,7 +27,7 @@ namespace Sulfur
 	
   class DebugDraw
   {
-    SINGLETON(DebugDraw)
+    SF_SINGLETON(DebugDraw)
 
   public:
     void Init(D3D11Device& device);

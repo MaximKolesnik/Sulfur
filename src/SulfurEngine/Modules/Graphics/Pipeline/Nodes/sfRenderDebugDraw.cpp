@@ -41,11 +41,11 @@ void RenderDebugDraw::Process()
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
 
-  m_context.SetViewport(1280.0f, 720.0f);
+
 
   PerFrameData perFrame;
   perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
-  perFrame.ProjMatrix.SetPerspectiveFovLH(1280.0f, 720.0f, 3.14159f / 4.0f, 0.1f, 1000.0f);
+  perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, 3.14159f / 4.0f, 0.1f, 1000.0f);
   m_perFrameData->SetData(m_context, perFrame);
 
   PerObjectData perObject;

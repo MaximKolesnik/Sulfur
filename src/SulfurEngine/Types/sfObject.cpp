@@ -67,7 +67,7 @@ namespace Sulfur
         newParentChildren.insert(m_hndl);
       }
     }
-    else //Parent is not set
+    else if (parent != SF_INV_HANDLE) //Parent is not set
     {
       auto &newParentChildren = ObjectFactory::Instance()->GetObject(parent)->m_children;
 
@@ -171,4 +171,5 @@ namespace Sulfur
       cloneChild->SetParent(parent->m_hndl);
     }
   }
+
 }

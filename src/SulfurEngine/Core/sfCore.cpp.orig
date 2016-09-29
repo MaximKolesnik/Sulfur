@@ -1,0 +1,112 @@
+#include "sfCore.hpp"
+<<<<<<< HEAD
+#include <Windows.h>
+=======
+#include "Components/sfCamera.hpp"
+>>>>>>> origin/Editor
+
+// Modules
+#include "Modules/Input/sfInputManager.hpp"
+#include "Modules/Window/sfWindowManager.hpp"
+#include "Modules/Graphics/sfGraphicsManager.hpp"
+#include "Modules/Resource/sfResourceManager.hpp"
+#include "Managers/TaskManager/sfTaskManager.hpp"
+#include "Logger/sfLogger.hpp"
+<<<<<<< HEAD
+#include "Managers\ScriptManager\sfScriptManager.hpp"
+=======
+#include "Modules/Graphics/Scene/sfMesh.hpp"
+
+// Factories
+#include "Factories/sfComponentFactory.hpp"
+#include "Factories/sfObjectFactory.hpp"
+>>>>>>> origin/Editor
+
+namespace Sulfur
+{
+
+Core::Core()
+{
+}
+
+Core::~Core()
+{
+}
+
+void Core::StartUp(HWND windowHandle)
+{
+  
+  // Start engine in existing window
+  if (windowHandle != nullptr)
+    m_window = WindowManager::Instance()->AddWindow(windowHandle);
+    
+  // Create a new window for the engine
+  else
+  {
+    WindowDescription description;
+    description.Width = 1280;
+    description.Height = 720;
+    description.Title = "Sulfur Engine";
+
+    m_window = WindowManager::Instance()->NewWindow(description);
+    m_window->RegisterCallbackOnClose(this, &Core::OnWindowClose);
+  }
+
+  ResourceManager<Mesh>::Instance()->LoadResource("Models/cube.fbx");
+
+  InputManager::Instance()->Init(m_window);
+  GraphicsManager::Instance()->Init(*m_window);
+<<<<<<< HEAD
+  ScriptManager::Instance()->Initialize();
+=======
+  m_running = true;
+
+  TaskManager* tm = TaskManager::Instance();
+  tm->AddNode("UpdateTransforms");
+  tm->SetStartingTask("UpdateTransforms");
+  tm->CompleteGraph();
+>>>>>>> origin/Editor
+}
+
+void Core::GameLoop(void)
+{
+<<<<<<< HEAD
+  m_running = true;
+
+=======
+>>>>>>> origin/Editor
+  while (m_running)
+    Frame();
+}
+
+<<<<<<< HEAD
+    if (m_window->IsClosed())
+      m_running = false;
+
+    ScriptManager::Instance()->Update();
+  }
+=======
+void Core::Frame(void)
+{
+  WindowManager::Instance()->Update();
+  InputManager::Instance()->Update();
+  TaskManager::Instance()->RunTasks();
+  GraphicsManager::Instance()->Update();
+
+  if (InputManager::Instance()->WasKeyPressed('A'))
+    std::cout << "A pressed" << std::endl;
+
+  ObjectFactory::Instance()->EndFrameCleanUp();
+>>>>>>> origin/Editor
+}
+
+void Core::ShutDown(void)
+{
+}
+
+void Core::OnWindowClose()
+{
+  m_running = false;
+}
+
+}

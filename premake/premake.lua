@@ -45,6 +45,13 @@ premakeDef.dependencies["WinApi"] = {
 	debugLibs = { "Shlwapi.lib" },
 	releaseLibs = { "Shlwapi.lib" }
 }
+premakeDef.dependencies["fbx"] = {
+	debugLibs = { "libfbxsdk-mdd.lib" },
+	releaseLibs = { "libfbxsdk-md.lib" },
+	includeDirs = { "../dependencies/fbx/include" },
+	libraryDirs = { "../dependencies/fbx/lib" }
+}
+
 -------------------------------------------------------------------------------
 -- Configurations -------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -73,7 +80,7 @@ premakeDef.configurations["ReleaseSymbols"] = {
 premakeDef.projects["SulfurEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
-	dependencies = { "D3D11", "libpng", "WinApi" },
+	dependencies = { "D3D11", "libpng", "WinApi", "fbx"},
 	pchHeader = "sfSulfurPCH.hpp",
 	pchSource = "sfSulfurPCH.cpp"
 }
@@ -90,12 +97,21 @@ premakeDef.projects["UnitTests"] = {
 -- Executable Projects --------------------------------------------------------
 -------------------------------------------------------------------------------
 
+premakeDef.projects["SulfurEditor"] = {
+	language = "C++",
+	qtModules = { "core", "gui", "widgets" },
+	kind = "Qt",
+	dependencies = { "SulfurEngine" },
+	defines = "SF_EDITOR",
+	pchHeader = "sfEditorPCH.hpp",
+	pchSource = "sfEditorPCH.cpp"
+}
+
 premakeDef.projects["SulfurGame"] = {
 	language = "C++",
 	kind = "WindowedApp",
 	dependencies = { "SulfurEngine" }
 }
-
 
 premakeDef.projects["ShaderCompiler"] = {
 	language = "C++",

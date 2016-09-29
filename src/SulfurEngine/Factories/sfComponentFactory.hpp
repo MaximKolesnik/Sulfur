@@ -17,6 +17,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include <unordered_map>
 #include <string>
 
+#include "Reflection/sfReflection.hpp"
 #include "../DataStructures/sfSlotMap.hpp"
 #include "Types\sfIEntity.hpp"
 #include "../Error/sfError.hpp"
@@ -33,6 +34,7 @@ namespace Sulfur
     bool IsRegistered(const std::string &compType) const;
     template <class CompType>
     bool IsRegistered(void) const;
+    const std::vector<std::string>& GetComponentTypes() const;
 
     IEntity* CreateComponent(const std::string &name);
     template <class CompType>
@@ -66,6 +68,7 @@ namespace Sulfur
 
     static ComponentFactory *m_instance;
 
+    std::vector<std::string> m_componentTypes;
     std::unordered_map<std::string, ISlotMap*> m_compMap;
 
   public:
@@ -114,6 +117,8 @@ namespace Sulfur
 
     if (!result.second)
       delete newSlotMap;
+
+    m_componentTypes.push_back(_RemoveScope(typeid(CompType).name()));
   }
 
   template <class CompType>

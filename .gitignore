@@ -1,4 +1,6 @@
 [Bb]uilds*/
 [Ww]orkspaces*/
 [Ll]ogs*/
+[Gg]enerated[Ff]iles*/
+[Dd]ependencies*/
 *.sbin

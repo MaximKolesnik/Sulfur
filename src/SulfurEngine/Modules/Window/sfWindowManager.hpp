@@ -20,9 +20,7 @@ namespace Sulfur
 	
   class WindowManager
   {
-    SINGLETON_INSTANCE(WindowManager)
-    FORBID_COPY(WindowManager)
-    PRIVATE_CTOR_DTOR(WindowManager);
+    SF_SINGLETON(WindowManager)
 
   public:
     Window* AddWindow(HWND handle);
