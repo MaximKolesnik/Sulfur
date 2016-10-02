@@ -30,7 +30,6 @@ namespace Sulfur
     void OnFolderSelected(const QModelIndex &current, const QModelIndex &previous);
 
   private:
-    QString m_projectRoot;
     QTreeView *m_folderTree;
     QFileSystemModel *m_folderTreeModel;
 

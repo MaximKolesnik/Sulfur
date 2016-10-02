@@ -28,14 +28,4 @@ MeshRenderer* MeshRenderer::Clone(void) const
   return newMeshRenderer;
 }
 
-Mesh* MeshRenderer::GetMesh()
-{
-  return m_mesh;
-}
-
-void MeshRenderer::SetMesh(Mesh* mesh)
-{
-  m_mesh = mesh;
-}
-
 }

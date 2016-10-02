@@ -206,7 +206,7 @@ void SceneBrowserWidget::OnAddCube()
   Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject("Cube"));
 
   MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
-  meshRenderer->SetMesh(SF_RESOURCE_MANAGER(Mesh)->LoadResource("Models/cube.fbx"));
+  meshRenderer->SetMesh("Models/cube.fbx");
 
   object->AttachComponent(meshRenderer);
   AddObject(object);

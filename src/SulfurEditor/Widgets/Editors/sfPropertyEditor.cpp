@@ -22,6 +22,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfQuaternionEditor.hpp"
 #include "sfStringEditor.hpp"
 #include "sfEnumEditor.hpp"
+#include "sfResourceEditor.hpp"
 
 namespace Sulfur
 {
@@ -56,6 +57,7 @@ PropertyEditor* CreatePropertyEditor(const TypeInfo *typeInfo, Args...args)
     if (typeInfo == SF_TYPE_INFO(Vector3)) return new Vector3Editor(args...);
     if (typeInfo == SF_TYPE_INFO(Quaternion)) return new QuaternionEditor(args...);
     if (typeInfo == SF_TYPE_INFO(std::string)) return new StringEditor(args...);
+    if (typeInfo == SF_TYPE_INFO(ResourcePath)) return new ResourceEditor(args...);
   }
 
   return new PropertyEditor(args...);

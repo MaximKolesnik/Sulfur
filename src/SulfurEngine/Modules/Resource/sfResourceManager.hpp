@@ -101,6 +101,12 @@ namespace Sulfur
     {
     }
 
+    static bool IsExtensionRegistered(const std::string& ext)
+    {
+      ImporterMap& importers = GetImporters();
+      return importers.find(ext) != importers.end();
+    }
+
   private:
     static void AssertRegistered()
     {

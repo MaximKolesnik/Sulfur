@@ -49,7 +49,7 @@ ResourceBrowserWidget::~ResourceBrowserWidget()
 
 void ResourceBrowserWidget::SetProjectRoot(const QString& root)
 {
-  m_projectRoot = root;
+  QDir::setCurrent(root);
   QString resourcesPath = root + "/Resources";
   m_folderTreeModel->setRootPath(resourcesPath);
   m_folderTree->setRootIndex(m_folderTreeModel->index(resourcesPath));

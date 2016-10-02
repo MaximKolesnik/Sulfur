@@ -13,6 +13,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include "sfProperty.hpp"
+#include "Modules/Resource/sfResourceManager.hpp"
+#include "Modules/Resource/sfResourcePath.hpp"
 
 namespace Sulfur
 {
@@ -30,8 +32,17 @@ namespace Sulfur
 
   };
 
+#ifdef SCRIPTS
+
+  template <typename Type, Property*(*getProperty)()>
+  const void* StaticPropertyRegister<Type, getProperty>::DUMMY = 0;
+
+#else
+
   template <typename Type, Property*(*getProperty)()>
   const void* StaticPropertyRegister<Type, getProperty>::DUMMY = Register();
+
+#endif
 
   class ReflectionBase
   {
@@ -143,13 +154,13 @@ private:
 
 #define SF_RESOURCE(type, name, upperName, display) \
 private: \
-static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, std::string>(display, &CONCAT(Get##upperName, ResourcePath), &Set##upperName); } \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, ResourcePath>(display, &CONCAT(Get##upperName, ResourcePath), &Set##upperName); } \
 type *CONCAT(m_##name, Resource); \
-std::string CONCAT(m_##name, ResourcePath); \
+ResourcePath CONCAT(m_##name, ResourcePath); \
 public: \
   type* Get##upperName() const { return CONCAT(m_##name, Resource); } \
-  const std::string& CONCAT(Get##upperName, ResourcePath) const { return CONCAT(m_##name, ResourcePath); } \
-  void Set##upperName(const std::string& resourcePath) { m_##name = ResourceManager<type>::LoadResource(resourcePath); m_resource##upperName = resourcePath; }
+  const ResourcePath& CONCAT(Get##upperName, ResourcePath)() const { return CONCAT(m_##name, ResourcePath); } \
+  void Set##upperName(const ResourcePath& resourcePath) { CONCAT(m_##name, Resource) = SF_RESOURCE_MANAGER(type)->LoadResource(resourcePath); CONCAT(m_##name, ResourcePath) = resourcePath; }
 
 
 #define SF_PRIVATE_PROPERTY(type, name, upperName, display) \
