@@ -42,6 +42,7 @@ namespace Sulfur
   private:
     void _Destroy(Object *obj);
 
+    int numObjs = 0;
     std::vector<HNDL> m_objectsToDelete;
     SlotMap<Object> m_objects;
   };

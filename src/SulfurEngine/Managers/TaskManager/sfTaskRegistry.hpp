@@ -47,10 +47,7 @@ namespace Sulfur
     class TaskRegistration;
   }
 
-
-#define SF_UNIQUE_NAME( prefix ) SF_JOIN( prefix, __LINE__ )
-#define SF_JOIN( symbol1, symbol2 ) SF_DO_JOIN( symbol1, symbol2 )
-#define SF_DO_JOIN( symbol1, symbol2 ) symbol1##symbol2
+#ifdef SF_BUILDING_LIB
 
 #define SF_DECLARE_TASK(TaskName)                             \
 VOID CALLBACK TaskName(PVOID lpParam);                        \
@@ -66,6 +63,10 @@ class TaskRegistration;                                       \
     const Entry<TaskName> &TaskRegistration<TaskName>::entry  \
     = Entry<TaskName>(std::string(#TaskName), TaskName);      \
 }     }                                                         
+#else
+#define SF_DECLARE_TASK(TaskName)                             \
+VOID CALLBACK TaskName(PVOID lpParam);                        
+#endif
 
 #define SF_DEFINE_TASK(TaskName)                                    \
 VOID CALLBACK TaskName(PVOID lpParam)                               \
@@ -104,5 +105,4 @@ while (_taskData->m_waitingCounter.m_counter != 0)                \
 
 #define SF_GET_FIBER_DATA(Type)           \
 reinterpret_cast<Type*>(_taskData->m_data)
-
 }

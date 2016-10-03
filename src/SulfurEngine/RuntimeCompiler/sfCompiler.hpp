@@ -35,6 +35,7 @@ namespace Sulfur
     void SetOutputDirectoryRelative(const std::string &outputDir);
     void SetIntermediateDirectoryRealtive(const std::string &interDir);
     void SetIncludePathesRelative(const std::vector<std::string> &includePathes);
+    void SetEngineLib(const std::string &engineLib) { m_engineLib = engineLib; }
 
     void AddIncludeFolderRelative(const std::string &includeFolder);
     void RemoveIncludeFolderRelative(const std::string &includeFolder);
@@ -77,5 +78,7 @@ namespace Sulfur
     std::string m_outputDir;
     std::string m_interDir;
     std::vector<std::string> m_includePathes;
+    
+    std::string m_engineLib;
   };
 }

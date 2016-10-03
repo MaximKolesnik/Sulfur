@@ -52,6 +52,8 @@ namespace Sulfur
     ComponentData GetComponentData(void);
 
   private:
+    friend class ScriptManager;
+
     ComponentFactory(void);
     ~ComponentFactory(void);
 
@@ -71,6 +73,12 @@ namespace Sulfur
     std::vector<std::string> m_componentTypes;
     std::unordered_map<std::string, ISlotMap*> m_compMap;
 
+    //Scripts
+    void _InsertNewScript(const std::string &scriptName, ISlotMap *slotMap);
+    void _RemoveScript(const std::string &scriptName);
+    std::vector<std::pair<HNDL, HNDL> > _DeallocateScripts(const std::string &scriptName);
+    void _RestoreScripts(const std::vector<std::pair<HNDL, HNDL> > &hndls, const std::string &scriptName,
+      ISlotMap *slotMap);
   public:
 
     class ComponentData

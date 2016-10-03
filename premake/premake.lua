@@ -80,6 +80,7 @@ premakeDef.configurations["ReleaseSymbols"] = {
 premakeDef.projects["SulfurEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
+	defines = { "SF_BUILDING_LIB" },
 	dependencies = { "D3D11", "libpng", "WinApi", "fbx"},
 	pchHeader = "sfSulfurPCH.hpp",
 	pchSource = "sfSulfurPCH.cpp"
@@ -91,6 +92,14 @@ premakeDef.projects["UnitTests"] = {
 	dependencies = { "SulfurEngine", "VCUnitTests" },
 	pchHeader = "stdafx.h",
 	pchSource = "stdafx.cpp"
+}
+
+premakeDef.projects["SulfurMinEngine"] = {
+	language = "C++",
+	kind = "StaticLib",
+	dependencies = {"SulfurEngine"},
+	pchHeader = "sfMinPCH.hpp",
+	pchSource = "sfMinPCH.cpp"
 }
 
 -------------------------------------------------------------------------------
@@ -110,7 +119,7 @@ premakeDef.projects["SulfurEditor"] = {
 premakeDef.projects["SulfurGame"] = {
 	language = "C++",
 	kind = "WindowedApp",
-	dependencies = { "SulfurEngine" }
+	dependencies = { "SulfurEngine"},
 }
 
 premakeDef.projects["ShaderCompiler"] = {

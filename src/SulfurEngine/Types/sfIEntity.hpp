@@ -33,7 +33,7 @@ namespace Sulfur
 
     SF_PUBLIC_PROPERTY(std::string, name, Name, "Name");
 
-  private:
+  protected:
     friend class ComponentFactory;
     friend class ObjectFactory;
     friend class Object;

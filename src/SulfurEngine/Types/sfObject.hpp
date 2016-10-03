@@ -18,6 +18,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "Types\sfIEntity.hpp"
 #include "Types\sfTypes.hpp"
+#include "Factories\sfComponentFactory.hpp"
+#include "SystemTable\sfSystemTable.hpp"
 
 namespace Sulfur
 {
@@ -106,7 +108,7 @@ namespace Sulfur
     auto res = m_components.find(compType);
 
     if (res != m_components.end())
-      return SF_GET_COMP_TYPE(CompType, res->second);
+      return g_SystemTable->CompFactory->GetComponent<CompType>(res->second);
     return nullptr;
   }
 

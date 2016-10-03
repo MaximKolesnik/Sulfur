@@ -30,7 +30,6 @@ namespace Sulfur
   Object* ObjectFactory::CreateObject(const std::string &name)
   {
     Object *newObj = CreateEmptyObject(name);
-
     Transform *trans = SF_CREATE_COMP(Transform);
 
     newObj->AttachComponent(trans);

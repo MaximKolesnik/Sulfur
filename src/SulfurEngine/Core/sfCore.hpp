@@ -19,6 +19,8 @@ namespace Sulfur
     void OnWindowClose();
 
   private:
+    void _InitiazlieSystemTable(void) const;
+
     bool m_running;
     Window *m_window;
 

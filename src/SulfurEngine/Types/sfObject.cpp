@@ -12,6 +12,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 
+#include <string>
+
 #include "sfObject.hpp"
 #include "Factories\sfObjectFactory.hpp"
 #include "Factories\sfComponentFactory.hpp"

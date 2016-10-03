@@ -112,6 +112,15 @@ namespace Sulfur
     m_includePathes.push_back(includeFolder);
   }
 
+  void Compiler::RemoveIncludeFolderRelative(const std::string &includeFolder)
+  {
+    SF_ASSERT(std::find(m_includePathes.begin(), m_includePathes.end(), includeFolder)
+      != m_includePathes.end(), "Cannot find include folder");
+
+
+    m_includePathes.erase(std::find(m_includePathes.begin(), m_includePathes.end(), includeFolder));
+  }
+
   bool Compiler::Compile(const std::string &cpp, const std::string &dllName)
   {
     SF_ASSERT(!m_VSPath.empty(), "Compiler is not supported");
@@ -141,13 +150,21 @@ namespace Sulfur
     SF_CRITICAL_ERR_EXP(res,
       "Script output obj directory does not exist and cannot be created");
 
+    std::string compilerFlags = " /W3 /WX /LD /EHsc ";
+#ifdef _DEBUG
+    compilerFlags += "/MDd ";
+#else
+    compilerFlags += "/MD /O2";
+#endif
+
     std::string source = m_workingDir + cpp + " ";
-    std::string compilerFlags = " /W3 /WX /O2 /MD /LD /EHsc ";
     std::string outputFileName = dllName + ".dll";
     std::string output = " /link /out:\"" + m_outputDir + outputFileName + "\" " ;
     std::string interm = " /Fo\"" + m_interDir + dllName + ".obj\" ";
+    std::string lib = "\"" + m_engineLib + "\" ";
 
-    std::string command = "cl " + source + _ConstructIncludeString() + interm + compilerFlags + output;
+    std::string command = "cl " + source + lib + _ConstructIncludeString() 
+      + interm + compilerFlags + output;
     command += "\necho " + c_compilationComplete + "\n";
 
     _Write(command);
@@ -317,10 +334,11 @@ namespace Sulfur
   
   void Compiler::_WaitForCompletion(void)
   {
-    while (true)
+    bool returnFlag = true;
+    while (returnFlag)
     {
       m_compDoneMutex.lock();
-      if (m_compilationDone) return;
+      if (m_compilationDone) returnFlag = false;
       m_compDoneMutex.unlock();
     }
   }

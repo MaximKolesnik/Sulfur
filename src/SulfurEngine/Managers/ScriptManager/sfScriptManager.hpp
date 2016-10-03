@@ -26,43 +26,54 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Types\sfSingleton.hpp"
 #include "DataStructures\sfSlotMap.hpp"
 #include "FileWatcher\sfFileWatcher.hpp"
+#include "Types\sfIScript.hpp"
+#include "SystemTable\sfSystemTable.hpp"
+#include "Managers/TaskManager/sfTaskRegistry.hpp"
 
 namespace Sulfur
 {
+  SF_DECLARE_TASK(UpdateScripts)
+
   class IEntity;
   class Compiler;
 
+  typedef ISlotMap* (*RegFunc)(void *);
+  typedef char* (*RegName)(void);
+
   class ScriptManager
   {
-    PRIVATE_CTOR_DTOR(ScriptManager);
-    FORBID_COPY(ScriptManager);
-    SINGLETON_INSTANCE(ScriptManager);
+    SF_PRIVATE_CTOR_DTOR(ScriptManager);
+    SF_FORBID_COPY(ScriptManager);
+    SF_SINGLETON_INSTANCE(ScriptManager);
 
     void Initialize(void);
     void RegisterScript(IEntity *scriptInstance);
     void Update(void);
 
   public:
-  private:
-    friend void FileWatcherCallback(const FileWatcher::ActionInfo &);
-
-    struct ScriptData;
-    typedef std::unordered_map<std::string, ScriptData*> ScriptMap;
-
     struct ScriptData
     {
-      ScriptData() : m_header(""), m_cpp(""), m_libHandle(NULL),
+      ScriptData() : m_header(""), m_cpp(""), m_relativePath(""), m_libHandle(NULL),
         m_compiled(false) {};
 
       std::string m_header;
       std::string m_cpp;
       std::string m_dllName;
       std::string m_relativePath; //relative to ScriptSourceDir
-      
+      std::string m_scriptName;
+
       HMODULE m_libHandle;
 
       bool m_compiled;
     };
+
+    typedef std::unordered_map<std::string, ScriptData*> ScriptMap;
+
+    const ScriptMap& GetScriptMap(void) { return m_scriptMap; }
+
+  private:
+    friend void FileWatcherCallback(const FileWatcher::ActionInfo &);
+    friend class ComponentFactory;
 
     std::string _GetDllName(const std::string &file) const;
     void _HandleFileAddedAction(const FileWatcher::ActionInfo &actionInfo);
@@ -73,6 +84,12 @@ namespace Sulfur
 
     bool _IsHeader(const std::string &fileName) const;
     std::string _RemoveExtension(const std::string &fileName) const;
+    void _DeleteFile(const std::string &file) const;
+    void _RenameFiles(const std::string &dllName,
+      const std::string &newName) const;
+
+    void _InitializeScriptData(void);
+    void _LocateScripts(LPCTSTR folder);
 
     std::vector<std::string> _GatherHeadersPathes(void) const;
     std::vector<std::string> _GatherCppsPathes(void) const;
@@ -81,46 +98,65 @@ namespace Sulfur
 
     Compiler *m_compiler;
     FileWatcher *m_fileWatcher;
+
+    std::string m_scriptFolder;
   };
 
 #define SF_SCRIPT(ScriptName)                               \
-class ScriptName : public IEntity     \
+namespace __RegHelpers {extern "C" {__declspec(dllexport) Sulfur::ISlotMap* __SFRegisterS(void *);}}  \
+class ScriptName : public Sulfur::IScript                   \
 {                                                           \
+  friend Sulfur::ISlotMap* __RegHelpers::__SFRegisterS(void *);      \
   public:                                                   \
-  ScriptName(void) : IEntity()                              \
+  ScriptName(void) : IScript()                              \
   {                                                         \
     m_name = #ScriptName;                                   \
   }                                                         \
                                                             \
   virtual ~ScriptName(void);                                \
-  _declspec(dllexport) virtual void Initialize(void) override final;             \
-  _declspec(dllexport) virtual IEntity* Clone(void) const override final         \
+  virtual void Initialize(void) override final;             \
+  virtual ScriptName* Clone(void) const override final      \
   {                                                         \
-    IEntity *clone = new ScriptName();                      \
-    clone->m_name = m_name;                                 \
-    return clone;                                           \
+    return nullptr;                                         \
   }                                                         \
-  _declspec(dllexport) virtual void Update(void) override final;                  \
+  virtual void Update(void) override final;                 
 
-#define SF_END_SCRIPT(ScriptName) };
+#define SF_END_SCRIPT(ScriptName) }; \
+namespace __RegHelpers               \
+  {\
+    extern "C" \
+    {__declspec(dllexport) char* __SFScriptName(void); }\
+  }
+  
 
 #define SF_INIT_SCRIPT(ScriptName)                          \
+Sulfur::SystemTable * Sulfur::IScript::Engine = nullptr;  \
+namespace __RegHelpers {Sulfur::ISlotMap* __SFRegisterS(void *st)\
+{                                                           \
+  SF_LOG_MESSAGE("In reg func");                            \
+  Sulfur::ISlotMap* sm = new Sulfur::SlotMap<ScriptName>(); \
+  ScriptName::Engine = reinterpret_cast<Sulfur::SystemTable*>(st);\
+  return sm;                                                \
+}                                                           \
+char* __SFScriptName(void)                                  \
+{                                                           \
+  return #ScriptName;                                       \
+}}                                                          \
 BOOL APIENTRY DllMain( HMODULE hModule,                     \
   DWORD  ul_reason_for_call,                                \
     LPVOID lpReserved)                                      \
   {                                                         \
-static IEntity *instanceForCloning = new ScriptName();      \
     switch (ul_reason_for_call)                             \
     {                                                       \
     case DLL_PROCESS_ATTACH:                                \
-      Sulfur::ScriptManager::Instance()->RegisterScript(instanceForCloning); \
+      SF_LOG_MESSAGE("TEST");                               \
       break;                                                \
     case DLL_THREAD_ATTACH:                                 \
+      SF_LOG_MESSAGE("TESTDLL");                               \
       break;                                                \
     case DLL_THREAD_DETACH:                                 \
       break;                                                \
     case DLL_PROCESS_DETACH:                                \
-      delete instanceForCloning;                            \
       break;                                                \
     default:                                                \
       break;                                                \

@@ -23,6 +23,7 @@ SF_REFLECTED_CLASS_DERIVED(MeshRenderer, IEntity)
 public:
   virtual void Initialize(void) override final;
   virtual MeshRenderer* Clone(void) const override final;
+  virtual void Update(void) override final {};
 
   Mesh* GetMesh();
   void SetMesh(Mesh* mesh);
