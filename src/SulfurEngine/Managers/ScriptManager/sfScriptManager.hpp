@@ -133,7 +133,6 @@ namespace __RegHelpers               \
 Sulfur::SystemTable * Sulfur::IScript::Engine = nullptr;  \
 namespace __RegHelpers {Sulfur::ISlotMap* __SFRegisterS(void *st)\
 {                                                           \
-  SF_LOG_MESSAGE("In reg func");                            \
   Sulfur::ISlotMap* sm = new Sulfur::SlotMap<ScriptName>(); \
   ScriptName::Engine = reinterpret_cast<Sulfur::SystemTable*>(st);\
   return sm;                                                \
@@ -141,26 +140,6 @@ namespace __RegHelpers {Sulfur::ISlotMap* __SFRegisterS(void *st)\
 char* __SFScriptName(void)                                  \
 {                                                           \
   return #ScriptName;                                       \
-}}                                                          \
-BOOL APIENTRY DllMain( HMODULE hModule,                     \
-  DWORD  ul_reason_for_call,                                \
-    LPVOID lpReserved)                                      \
-  {                                                         \
-    switch (ul_reason_for_call)                             \
-    {                                                       \
-    case DLL_PROCESS_ATTACH:                                \
-      SF_LOG_MESSAGE("TEST");                               \
-      break;                                                \
-    case DLL_THREAD_ATTACH:                                 \
-      SF_LOG_MESSAGE("TESTDLL");                               \
-      break;                                                \
-    case DLL_THREAD_DETACH:                                 \
-      break;                                                \
-    case DLL_PROCESS_DETACH:                                \
-      break;                                                \
-    default:                                                \
-      break;                                                \
-    }                                                       \
-    return TRUE;                                            \
-  }
+}}
+
 }

@@ -55,14 +55,14 @@ namespace Sulfur
             compiler->m_compilationResMutex.lock();
             compiler->m_compiledWithoutErrors = false;
             compiler->m_compilationResMutex.unlock();
-          }
 
-          std::cout << buffer << std::endl;
+            std::cout << buffer << std::endl;
+          }
         }
         else
         {
-          std::cout << stringBuffer.substr(0, donePos) << std::endl;
-          std::cout << "Compilation is done\n";
+          //std::cout << stringBuffer.substr(0, donePos) << std::endl;
+          //std::cout << "Compilation is done\n";
           
           compiler->m_compDoneMutex.lock();
           compiler->m_compilationDone = true;

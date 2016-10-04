@@ -13,7 +13,16 @@ namespace Sulfur
       ComponentFactory::ComponentData data = ComponentFactory::Instance()->GetComponentData(scriptName);
 
       for (auto it : data)
-        it->Update();
+      {
+        try
+        {
+          it->Update();
+        }
+        catch (const std::exception &e)
+        {
+          std::cout << scriptName << ": " << e.what() << std::endl;
+        }
+      }
     }
   }
   SF_END_DEFINE_TASK(UpdateScripts)

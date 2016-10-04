@@ -53,6 +53,11 @@ namespace Sulfur
 
         file[numChars] = '\0';
 
+        offset += notifyStruct->NextEntryOffset;
+        if (watchInfo->m_fileWatcher->_FilterEvents(notifyStruct))
+          continue;
+
+
         FileWatcher::ActionInfo actionInfo;
         actionInfo.m_action = (FileWatcher::Action)notifyStruct->Action;
         actionInfo.m_fileName = watchInfo->m_fileWatcher->_GetFileName(file);
@@ -78,8 +83,6 @@ namespace Sulfur
           SF_LOG_MESSAGE("FILE_RENAMED_NEW");
           break;
         }*/
-
-        offset += notifyStruct->NextEntryOffset;
       } while (notifyStruct->NextEntryOffset != 0);
     }
 
@@ -199,5 +202,33 @@ namespace Sulfur
     if (pos == std::string::npos)
       return "";
     return fileName.substr(0, pos);
+  }
+
+  bool FileWatcher::_FilterEvents(const FILE_NOTIFY_INFORMATION *info)
+  {
+    if (m_actionToConsume != FileNone && info->Action == m_actionToConsume)
+    {
+      m_actionToConsume = FileNone;
+      return true;
+    }
+    
+    switch (info->Action)
+    {
+    case FileAdded:
+      m_actionToConsume = FileModified;
+      break;
+    case FileRemoved:
+      break;
+    case FileModified:
+      m_actionToConsume = FileModified;
+      break;
+    case FileRenamedOld:
+      break;
+    case FileRenamedNew:
+      m_actionToConsume = FileModified;
+      break;
+    }
+
+    return false;
   }
 }

@@ -29,7 +29,8 @@ namespace Sulfur
       FileRemoved = FILE_ACTION_REMOVED,
       FileModified = FILE_ACTION_MODIFIED,
       FileRenamedOld = FILE_ACTION_RENAMED_OLD_NAME,
-      FileRenamedNew = FILE_ACTION_RENAMED_NEW_NAME
+      FileRenamedNew = FILE_ACTION_RENAMED_NEW_NAME,
+      FileNone
     };
 
     struct ActionInfo
@@ -75,7 +76,11 @@ namespace Sulfur
     std::string _GetFileName(const std::string &fileName) const;
     std::string _GetPath(const std::string &fileName) const;
 
+    bool _FilterEvents(const FILE_NOTIFY_INFORMATION *info);
+
     std::unordered_map<std::string, WatchInfo*> m_dirsMap;
     FileWatcherCallback m_callback;
+
+    Action m_actionToConsume = FileNone;
   };
 }

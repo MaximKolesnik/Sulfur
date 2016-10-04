@@ -416,17 +416,18 @@ namespace Sulfur
         std::string fileName = _RemoveExtension(findData.cFileName);
         auto it = m_scriptMap.find(fileName);
 
+        ScriptData *data;
         if (it != m_scriptMap.end())
         {
-          ScriptData *data = m_scriptMap[fileName];
+          data = m_scriptMap[fileName];
           data->m_header = findData.cFileName;
         }
         else
         {
-          ScriptData *newData = new ScriptData();
-          newData->m_header = findData.cFileName;
-          newData->m_relativePath = std::string(folder).erase(0, m_scriptFolder.size());
-          m_scriptMap[fileName] = newData;
+          data = new ScriptData();
+          data->m_header = findData.cFileName;
+          data->m_relativePath = std::string(folder).erase(0, m_scriptFolder.size());
+          m_scriptMap[fileName] = data;
         }
       }
     } while (FindNextFile(hFindFile, &findData));
