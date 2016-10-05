@@ -1,9 +1,10 @@
 #include <windows.h>
 
 #include "sfTestScript.hpp"
-SF_INCLUDE_SCRIPT(sfTestScript)
 #include "Factories\sfObjectFactory.hpp"
 #include "Components\sfTransform.hpp"
+#include "SystemTable\sfSystemTable.hpp"
+#pragma comment(lib, "C:\\Sulfur(GitHub)\\builds\\bin\\SulfurEngine\\vs2015\\SulfurEngine_d.lib")
 
 SF_INIT_SCRIPT(TestScript)
 
@@ -22,8 +23,8 @@ void TestScript::Initialize()
 void TestScript::Update()
 {
 	HNDL obj = GetOwner();
-	HNDL transHndl = Engine->ObjFactory->GetObject(obj)->GetComponentHandle<Transform>();
-	Transform *t = Engine->CompFactory->GetComponent<Transform>(transHndl);
-	t->SetTranslation(Vector3(0.0,0.0,6.0)); 
-	t->SetRotationEulerXZY(0.0f, 45.0f, 0.0f);   
+	HNDL transHndl = g_SystemTable->ObjFactory->GetObject(obj)->GetComponentHandle<Transform>();
+	Transform *t = g_SystemTable->CompFactory->GetComponent<Transform>(transHndl);
+	t->SetTranslation(Vector3(0.0,0.0,5.0)); 
+	t->SetRotationEulerXZY(0.0f, 45.0f, 0.0f);
 }

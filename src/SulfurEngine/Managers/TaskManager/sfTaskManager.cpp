@@ -22,13 +22,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  TaskManager* TaskManager::Instance(void)
-  {
-    static TaskManager instance;
-
-    return &instance;
-  }
-
   void TaskManager::RunTasks(void)
   {
     SF_ASSERT(m_waitingTasks.empty(), "There are not processed waiting tasks");

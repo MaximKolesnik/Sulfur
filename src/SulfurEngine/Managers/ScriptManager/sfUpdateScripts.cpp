@@ -5,12 +5,12 @@ namespace Sulfur
 {
   SF_DEFINE_TASK(UpdateScripts)
   {
-    const ScriptManager::ScriptMap& map = ScriptManager::Instance()->GetScriptMap();
+    const ScriptManager::ScriptMap& map = g_SystemTable->ScriptManager->GetScriptMap();
 
     for (auto scriptIt : map)
     {
       std::string scriptName = scriptIt.second->m_scriptName;
-      ComponentFactory::ComponentData data = ComponentFactory::Instance()->GetComponentData(scriptName);
+      ComponentFactory::ComponentData data = g_SystemTable->CompFactory->GetComponentData(scriptName);
 
       for (auto it : data)
       {

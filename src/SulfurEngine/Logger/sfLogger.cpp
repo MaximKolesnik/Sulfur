@@ -26,13 +26,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  Logger* Logger::Instance(void)
-  {
-    static Logger instance;
-
-    return &instance;
-  }
-
   Logger::Logger(void)
   {
     // Show console window

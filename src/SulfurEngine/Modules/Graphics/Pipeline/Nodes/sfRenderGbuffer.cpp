@@ -66,7 +66,7 @@ void RenderGbuffer::Process()
   perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, 3.14159f / 4.0f, 0.1f, 1000.0f);
   m_perFrameData->SetData(m_context, perFrame);
 
-  ComponentFactory::ComponentData componentData = ComponentFactory::Instance()->GetComponentData<MeshRenderer>();
+  ComponentFactory::ComponentData componentData = g_SystemTable->CompFactory->GetComponentData<MeshRenderer>();
   for (auto it = componentData.begin(); it != componentData.end(); ++it)
     RenderMeshRenderer(static_cast<MeshRenderer*>(*it));
 }
@@ -78,7 +78,7 @@ void RenderGbuffer::RenderMeshRenderer(MeshRenderer *meshRenderer)
 
   if (mesh != nullptr)
   {
-    Object *object = ObjectFactory::Instance()->GetObject(meshRenderer->GetOwner());
+    Object *object = g_SystemTable->ObjFactory->GetObject(meshRenderer->GetOwner());
     Transform* transform = object->GetComponent<Transform>();
     //transform->Update();
 

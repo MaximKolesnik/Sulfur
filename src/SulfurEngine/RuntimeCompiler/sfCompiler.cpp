@@ -150,20 +150,19 @@ namespace Sulfur
     SF_CRITICAL_ERR_EXP(res,
       "Script output obj directory does not exist and cannot be created");
 
-    std::string compilerFlags = " /W3 /WX /LD /EHsc ";
+    std::string compilerFlags = " /W3 /WX /LD /EHsc /O2 ";
 #ifdef _DEBUG
     compilerFlags += "/MDd ";
 #else
-    compilerFlags += "/MD /O2";
+    compilerFlags += "/MD ";
 #endif
 
     std::string source = m_workingDir + cpp + " ";
     std::string outputFileName = dllName + ".dll";
-    std::string output = " /link /out:\"" + m_outputDir + outputFileName + "\" " ;
-    std::string interm = " /Fo\"" + m_interDir + dllName + ".obj\" ";
-    std::string lib = "\"" + m_engineLib + "\" ";
+    std::string output = " /link /IMBLIB:" + m_outputDir + dllName + ".lib " + " /out:" + m_outputDir +  outputFileName + " " ;
+    std::string interm = " /Fo" + m_interDir + " ";
 
-    std::string command = "cl " + source + lib + _ConstructIncludeString() 
+    std::string command = "cl " + source + _ConstructIncludeString() + "/DSF_BUILD_SCRIPT "
       + interm + compilerFlags + output;
     command += "\necho " + c_compilationComplete + "\n";
 

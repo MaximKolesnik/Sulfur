@@ -37,20 +37,16 @@ namespace Sulfur
   class IEntity;
   class Compiler;
 
-  typedef ISlotMap* (*RegFunc)(void *);
-  typedef char* (*RegName)(void);
-
   class ScriptManager
   {
-    SF_PRIVATE_CTOR_DTOR(ScriptManager);
-    SF_FORBID_COPY(ScriptManager);
-    SF_SINGLETON_INSTANCE(ScriptManager);
+  public:
+    ScriptManager(void);
+    ~ScriptManager(void);
 
     void Initialize(void);
     void RegisterScript(IEntity *scriptInstance);
     void Update(void);
 
-  public:
     struct ScriptData
     {
       ScriptData() : m_header(""), m_cpp(""), m_relativePath(""), m_libHandle(NULL),
@@ -75,6 +71,9 @@ namespace Sulfur
     friend void FileWatcherCallback(const FileWatcher::ActionInfo &);
     friend class ComponentFactory;
 
+    ScriptManager(const ScriptManager&) = delete;
+    ScriptManager& operator=(const ScriptManager&) = delete;
+
     std::string _GetDllName(const std::string &file) const;
     void _HandleFileAddedAction(const FileWatcher::ActionInfo &actionInfo);
     void _HandleFileModifiedAction(const FileWatcher::ActionInfo &actionInfo);
@@ -91,6 +90,9 @@ namespace Sulfur
     void _InitializeScriptData(void);
     void _LocateScripts(LPCTSTR folder);
 
+    void _GetFunctionsFromTable(const std::string &scriptHeader, 
+      const FunctionTable::FUNCTABLE &table, RegFunc *regFunc, RegName *regName) const;
+
     std::vector<std::string> _GatherHeadersPathes(void) const;
     std::vector<std::string> _GatherCppsPathes(void) const;
 
@@ -100,46 +102,7 @@ namespace Sulfur
     FileWatcher *m_fileWatcher;
 
     std::string m_scriptFolder;
+    std::string m_interFolder;
+    std::string m_dllFolder;
   };
-
-#define SF_SCRIPT(ScriptName)                               \
-namespace __RegHelpers {extern "C" {__declspec(dllexport) Sulfur::ISlotMap* __SFRegisterS(void *);}}  \
-class ScriptName : public Sulfur::IScript                   \
-{                                                           \
-  friend Sulfur::ISlotMap* __RegHelpers::__SFRegisterS(void *);      \
-  public:                                                   \
-  ScriptName(void) : IScript()                              \
-  {                                                         \
-    m_name = #ScriptName;                                   \
-  }                                                         \
-                                                            \
-  virtual ~ScriptName(void);                                \
-  virtual void Initialize(void) override final;             \
-  virtual ScriptName* Clone(void) const override final      \
-  {                                                         \
-    return nullptr;                                         \
-  }                                                         \
-  virtual void Update(void) override final;                 
-
-#define SF_END_SCRIPT(ScriptName) }; \
-namespace __RegHelpers               \
-  {\
-    extern "C" \
-    {__declspec(dllexport) char* __SFScriptName(void); }\
-  }
-  
-
-#define SF_INIT_SCRIPT(ScriptName)                          \
-Sulfur::SystemTable * Sulfur::IScript::Engine = nullptr;  \
-namespace __RegHelpers {Sulfur::ISlotMap* __SFRegisterS(void *st)\
-{                                                           \
-  Sulfur::ISlotMap* sm = new Sulfur::SlotMap<ScriptName>(); \
-  ScriptName::Engine = reinterpret_cast<Sulfur::SystemTable*>(st);\
-  return sm;                                                \
-}                                                           \
-char* __SFScriptName(void)                                  \
-{                                                           \
-  return #ScriptName;                                       \
-}}
-
 }

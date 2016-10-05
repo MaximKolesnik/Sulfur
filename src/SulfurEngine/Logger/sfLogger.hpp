@@ -23,15 +23,13 @@ namespace Sulfur
   class Logger
   {
   public:
-    static Logger* Instance(void);
+    Logger(void);
+    ~Logger(void);
 
     void Log(const std::string &message, const std::string &fileName,
       const std::string &functionName, UINT64 lineNumber, const std::string &type);
 
   private:
-    Logger(void);
-    ~Logger(void);
-
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
@@ -43,6 +41,6 @@ namespace Sulfur
   };
 
 #define SF_LOG_MESSAGE(message) \
-Sulfur::Logger::Instance()->Log(message, __FILE__, __FUNCTION__, __LINE__, "MESSAGE")
+Sulfur::g_SystemTable->Log->Log(message, __FILE__, __FUNCTION__, __LINE__, "MESSAGE")
 
 }

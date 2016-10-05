@@ -98,7 +98,7 @@ namespace Sulfur
       auto childIt = obj->m_children.begin();
       while (childIt != obj->m_children.end())
       {
-        Object *child = SF_GET_OBJECT(*childIt);
+        Object *child = GetObject(*childIt);
 
         ++childIt;
 
@@ -108,7 +108,7 @@ namespace Sulfur
 
     if (obj->m_owner != SF_INV_HANDLE)
     {
-      Object *parent = SF_GET_OBJECT(obj->m_owner);
+      Object *parent = GetObject(obj->m_owner);
       parent->m_children.erase(obj->m_hndl);
     }
 
@@ -118,8 +118,8 @@ namespace Sulfur
       std::string name = compIt->first;
       HNDL handle = compIt->second;
       ++compIt;
-
-      ComponentFactory::Instance()->DeleteComponent(name, handle);
+      
+      g_SystemTable->CompFactory->DeleteComponent(name, handle);
     }
 
     m_objects.Erase(obj->m_hndl);

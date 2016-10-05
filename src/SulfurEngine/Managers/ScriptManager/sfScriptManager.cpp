@@ -35,19 +35,19 @@ namespace Sulfur
     switch (actionInfo.m_action)
     {
     case FileWatcher::Action::FileAdded:
-      ScriptManager::Instance()->_HandleFileAddedAction(actionInfo);
+      g_SystemTable->ScriptManager->_HandleFileAddedAction(actionInfo);
       break;
     case FileWatcher::Action::FileModified:
-      ScriptManager::Instance()->_HandleFileModifiedAction(actionInfo);
+      g_SystemTable->ScriptManager->_HandleFileModifiedAction(actionInfo);
       break;
     case FileWatcher::Action::FileRemoved:
-      ScriptManager::Instance()->_HandleFileRemovedAction(actionInfo);
+      g_SystemTable->ScriptManager->_HandleFileRemovedAction(actionInfo);
       break;
     case FileWatcher::Action::FileRenamedNew:
-      ScriptManager::Instance()->_HandleFileRenamedNewAction(actionInfo);
+      g_SystemTable->ScriptManager->_HandleFileRenamedNewAction(actionInfo);
       break;
     case FileWatcher::Action::FileRenamedOld:
-      ScriptManager::Instance()->_HandleFileRenamedOldAction(actionInfo);
+      g_SystemTable->ScriptManager->_HandleFileRenamedOldAction(actionInfo);
       break;
     default:
       SF_ASSERT(false, "Unrecognized action");
@@ -83,20 +83,23 @@ namespace Sulfur
     std::string scriptPath = buffer + ("\\" + s);
     std::string libPath;
 
-#ifdef _DEBUG
-    libPath = std::string(buffer) + "\\..\\builds\\bin\\SulfurMinEngine\\vs2015\\SulfurMinEngine_d.lib";
-#else
-    libPath = std::string(buffer) + "\\..\\builds\\bin\\SulfurMinEngine\\vs2015\\SulfurMinEngine.lib";
-#endif
     PathCanonicalize(buffer, scriptPath.c_str());
     m_scriptFolder = buffer;
     m_compiler->SetWorkingDirectory(m_scriptFolder);
     m_fileWatcher->AddDirectoryToWatch(std::string(buffer));
 
-    PathCanonicalize(buffer, libPath.c_str());
-    m_compiler->SetEngineLib(buffer);
-
     m_compiler->AddIncludeFolderRelative("..\\SulfurEngine\\");
+
+    std::string interFolder = m_scriptFolder + "\\..\\..\\bin\\Scripts\\";
+    std::string outFolder = m_scriptFolder + "\\..\\..\\bin\\Scripts\\";
+
+    PathCanonicalize(buffer, interFolder.c_str());
+    m_interFolder = buffer;
+    PathCanonicalize(buffer, outFolder.c_str());
+    m_dllFolder = buffer;
+
+    m_compiler->SetOutputDirectory(m_dllFolder);
+    m_compiler->SetIntermediateDirectory(m_interFolder);
 
     _InitializeScriptData();
   }
@@ -156,19 +159,26 @@ namespace Sulfur
       {
         scriptData->m_compiled = true;
 
-        scriptData->m_libHandle = LoadLibrary((scriptData->m_dllName + ".dll").c_str());
+        scriptData->m_libHandle = LoadLibrary((m_dllFolder + scriptData->m_dllName + ".dll").c_str());
         SF_ASSERT(scriptData->m_libHandle != NULL, "Dll was not loaded");
                           
-        RegFunc regFunc = (RegFunc)GetProcAddress(scriptData->m_libHandle, "__SFRegisterS");
-        RegName regNameFunc = (RegName)GetProcAddress(scriptData->m_libHandle, "__SFScriptName");
-        
-        SF_ASSERT(regFunc != NULL, "Script registration is not located");
-        SF_ASSERT(regNameFunc != NULL, "Script fin registration is not located");
+        getTableFunc tableFunc = (getTableFunc)GetProcAddress(scriptData->m_libHandle, "SFGetTable");
+        SF_ASSERT(tableFunc != NULL, "Script registration is not located");
+
+        const FunctionTable::FUNCTABLE& table = tableFunc();
+
+        RegFunc regFunc = nullptr;
+        RegName regNameFunc = nullptr;
+
+        _GetFunctionsFromTable(scriptData->m_header, table, &regFunc, &regNameFunc);
+
+        SF_ASSERT(regFunc != nullptr, "Script registration is not located");
+        SF_ASSERT(regNameFunc != nullptr, "Script fin registration is not located");
 
         ISlotMap *slotMap = regFunc(g_SystemTable);
         scriptData->m_scriptName = regNameFunc();
 
-        ComponentFactory::Instance()->_InsertNewScript(scriptData->m_scriptName, slotMap);
+        g_SystemTable->CompFactory->_InsertNewScript(scriptData->m_scriptName, slotMap);
       }
     }
 
@@ -196,7 +206,7 @@ namespace Sulfur
     if (compilationResult)
     {
       std::vector<std::pair<HNDL, HNDL> > hndls
-        = ComponentFactory::Instance()->_DeallocateScripts(scriptData->m_scriptName);
+        = g_SystemTable->CompFactory->_DeallocateScripts(scriptData->m_scriptName);
 
       BOOL res = FreeLibrary(scriptData->m_libHandle);
       SF_CRITICAL_ERR_EXP(res != NULL, "Cannot unload script");
@@ -204,21 +214,28 @@ namespace Sulfur
       _DeleteFile(scriptFileName + "*");
       _RenameFiles(tempDllName, scriptData->m_dllName);
 
-      scriptData->m_libHandle = LoadLibrary((scriptData->m_dllName + ".dll").c_str());
+      scriptData->m_libHandle = LoadLibrary((m_dllFolder + scriptData->m_dllName + ".dll").c_str());
       SF_ASSERT(scriptData->m_libHandle != NULL, "Dll was not loaded");
 
-      RegFunc regFunc = (RegFunc)GetProcAddress(scriptData->m_libHandle, "__SFRegisterS");
-      RegName regNameFunc = (RegName)GetProcAddress(scriptData->m_libHandle, "__SFScriptName");
+      getTableFunc tableFunc = (getTableFunc)GetProcAddress(scriptData->m_libHandle, "SFGetTable");
+      SF_ASSERT(tableFunc != NULL, "Script registration is not located");
 
-      SF_ASSERT(regFunc != NULL, "Script registration is not located");
-      SF_ASSERT(regNameFunc != NULL, "Script fin registration is not located");
+      const FunctionTable::FUNCTABLE& table = tableFunc();
+
+      RegFunc regFunc = nullptr;
+      RegName regNameFunc = nullptr;
+
+      _GetFunctionsFromTable(scriptData->m_header, table, &regFunc, &regNameFunc);
+
+      SF_ASSERT(regFunc != nullptr, "Script registration is not located");
+      SF_ASSERT(regNameFunc != nullptr, "Script fin registration is not located");
 
       ISlotMap *slotMap = regFunc(g_SystemTable);
       
       SF_CRITICAL_ERR_EXP(scriptData->m_scriptName == regNameFunc(), 
         "Cannot change script name on runtime");
 
-      ComponentFactory::Instance()->_RestoreScripts(hndls, scriptData->m_scriptName, slotMap);
+      g_SystemTable->CompFactory->_RestoreScripts(hndls, scriptData->m_scriptName, slotMap);
     }
     else
       _DeleteFile(tempDllName + "*");
@@ -237,7 +254,7 @@ namespace Sulfur
 
     if (scriptData->m_compiled) //Remove dll
     {
-      ComponentFactory::Instance()->_RemoveScript(scriptData->m_scriptName);
+      g_SystemTable->CompFactory->_RemoveScript(scriptData->m_scriptName);
       BOOL res = FreeLibrary(scriptData->m_libHandle);
       SF_CRITICAL_ERR_EXP(res != NULL, "Cannot unload script");
 
@@ -260,12 +277,12 @@ namespace Sulfur
 
   void ScriptManager::_HandleFileRenamedOldAction(const FileWatcher::ActionInfo &actionInfo)
   {
-
+    SF_CRITICAL_ERR("NOT IMPLEMENTED");
   }
 
   void ScriptManager::_HandleFileRenamedNewAction(const FileWatcher::ActionInfo &actionInfo)
   {
-
+    SF_CRITICAL_ERR("NOT IMPLEMENTED");
   }
 
   bool ScriptManager::_IsHeader(const std::string &fileName) const
@@ -351,19 +368,26 @@ namespace Sulfur
 
       scriptData->m_compiled = true;
 
-      scriptData->m_libHandle = LoadLibrary((scriptData->m_dllName + ".dll").c_str());
+      scriptData->m_libHandle = LoadLibrary((m_dllFolder + scriptData->m_dllName + ".dll").c_str());
       SF_ASSERT(scriptData->m_libHandle != NULL, "Dll was not loaded");
 
-      RegFunc regFunc = (RegFunc)GetProcAddress(scriptData->m_libHandle, "__SFRegisterS");
-      RegName regNameFunc = (RegName)GetProcAddress(scriptData->m_libHandle, "__SFScriptName");
+      getTableFunc tableFunc = (getTableFunc)GetProcAddress(scriptData->m_libHandle, "SFGetTable");
+      SF_ASSERT(tableFunc != NULL, "Script registration is not located");
 
-      SF_ASSERT(regFunc != NULL, "Script registration is not located");
-      SF_ASSERT(regNameFunc != NULL, "Script fin registration is not located");
+      const FunctionTable::FUNCTABLE& table = tableFunc();
+
+      RegFunc regFunc = nullptr;
+      RegName regNameFunc = nullptr;
+
+      _GetFunctionsFromTable(scriptData->m_header, table, &regFunc, &regNameFunc);
+
+      SF_ASSERT(regFunc != nullptr, "Script registration is not located");
+      SF_ASSERT(regNameFunc != nullptr, "Script fin registration is not located");
 
       ISlotMap *slotMap = regFunc(g_SystemTable);
       scriptData->m_scriptName = regNameFunc();
 
-      ComponentFactory::Instance()->_InsertNewScript(scriptData->m_scriptName, slotMap);
+      g_SystemTable->CompFactory->_InsertNewScript(scriptData->m_scriptName, slotMap);
     }
   }
 
@@ -432,5 +456,21 @@ namespace Sulfur
       }
     } while (FindNextFile(hFindFile, &findData));
     FindClose(hFindFile);
+  }
+
+  void ScriptManager::_GetFunctionsFromTable(const std::string &scriptHeader,
+    const FunctionTable::FUNCTABLE &table, RegFunc *regFunc, RegName *regName) const
+  {
+    for (auto &it : table)
+    {
+      if (it.first.find(scriptHeader) != std::string::npos)
+      {
+        *regFunc = it.second.first;
+        *regName = it.second.second;
+        return;
+      }
+    }
+
+    SF_CRITICAL_ERR("Cannot find reg functions in dll");
   }
 }

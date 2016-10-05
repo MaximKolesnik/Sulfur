@@ -54,11 +54,11 @@ namespace Sulfur
   {
     m_localMatrix.SetTransformation(m_rotation, m_scale, m_translation);
 
-    Object *object = ObjectFactory::Instance()->GetObject(m_owner);
+    Object *object = g_SystemTable->ObjFactory->GetObject(m_owner);
 
     if (object->GetOwner() != SF_INV_HANDLE)
     {
-      Transform *parentTransform = ObjectFactory::Instance()->GetObject(object->GetOwner())->GetComponent<Transform>();
+      Transform *parentTransform = g_SystemTable->ObjFactory->GetObject(object->GetOwner())->GetComponent<Transform>();
       m_worldMatrix = parentTransform->GetWorldMatrix() * m_localMatrix;
     }
     else

@@ -23,17 +23,15 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  ComponentFactory *ComponentFactory::m_instance = ComponentFactory::Instance();
-
-  ComponentFactory* ComponentFactory::Instance(void)
+  ComponentFactory::ComponentFactory(void)
   {
-    if (!m_instance)
-    {
-      m_instance = new ComponentFactory();
-      m_instance->Initialize();
-    }
 
-    return m_instance;
+  }
+
+  ComponentFactory::~ComponentFactory(void)
+  {
+    for (auto &it : m_compMap)
+      delete it.second;
   }
 
   bool ComponentFactory::IsRegistered(const std::string &compType) const
@@ -104,17 +102,6 @@ namespace Sulfur
     this->_RegisterComponent<Transform>();
     this->_RegisterComponent<Camera>();
     this->_RegisterComponent<MeshRenderer>();
-  }
-
-  ComponentFactory::ComponentFactory(void)
-  {
-
-  }
-
-  ComponentFactory::~ComponentFactory(void)
-  {
-    for (auto &it : m_compMap)
-      delete it.second;
   }
 
   IEntity* ComponentFactory::GetComponent(const std::string &name, 

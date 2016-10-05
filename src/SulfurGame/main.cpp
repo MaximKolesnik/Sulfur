@@ -1,6 +1,7 @@
 #include "sfSulfurPCH.hpp"
 #include "Core/sfCore.hpp"
 #include "Factories\sfComponentFactory.hpp"
+#include "SystemTable\sfSystemTable.hpp"
 
 #if(0)
 
@@ -64,7 +65,6 @@ int main(int argc, char** argv)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
   Sulfur::Core *sulfurEngine = Sulfur::Core::Instance();
-  Sulfur::ComponentFactory::Instance();
 
   sulfurEngine->StartUp();
   sulfurEngine->GameLoop();

@@ -4,14 +4,34 @@ namespace Sulfur
 {
   class ObjectFactory;
   class ComponentFactory;
+  class Logger;
+  class ScriptManager;
+  class TaskManager;
+  class WindowManager;
+  class InputManager;
+  class SceneManager;
+  class GraphicsManager;
 
   struct SystemTable
   {
-    SystemTable() : ObjFactory(nullptr), CompFactory(nullptr) {};
+    SystemTable() : Log(nullptr), ObjFactory(nullptr), CompFactory(nullptr),
+      InputManager(nullptr), SceneManager(nullptr), ScriptManager(nullptr), 
+      TaskManager(nullptr), WindowManager(nullptr), GraphicsManager(nullptr) {};
 
-    ObjectFactory* const ObjFactory;
-    ComponentFactory* const CompFactory;
+    Logger* Log;
+    ObjectFactory* ObjFactory;
+    ComponentFactory* CompFactory;
+    InputManager* InputManager;
+    SceneManager* SceneManager;
+
+#ifdef SF_BUILD_SCRIPT //Systems below should not be accessible in scripts
+  private:
+#endif
+    ScriptManager* ScriptManager;
+    TaskManager* TaskManager;
+    WindowManager* WindowManager;
+    GraphicsManager* GraphicsManager;
   };
   
-  extern SystemTable* const g_SystemTable;
+  extern SystemTable* g_SystemTable;
 }

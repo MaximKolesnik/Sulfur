@@ -20,15 +20,18 @@ namespace Sulfur
 	
   class SceneManager
   {
-    SF_SINGLETON(SceneManager)
-
   public:
+    SceneManager();
+    ~SceneManager();
+
     Scene& GetScene();
     const Scene& GetScene() const;
 
   private:
-    Scene m_scene;
+    SceneManager(const SceneManager &) = delete;
+    SceneManager& operator=(const SceneManager&) = delete;
 
+    Scene m_scene;
   };
   
 }

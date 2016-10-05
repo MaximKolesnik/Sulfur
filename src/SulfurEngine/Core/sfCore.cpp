@@ -21,8 +21,6 @@
 
 namespace Sulfur
 {
-  SystemTable* const g_SystemTable = new SystemTable;
-
   Core::Core()
   {
   }
@@ -33,11 +31,24 @@ namespace Sulfur
 
   void Core::StartUp(HWND windowHandle)
   {
-    _InitiazlieSystemTable();
+    //Init system table
+    g_SystemTable = new SystemTable();
+    g_SystemTable->Log = new Logger();
+
+    g_SystemTable->CompFactory = new ComponentFactory();
+    g_SystemTable->CompFactory->Initialize();
+
+    g_SystemTable->ObjFactory = new ObjectFactory();
+    g_SystemTable->ScriptManager = new ScriptManager();
+    g_SystemTable->TaskManager = new TaskManager();
+    g_SystemTable->WindowManager = new WindowManager();
+    g_SystemTable->InputManager = new InputManager();
+    g_SystemTable->SceneManager = new SceneManager();
+    g_SystemTable->GraphicsManager = new GraphicsManager();
 
     // Start engine in existing window
     if (windowHandle != nullptr)
-      m_window = WindowManager::Instance()->AddWindow(windowHandle);
+      m_window = g_SystemTable->WindowManager->AddWindow(windowHandle);
     
     // Create a new window for the engine
     else
@@ -47,29 +58,29 @@ namespace Sulfur
       description.Height = 720;
       description.Title = "Sulfur Engine";
 
-      m_window = WindowManager::Instance()->NewWindow(description);
+      m_window = g_SystemTable->WindowManager->NewWindow(description);
       m_window->RegisterCallbackOnClose(this, &Core::OnWindowClose);
     }
 
-    InputManager::Instance()->Init(m_window);
-    GraphicsManager::Instance()->Init(*m_window);
-    ScriptManager::Instance()->Initialize();
+    g_SystemTable->InputManager->Init(m_window);
+    g_SystemTable->GraphicsManager->Init(*m_window);
+    g_SystemTable->ScriptManager->Initialize();
     m_running = true;
 
-    TaskManager* tm = TaskManager::Instance();
+    TaskManager* tm = g_SystemTable->TaskManager;
     tm->AddNode("UpdateTransforms");
     tm->AddNode("UpdateScripts");
     tm->SetStartingTask("UpdateScripts");
     tm->SetDependency("UpdateTransforms", "UpdateScripts");
     tm->CompleteGraph();
 
-    MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
+    MeshRenderer *meshRenderer = g_SystemTable->CompFactory->CreateComponent<MeshRenderer>();
     meshRenderer->SetMesh(ResourceManager<Mesh>::Instance()->LoadResource("Models/cube.fbx"));
 
-    Object *testObj = ObjectFactory::Instance()->CreateObject();
+    Object *testObj = g_SystemTable->ObjFactory->CreateObject();
     testObj->AttachComponent(meshRenderer);
-    testObj->AttachComponent(ComponentFactory::Instance()->CreateComponent("TestScript"));
-    SceneManager::Instance()->GetScene().AddObject(testObj->GetHndl());
+    testObj->AttachComponent(g_SystemTable->CompFactory->CreateComponent("TestScript"));
+    g_SystemTable->SceneManager->GetScene().AddObject(testObj->GetHndl());
   }
 
   void Core::GameLoop(void)
@@ -81,16 +92,16 @@ namespace Sulfur
 
   void Core::Frame(void)
   {
-    WindowManager::Instance()->Update();
-    InputManager::Instance()->Update();
-    TaskManager::Instance()->RunTasks();
-    GraphicsManager::Instance()->Update();
+    g_SystemTable->WindowManager->Update();
+    g_SystemTable->InputManager->Update();
+    g_SystemTable->TaskManager->RunTasks();
+    g_SystemTable->GraphicsManager->Update();
 
-    if (InputManager::Instance()->WasKeyPressed('A'))
+    if (g_SystemTable->InputManager->WasKeyPressed('A'))
       std::cout << "A pressed" << std::endl;
 
-      ScriptManager::Instance()->Update();
-    ObjectFactory::Instance()->EndFrameCleanUp();
+      g_SystemTable->ScriptManager->Update();
+      g_SystemTable->ObjFactory->EndFrameCleanUp();
   }
 
   void Core::ShutDown(void)
@@ -100,12 +111,6 @@ namespace Sulfur
   void Core::OnWindowClose()
   {
     m_running = false;
-  }
-
-  void Core::_InitiazlieSystemTable(void) const
-  {
-    const_cast<ComponentFactory*>(g_SystemTable->CompFactory) = ComponentFactory::Instance();
-    const_cast<ObjectFactory*>(g_SystemTable->ObjFactory) = ObjectFactory::Instance();
   }
 
 }

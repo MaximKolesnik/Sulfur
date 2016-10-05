@@ -27,3 +27,5 @@
 #include "Types\sfObject.cpp"
 #include "Modules\Input\sfInputManager.cpp"
 #include "Modules\Window\sfWindow.cpp"
+
+#include "SystemTable\sfSystemTable.cpp"

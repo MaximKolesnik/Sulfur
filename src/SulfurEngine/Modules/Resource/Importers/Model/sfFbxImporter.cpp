@@ -211,7 +211,7 @@ void FbxImporter::Load(BYTE *buffer, UINT32 bufferSize, Mesh *resource)
 {
   if (m_manager == nullptr) m_manager = FbxManager::Create();
 
-  resource->Init(GraphicsManager::Instance()->GetDevice());
+  resource->Init(g_SystemTable->GraphicsManager->GetDevice());
 
   FbxScene *scene = FbxScene::Create(m_manager, "Scene");
   ::FbxImporter *importer = ::FbxImporter::Create(m_manager, "");
