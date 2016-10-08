@@ -36,8 +36,7 @@ public:
 
   virtual void Initialize(void) override final;
   virtual Transform* Clone(void) const override final;
-
-  void Update();
+  virtual void Update(void) override final;
 
   void SetRotationDeg(const Vector3 &axis, const Real &angleDeg)
   {

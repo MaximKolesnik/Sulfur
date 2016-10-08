@@ -46,6 +46,7 @@ namespace Sulfur
     Counter *m_waitingTaskCounter = nullptr; //counter of a task that is waiting on this task
 
     Fiber m_fiber = NULL;
+
     std::string m_taskName = "_NotAssigned";
 
     WorkerThread *m_executingWorker = nullptr;

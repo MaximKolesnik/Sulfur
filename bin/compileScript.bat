@@ -1,0 +1,1 @@
+cl /O2 /W3 /WX /MD %1 /LD /OUT:%2.dll

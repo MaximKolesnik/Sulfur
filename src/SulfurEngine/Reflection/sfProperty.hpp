@@ -15,6 +15,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #define NOMINMAX
 #include "sfSerialization.hpp"
 #include "sfTypeInfo.hpp"
+#include "Error\sfError.hpp"
 #include <limits>
 
 namespace Sulfur

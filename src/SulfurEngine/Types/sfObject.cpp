@@ -12,6 +12,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 
+#include <string>
+
 #include "sfObject.hpp"
 #include "Factories\sfObjectFactory.hpp"
 #include "Factories\sfComponentFactory.hpp"
@@ -45,7 +47,7 @@ namespace Sulfur
 
     if (m_owner != SF_INV_HANDLE) //Parent is set
     {
-      Object *parentObj = ObjectFactory::Instance()->GetObject(m_owner);
+      Object *parentObj = g_SystemTable->ObjFactory->GetObject(m_owner);
 #ifdef _DEBUG
       if (parent == m_owner
         && parentObj->m_children.find(m_hndl) == parentObj->m_children.end())
@@ -59,7 +61,7 @@ namespace Sulfur
       else
       {
         parentObj->m_children.erase(m_hndl);
-        auto &newParentChildren = ObjectFactory::Instance()->GetObject(m_owner)->m_children;
+        auto &newParentChildren = g_SystemTable->ObjFactory->GetObject(m_owner)->m_children;
 
         SF_ASSERT(newParentChildren.find(m_hndl) == newParentChildren.end(),
           "Object is already set as child");
@@ -69,7 +71,7 @@ namespace Sulfur
     }
     else if (parent != SF_INV_HANDLE) //Parent is not set
     {
-      auto &newParentChildren = ObjectFactory::Instance()->GetObject(parent)->m_children;
+      auto &newParentChildren = g_SystemTable->ObjFactory->GetObject(parent)->m_children;
 
       SF_ASSERT(newParentChildren.find(m_hndl) == newParentChildren.end(),
         "Object is already set as child");
@@ -88,6 +90,8 @@ namespace Sulfur
     component->m_owner = m_hndl;
 
     m_components[component->m_name] = component->m_hndl;
+
+    component->Initialize();
   }
 
   bool Object::HasDescendant(HNDL handle) const
@@ -105,7 +109,7 @@ namespace Sulfur
 
   bool Object::HasComponent(const std::string &compType) const
   {
-    SF_ASSERT(ComponentFactory::Instance()->IsRegistered(compType), 
+    SF_ASSERT(g_SystemTable->CompFactory->IsRegistered(compType),
       compType + " is not registered");
 
     auto res = m_components.find(compType);
@@ -153,7 +157,7 @@ namespace Sulfur
     //Clone components
     for (auto &it : m_components)
     {
-      IEntity *compToClone = ComponentFactory::Instance()->GetComponent(it.first, it.second);
+      IEntity *compToClone = g_SystemTable->CompFactory->GetComponent(it.first, it.second);
 
       clone->AttachComponent(compToClone->Clone());
     }

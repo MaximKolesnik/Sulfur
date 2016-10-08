@@ -13,6 +13,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 
+#include <unordered_set>
+
 #define SF_BASE_TYPE_SPECIALIZATION(type) \
 template <> UINT32 Serialization::SerializedSize<type>(const type& value); \
 template <> void Serialization::Serialize<type>(std::ostream& str, const type& value); \

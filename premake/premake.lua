@@ -59,6 +59,11 @@ premakeDef.dependencies["dds"] = {
 	includeDirs = { "../dependencies/dds/include" }
 }
 
+premakeDef.dependencies["WinApi"] = {
+	debugLibs = { "Shlwapi.lib" },
+	releaseLibs = { "Shlwapi.lib" }
+}
+
 -------------------------------------------------------------------------------
 -- Configurations -------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -87,7 +92,7 @@ premakeDef.configurations["ReleaseSymbols"] = {
 premakeDef.projects["SulfurEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
-	dependencies = { "D3D11", "libpng", "libjpeg", "fbx", "dds" },
+	dependencies = { "D3D11", "libpng", "libjpeg", "fbx", "dds", "WinApi" },
 	pchHeader = "sfSulfurPCH.hpp",
 	pchSource = "sfSulfurPCH.cpp"
 }
@@ -95,11 +100,19 @@ premakeDef.projects["SulfurEngine"] = {
 premakeDef.projects["UnitTests"] = {
 	language = "C++",
 	kind = "SharedLib",
+	defines = { "SF_BUILDING_LIB" },
 	dependencies = { "SulfurEngine", "VCUnitTests" },
 	pchHeader = "stdafx.h",
 	pchSource = "stdafx.cpp"
 }
 
+premakeDef.projects["SulfurMinEngine"] = {
+	language = "C++",
+	kind = "StaticLib",
+	dependencies = {"SulfurEngine"},
+	pchHeader = "sfMinPCH.hpp",
+	pchSource = "sfMinPCH.cpp"
+}
 -------------------------------------------------------------------------------
 -- Executable Projects --------------------------------------------------------
 -------------------------------------------------------------------------------

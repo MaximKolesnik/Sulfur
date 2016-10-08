@@ -6,7 +6,8 @@
 \par     DP email: maxim.kolesnik@digipen.edu
 \date    9/5/2016
 
-\brief   Task manager
+\brief   Task manager.  Used to update all components and systems
+         Main thread is used as a worker
 
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
@@ -17,17 +18,10 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "../../Error/sfError.hpp"
 #include "sfTaskRegistry.hpp"
 #include "sfDependencyGraph.hpp"
-#include "../../Settings/EngineSettings.h"
+#include "../../Settings/sfEngineSettings.hpp"
 
 namespace Sulfur
 {
-  TaskManager* TaskManager::Instance(void)
-  {
-    static TaskManager instance;
-
-    return &instance;
-  }
-
   void TaskManager::RunTasks(void)
   {
     SF_ASSERT(m_waitingTasks.empty(), "There are not processed waiting tasks");
@@ -36,6 +30,7 @@ namespace Sulfur
 
     _ResumeThreads();
 
+    //Main thread is used as a worker
     WorkerThreadRoutine(&m_workers[0]);
   }
 
@@ -121,7 +116,6 @@ namespace Sulfur
       newPair.second = task;
 
       SF_CRITICAL_ERR_EXP(task->m_fiber != NULL, "Cannot create fiber");
-
       SF_ASSERT(m_taskRegistry.find(it.first) == m_taskRegistry.end(),
         std::string("Task " + it.first + " is already registered").c_str());
 
@@ -133,22 +127,28 @@ namespace Sulfur
 
   TaskManager::~TaskManager(void)
   {
-   /* SF_ASSERT(m_workersWaiting.size() == 0, "There are workers waiting");
-
-    m_destroy = true;
-    m_wakeUpCondition.notify_all();
-
-    for (UINT32 i = 0; i < m_numThreads; ++i)
-      m_activeWorkers[i]->join();
-
-    for (auto &it : m_activeWorkers)
-      delete it;
-
-    while (!m_freeWorkers.empty())
+    for (UINT32 i = 1; i < m_numThreads; ++i)
     {
-      delete m_freeWorkers.top();
-      m_freeWorkers.pop();
-    }*/
+      m_workers[i].m_exit = true;
+      WakeConditionVariable(&m_workers[i].m_suspendedCV);
+      WaitForSingleObject(m_workers[i].m_threadHandle, INFINITE);
+    }
+
+    for (auto &it : m_taskRegistry)
+    {
+      Fiber fiber = it.second->m_fiber;
+      if (fiber)
+        DeleteFiber(fiber);
+      delete it.second;
+    }
+
+    for (auto &it : m_dynamicTasks)
+    {
+      Fiber fiber = it.second->m_fiber;
+      if (fiber)
+        DeleteFiber(fiber);
+      delete it.second;
+    }
   }
 
   void TaskManager::_ProcessCompletedTask(Task *task)
@@ -169,7 +169,7 @@ namespace Sulfur
         
         SF_ASSERT(waitingTask != nullptr, "Waiting task is not set");
 
-        m_waitingTasksMutex.lock();
+        m_waitingTasksMutex.lock();       //WaitingTasks lock
 
         SF_ASSERT(std::find(m_waitingTasks.begin(), m_waitingTasks.end(), 
           waitingTask) != m_waitingTasks.end(), "Waiting task is not on a waiting queue");
@@ -178,18 +178,18 @@ namespace Sulfur
           waitingTask);
         m_waitingTasks.erase(it);
 
-        m_awakeTasksMutex.lock();
+        m_awakeTasksMutex.lock();         //AwakeTasks lock
         m_awakeTasks[waitingTask->m_executingWorker->m_threadHandle].push_back(waitingTask);
-        m_awakeTasksMutex.unlock();
+        m_awakeTasksMutex.unlock();       //AwakeTasks unlock
 
-        m_waitingTasksMutex.unlock();
+        m_waitingTasksMutex.unlock();     //WaitingTasks unlock
       }
     }
 
 
-    m_graphMutex.lock();
+    m_graphMutex.lock();                  //Graph lock
     m_depGraph->NotifyTaskCompletion(taskName);
-    m_graphMutex.unlock();
+    m_graphMutex.unlock();                //Graph unlock
   }
 
   void TaskManager::_CreateWorkerThreads(void)
@@ -197,6 +197,7 @@ namespace Sulfur
     SF_ASSERT(m_workers == nullptr, "Workers are already created");
     m_workers = new WorkerThread[m_numThreads];
 
+    //Reuse main thread as a worker
     m_workers[0].m_threadHandle = GetCurrentThread();
     SF_CRITICAL_ERR_EXP(m_workers[0].m_threadHandle != NULL, 
       std::to_string(GetLastError()));
@@ -205,6 +206,7 @@ namespace Sulfur
     m_workers[0].m_coreAffinity = 0;
     m_workers[0].m_taskManager = this;
 
+    //Now start thread for the remaining number of workers
     for (UINT32 i = 1; i < m_numThreads; ++i)
     {
       m_workers[i].m_threadHandle = CreateThread(0, 0, WorkerThreadRoutine, 
@@ -274,6 +276,7 @@ namespace Sulfur
     Thread handle = pullingWorker->m_threadHandle;
     Task *task = nullptr;
 
+    //Continue to run a task only on the same worker
     auto it = m_awakeTasks.find(handle);
 
     if (it == m_awakeTasks.end())

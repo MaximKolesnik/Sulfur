@@ -26,17 +26,15 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  ComponentFactory *ComponentFactory::m_instance = ComponentFactory::Instance();
-
-  ComponentFactory* ComponentFactory::Instance(void)
+  ComponentFactory::ComponentFactory(void)
   {
-    if (!m_instance)
-    {
-      m_instance = new ComponentFactory();
-      m_instance->Initialize();
-    }
 
-    return m_instance;
+  }
+
+  ComponentFactory::~ComponentFactory(void)
+  {
+    for (auto &it : m_compMap)
+      delete it.second;
   }
 
   bool ComponentFactory::IsRegistered(const std::string &compType) const
@@ -112,17 +110,6 @@ namespace Sulfur
     this->_RegisterComponent<DirectionalLight>();
   }
 
-  ComponentFactory::ComponentFactory(void)
-  {
-
-  }
-
-  ComponentFactory::~ComponentFactory(void)
-  {
-    for (auto &it : m_compMap)
-      delete it.second;
-  }
-
   IEntity* ComponentFactory::GetComponent(const std::string &name, 
     HNDL handle) const
   {
@@ -149,5 +136,58 @@ namespace Sulfur
       return name;
     else
       return name.substr(scopePos + 1);
+  }
+
+  void ComponentFactory::_InsertNewScript(const std::string &scriptName, ISlotMap *slotMap)
+  {
+    SF_ASSERT(m_compMap.find(scriptName) == m_compMap.end(), "Script already exists");
+
+    m_compMap[scriptName] = slotMap;
+  }
+
+  void ComponentFactory::_RemoveScript(const std::string &scriptName)
+  {
+    SF_ASSERT(m_compMap.find(scriptName) != m_compMap.end(), "Script does not exist");
+
+    ComponentData data = GetComponentData(scriptName);
+    for (auto it : data)
+      DeleteComponent(it);
+
+    delete m_compMap[scriptName];
+
+    m_compMap.erase(scriptName);
+  }
+
+  std::vector<std::pair<HNDL, HNDL> > ComponentFactory::_DeallocateScripts(const std::string &scriptName)
+  {
+    SF_ASSERT(m_compMap.find(scriptName) != m_compMap.end(), "Script does not exist");
+
+    ComponentData data = GetComponentData(scriptName);
+    
+    std::vector<std::pair<HNDL, HNDL> > hndls;
+    for (auto it : data)
+      hndls.push_back(std::pair<HNDL, HNDL>(it->GetHndl(), it->GetOwner()));
+
+    delete m_compMap[scriptName];
+
+    return hndls;
+  }
+
+  void ComponentFactory::_RestoreScripts(const std::vector<std::pair<HNDL, HNDL> > &hndls,
+    const std::string &scriptName, ISlotMap *slotMap)
+  {
+    SF_ASSERT(m_compMap.find(scriptName) != m_compMap.end(), "Script does not exist");
+
+    for (auto it : hndls)
+    {
+      slotMap->CreateAt(it.first);
+      IEntity *script = slotMap->At(it.first);
+      script->m_hndl = it.first;
+      script->m_owner = it.second;
+      script->m_name = scriptName;
+      script->Initialize();
+    }
+
+    m_compMap[scriptName] = slotMap;
   }
 }

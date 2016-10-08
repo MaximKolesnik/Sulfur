@@ -33,7 +33,8 @@ SF_REFLECTED_CLASS_DERIVED(Camera, IEntity)
 public:
   virtual void Initialize(void) override final;
   virtual Camera* Clone(void) const override final;
-    
+  virtual void Update(void) {};
+
 private:
   Matrix4 m_viewMatrix;
   Matrix4 m_projectionMatrix;

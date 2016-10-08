@@ -20,15 +20,19 @@ namespace Sulfur
 	
   class WindowManager
   {
-    SF_SINGLETON(WindowManager)
-
   public:
+    WindowManager();
+    ~WindowManager();
+
     Window* AddWindow(HWND handle);
     Window* NewWindow(const WindowDescription& description);
 
     void Update();
 
   private:
+    WindowManager(const WindowManager &) = delete;
+    WindowManager& operator=(const WindowManager&) = delete;
+
     std::vector<Window *> m_windows;
 
   };

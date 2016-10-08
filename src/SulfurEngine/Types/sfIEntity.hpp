@@ -19,6 +19,7 @@ namespace Sulfur
 
     virtual void Initialize(void) = 0;
     virtual IEntity* Clone(void) const = 0;
+    virtual void Update(void) = 0;
 
     HNDL GetHndl(void) const
     {

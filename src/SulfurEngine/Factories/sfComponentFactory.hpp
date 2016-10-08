@@ -29,7 +29,11 @@ namespace Sulfur
   public:
     class ComponentData;
 
-    static ComponentFactory* Instance(void);
+    ComponentFactory(void);
+    ~ComponentFactory(void);
+
+    //Register all components
+    void Initialize(void);
 
     bool IsRegistered(const std::string &compType) const;
     template <class CompType>
@@ -52,25 +56,25 @@ namespace Sulfur
     ComponentData GetComponentData(void);
 
   private:
-    ComponentFactory(void);
-    ~ComponentFactory(void);
+    friend class ScriptManager;
 
     ComponentFactory(const ComponentFactory&) = delete;
     ComponentFactory& operator=(const ComponentFactory&) = delete;
-
-    //Register all components
-    void Initialize(void);
 
     template <typename CompType>
     void _RegisterComponent(void);
 
     std::string _RemoveScope(const std::string name) const;
 
-    static ComponentFactory *m_instance;
-
     std::vector<std::string> m_componentTypes;
     std::unordered_map<std::string, ISlotMap*> m_compMap;
 
+    //Scripts
+    void _InsertNewScript(const std::string &scriptName, ISlotMap *slotMap);
+    void _RemoveScript(const std::string &scriptName);
+    std::vector<std::pair<HNDL, HNDL> > _DeallocateScripts(const std::string &scriptName);
+    void _RestoreScripts(const std::vector<std::pair<HNDL, HNDL> > &hndls, const std::string &scriptName,
+      ISlotMap *slotMap);
   public:
 
     class ComponentData
@@ -163,14 +167,14 @@ namespace Sulfur
   }
 
 #define SF_CREATE_COMP(Type) \
-Sulfur::ComponentFactory::Instance()->CreateComponent<Type>()
+Sulfur::g_SystemTable->CompFactory->CreateComponent<Type>()
 
 #define SF_GET_COMP_STR(TypeStr, Handle) \
-Sulfur::ComponentFactory::Instance()->GetComponent(TypeStr, Handle)
+Sulfur::g_SystemTable->CompFactory->GetComponent(TypeStr, Handle)
 
 #define SF_GET_COMP_TYPE(Type, Handle) \
-Sulfur::ComponentFactory::Instance()->GetComponent<Type>(Handle)
+Sulfur::g_SystemTable->CompFactory->GetComponent<Type>(Handle)
 
 #define SF_GET_COMP_DATA(Type) \
-Sulfur::ComponentFactory::Instance()->GetComponentData<Type>()
+Sulfur::g_SystemTable->CompFactory->GetComponentData<Type>()
 }

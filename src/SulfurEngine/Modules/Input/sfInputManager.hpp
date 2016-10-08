@@ -20,8 +20,6 @@ namespace Sulfur
 	
   class InputManager
   {
-    SF_SINGLETON(InputManager)
-
   private:
     struct InputState
     {
@@ -31,6 +29,9 @@ namespace Sulfur
     };
 
   public:
+    InputManager();
+    ~InputManager();
+
     void Init(Window *window);
     void Update();
 
@@ -49,6 +50,9 @@ namespace Sulfur
 
   private:
     void FillState();
+
+    InputManager(const InputManager &) = delete;
+    InputManager& operator=(const InputManager&) = delete;
 
   private:
     Window *m_window;

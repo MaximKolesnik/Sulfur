@@ -16,7 +16,7 @@ All content © 2015 DigiPen (USA) Corporation, all rights reserved.
 
 /*******************************************************************************
 Maxim Kolesnik: TODO: Consider deallocating pages at any place in a list,
-inerting missing handles when they are needed
+                      inerting missing handles when they are needed
                 TODO: Use bitset for used list??
 *******************************************************************************/
 
@@ -28,7 +28,7 @@ inerting missing handles when they are needed
 #include "../Types/sfIEntity.hpp"
 #include "../sfProjectDefs.hpp"
 #include "../Types/sfTypes.hpp"
-#include "../Settings/EngineSettings.h"
+#include "../Settings/sfEngineSettings.hpp"
 #include "../Error/sfError.hpp"
 #include "sfOrderedDeque.hpp"
 
@@ -277,7 +277,7 @@ namespace Sulfur
 
     new (m_pages[pageNum]->m_memory + index) EntityType();
 
-    //Swap free list if it is empty or create a new page
+    //Push free list if it is empty or create a new page
     if (m_head->m_freeList->empty())
     {
       m_pages[pageNum]->m_full = true;

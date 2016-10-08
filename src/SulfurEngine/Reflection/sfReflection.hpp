@@ -15,6 +15,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfProperty.hpp"
 #include "Modules/Resource/sfResourceManager.hpp"
 #include "Modules/Resource/sfResourcePath.hpp"
+#include "Error/sfError.hpp"
 
 namespace Sulfur
 {

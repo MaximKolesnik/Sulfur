@@ -24,9 +24,10 @@ namespace Sulfur
 {
   class ObjectFactory
   {
-    SF_SINGLETON(ObjectFactory)
-
   public:
+    ObjectFactory(void);
+    ~ObjectFactory(void);
+
     Object* CreateObject(const std::string &name = "DefaultObject");
     //Without Transform
     Object* CreateEmptyObject(const std::string &name = "DefaultObject");
@@ -40,6 +41,9 @@ namespace Sulfur
     void Deserialize(std::istream& str);
 
   private:
+    ObjectFactory(const ObjectFactory&) = delete;
+    ObjectFactory& operator=(const ObjectFactory&) = delete;
+
     void _Destroy(Object *obj);
 
     std::vector<HNDL> m_objectsToDelete;
@@ -47,11 +51,11 @@ namespace Sulfur
   };
 
 #define SF_CREATE_EMPTY_OBJECT(Name) \
-Sulfur::ObjectFactory::Instance()->CreateEmptyObject(Name)
+Sulfur::g_SystemTable->ObjFactory->CreateEmptyObject(Name)
 
 #define SF_CREATE_OBJECT(Name) \
-Sulfur::ObjectFactory::Instance()->CreateObject(Name)
+Sulfur::g_SystemTable->ObjFactory->CreateObject(Name)
 
 #define SF_GET_OBJECT(Handle) \
-Sulfur::ObjectFactory::Instance()->GetObject(Handle)
+Sulfur::g_SystemTable->ObjFactory->GetObject(Handle)
 }

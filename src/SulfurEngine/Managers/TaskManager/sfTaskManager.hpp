@@ -6,7 +6,8 @@
 \par     DP email: maxim.kolesnik@digipen.edu
 \date    9/5/2016
 
-\brief   Task manager
+\brief   Task manager. Used to update all components and systems
+         Main thread is used as a worker
 
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
@@ -34,7 +35,8 @@ namespace Sulfur
   class TaskManager
   {
   public:
-    static TaskManager* Instance(void);
+    TaskManager(void);
+    ~TaskManager(void);
 
     void RunTasks(void);
 
@@ -43,7 +45,7 @@ namespace Sulfur
     void SetStartingTask(const std::string &taskName);
     void SetDependency(const std::string &taskName, const std::string &dependsOn);
     void CompleteGraph(void);
-    bool IsDone(void) const;
+    bool IsDone(void) const; //Are all tasks done for this frame
 
     Task* PullTask(WorkerThread *pullingWorker);
 
@@ -57,9 +59,6 @@ namespace Sulfur
 
     //Map for waking tasks with thread affinity;
     typedef std::unordered_map<Thread, std::list<Task*> > TaskMapThread;
-
-    TaskManager(void);
-    ~TaskManager(void);
 
     TaskManager(const TaskManager &) = delete;
     TaskManager& operator=(const TaskManager&) = delete;
