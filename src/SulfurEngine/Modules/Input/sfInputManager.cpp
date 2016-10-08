@@ -37,42 +37,59 @@ void InputManager::Init(Window *window)
 
 void InputManager::Update()
 {
-  if (m_window->IsFocused())
-  {
-    m_previousState = m_state;
-    FillState();
-  }
+  m_previousState = m_state;
+  FillState();
 }
 
-bool InputManager::IsKeyDown(BYTE key)
+bool InputManager::IsKeyDown(BYTE key) const
 {
   return KEY_DOWN(m_state.Keys[key]);
 }
 
 
-bool InputManager::WasKeyPressed(BYTE key)
+bool InputManager::WasKeyPressed(BYTE key) const
 {
   return KEY_DOWN(m_state.Keys[key]) && !KEY_DOWN(m_previousState.Keys[key]);
 }
 
-bool InputManager::WasKeyReleased(BYTE key)
+bool InputManager::WasKeyReleased(BYTE key) const
 {
   return !KEY_DOWN(m_state.Keys[key]) && KEY_DOWN(m_previousState.Keys[key]);
 }
 
-bool InputManager::IsMouseButtonDown(UINT32 button)
+bool InputManager::IsMouseButtonDown(UINT32 button) const
 {
   return m_state.MouseButtons[button];
 }
 
-bool InputManager::WasMouseButtonPressed(UINT32 button)
+bool InputManager::WasMouseButtonPressed(UINT32 button) const
 {
   return m_state.MouseButtons[button] && !m_previousState.MouseButtons[button];
 }
 
-bool InputManager::WasMouseButtonReleased(UINT32 button)
+bool InputManager::WasMouseButtonReleased(UINT32 button) const
 {
   return !m_state.MouseButtons[button] && m_previousState.MouseButtons[button];
+}
+
+INT32 InputManager::MousePositionX() const
+{
+  return m_state.MousePosition.x;
+}
+
+INT32 InputManager::MousePositionY() const
+{
+  return m_state.MousePosition.y;
+}
+
+INT32 InputManager::MouseDeltaX() const
+{
+  return m_previousState.MousePosition.x - m_state.MousePosition.x;
+}
+
+INT32 InputManager::MouseDeltaY() const
+{
+  return m_previousState.MousePosition.y - m_state.MousePosition.y;
 }
 
 void InputManager::FillState()

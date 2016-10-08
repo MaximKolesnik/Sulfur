@@ -55,6 +55,9 @@ public:
 
   const Matrix4& GetLocalMatrix() const;
   const Matrix4& GetWorldMatrix() const;
+  const Vector3& GetRight() const;
+  const Vector3& GetUp() const;
+  const Vector3& GetForward() const;
 
   SF_PRIVATE_PROPERTY(Vector3, translation, Translation, "Translation")
   SF_PRIVATE_PROPERTY(Quaternion, rotation, Rotation, "Rotation")

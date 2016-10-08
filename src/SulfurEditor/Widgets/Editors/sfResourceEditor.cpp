@@ -44,7 +44,7 @@ void ResourceEditor::UpdateValue()
 void ResourceEditor::CreateEdit()
 {
   m_edit = new ResourceBox();
-  m_edit->SetResourceType<Mesh>();
+  //m_edit->SetResourceType<Mesh>();
   m_layout->addWidget(m_edit);
 
   QObject::connect(

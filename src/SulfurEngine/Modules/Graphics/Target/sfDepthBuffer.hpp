@@ -28,7 +28,12 @@ namespace Sulfur
     void Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description);
     virtual void Free() override;
 
+    void Resize(UINT32 width, UINT32 height);
+
+    void Clear(D3D11Context& context);
+
   private:
+    D3D11Device *m_device;
     Texture2D m_texture;
   
   };

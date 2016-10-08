@@ -14,6 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #pragma once
 #include "../sfRenderNode.hpp"
 #include "Modules/Graphics/Target/sfRenderTarget.hpp"
+#include "Modules/Graphics/Target/sfDepthBuffer.hpp"
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Graphics/Resources/Shader/sfD3D11VertexShader.hpp"
 #include "Modules/Graphics/Resources/Shader/sfD3D11PixelShader.hpp"
@@ -23,17 +24,20 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-	
+
+  class Scene;
+
   class RenderGbuffer : public RenderNode
   {
   
   public:
-    RenderGbuffer(D3D11Device& device, RenderTarget *renderTarget);
+    RenderGbuffer(D3D11Device& device, RenderTarget *renderTarget, DepthBuffer *depthBuffer);
     ~RenderGbuffer();
 
     virtual void Process() override;
 
   private:
+    void SetupCamera(Scene& scene);
     void RenderMeshRenderer(MeshRenderer *meshRenderer);
 
   private:
@@ -42,11 +46,12 @@ namespace Sulfur
     D3D11ConstantBuffer *m_perObjectData;
 
     D3D11PixelShader m_pixelShader;
+    D3D11ConstantBuffer *m_materialData;
 
-    RenderTarget *m_renderTarget;
-    Mesh *m_boxMesh;
+    RenderTarget *m_gBuffer;
+    DepthBuffer *m_depthBuffer;
 
-    Texture2D *m_texture;
+    Texture2D *m_defaultTexture;
 
   };
   

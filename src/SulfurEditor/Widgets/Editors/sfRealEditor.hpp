@@ -29,13 +29,21 @@ namespace Sulfur
     virtual void UpdateValue() override;
 
   private:
-    void CreateEdit();
+    void CreateSliderLayout();
+    void CreateEditLayout();
+    QLineEdit* CreateEdit();
 
   public slots:
+    void OnSliderChanged(int value);
     void OnValueChanged(const QString& value);
 
   private:
     QLineEdit *m_edit;
+
+    QSlider *m_slider;
+    Real m_min;
+    Real m_range;
+    static const int c_sliderRange = 1000;
   
   };
   

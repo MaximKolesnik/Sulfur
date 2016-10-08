@@ -27,7 +27,8 @@ namespace Sulfur
     void Free();
 
     // Contexts
-    D3D11Context GetImmediateContext() const;
+    D3D11Context& GetImmediateContext();
+    const D3D11Context& GetImmediateContext() const;
 
   private:
     D3D_FEATURE_LEVEL m_featureLevel;

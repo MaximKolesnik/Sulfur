@@ -18,6 +18,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Math/sfQuaternion.hpp"
 #include "Math/sfMatrix3.hpp"
 #include "Math/sfMatrix4.hpp"
+#include "Modules/Graphics/Types/sfColor.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 
 namespace Sulfur
@@ -42,5 +43,6 @@ SF_REGISTER_BASE_TYPE(Quaternion)
 SF_REGISTER_BASE_TYPE(Matrix3)
 SF_REGISTER_BASE_TYPE(Matrix4)
 SF_REGISTER_BASE_TYPE(Vertex)
+SF_REGISTER_BASE_TYPE(Color)
 
 }

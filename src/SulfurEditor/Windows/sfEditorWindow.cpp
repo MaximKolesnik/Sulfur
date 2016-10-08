@@ -23,6 +23,7 @@ EditorWindow::EditorWindow(QWidget *parent)
   : QMainWindow(parent)
 {
   resize(1920, 1080);
+  showMaximized();
 
   QDockWidget *outputDock = new QDockWidget(tr("Output"), this);
   outputDock->setAllowedAreas(Qt::DockWidgetArea_Mask);

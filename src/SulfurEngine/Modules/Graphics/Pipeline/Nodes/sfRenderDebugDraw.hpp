@@ -25,7 +25,7 @@ namespace Sulfur
   {
   
   public:
-    RenderDebugDraw(D3D11Device& device, RenderTarget *renderTarget);
+    RenderDebugDraw(D3D11Device& device, RenderTarget *renderTarget, DepthBuffer *depthBuffer);
     ~RenderDebugDraw();
 
     virtual void Process() override;
@@ -38,6 +38,7 @@ namespace Sulfur
     D3D11PixelShader m_pixelShader;
 
     RenderTarget *m_renderTarget;
+    DepthBuffer *m_depthBuffer;
 
   };
   

@@ -28,7 +28,7 @@ void RegisterCallback##name(name##CallbackStaticFnPtr function)                 
 {                                                                                                   \
   m_callbacks##name.push_back(std::function<void(##__VA_ARGS__)>(function));                        \
 }                                                                                                   \
-private:                                                                                            \
+protected:                                                                                            \
 std::vector<name##CallbackFn> m_callbacks##name;                                                    \
 template <typename...Args>                                                                          \
 void Notify##name(Args...args) const                                                                \

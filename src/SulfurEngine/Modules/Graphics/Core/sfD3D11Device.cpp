@@ -67,7 +67,12 @@ void D3D11Device::Free()
   m_immediateContext.Free();
 }
 
-D3D11Context D3D11Device::GetImmediateContext() const
+D3D11Context& D3D11Device::GetImmediateContext()
+{
+  return m_immediateContext;
+}
+
+const D3D11Context& D3D11Device::GetImmediateContext() const
 {
   return m_immediateContext;
 }

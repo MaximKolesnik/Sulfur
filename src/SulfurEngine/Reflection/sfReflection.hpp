@@ -151,6 +151,7 @@ private:
 #define SF_REFLECTED_CLASS(name) SF_REFLECTED_CLASS_DERIVED(name, ReflectionBase)
 
 #define CONCAT(a, b) a##b
+#define CLAMP(min, max, val) (val < min ? min : (val > max ? max : val))
 
 #define SF_RESOURCE(type, name, upperName, display) \
 private: \
@@ -170,6 +171,14 @@ type m_##name; \
 public: \
   const type& Get##upperName() const { return m_##name; } \
   void Set##upperName(const type& value) { m_##name = value; }
+
+#define SF_PRIVATE_PROPERTY_RANGE(type, name, upperName, display, min, max) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &Get##upperName, &Set##upperName, min, max); } \
+type m_##name; \
+public: \
+  const type& Get##upperName() const { return m_##name; } \
+  void Set##upperName(const type& value) { m_##name = CLAMP(min, max, value); }
 
 #define SF_PRIVATE_PROPERTY_READ_ONLY(type, name, upperName, display) \
 private: \

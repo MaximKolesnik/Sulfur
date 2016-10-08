@@ -65,8 +65,6 @@ void Vector3Editor::OnValueChanged(const QString& value)
     (Real)m_edits[1]->text().toDouble(),
     (Real)m_edits[2]->text().toDouble()
     ));
-
-  UpdateValue();
 }
 
 }

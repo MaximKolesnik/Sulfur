@@ -120,50 +120,50 @@ void Mesh::CreateBox(Real w, Real h, Real d)
   Real hw = w / 2.0f, hh = h / 2.0f, hd = d / 2.0f;
 
   // Top
-  AddVertex(Vertex( Vector4(-hw,  hh,  hd, 1.0f),{ Vector2(0.0f, 0.0f) }, Vector4(0.0f, 1.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw,  hh,  hd, 1.0f),{ Vector2(1.0f, 0.0f) }, Vector4(1.0f, 1.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(-hw,  hh, -hd, 1.0f),{ Vector2(0.0f, 1.0f) }, Vector4(0.0f, 1.0f, 0.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw,  hh, -hd, 1.0f),{ Vector2(1.0f, 1.0f) }, Vector4(1.0f, 1.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw,  hh,  hd, 1.0f), Vector2(0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 1.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw,  hh,  hd, 1.0f), Vector2(1.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw,  hh, -hd, 1.0f), Vector2(0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw,  hh, -hd, 1.0f), Vector2(1.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 0.0f, 1.0f) ));
   AddTriangle(0, 1, 2);
   AddTriangle(1, 3, 2);
 
   // Bottom
-  AddVertex(Vertex( Vector4(-hw, -hh,  hd, 1.0f),{ Vector2(1.0f, 0.0f) }, Vector4(0.0f, 0.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw, -hh,  hd, 1.0f),{ Vector2(0.0f, 0.0f) }, Vector4(1.0f, 0.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(-hw, -hh, -hd, 1.0f),{ Vector2(1.0f, 1.0f) }, Vector4(0.0f, 0.0f, 0.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw, -hh, -hd, 1.0f),{ Vector2(0.0f, 1.0f) }, Vector4(1.0f, 0.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw, -hh,  hd, 1.0f), Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw, -hh,  hd, 1.0f), Vector2(0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 0.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw, -hh, -hd, 1.0f), Vector2(1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw, -hh, -hd, 1.0f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f) ));
   AddTriangle(4, 6, 5);
   AddTriangle(5, 6, 7);
 
   // Left
-  AddVertex(Vertex( Vector4(-hw,  hh,  hd, 1.0f),{ Vector2(0.0f, 0.0f) }, Vector4(0.0f, 1.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(-hw,  hh, -hd, 1.0f),{ Vector2(1.0f, 0.0f) }, Vector4(0.0f, 1.0f, 0.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(-hw, -hh,  hd, 1.0f),{ Vector2(0.0f, 1.0f) }, Vector4(0.0f, 0.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(-hw, -hh, -hd, 1.0f),{ Vector2(1.0f, 1.0f) }, Vector4(0.0f, 0.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw,  hh,  hd, 1.0f), Vector2(0.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 1.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw,  hh, -hd, 1.0f), Vector2(1.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw, -hh,  hd, 1.0f), Vector2(0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw, -hh, -hd, 1.0f), Vector2(1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 0.0f, 1.0f) ));
   AddTriangle(8, 9, 10);
   AddTriangle(9, 11, 10);
 
   // Right
-  AddVertex(Vertex( Vector4(hw,  hh,  hd, 1.0f),{ Vector2(1.0f, 0.0f) }, Vector4(1.0f, 1.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw,  hh, -hd, 1.0f),{ Vector2(0.0f, 0.0f) }, Vector4(1.0f, 1.0f, 0.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw, -hh,  hd, 1.0f),{ Vector2(1.0f, 1.0f) }, Vector4(1.0f, 0.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw, -hh, -hd, 1.0f),{ Vector2(0.0f, 1.0f) }, Vector4(1.0f, 0.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw,  hh,  hd, 1.0f), Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw,  hh, -hd, 1.0f), Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw, -hh,  hd, 1.0f), Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 0.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw, -hh, -hd, 1.0f), Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f) ));
   AddTriangle(12, 14, 13);
   AddTriangle(13, 14, 15);
 
   // Front
-  AddVertex(Vertex( Vector4(-hw,  hh, -hd, 1.0f),{ Vector2(0.0f, 0.0f) }, Vector4(0.0f, 1.0f, 0.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw,  hh, -hd, 1.0f),{ Vector2(1.0f, 0.0f) }, Vector4(1.0f, 1.0f, 0.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(-hw, -hh, -hd, 1.0f),{ Vector2(0.0f, 1.0f) }, Vector4(0.0f, 0.0f, 0.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw, -hh, -hd, 1.0f),{ Vector2(1.0f, 1.0f) }, Vector4(1.0f, 0.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw,  hh, -hd, 1.0f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw,  hh, -hd, 1.0f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw, -hh, -hd, 1.0f), Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 0.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw, -hh, -hd, 1.0f), Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f) ));
   AddTriangle(16, 17, 18);
   AddTriangle(17, 19, 18);
 
   // Back
-  AddVertex(Vertex( Vector4(-hw,  hh,  hd, 1.0f),{ Vector2(1.0f, 0.0f) }, Vector4(0.0f, 1.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw,  hh,  hd, 1.0f),{ Vector2(0.0f, 0.0f) }, Vector4(1.0f, 1.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(-hw, -hh,  hd, 1.0f),{ Vector2(1.0f, 1.0f) }, Vector4(0.0f, 0.0f, 1.0f, 1.0f) ));
-  AddVertex(Vertex( Vector4(hw, -hh,  hd, 1.0f),{ Vector2(0.0f, 1.0f) }, Vector4(1.0f, 0.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw,  hh,  hd, 1.0f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 1.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw,  hh,  hd, 1.0f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(-hw, -hh,  hd, 1.0f), Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) ));
+  AddVertex(Vertex( Vector4(hw, -hh,  hd, 1.0f), Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector4(1.0f, 0.0f, 1.0f, 1.0f) ));
   AddTriangle(20, 22, 21);
   AddTriangle(21, 22, 23);
 

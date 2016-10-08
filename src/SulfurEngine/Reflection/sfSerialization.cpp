@@ -20,6 +20,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Math/sfMatrix3.hpp"
 #include "Math/sfMatrix4.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
+#include "Modules/Graphics/Types/sfColor.hpp"
 
 namespace Sulfur
 {
@@ -53,6 +54,7 @@ void Serialization::Deserialize<std::string>(std::istream& str, std::string& val
   delete[] buffer;
 }
 
+SF_BASE_TYPE_SERIALIZATION_DEFAULT(bool)
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(UINT8)
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(UINT16)
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(UINT32)
@@ -70,5 +72,6 @@ SF_BASE_TYPE_SERIALIZATION_DEFAULT(Quaternion)
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(Matrix3)
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(Matrix4)
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(Vertex)
+SF_BASE_TYPE_SERIALIZATION_DEFAULT(Color)
 
 }

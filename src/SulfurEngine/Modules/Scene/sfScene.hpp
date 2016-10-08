@@ -12,7 +12,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
-#include "Types/sfObject.hpp"
 #include "Reflection/sfReflection.hpp"
 
 namespace Sulfur

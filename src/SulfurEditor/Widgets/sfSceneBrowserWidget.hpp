@@ -16,7 +16,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-	
+  class Object;	
+
   class SceneBrowserWidget : public QWidget
   {
     Q_OBJECT
@@ -28,6 +29,8 @@ namespace Sulfur
 
     void SetScene(Scene *scene);
 
+    void SelectObject(Object *object);
+    void SelectObject(HNDL object);
     void UpdateSelectedObjects();
 
   protected:
@@ -38,13 +41,15 @@ namespace Sulfur
     void AddObject(HNDL objectHandle, QTreeWidgetItem *root = nullptr);
     void AddObject(Object *object, QTreeWidgetItem *root = nullptr);
     void DeleteSelectedObjects();
+    Object* CreateObjectInFrontOfCamera(const std::string& name);
 
   public slots:
     void OnSceneTreeSelectionChanged();
-    void OnItemInserted(const QModelIndex& parent, int start, int end);
+    void OnItemMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row);
     void OnAddEmptyObject();
     void OnAddCamera();
     void OnAddCube();
+    void OnAddPlane();
 
   signals:
     void ObjectSelected(Object *object);
@@ -55,6 +60,7 @@ namespace Sulfur
     QGridLayout *m_layout;
     QToolButton *m_newObjectButton;
     QTreeWidget *m_sceneTree;
+    std::unordered_map<HNDL, QTreeWidgetItem*> m_itemMap;
   
   };
   

@@ -12,8 +12,9 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfSceneBrowserWidget.hpp"
-#include "Factories/sfObjectFactory.hpp"
 #include "Factories/sfComponentFactory.hpp"
+#include "Factories/sfObjectFactory.hpp"
+#include "Components/sfTransform.hpp"
 #include "Components/sfCamera.hpp"
 #include "Components/sfMeshRenderer.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
@@ -44,10 +45,22 @@ void SceneBrowserWidget::SetScene(Scene *scene)
 {
   m_scene = scene;
   m_sceneTree->clear();
+  m_itemMap.clear();
 
-  auto& rootObjects = scene->GetRootObjects();
-  for (HNDL object : rootObjects)
-    AddObject(object);
+  const std::list<HNDL>& rootObjects = scene->GetRootObjects();
+  for (auto it = rootObjects.cbegin(); it != rootObjects.cend(); it++)
+    AddObject(*it);
+}
+
+void SceneBrowserWidget::SelectObject(Object *object)
+{
+  SelectObject(object->GetHndl());
+}
+
+void SceneBrowserWidget::SelectObject(HNDL object)
+{
+  m_sceneTree->clearSelection();
+  m_itemMap[object]->setSelected(true);
 }
 
 void SceneBrowserWidget::UpdateSelectedObjects()
@@ -99,6 +112,7 @@ void SceneBrowserWidget::Setup()
   newObjectMenu->addAction("Empty Object", this, &SceneBrowserWidget::OnAddEmptyObject);
   newObjectMenu->addAction("Camera", this, &SceneBrowserWidget::OnAddCamera);
   newObjectMenu->addAction("Cube", this, &SceneBrowserWidget::OnAddCube);
+  newObjectMenu->addAction("Plane", this, &SceneBrowserWidget::OnAddPlane);
   m_newObjectButton->setMenu(newObjectMenu);
 
   QObject::connect(
@@ -107,8 +121,8 @@ void SceneBrowserWidget::Setup()
     );
 
   QObject::connect(
-    m_sceneTree->model(), &QAbstractItemModel::rowsInserted,
-    this, &SceneBrowserWidget::OnItemInserted
+    m_sceneTree->model(), &QAbstractItemModel::rowsMoved,
+    this, &SceneBrowserWidget::OnItemMoved
     );
 }
 
@@ -119,12 +133,15 @@ void SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
 
 void SceneBrowserWidget::AddObject(Object *object, QTreeWidgetItem *root)
 {
-  if (root == nullptr) root = m_sceneTree->invisibleRootItem();
+  if (root == nullptr) 
+    root = m_sceneTree->invisibleRootItem();
 
   // Add object
   QTreeWidgetItem *item = new QTreeWidgetItem({ object->m_name.c_str() });
   item->setData(0, Qt::UserRole, QVariant::fromValue(object->GetHndl()));
   root->addChild(item);
+
+  m_itemMap[object->GetHndl()] = item;
 
   // Add children
   auto& children = object->GetChildren();
@@ -153,6 +170,22 @@ void SceneBrowserWidget::DeleteSelectedObjects()
   }
 }
 
+Object* SceneBrowserWidget::CreateObjectInFrontOfCamera(const std::string& name)
+{
+  Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject(name));
+  Transform *transform = object->GetComponent<Transform>();
+
+  Object *cameraObject = ObjectFactory::Instance()->GetObject(m_scene->GetCameraObject());
+  Transform *cameraTransform = cameraObject->GetComponent<Transform>();
+
+  transform->SetTranslation(
+    cameraTransform->GetTranslation() +
+    cameraTransform->GetForward() * 5.0f
+    );
+
+  return object;
+}
+
 void SceneBrowserWidget::OnSceneTreeSelectionChanged()
 {
   QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
@@ -165,7 +198,7 @@ void SceneBrowserWidget::OnSceneTreeSelectionChanged()
   }
 }
 
-void SceneBrowserWidget::OnItemInserted(const QModelIndex& parent, int start, int end)
+void SceneBrowserWidget::OnItemMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row)
 {
   HNDL parentHandle = SF_INV_HANDLE;
   if (!parent.data().isNull())
@@ -173,7 +206,7 @@ void SceneBrowserWidget::OnItemInserted(const QModelIndex& parent, int start, in
 
   for (int i = start; i <= end; ++i)
   {
-    HNDL childHandle = parent.child(i, 0).data(Qt::UserRole).value<HNDL>();
+    HNDL childHandle = destination.child(row + i, 0).data(Qt::UserRole).value<HNDL>();
     Object *child = ObjectFactory::Instance()->GetObject(childHandle);
 
     if (child->GetParent() == SF_INV_HANDLE)
@@ -187,29 +220,45 @@ void SceneBrowserWidget::OnItemInserted(const QModelIndex& parent, int start, in
 
 void SceneBrowserWidget::OnAddEmptyObject()
 {
-  Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject("Game Object"));
+  Object *object = CreateObjectInFrontOfCamera("Game Object");
+
   AddObject(object);
+  SelectObject(object);
 }
 
 void SceneBrowserWidget::OnAddCamera()
 {
-  Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject("Camera"));
+  Object *object = CreateObjectInFrontOfCamera("Camera");
 
   Camera *camera = ComponentFactory::Instance()->CreateComponent<Camera>();
   object->AttachComponent(camera);
 
   AddObject(object);
+  SelectObject(object);
 }
 
 void SceneBrowserWidget::OnAddCube()
 {
-  Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject("Cube"));
+  Object *object = CreateObjectInFrontOfCamera("Cube");
 
   MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
   meshRenderer->SetMesh("Models/cube.fbx");
 
   object->AttachComponent(meshRenderer);
   AddObject(object);
+  SelectObject(object);
+}
+
+void SceneBrowserWidget::OnAddPlane()
+{
+  Object *object = CreateObjectInFrontOfCamera("Plane");
+
+  MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
+  meshRenderer->SetMesh("Models/plane.fbx");
+
+  object->AttachComponent(meshRenderer);
+  AddObject(object);
+  SelectObject(object);
 }
 
 }

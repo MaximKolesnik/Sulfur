@@ -19,8 +19,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 
-RenderDebugDraw::RenderDebugDraw(D3D11Device& device, RenderTarget *renderTarget)
-  : RenderNode(device), m_renderTarget(renderTarget)
+RenderDebugDraw::RenderDebugDraw(D3D11Device& device, RenderTarget *renderTarget, DepthBuffer *depthBuffer)
+  : RenderNode(device), m_renderTarget(renderTarget), m_depthBuffer(depthBuffer)
 {
   m_vertexShader.Init(device, "./Shaders/VSTest.sbin");
   m_perFrameData = m_vertexShader.GetConstantBuffer("PerFrameData");
@@ -36,11 +36,10 @@ RenderDebugDraw::~RenderDebugDraw()
 
 void RenderDebugDraw::Process()
 {
-  m_renderTarget->Set(m_context);
+  m_renderTarget->Set(m_context, *m_depthBuffer);
 
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
-
 
 
   PerFrameData perFrame;

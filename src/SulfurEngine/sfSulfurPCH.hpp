@@ -1,5 +1,6 @@
 #pragma once
 
+#define NOMINMAX
 #include <Windows.h>
 #include <comdef.h>
 #include <fileapi.h>

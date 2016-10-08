@@ -130,4 +130,19 @@ SF_END_DEFINE_TASK(UpdateTransforms)
     return m_worldMatrix;
   }
 
+  const Vector3& Transform::GetRight() const
+  {
+    return m_right;
+  }
+
+  const Vector3& Transform::GetUp() const
+  {
+    return m_up;
+  }
+
+  const Vector3& Transform::GetForward() const
+  {
+    return m_forward;
+  }
+
 }

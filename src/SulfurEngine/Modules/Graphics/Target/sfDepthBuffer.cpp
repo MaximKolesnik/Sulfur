@@ -18,6 +18,9 @@ namespace Sulfur
 
 void DepthBuffer::Init(D3D11Device& device, Texture2D& texture)
 {
+  m_texture = texture;
+  m_device = &device;
+
   // TODO: Add support for texture arrays
   D3D11_DEPTH_STENCIL_VIEW_DESC dsvDescription;
   dsvDescription.Format = texture.GetDescription().Format;
@@ -45,6 +48,21 @@ void DepthBuffer::Free()
 {
   m_texture.Free();
   WrapperBase::Free();
+}
+
+void DepthBuffer::Resize(UINT32 width, UINT32 height)
+{
+  D3D11_TEXTURE2D_DESC description = m_texture.GetDescription();
+  description.Width = width;
+  description.Height = height;
+
+  Free();
+  Init(*m_device, description);
+}
+
+void DepthBuffer::Clear(D3D11Context& context)
+{
+  context.GetD3DResource()->ClearDepthStencilView(m_resource, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 }

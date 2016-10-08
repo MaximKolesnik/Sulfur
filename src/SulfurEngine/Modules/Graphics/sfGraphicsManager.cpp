@@ -16,6 +16,12 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Pipeline/Pipelines/sfDeferredPipeline.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 
+// States
+#include "State/sfBlendState.hpp"
+#include "State/sfDepthState.hpp"
+#include "State/sfRasterState.hpp"
+#include "State/sfSamplerState.hpp"
+
 namespace Sulfur
 {
 
@@ -36,10 +42,20 @@ void GraphicsManager::Init(Window& window)
   DebugDraw::Instance()->Init(m_device);
   m_renderWindow.Init(m_device, window);
   m_pipeline = new DeferredPipeline(m_device, &m_renderWindow);
+
+  BlendState::InitDefaultStates(m_device);
+  DepthState::InitDefaultStates(m_device);
+  RasterState::InitDefaultStates(m_device);
+  SamplerState::InitDefaultStates(m_device);
 }
 
 void GraphicsManager::Free()
 {
+  BlendState::FreeDefaultStates();
+  DepthState::FreeDefaultStates();
+  RasterState::FreeDefaultStates();
+  SamplerState::FreeDefaultStates();
+
   m_device.Free();
 }
 

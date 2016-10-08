@@ -19,14 +19,26 @@ namespace Sulfur
 RealEditor::RealEditor(ReflectionBase *object, Property *prop, QWidget *parent)
   : LabeledEditor(object, prop, parent)
 {
-  CreateEdit();
+  if (prop->HasRange())
+  {
+    Real max;
+    prop->GetRange(m_min, max);
+    m_range = max - m_min;
+
+    CreateSliderLayout();
+  }
+  else
+  {
+    CreateEditLayout();
+  }
+
   UpdateValue();
 }
 
 RealEditor::RealEditor(void *ptr, QWidget *parent)
   : LabeledEditor(ptr, parent)
 {
-  CreateEdit();
+  CreateEditLayout();
   UpdateValue();
 }
 
@@ -36,25 +48,63 @@ RealEditor::~RealEditor()
 
 void RealEditor::UpdateValue()
 {
-  m_edit->setText(QString::number(GetValue<Real>()));
+  Real realValue = GetValue<Real>();
+  Real t = (realValue - m_min) / m_range;
+  m_slider->setValue((int)(t * c_sliderRange));
+
+  m_edit->setText(QString::number(realValue));
 }
 
-void RealEditor::CreateEdit()
+void RealEditor::CreateSliderLayout()
 {
-  m_edit = new QLineEdit();
-  m_edit->setValidator(new QDoubleValidator());
+  m_edit = CreateEdit();
+  m_edit->setMinimumWidth(100);
+  m_edit->setMaximumWidth(100);
   m_layout->addWidget(m_edit);
 
+  m_slider = new QSlider(Qt::Orientation::Horizontal);
+  m_slider->setRange(0, c_sliderRange);
+  m_layout->addWidget(m_slider);
+
   QObject::connect(
-    m_edit, &QLineEdit::textEdited,
+    m_slider, &QSlider::valueChanged,
+    this, &RealEditor::OnSliderChanged
+    );
+}
+
+void RealEditor::CreateEditLayout()
+{
+  m_edit = CreateEdit();
+  m_layout->addWidget(m_edit);
+}
+
+QLineEdit* RealEditor::CreateEdit()
+{
+  QLineEdit *edit = new QLineEdit();
+  edit->setValidator(new QDoubleValidator());
+
+  QObject::connect(
+    edit, &QLineEdit::textEdited,
     this, &RealEditor::OnValueChanged
     );
+
+  return edit;
+}
+
+void RealEditor::OnSliderChanged(int value)
+{
+  Real t = (Real)value / c_sliderRange;
+  SetValue(t * m_range + m_min);
+  UpdateValue();
 }
 
 void RealEditor::OnValueChanged(const QString& value)
 {
+  Real realValue = (Real)value.toDouble();
+  Real t = (realValue - m_min) / m_range;
+
+  m_slider->setValue((int)(t * c_sliderRange));
   SetValue((Real)value.toDouble());
-  UpdateValue();
 }
 
 }

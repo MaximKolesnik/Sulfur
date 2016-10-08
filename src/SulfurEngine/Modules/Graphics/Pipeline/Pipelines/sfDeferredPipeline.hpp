@@ -14,6 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #pragma once
 #include "../sfRenderPipeline.hpp"
 #include "Modules/Graphics/Target/sfRenderTarget.hpp"
+#include "Modules/Graphics/Target/sfDepthBuffer.hpp"
 
 namespace Sulfur
 {
@@ -26,7 +27,13 @@ namespace Sulfur
     ~DeferredPipeline();
 
   private:
-    RenderTarget *m_renderTarget;
+    void CreateGBuffer(D3D11Device& device);
+    void CreateDepthBuffer(D3D11Device& device);
+
+  private:
+    RenderTarget *m_finalRenderTarget;
+    RenderTarget m_gBuffer;
+    DepthBuffer m_depthBuffer;
 
   };
   

@@ -25,13 +25,14 @@ namespace Sulfur
   public:
     using WrapperBase::Init;
     void Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description, const BYTE *pixelData = nullptr);
+    void Init(const Texture2D& texture);
 
     void SetPixel(D3D11Context& context, UINT32 slot);
 
-  private:
-    void CreateShaderResourceView(D3D11Device& device);
+  protected:
+    virtual void CreateShaderResourceView(D3D11Device& device);
 
-  private:
+  protected:
     ID3D11ShaderResourceView *m_shaderResourceView;
 
   };

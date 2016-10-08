@@ -12,8 +12,10 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
+#define NOMINMAX
 #include "sfSerialization.hpp"
 #include "sfTypeInfo.hpp"
+#include <limits>
 
 namespace Sulfur
 {
@@ -45,12 +47,19 @@ namespace Sulfur
       SetValue(reinterpret_cast<void *>(&classInstance), reinterpret_cast<const void *>(&value));
     }
 
+    template <typename PropertyType>
+    void GetRange(PropertyType& min, PropertyType& max) const
+    {
+      GetRange(reinterpret_cast<void*>(&min), reinterpret_cast<void*>(&max));
+    }
+
     UINT32 GetTypeId() const
     {
       return GetTypeInfo()->GetId();
     }
 
     virtual const TypeInfo* GetTypeInfo() const = 0;
+    virtual bool HasRange() const = 0;
 
   public:
     virtual UINT32 SerializedSize(const void *classInstance) = 0;
@@ -58,6 +67,7 @@ namespace Sulfur
     virtual void Deserialize(std::istream& str, void *classInstance) = 0;
 
   protected:
+    virtual void GetRange(void *min, void *max) const = 0;
     virtual const void* GetValue(const void *classInstance) = 0;
     virtual void SetValue(void *classInstance, const void *value) = 0;
 
@@ -71,7 +81,15 @@ namespace Sulfur
   {
 
   public:
-    TypedProperty(const std::string& name) : Property(name) {}
+    TypedProperty(const std::string& name) 
+      : Property(name), m_min(std::numeric_limits<PropertyType>::min()), m_max(std::numeric_limits<PropertyType>::max()), m_hasRange(false)
+    {
+    }
+
+    TypedProperty(const std::string& name, const PropertyType& min, const PropertyType& max) 
+        : Property(name), m_min(min), m_max(max), m_hasRange(true)
+    {
+    }
 
     virtual UINT32 SerializedSize(const void *classInstance) override
     {
@@ -95,6 +113,23 @@ namespace Sulfur
       return &TypeInfoRegistry<PropertyType>::s_typeInfo;
     }
 
+    virtual bool HasRange() const override
+    {
+      return m_hasRange;
+    }
+
+  protected:
+    virtual void GetRange(void *min, void *max) const override
+    {
+      *reinterpret_cast<PropertyType*>(min) = m_min;
+      *reinterpret_cast<PropertyType*>(max) = m_max;
+    }
+
+  protected:
+    bool m_hasRange;
+    PropertyType m_min;
+    PropertyType m_max;
+
   };
 
   template <typename ClassType, typename PropertyType>
@@ -108,6 +143,11 @@ namespace Sulfur
   public:
     GetterSetterProperty(const std::string& name, GetterFunction getter, SetterFunction setter)
       : TypedProperty(name), m_getter(getter), m_setter(setter)
+    {
+    }
+
+    GetterSetterProperty(const std::string& name, GetterFunction getter, SetterFunction setter, const PropertyType& min, const PropertyType& max)
+      : TypedProperty(name, min, max), m_getter(getter), m_setter(setter)
     {
     }
 

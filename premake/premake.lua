@@ -41,11 +41,22 @@ premakeDef.dependencies["libpng"] = {
 	dependencies = { "zlib" }
 }
 
+premakeDef.dependencies["libjpeg"] = {
+	debugLibs = { "jpeg.lib" },
+	releaseLibs = { "jpeg.lib" },
+	includeDirs = { "../dependencies/libjpeg/include" },
+	libraryDirs = { "../dependencies/libjpeg/lib" }
+}
+
 premakeDef.dependencies["fbx"] = {
 	debugLibs = { "libfbxsdk-mdd.lib" },
 	releaseLibs = { "libfbxsdk-md.lib" },
 	includeDirs = { "../dependencies/fbx/include" },
 	libraryDirs = { "../dependencies/fbx/lib" }
+}
+
+premakeDef.dependencies["dds"] = {
+	includeDirs = { "../dependencies/dds/include" }
 }
 
 -------------------------------------------------------------------------------
@@ -76,7 +87,7 @@ premakeDef.configurations["ReleaseSymbols"] = {
 premakeDef.projects["SulfurEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
-	dependencies = { "D3D11", "libpng", "fbx" },
+	dependencies = { "D3D11", "libpng", "libjpeg", "fbx", "dds" },
 	pchHeader = "sfSulfurPCH.hpp",
 	pchSource = "sfSulfurPCH.cpp"
 }
@@ -94,6 +105,16 @@ premakeDef.projects["UnitTests"] = {
 -------------------------------------------------------------------------------
 
 premakeDef.projects["SulfurEditor"] = {
+	language = "C++",
+	qtModules = { "core", "gui", "widgets" },
+	kind = "Qt",
+	dependencies = { "SulfurEngine" },
+	defines = "SF_EDITOR",
+	pchHeader = "sfEditorPCH.hpp",
+	pchSource = "sfEditorPCH.cpp"
+}
+
+premakeDef.projects["SkyboxGen"] = {
 	language = "C++",
 	qtModules = { "core", "gui", "widgets" },
 	kind = "Qt",

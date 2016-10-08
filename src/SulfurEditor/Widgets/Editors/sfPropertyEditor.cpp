@@ -17,8 +17,12 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 // Editors
 #include "sfObjectEditor.hpp"
 #include "sfReflectedObjectEditor.hpp"
+#include "sfBoolEditor.hpp"
 #include "sfRealEditor.hpp"
+#include "sfVector2Editor.hpp"
 #include "sfVector3Editor.hpp"
+#include "sfVector4Editor.hpp"
+#include "sfColorEditor.hpp"
 #include "sfQuaternionEditor.hpp"
 #include "sfStringEditor.hpp"
 #include "sfEnumEditor.hpp"
@@ -53,8 +57,12 @@ PropertyEditor* CreatePropertyEditor(const TypeInfo *typeInfo, Args...args)
     if (typeInfo->IsEnumType()) return new EnumEditor(args...);
     if (typeInfo == SF_TYPE_INFO(Object)) return new ObjectEditor(args...);
     if (typeInfo->IsDerivedFrom<ReflectionBase>()) return new ReflectedObjectEditor(args...);
+    if (typeInfo == SF_TYPE_INFO(bool)) return new BoolEditor(args...);
     if (typeInfo == SF_TYPE_INFO(Real)) return new RealEditor(args...);
+    if (typeInfo == SF_TYPE_INFO(Vector2)) return new Vector2Editor(args...);
     if (typeInfo == SF_TYPE_INFO(Vector3)) return new Vector3Editor(args...);
+    if (typeInfo == SF_TYPE_INFO(Vector4)) return new Vector4Editor(args...);
+    if (typeInfo == SF_TYPE_INFO(Color)) return new ColorEditor(args...);
     if (typeInfo == SF_TYPE_INFO(Quaternion)) return new QuaternionEditor(args...);
     if (typeInfo == SF_TYPE_INFO(std::string)) return new StringEditor(args...);
     if (typeInfo == SF_TYPE_INFO(ResourcePath)) return new ResourceEditor(args...);

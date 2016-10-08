@@ -20,6 +20,9 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components/sfTransform.hpp"
 #include "Components/sfCamera.hpp"
 #include "Components/sfMeshRenderer.hpp"
+#include "Components/sfPointLight.hpp"
+#include "Components/sfSpotLight.hpp"
+#include "Components/sfDirectionalLight.hpp"
 
 namespace Sulfur
 {
@@ -92,7 +95,7 @@ namespace Sulfur
     Object *obj = SF_GET_OBJECT(m_compMap[name]->At(handle)->m_owner);
 
     SF_ASSERT(obj->m_components.find(name) != obj->m_components.end(),
-      name + " component is not attadched");
+      name + " component is not attached");
     SF_ASSERT(obj->m_components[name] == handle, name + " component handle does not match");
 
     obj->m_components.erase(name);
@@ -104,6 +107,9 @@ namespace Sulfur
     this->_RegisterComponent<Transform>();
     this->_RegisterComponent<Camera>();
     this->_RegisterComponent<MeshRenderer>();
+    this->_RegisterComponent<PointLight>();
+    this->_RegisterComponent<SpotLight>();
+    this->_RegisterComponent<DirectionalLight>();
   }
 
   ComponentFactory::ComponentFactory(void)

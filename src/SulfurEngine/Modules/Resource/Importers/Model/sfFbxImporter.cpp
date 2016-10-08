@@ -257,6 +257,9 @@ void FbxImporter::LoadMesh(FbxScene *scene, FbxNode *node, Mesh *resource, doubl
           indices[i] = resource->AddUniqueVertex(Vertex(
             Vector4((Real)position.mData[0], (Real)position.mData[1], (Real)position.mData[2], 1.0f),
             Vector2((Real)uv0.mData[0], (Real)uv0.mData[1]),
+            Vector3((Real)normal.mData[0], (Real)normal.mData[1], (Real)normal.mData[2]),
+            Vector3((Real)tangent.mData[0], (Real)tangent.mData[1], (Real)tangent.mData[2]),
+            Vector3((Real)binormal.mData[0], (Real)binormal.mData[1], (Real)binormal.mData[2]),
             Vector4((Real)color.mRed, (Real)color.mGreen, (Real)color.mBlue, (Real)color.mAlpha)
             ));
           ++vertexCounter;

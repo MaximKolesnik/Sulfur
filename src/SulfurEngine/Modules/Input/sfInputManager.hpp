@@ -34,13 +34,18 @@ namespace Sulfur
     void Init(Window *window);
     void Update();
 
-    bool IsKeyDown(BYTE key);
-    bool WasKeyPressed(BYTE key);
-    bool WasKeyReleased(BYTE key);
+    bool IsKeyDown(BYTE key) const;
+    bool WasKeyPressed(BYTE key) const;
+    bool WasKeyReleased(BYTE key) const;
 
-    bool IsMouseButtonDown(UINT32 button);
-    bool WasMouseButtonPressed(UINT32 button);
-    bool WasMouseButtonReleased(UINT32 button);
+    bool IsMouseButtonDown(UINT32 button) const;
+    bool WasMouseButtonPressed(UINT32 button) const;
+    bool WasMouseButtonReleased(UINT32 button) const;
+
+    INT32 MousePositionX() const;
+    INT32 MousePositionY() const;
+    INT32 MouseDeltaX() const;
+    INT32 MouseDeltaY() const;
 
   private:
     void FillState();

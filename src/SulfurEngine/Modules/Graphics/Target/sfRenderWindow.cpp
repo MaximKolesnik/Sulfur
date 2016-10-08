@@ -59,6 +59,8 @@ void RenderWindow::Resize(UINT32 width, UINT32 height)
   WrapperBase::Free();
   m_swapChain.Resize(width, height);
   RenderTarget::Init(*m_device, m_swapChain.GetBackBuffer());
+
+  NotifyOnResize(width, height);
 }
 
 }

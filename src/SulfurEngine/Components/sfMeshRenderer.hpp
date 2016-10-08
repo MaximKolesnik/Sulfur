@@ -14,6 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #pragma once
 #include "Types/sfIEntity.hpp"
 #include "Modules/Graphics/Scene/sfMesh.hpp"
+#include "Modules/Graphics/Resources/Material/sfMaterial.hpp"
 
 namespace Sulfur
 {
@@ -26,6 +27,7 @@ public:
 
 private:
   SF_RESOURCE(Mesh, mesh, Mesh, "Mesh")
+  SF_PRIVATE_PROPERTY(Material, material, Material, "Material");
   
 };
   
