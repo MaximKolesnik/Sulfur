@@ -87,11 +87,11 @@ void DeferredLightPass::RenderDirectionalLights()
   m_directionalLightShader.Set(m_context);
 
   DirectionalLightData directionalLightData;
-  ComponentFactory::ComponentData directionalLights = ComponentFactory::Instance()->GetComponentData<DirectionalLight>();
+  ComponentFactory::ComponentData directionalLights = g_SystemTable->CompFactory->GetComponentData<DirectionalLight>();
   for (auto it = directionalLights.begin(); it != directionalLights.end(); ++it)
   {
     DirectionalLight *directionalLight = static_cast<DirectionalLight*>(*it);
-    Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(directionalLight->GetOwner());
+    Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(directionalLight->GetOwner());
 
     directionalLightData.Direction = transform->GetForward();
     directionalLightData.Color = directionalLight->GetColor();
@@ -108,11 +108,11 @@ void DeferredLightPass::RenderPointLights()
   m_pointLightPixelShader.Set(m_context);
 
   PointLightData pointLightData;
-  ComponentFactory::ComponentData pointLights = ComponentFactory::Instance()->GetComponentData<PointLight>();
+  ComponentFactory::ComponentData pointLights = g_SystemTable->CompFactory->GetComponentData<PointLight>();
   for (auto it = pointLights.begin(); it != pointLights.end(); ++it)
   {
     PointLight *pointLight = static_cast<PointLight*>(*it);
-    Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(pointLight->GetOwner());
+    Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(pointLight->GetOwner());
     Vector3 pos = transform->GetTranslation();
 
     pointLightData.Position = Vector4(pos[0], pos[1], pos[2], 1.0f);
@@ -131,11 +131,11 @@ void DeferredLightPass::RenderSpotLights()
   m_spotLightPixelShader.Set(m_context);
 
   SpotLightData spotLightData;
-  ComponentFactory::ComponentData spotLights = ComponentFactory::Instance()->GetComponentData<SpotLight>();
+  ComponentFactory::ComponentData spotLights = g_SystemTable->CompFactory->GetComponentData<SpotLight>();
   for (auto it = spotLights.begin(); it != spotLights.end(); ++it)
   {
     SpotLight *spotLight = static_cast<SpotLight*>(*it);
-    Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(spotLight->GetOwner());
+    Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(spotLight->GetOwner());
     Vector3 pos = transform->GetTranslation();
 
     spotLightData.Position = Vector4(pos[0], pos[1], pos[2], 1.0f);

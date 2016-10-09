@@ -48,12 +48,21 @@ void StringEditor::CreateEdit()
     m_edit, &QLineEdit::textEdited,
     this, &StringEditor::OnValueChanged
     );
+
+  QObject::connect(
+    m_edit, &QLineEdit::editingFinished,
+    this, &StringEditor::OnEditingFinished
+    );
+}
+
+void StringEditor::OnEditingFinished()
+{
+  UpdateValue();
 }
 
 void StringEditor::OnValueChanged(const QString& value)
 {
   SetValue(std::string(value.toUtf8().data()));
-  UpdateValue();
   emit ValueChanged();
 }
 

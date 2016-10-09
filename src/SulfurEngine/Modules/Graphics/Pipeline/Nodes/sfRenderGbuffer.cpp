@@ -65,17 +65,17 @@ void RenderGbuffer::Process()
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
 
-  Scene& scene = SceneManager::Instance()->GetScene();
+  Scene& scene = g_SystemTable->SceneManager->GetScene();
   SetupCamera(scene);  
 
-  ComponentFactory::ComponentData componentData = ComponentFactory::Instance()->GetComponentData<MeshRenderer>();
+  ComponentFactory::ComponentData componentData = g_SystemTable->CompFactory->GetComponentData<MeshRenderer>();
   for (auto it = componentData.begin(); it != componentData.end(); ++it)
     RenderMeshRenderer(static_cast<MeshRenderer*>(*it));
 }
 
 void RenderGbuffer::SetupCamera(Scene& scene)
 {
-  Object *object = ObjectFactory::Instance()->GetObject(scene.GetCameraObject());
+  Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
   Transform *transform = object->GetComponent<Transform>();
   Camera *camera = object->GetComponent<Camera>();
 
@@ -114,7 +114,7 @@ void RenderGbuffer::RenderMeshRenderer(MeshRenderer *meshRenderer)
     if (materialData.UsesMaterialTexture != 0) materialTexture->SetPixel(m_context, 2);
     if (materialData.UsesEmissiveTexture != 0) emissiveTexture->SetPixel(m_context, 3);
 
-    Object *object = ObjectFactory::Instance()->GetObject(meshRenderer->GetOwner());
+    Object *object = g_SystemTable->ObjFactory->GetObject(meshRenderer->GetOwner());
     Transform* transform = object->GetComponent<Transform>();
 
     PerObjectData perObject;

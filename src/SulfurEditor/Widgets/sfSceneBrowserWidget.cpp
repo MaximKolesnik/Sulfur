@@ -20,6 +20,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/sfGraphicsManager.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Resource/sfResourceManager.hpp"
+#include "SystemTable/sfSystemTable.hpp"
 
 namespace Sulfur
 {
@@ -68,7 +69,7 @@ void SceneBrowserWidget::UpdateSelectedObjects()
   QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
   if (selection.empty()) return;
 
-  Object *object = ObjectFactory::Instance()->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
+  Object *object = g_SystemTable->ObjFactory->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
   selection.front()->setText(0, object->m_name.c_str());
 }
 
@@ -110,10 +111,20 @@ void SceneBrowserWidget::Setup()
 
   QMenu *newObjectMenu = new QMenu();
   newObjectMenu->addAction("Empty Object", this, &SceneBrowserWidget::OnAddEmptyObject);
-  newObjectMenu->addAction("Camera", this, &SceneBrowserWidget::OnAddCamera);
-  newObjectMenu->addAction("Cube", this, &SceneBrowserWidget::OnAddCube);
-  newObjectMenu->addAction("Plane", this, &SceneBrowserWidget::OnAddPlane);
   m_newObjectButton->setMenu(newObjectMenu);
+
+  QMenu *meshesMenu = newObjectMenu->addMenu("Meshes");
+  meshesMenu->addAction("Camera", this, &SceneBrowserWidget::OnAddCamera);
+  meshesMenu->addAction("Cube", this, &SceneBrowserWidget::OnAddCube);
+  meshesMenu->addAction("Capsule", this, &SceneBrowserWidget::OnAddCapsule);
+  meshesMenu->addAction("Cone", this, &SceneBrowserWidget::OnAddCone);
+  meshesMenu->addAction("Cylinder", this, &SceneBrowserWidget::OnAddCylinder);
+  meshesMenu->addAction("Sphere", this, &SceneBrowserWidget::OnAddSphere);
+
+  QMenu *lightsMenu = newObjectMenu->addMenu("Lights");
+  lightsMenu->addAction("Point Light", this, &SceneBrowserWidget::OnAddPointLight);
+  lightsMenu->addAction("Spot Light", this, &SceneBrowserWidget::OnAddSpotLight);
+  lightsMenu->addAction("Directional Light", this, &SceneBrowserWidget::OnAddDirectionalLight);
 
   QObject::connect(
     m_sceneTree, &QTreeWidget::itemSelectionChanged,
@@ -121,14 +132,14 @@ void SceneBrowserWidget::Setup()
     );
 
   QObject::connect(
-    m_sceneTree->model(), &QAbstractItemModel::rowsMoved,
-    this, &SceneBrowserWidget::OnItemMoved
+    m_sceneTree->model(), &QAbstractItemModel::rowsInserted,
+    this, &SceneBrowserWidget::OnItemsMoved
     );
 }
 
 void SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
 {
-  AddObject(ObjectFactory::Instance()->GetObject(objectHandle), root);
+  AddObject(g_SystemTable->ObjFactory->GetObject(objectHandle), root);
 }
 
 void SceneBrowserWidget::AddObject(Object *object, QTreeWidgetItem *root)
@@ -166,16 +177,16 @@ void SceneBrowserWidget::DeleteSelectedObjects()
       parent->removeChild(item);
     }
 
-    ObjectFactory::Instance()->DestroyObject(objectHandle);
+    g_SystemTable->ObjFactory->DestroyObject(objectHandle);
   }
 }
 
 Object* SceneBrowserWidget::CreateObjectInFrontOfCamera(const std::string& name)
 {
-  Object *object = ObjectFactory::Instance()->GetObject(m_scene->CreateObject(name));
+  Object *object = g_SystemTable->ObjFactory->GetObject(m_scene->CreateObject(name));
   Transform *transform = object->GetComponent<Transform>();
 
-  Object *cameraObject = ObjectFactory::Instance()->GetObject(m_scene->GetCameraObject());
+  Object *cameraObject = g_SystemTable->ObjFactory->GetObject(m_scene->GetCameraObject());
   Transform *cameraTransform = cameraObject->GetComponent<Transform>();
 
   transform->SetTranslation(
@@ -186,6 +197,29 @@ Object* SceneBrowserWidget::CreateObjectInFrontOfCamera(const std::string& name)
   return object;
 }
 
+void SceneBrowserWidget::AddMeshObject(const std::string& objectName, const std::string& resourceName)
+{
+  Object *object = CreateObjectInFrontOfCamera(objectName);
+
+  MeshRenderer *meshRenderer = g_SystemTable->CompFactory->CreateComponent<MeshRenderer>();
+  meshRenderer->SetMesh(resourceName);
+
+  object->AttachComponent(meshRenderer);
+  AddObject(object);
+  SelectObject(object);
+}
+
+void SceneBrowserWidget::AddComponentObject(const std::string& objectName, const std::string& component)
+{
+  Object *object = CreateObjectInFrontOfCamera(objectName);
+
+  IEntity *componentInstance = g_SystemTable->CompFactory->CreateComponent(component);
+  object->AttachComponent(componentInstance);
+
+  AddObject(object);
+  SelectObject(object);
+}
+
 void SceneBrowserWidget::OnSceneTreeSelectionChanged()
 {
   QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
@@ -193,12 +227,12 @@ void SceneBrowserWidget::OnSceneTreeSelectionChanged()
     emit ObjectSelected(nullptr);
   else
   {
-    Object *object = ObjectFactory::Instance()->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
+    Object *object = g_SystemTable->ObjFactory->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
     emit ObjectSelected(object);
   }
 }
 
-void SceneBrowserWidget::OnItemMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row)
+void SceneBrowserWidget::OnItemsMoved(const QModelIndex &parent, int start, int end)
 {
   HNDL parentHandle = SF_INV_HANDLE;
   if (!parent.data().isNull())
@@ -206,15 +240,19 @@ void SceneBrowserWidget::OnItemMoved(const QModelIndex &parent, int start, int e
 
   for (int i = start; i <= end; ++i)
   {
-    HNDL childHandle = destination.child(row + i, 0).data(Qt::UserRole).value<HNDL>();
-    Object *child = ObjectFactory::Instance()->GetObject(childHandle);
+    HNDL childHandle = parent.child(i, 0).data(Qt::UserRole).value<HNDL>();
+    Object *child = g_SystemTable->ObjFactory->GetObject(childHandle);
+    HNDL currentParent = child->GetParent();
 
-    if (child->GetParent() == SF_INV_HANDLE)
-      m_scene->RemoveFromRoot(childHandle);
-    if (parentHandle == SF_INV_HANDLE)
-      m_scene->AddObject(childHandle);
+    if (parentHandle != currentParent)
+    {
+      if (child->GetParent() == SF_INV_HANDLE)
+        m_scene->RemoveFromRoot(childHandle);
+      else if (parentHandle == SF_INV_HANDLE)
+        m_scene->AddObject(childHandle);
 
-    child->SetParent(parentHandle);
+      child->SetParent(parentHandle);
+    }
   }
 }
 
@@ -228,37 +266,53 @@ void SceneBrowserWidget::OnAddEmptyObject()
 
 void SceneBrowserWidget::OnAddCamera()
 {
-  Object *object = CreateObjectInFrontOfCamera("Camera");
-
-  Camera *camera = ComponentFactory::Instance()->CreateComponent<Camera>();
-  object->AttachComponent(camera);
-
-  AddObject(object);
-  SelectObject(object);
+  AddComponentObject("Camera", "Camera");
 }
 
 void SceneBrowserWidget::OnAddCube()
 {
-  Object *object = CreateObjectInFrontOfCamera("Cube");
-
-  MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
-  meshRenderer->SetMesh("Models/cube.fbx");
-
-  object->AttachComponent(meshRenderer);
-  AddObject(object);
-  SelectObject(object);
+  AddMeshObject("Cube", "Models/cube.fbx");  
 }
 
 void SceneBrowserWidget::OnAddPlane()
 {
-  Object *object = CreateObjectInFrontOfCamera("Plane");
-
-  MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
-  meshRenderer->SetMesh("Models/plane.fbx");
-
-  object->AttachComponent(meshRenderer);
-  AddObject(object);
-  SelectObject(object);
+  AddMeshObject("Plane", "Models/plane.fbx");
 }
+
+void SceneBrowserWidget::OnAddCapsule()
+{
+  AddMeshObject("Capsule", "Models/capsule.fbx");
+}
+
+void SceneBrowserWidget::OnAddCone()
+{
+  AddMeshObject("Cone", "Models/cone.fbx");
+}
+
+void SceneBrowserWidget::OnAddCylinder()
+{
+  AddMeshObject("Cylinder", "Models/cylinder.fbx");
+}
+
+void SceneBrowserWidget::OnAddSphere()
+{
+  AddMeshObject("Sphere", "Models/sphere.fbx");
+}
+
+void SceneBrowserWidget::OnAddPointLight()
+{
+  AddComponentObject("Point Light", "PointLight");
+}
+
+void SceneBrowserWidget::OnAddSpotLight()
+{
+  AddComponentObject("Spot Light", "SpotLight");
+}
+
+void SceneBrowserWidget::OnAddDirectionalLight()
+{
+  AddComponentObject("Directional Light", "DirectionalLight");
+}
+
 
 }

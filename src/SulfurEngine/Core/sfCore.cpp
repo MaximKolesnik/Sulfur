@@ -73,14 +73,6 @@ namespace Sulfur
     tm->SetStartingTask("UpdateScripts");
     tm->SetDependency("UpdateTransforms", "UpdateScripts");
     tm->CompleteGraph();
-
-    MeshRenderer *meshRenderer = g_SystemTable->CompFactory->CreateComponent<MeshRenderer>();
-    meshRenderer->SetMesh(ResourceManager<Mesh>::Instance()->LoadResource("Models/cube.fbx"));
-
-    Object *testObj = g_SystemTable->ObjFactory->CreateObject();
-    testObj->AttachComponent(meshRenderer);
-    testObj->AttachComponent(g_SystemTable->CompFactory->CreateComponent("TestScript"));
-    g_SystemTable->SceneManager->GetScene().AddObject(testObj->GetHndl());
   }
 
   void Core::GameLoop(void)
@@ -96,12 +88,8 @@ namespace Sulfur
     g_SystemTable->InputManager->Update();
     g_SystemTable->TaskManager->RunTasks();
     g_SystemTable->GraphicsManager->Update();
-
-    if (g_SystemTable->InputManager->WasKeyPressed('A'))
-      std::cout << "A pressed" << std::endl;
-
-      g_SystemTable->ScriptManager->Update();
-      g_SystemTable->ObjFactory->EndFrameCleanUp();
+    g_SystemTable->ScriptManager->Update();
+    g_SystemTable->ObjFactory->EndFrameCleanUp();
   }
 
   void Core::ShutDown(void)

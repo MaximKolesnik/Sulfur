@@ -23,11 +23,21 @@ namespace Sulfur
   class ResourceManager
   {
     // Singleton
-    SF_PRIVATE_CTOR_DTOR_EMPTY(ResourceManager)
+  private:
+    ResourceManager()
+    {
+    }
+
+    ~ResourceManager()
+    {
+      UnloadAll();
+    }
+
     SF_FORBID_COPY(ResourceManager)
     SF_SINGLETON_INSTANCE(ResourceManager<ResourceType>)
 
   private:
+    typedef std::vector<std::string> ResourceNameList;
     typedef std::unordered_map<std::string, ResourceType*> ResourceMap;
     typedef std::unordered_map<std::string, IResourceImporter<ResourceType>*> ImporterMap;
 
@@ -52,6 +62,7 @@ namespace Sulfur
 
       ResourceType *resource = new ResourceType();
       m_resources[path] = resource;
+      m_resourceNames.push_back(path);
 
       std::string actualPath = "Resources/" + path;
       SF_CRITICAL_ERR_EXP(
@@ -106,6 +117,11 @@ namespace Sulfur
       ImporterMap& importers = GetImporters();
       return importers.find(ext) != importers.end();
     }
+    
+    const ResourceNameList& GetResources() const
+    {
+      return m_resourceNames;
+    }
 
   private:
     static void AssertRegistered()
@@ -123,13 +139,12 @@ namespace Sulfur
     }
 
   private:
+    ResourceNameList m_resourceNames;
     ResourceMap m_resources;
+
     static bool s_registered;
 
   };
-
-  //template <typename ResourceType>
-  //bool ResourceManager<ResourceType>::s_registered = false;
 
   class ResourceRegistry
   {

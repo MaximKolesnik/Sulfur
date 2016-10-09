@@ -42,14 +42,24 @@ namespace Sulfur
     void AddObject(Object *object, QTreeWidgetItem *root = nullptr);
     void DeleteSelectedObjects();
     Object* CreateObjectInFrontOfCamera(const std::string& name);
+    void AddMeshObject(const std::string& objectName, const std::string& resourceName);
+    void AddComponentObject(const std::string& objectName, const std::string& component);
 
   public slots:
     void OnSceneTreeSelectionChanged();
-    void OnItemMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row);
+    void OnItemsMoved(const QModelIndex &parent, int start, int end);
+
     void OnAddEmptyObject();
     void OnAddCamera();
     void OnAddCube();
     void OnAddPlane();
+    void OnAddCapsule();
+    void OnAddCone();
+    void OnAddCylinder();
+    void OnAddSphere();
+    void OnAddPointLight();
+    void OnAddSpotLight();
+    void OnAddDirectionalLight();
 
   signals:
     void ObjectSelected(Object *object);

@@ -23,6 +23,7 @@ SF_REFLECTED_CLASS_DERIVED(PointLight, IEntity)
 public:
   virtual void Initialize(void) override final;
   virtual PointLight* Clone(void) const override final;
+  virtual void Update(void) override {}
 
 private:
   SF_PRIVATE_PROPERTY(Real, range, Range, "Range")

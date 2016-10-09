@@ -107,7 +107,7 @@ namespace UnitTests
   {
     TEST_METHOD(TaskManager1)
     {
-      TaskManager *man = TaskManager::Instance();
+      TaskManager *man = g_SystemTable->TaskManager;
 
       man->AddNode("TestTask1");
       man->SetStartingTask("TestTask1");
@@ -141,7 +141,7 @@ namespace UnitTests
 
     TEST_METHOD(TaskManager2)
     {
-      TaskManager *man = TaskManager::Instance();
+      TaskManager *man = g_SystemTable->TaskManager;
 
       man->AddNode("TestTask9");
       man->SetStartingTask("TestTask9");

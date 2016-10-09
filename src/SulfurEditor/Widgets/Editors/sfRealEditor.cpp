@@ -49,8 +49,12 @@ RealEditor::~RealEditor()
 void RealEditor::UpdateValue()
 {
   Real realValue = GetValue<Real>();
-  Real t = (realValue - m_min) / m_range;
-  m_slider->setValue((int)(t * c_sliderRange));
+
+  if (m_slider)
+  {
+    Real t = (realValue - m_min) / m_range;
+    m_slider->setValue((int)(t * c_sliderRange));
+  }
 
   m_edit->setText(QString::number(realValue));
 }
@@ -76,6 +80,7 @@ void RealEditor::CreateEditLayout()
 {
   m_edit = CreateEdit();
   m_layout->addWidget(m_edit);
+  m_slider = nullptr;
 }
 
 QLineEdit* RealEditor::CreateEdit()
@@ -88,6 +93,11 @@ QLineEdit* RealEditor::CreateEdit()
     this, &RealEditor::OnValueChanged
     );
 
+  QObject::connect(
+    edit, &QLineEdit::editingFinished,
+    this, &RealEditor::OnEditingFinished
+    );
+
   return edit;
 }
 
@@ -98,13 +108,22 @@ void RealEditor::OnSliderChanged(int value)
   UpdateValue();
 }
 
+void RealEditor::OnEditingFinished()
+{
+  UpdateValue();
+}
+
 void RealEditor::OnValueChanged(const QString& value)
 {
   Real realValue = (Real)value.toDouble();
-  Real t = (realValue - m_min) / m_range;
 
-  m_slider->setValue((int)(t * c_sliderRange));
-  SetValue((Real)value.toDouble());
+  if (m_slider)
+  {
+    Real t = (realValue - m_min) / m_range;
+    m_slider->setValue((int)(t * c_sliderRange));
+  }
+
+  SetValue((Real)realValue);
 }
 
 }

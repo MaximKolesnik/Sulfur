@@ -34,6 +34,7 @@ namespace Sulfur
     QLineEdit* CreateEdit();
 
   public slots:
+    void OnEditingFinished();
     void OnSliderChanged(int value);
     void OnValueChanged(const QString& value);
 

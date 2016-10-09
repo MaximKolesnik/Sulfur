@@ -68,7 +68,7 @@ void RenderSkybox::Process()
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
 
-  Scene& scene = SceneManager::Instance()->GetScene();
+  Scene& scene = g_SystemTable->SceneManager->GetScene();
   SetupCamera(scene);
 
   m_skyboxMap->SetPixel(m_context, 0);
@@ -77,7 +77,7 @@ void RenderSkybox::Process()
 
 void RenderSkybox::SetupCamera(Scene& scene)
 {
-  Object *object = ObjectFactory::Instance()->GetObject(scene.GetCameraObject());
+  Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
   Transform *transform = object->GetComponent<Transform>();
   Camera *camera = object->GetComponent<Camera>();
 

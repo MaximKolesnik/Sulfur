@@ -23,6 +23,7 @@ SF_REFLECTED_CLASS_DERIVED(DirectionalLight, IEntity)
 public:
   virtual void Initialize(void) override final;
   virtual DirectionalLight* Clone(void) const override final;
+  virtual void Update(void) override {}
 
 private:
   SF_PRIVATE_PROPERTY(Color, color, Color, "Color")

@@ -55,7 +55,17 @@ void Vector3Editor::CreateEdits()
       m_edits[i], &QLineEdit::textEdited,
       this, &Vector3Editor::OnValueChanged
       );
+
+    QObject::connect(
+      m_edits[i], &QLineEdit::editingFinished,
+      this, &Vector3Editor::OnEditingFinished
+      );
   }
+}
+
+void Vector3Editor::OnEditingFinished()
+{
+  UpdateValue();
 }
 
 void Vector3Editor::OnValueChanged(const QString& value)

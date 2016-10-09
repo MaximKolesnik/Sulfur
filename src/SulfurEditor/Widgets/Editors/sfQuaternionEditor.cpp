@@ -59,7 +59,17 @@ void QuaternionEditor::CreateEdits()
       m_edits[i], &QLineEdit::textEdited,
       this, &QuaternionEditor::OnValueChanged
       );
+
+    QObject::connect(
+      m_edits[i], &QLineEdit::editingFinished,
+      this, &QuaternionEditor::OnEditingFinished
+      );
   }
+}
+
+void QuaternionEditor::OnEditingFinished()
+{
+  UpdateValue();
 }
 
 void QuaternionEditor::OnValueChanged(const QString& value)

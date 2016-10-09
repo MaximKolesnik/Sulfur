@@ -32,6 +32,7 @@ namespace Sulfur
     void CreateEdit();
 
   public slots:
+    void OnEditingFinished();
     void OnValueChanged(const QString& value);
 
   private:

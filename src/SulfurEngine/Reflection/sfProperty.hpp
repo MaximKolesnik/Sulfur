@@ -83,8 +83,10 @@ namespace Sulfur
 
   public:
     TypedProperty(const std::string& name) 
-      : Property(name), m_min(std::numeric_limits<PropertyType>::min()), m_max(std::numeric_limits<PropertyType>::max()), m_hasRange(false)
+      : Property(name), m_hasRange(false)
     {
+      //m_min = std::numeric_limits<PropertyType>::min();
+      //m_max = std::numeric_limits<PropertyType>::max();
     }
 
     TypedProperty(const std::string& name, const PropertyType& min, const PropertyType& max) 

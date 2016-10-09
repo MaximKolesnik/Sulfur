@@ -53,7 +53,7 @@ EditorWindow::EditorWindow(QWidget *parent)
   sceneDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
   m_sceneBrowser = new SceneBrowserWidget(sceneDock);
-  m_sceneBrowser->SetScene(&SceneManager::Instance()->GetScene());
+  m_sceneBrowser->SetScene(&g_SystemTable->SceneManager->GetScene());
   sceneDock->setWidget(m_sceneBrowser);
 
   QObject::connect(

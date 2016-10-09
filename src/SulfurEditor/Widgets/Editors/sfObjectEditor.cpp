@@ -45,7 +45,7 @@ void ObjectEditor::UpdateValue()
   auto& components = object->GetComponents();
   for (auto& componentPair : components)
   {
-    IEntity *component = ComponentFactory::Instance()->GetComponent(componentPair.first, componentPair.second);
+    IEntity *component = g_SystemTable->CompFactory->GetComponent(componentPair.first, componentPair.second);
     AddChild(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)));
   }
 
@@ -72,7 +72,7 @@ void ObjectEditor::OnAddComponentClicked()
   QMenu *menu = new QMenu();
   menu->setFixedWidth(m_newComponentButton->width());
 
-  auto& componentTypes = ComponentFactory::Instance()->GetComponentTypes();
+  auto& componentTypes = g_SystemTable->CompFactory->GetComponentTypes();
   for (const std::string& componentType : componentTypes)
   {
     if (!object->HasComponent(componentType))
@@ -87,7 +87,7 @@ void ObjectEditor::OnAddComponent(QAction *action)
 {
   Object *object = const_cast<Object*>(&GetValue<Object>());
 
-  IEntity *component = ComponentFactory::Instance()->CreateComponent(action->text().toUtf8().data());
+  IEntity *component = g_SystemTable->CompFactory->CreateComponent(action->text().toUtf8().data());
   AddChild(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)));
   m_childrenLayout->removeWidget(m_newComponentButton);
   m_childrenLayout->addWidget(m_newComponentButton);

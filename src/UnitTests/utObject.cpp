@@ -83,19 +83,19 @@ namespace UnitTests
       Assert::IsFalse(grandChild21->HasDescendant(parentHndl));
       Assert::IsFalse(grandChild22->HasDescendant(parentHndl));
 
-      ObjectFactory::Instance()->DestroyObject(grandChild22Hndl);
-      ObjectFactory::Instance()->EndFrameCleanUp();
+      g_SystemTable->ObjFactory->DestroyObject(grandChild22Hndl);
+      g_SystemTable->ObjFactory->EndFrameCleanUp();
 
       Assert::IsNull(SF_GET_OBJECT(grandChild22Hndl));
 
-      ObjectFactory::Instance()->DestroyObject(grandChild21Hndl);
-      ObjectFactory::Instance()->DestroyObject(grandChild12Hndl);
-      ObjectFactory::Instance()->DestroyObject(grandChild11Hndl);
-      ObjectFactory::Instance()->DestroyObject(child2Hndl);
-      ObjectFactory::Instance()->DestroyObject(child1Hndl);
-      ObjectFactory::Instance()->DestroyObject(parentHndl);
+      g_SystemTable->ObjFactory->DestroyObject(grandChild21Hndl);
+      g_SystemTable->ObjFactory->DestroyObject(grandChild12Hndl);
+      g_SystemTable->ObjFactory->DestroyObject(grandChild11Hndl);
+      g_SystemTable->ObjFactory->DestroyObject(child2Hndl);
+      g_SystemTable->ObjFactory->DestroyObject(child1Hndl);
+      g_SystemTable->ObjFactory->DestroyObject(parentHndl);
 
-      ObjectFactory::Instance()->EndFrameCleanUp();
+      g_SystemTable->ObjFactory->EndFrameCleanUp();
 
       Assert::IsNull(SF_GET_OBJECT(grandChild22Hndl));
       Assert::IsNull(SF_GET_OBJECT(grandChild21Hndl));
@@ -131,8 +131,8 @@ namespace UnitTests
       grandChild21->SetParent(child2Hndl);
       grandChild22->SetParent(child2Hndl);
 
-      ObjectFactory::Instance()->DestroyObject(parentHndl);
-      ObjectFactory::Instance()->EndFrameCleanUp();
+      g_SystemTable->ObjFactory->DestroyObject(parentHndl);
+      g_SystemTable->ObjFactory->EndFrameCleanUp();
 
       Assert::IsNull(SF_GET_OBJECT(grandChild22Hndl));
       Assert::IsNull(SF_GET_OBJECT(grandChild21Hndl));

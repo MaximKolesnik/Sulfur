@@ -269,7 +269,7 @@ namespace Sulfur
     ZeroMemory(&startInfo, sizeof(startInfo));
     startInfo.cb = sizeof(startInfo);
     startInfo.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
-    startInfo.wShowWindow = SW_SHOWMAXIMIZED;
+    startInfo.wShowWindow = SW_HIDE;
 
     HANDLE handleOutReadTemp = NULL;
     HANDLE handleOutWrite = NULL;
