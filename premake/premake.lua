@@ -109,7 +109,7 @@ premakeDef.projects["UnitTests"] = {
 premakeDef.projects["SulfurMinEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
-	dependencies = {"SulfurEngine"},
+	dependencies = {"SulfurEngine", "D3D11", "libpng", "libjpeg", "fbx", "dds", "WinApi"},
 	pchHeader = "sfMinPCH.hpp",
 	pchSource = "sfMinPCH.cpp"
 }

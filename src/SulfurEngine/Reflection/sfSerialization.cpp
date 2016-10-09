@@ -12,7 +12,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfSerialization.hpp"
-#include "sfReflection.hpp"
 #include "Math/sfVector2.hpp"
 #include "Math/sfVector3.hpp"
 #include "Math/sfVector4.hpp"
@@ -21,6 +20,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Math/sfMatrix4.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Modules/Graphics/Types/sfColor.hpp"
+#include "Modules/Resource/sfResourcePath.hpp"
 
 namespace Sulfur
 {
@@ -52,6 +52,24 @@ void Serialization::Deserialize<std::string>(std::istream& str, std::string& val
   value = buffer;
 
   delete[] buffer;
+}
+
+template <>
+UINT32 Serialization::SerializedSize<ResourcePath>(const ResourcePath& value)
+{
+  return Serialization::SerializedSize<std::string>(value);
+}
+
+template <>
+void Serialization::Serialize<ResourcePath>(std::ostream& str, const ResourcePath& value)
+{
+  Serialization::Serialize<std::string>(str, value);
+}
+
+template <>
+void Serialization::Deserialize<ResourcePath>(std::istream& str, ResourcePath& value)
+{
+  Serialization::Deserialize<std::string>(str, value);
 }
 
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(bool)

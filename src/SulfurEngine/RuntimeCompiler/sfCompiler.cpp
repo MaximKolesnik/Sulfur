@@ -162,7 +162,7 @@ namespace Sulfur
     std::string output = " /link /IMBLIB:" + m_outputDir + dllName + ".lib " + " /out:" + m_outputDir +  outputFileName + " " ;
     std::string interm = " /Fo" + m_interDir + " ";
 
-    std::string command = "cl " + source + _ConstructIncludeString() + "/DSF_BUILD_SCRIPT "
+    std::string command = "cl " + source + m_dependLibs + m_engineLib + " " + _ConstructIncludeString() + "/DSF_BUILD_SCRIPT "
       + interm + compilerFlags + output;
     command += "\necho " + c_compilationComplete + "\n";
 

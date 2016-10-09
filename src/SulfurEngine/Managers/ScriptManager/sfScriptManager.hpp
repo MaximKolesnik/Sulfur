@@ -104,5 +104,6 @@ namespace Sulfur
     std::string m_scriptFolder;
     std::string m_interFolder;
     std::string m_dllFolder;
+    std::string m_engineLib;
   };
 }

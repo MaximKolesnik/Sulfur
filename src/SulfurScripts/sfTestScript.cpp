@@ -4,7 +4,6 @@
 #include "Factories\sfObjectFactory.hpp"
 #include "Components\sfTransform.hpp"
 #include "SystemTable\sfSystemTable.hpp"
-#pragma comment(lib, "C:\\Sulfur(GitHub)\\builds\\bin\\SulfurEngine\\vs2015\\SulfurEngine_d.lib")
 
 SF_INIT_SCRIPT(TestScript)
 

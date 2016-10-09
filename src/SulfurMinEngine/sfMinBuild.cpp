@@ -1,3 +1,9 @@
+//Reflection
+#include "../SulfurEngine/Reflection/sfTypeInfo.cpp"
+#include "../SulfurEngine/Reflection/sfSerialization.cpp"
+
+#include "Modules\Resource\sfResourceManager.hpp"
+
 //Math
 #include "../SulfurEngine/Math/sfMatrix3.cpp"
 #include "../SulfurEngine/Math/sfMatrix4.cpp"
@@ -13,19 +19,24 @@
 //Log
 #include "../SulfurEngine/Logger/sfLogger.cpp"
 
-//Reflection
-#include "../SulfurEngine/Reflection/sfTypeInfo.cpp"
-#include "../SulfurEngine/Reflection/sfSerialization.cpp"
-
 //Components
 #include "../SulfurEngine/Components/sfCamera.cpp"
 #include "../SulfurEngine/Components/sfMeshRenderer.cpp"
 #include "../SulfurEngine/Components/sfTransform.cpp"
+#include "Components\sfDirectionalLight.cpp"
+#include "Components\sfPointLight.cpp"
+#include "Components\sfSpotLight.cpp"
 
+//Graphics
 #include "../SulfurEngine/Modules/Scene/sfSceneManager.cpp"
+#include "Modules\Graphics\Types\sfColor.cpp"
+#include "Modules\Graphics\Resources\Material\sfMaterial.cpp"
+#include "Modules\Resource\sfResourcePath.cpp"
+
 
 #include "Types\sfObject.cpp"
 #include "Modules\Input\sfInputManager.cpp"
 #include "Modules\Window\sfWindow.cpp"
 
 #include "SystemTable\sfSystemTable.cpp"
+#include "Utils\sfFileUtils.cpp"

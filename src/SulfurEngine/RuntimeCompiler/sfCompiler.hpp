@@ -40,7 +40,8 @@ namespace Sulfur
 
     void SetOutputDirectory(const std::string &output) { m_outputDir = output; }
     void SetIntermediateDirectory(const std::string &inter) { m_interDir = inter; }
-
+    void SetEngineLibrary(const std::string &engineLib) { m_engineLib = engineLib; }
+    void AddDependencyLibrary(const std::string &lib) { m_dependLibs += (lib + " "); }
     //Should have fullpath to files and space separated
     bool Compile(const std::string &relativeCpps, const std::string &dllName);
     bool IsCompilationDone(void) const { return m_compilationDone; }
@@ -78,6 +79,9 @@ namespace Sulfur
     std::string m_workingDir;
     std::string m_outputDir;
     std::string m_interDir;
+    std::string m_engineLib;
+    std::string m_dependLibs;
+
     std::vector<std::string> m_includePathes;
   };
 }

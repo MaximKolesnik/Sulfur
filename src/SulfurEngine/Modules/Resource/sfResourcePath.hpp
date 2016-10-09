@@ -12,7 +12,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
-#include "Reflection/sfReflection.hpp"
+#include "Reflection/sfSerialization.hpp"
+#include <string>
 
 namespace Sulfur
 {
@@ -49,7 +50,5 @@ namespace Sulfur
     }
 
   };
-
-  SF_BASE_TYPE_SPECIALIZATION(ResourcePath)
   
 }
