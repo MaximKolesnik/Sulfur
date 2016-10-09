@@ -2,7 +2,7 @@
 #include "GBuffer.hlsli"
 #include "BRDF.hlsli"
 
-static const uint SAMPLES = 40;
+static const uint SAMPLES = 20;
 
 Texture2DArray gbuffer : register(t0);
 TextureCube environmentMap : register(t1);

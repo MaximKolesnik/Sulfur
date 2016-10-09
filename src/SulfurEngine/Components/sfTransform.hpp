@@ -52,22 +52,38 @@ public:
     m_rotation.SetEuler(roll, pitch, yaw);
   }
 
-  const Matrix4& GetLocalMatrix() const;
-  const Matrix4& GetWorldMatrix() const;
+  void Reparent();
+
+  const Matrix4& GetMatrix() const;
   const Vector3& GetRight() const;
   const Vector3& GetUp() const;
   const Vector3& GetForward() const;
+
+  const Matrix4& GetWorldMatrix() const;
+  const Vector3& GetWorldTranslation() const;
+  const Quaternion& GetWorldRotation() const;
+  const Vector3& GetWorldScale() const;
+  const Vector3& GetWorldRight() const;
+  const Vector3& GetWorldUp() const;
+  const Vector3& GetWorldForward() const;
 
   SF_PRIVATE_PROPERTY(Vector3, translation, Translation, "Translation")
   SF_PRIVATE_PROPERTY(Quaternion, rotation, Rotation, "Rotation")
   SF_PRIVATE_PROPERTY(Vector3, scale, Scale, "Scale")
 
 private:
-  Matrix4 m_localMatrix;
-  Matrix4 m_worldMatrix;
+  Matrix4 m_matrix;
   Vector3 m_right;
   Vector3 m_up;
   Vector3 m_forward;
+
+  Matrix4 m_worldMatrix;
+  Vector3 m_worldTranslation;
+  Quaternion m_worldRotation;
+  Vector3 m_worldScale;
+  Vector3 m_worldRight;
+  Vector3 m_worldUp;
+  Vector3 m_worldForward;
 
 };
 

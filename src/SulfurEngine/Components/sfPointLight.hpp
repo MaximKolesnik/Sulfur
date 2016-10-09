@@ -21,13 +21,15 @@ namespace Sulfur
 SF_REFLECTED_CLASS_DERIVED(PointLight, IEntity)
 
 public:
+  PointLight();
+
   virtual void Initialize(void) override final;
   virtual PointLight* Clone(void) const override final;
   virtual void Update(void) override {}
 
 private:
-  SF_PRIVATE_PROPERTY(Real, range, Range, "Range")
   SF_PRIVATE_PROPERTY(Color, color, Color, "Color")
+  SF_PRIVATE_PROPERTY(Real, range, Range, "Range")
   SF_PRIVATE_PROPERTY(Real, intensity, Intensity, "Intensity")
   SF_PRIVATE_PROPERTY(bool, castsShadows, CastsShadows, "Casts Shadows")
   

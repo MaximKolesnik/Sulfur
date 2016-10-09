@@ -44,7 +44,7 @@ namespace Sulfur
     QSlider *m_slider;
     Real m_min;
     Real m_range;
-    static const int c_sliderRange = 1000;
+    static const int c_sliderRange = 10000;
   
   };
   

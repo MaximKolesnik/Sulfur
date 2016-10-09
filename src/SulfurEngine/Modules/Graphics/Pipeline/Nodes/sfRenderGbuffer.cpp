@@ -75,15 +75,28 @@ void RenderGbuffer::Process()
 
 void RenderGbuffer::SetupCamera(Scene& scene)
 {
-  Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
-  Transform *transform = object->GetComponent<Transform>();
-  Camera *camera = object->GetComponent<Camera>();
+  HNDL objHandle = scene.GetCameraObject();
 
-  PerFrameData perFrame;
-  perFrame.ViewMatrix.SetViewMatrix(transform->GetRight(), transform->GetUp(), transform->GetForward(), transform->GetTranslation());
-  perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_gBuffer->GetTexture()->GetDescription().Width, (Real)m_gBuffer->GetTexture()->GetDescription().Height, camera->GetFieldOfView(), camera->GetNearPlane(), camera->GetFarPlane());
-  perFrame.ViewPosition = transform->GetTranslation();
-  m_perFrameData->SetData(m_context, perFrame);
+  if (objHandle != SF_INV_HANDLE)
+  {
+    Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
+    Transform *transform = object->GetComponent<Transform>();
+    Camera *camera = object->GetComponent<Camera>();
+
+    PerFrameData perFrame;
+    perFrame.ViewMatrix.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), transform->GetWorldTranslation());
+    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_gBuffer->GetTexture()->GetDescription().Width, (Real)m_gBuffer->GetTexture()->GetDescription().Height, camera->GetFieldOfView() * SF_RADS_PER_DEG, camera->GetNearPlane(), camera->GetFarPlane());
+    perFrame.ViewPosition = transform->GetWorldTranslation();
+    m_perFrameData->SetData(m_context, perFrame);
+  }
+  else
+  {
+    PerFrameData perFrame;
+    perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
+    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_gBuffer->GetTexture()->GetDescription().Width, (Real)m_gBuffer->GetTexture()->GetDescription().Height, 3.14159f / 4.0f, 0.1f, 1000.0f);
+    perFrame.ViewPosition = Vector3(0.0f, 0.0f, 0.0f);
+    m_perFrameData->SetData(m_context, perFrame);
+  }
 }
 
 void RenderGbuffer::RenderMeshRenderer(MeshRenderer *meshRenderer)

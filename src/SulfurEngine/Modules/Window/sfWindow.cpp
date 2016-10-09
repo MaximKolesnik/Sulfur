@@ -57,23 +57,19 @@ void Window::Update()
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
-
-  RECT currentRect;
-  GetClientRect(m_handle, &currentRect);
-  UINT32 width = currentRect.right - currentRect.left;
-  UINT32 height = currentRect.bottom - currentRect.top;
-
-  if ((width != m_size[0] || height != m_size[1]) && width != 0 && height != 0)
-  {
-    m_size[0] = width; m_size[1] = height;
-    NotifyOnSize(width, height);
-  }
 }
 
 void Window::Free()
 {
   if (m_handle) 
     DestroyWindow(m_handle);
+}
+
+void Window::OnSize(UINT32 width, UINT32 height)
+{
+  m_size[0] = width;
+  m_size[1] = height;
+  NotifyOnSize(width, height);
 }
  
 bool Window::IsFocused() const
@@ -91,6 +87,10 @@ LRESULT Window::MessageHandler(UINT msg, WPARAM wParam, LPARAM lParam)
   switch (msg)
   {
   case WM_CREATE:
+    break;
+
+  case WM_SIZE:
+    OnSize(LOWORD(lParam), HIWORD(lParam));
     break;
 
   case WM_CLOSE:

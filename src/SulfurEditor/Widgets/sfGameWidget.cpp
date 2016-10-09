@@ -20,25 +20,27 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components/sfCamera.hpp"
 #include "Components/sfTransform.hpp"
 #include "Modules/Input/sfInputManager.hpp"
+#include "Modules/Time/sfTime.hpp"
 
 namespace Sulfur
 {
 
 GameWidget::GameWidget(QWidget *parent)
-  : QWidget(parent), m_controllingCamera(false)
+  : QWidget(parent), m_controllingCamera(false), m_cameraYaw(0.0f), m_cameraPitch(0.0f), m_resizeTimer(0)
 {
   setAttribute(Qt::WA_PaintOnScreen, true);
   setAttribute(Qt::WA_NativeWindow, true);
 
   Core::Instance()->StartUp((HWND)winId());
-  
+  m_window = Core::Instance()->GetWindow();
+
   Object *editorCamera = g_SystemTable->ObjFactory->CreateObject("EditorCamera");
 
   Camera *cameraComponent = g_SystemTable->CompFactory->CreateComponent<Camera>();
   cameraComponent->SetProjectionType(ProjectionType::PERSPECTIVE);
   cameraComponent->SetNearPlane(0.1f);
   cameraComponent->SetFarPlane(1000.0f);
-  cameraComponent->SetFieldOfView(SF_PI / 4.0f);
+  cameraComponent->SetFieldOfView(45.0f);
   editorCamera->AttachComponent(cameraComponent);
 
   m_editorCamera = editorCamera->GetHndl();
@@ -98,24 +100,57 @@ void GameWidget::UpdateEditorCamera()
   {
     InputManager *inputManager = g_SystemTable->InputManager;
 
-    Quaternion rotation = transform->GetRotation();
-    rotation = Quaternion(Vector3::c_yAxis, inputManager->MouseDeltaX() * -0.01f) * rotation;
-    rotation = Quaternion(transform->GetRight(), inputManager->MouseDeltaY() * -0.01f) * rotation;
-
     // Camera rotation
-    transform->SetRotation(
-      Quaternion(transform->GetRight(), inputManager->MouseDeltaY() * -0.01f) *
-      Quaternion(Vector3::c_yAxis, inputManager->MouseDeltaX() * -0.01f) *
-      transform->GetRotation());
+    Real rotationAmount = 50.0f * g_SystemTable->Time->GetDt();
+    m_cameraYaw += inputManager->MouseDeltaX() * -rotationAmount;
+    m_cameraPitch += inputManager->MouseDeltaY() * -rotationAmount;
+    while (m_cameraYaw < 0.0f) m_cameraYaw += 360.0f;
+    while (m_cameraYaw >= 360.0f) m_cameraYaw -= 360.0f;
+    if (m_cameraPitch < -90.0f) m_cameraPitch = -90.0f;
+    if (m_cameraPitch > 90.0f) m_cameraPitch = 90.0f;
+
+    Quaternion rotation;
+    rotation.SetEuler(m_cameraPitch * SF_RADS_PER_DEG, 0.0f, m_cameraYaw * SF_RADS_PER_DEG);
+    transform->SetRotation(rotation);
 
     // Camera movement
+    Real translationAmount = (1.0f + inputManager->IsKeyDown(VK_SHIFT)) * g_SystemTable->Time->GetDt();
     transform->SetTranslation(
       transform->GetTranslation() +
-      transform->GetUp() * (inputManager->IsKeyDown('E') - inputManager->IsKeyDown('Q')) * 0.001f +
-      transform->GetRight() * (inputManager->IsKeyDown('D') - inputManager->IsKeyDown('A')) * 0.001f +
-      transform->GetForward() * (inputManager->IsKeyDown('W') - inputManager->IsKeyDown('S')) * 0.001f
+      transform->GetUp() * (inputManager->IsKeyDown('E') - inputManager->IsKeyDown('Q')) * translationAmount +
+      transform->GetRight() * (inputManager->IsKeyDown('D') - inputManager->IsKeyDown('A')) * translationAmount +
+      transform->GetForward() * (inputManager->IsKeyDown('W') - inputManager->IsKeyDown('S')) * translationAmount
       );
   }
 }
+
+QPaintEngine* GameWidget::paintEngine() const
+{
+  return nullptr;
+}
+
+void GameWidget::resizeEvent(QResizeEvent* evt)
+{
+  if (m_resizeTimer)
+    killTimer(m_resizeTimer);
+
+  m_resizeTimer = startTimer(250);
+}
+
+void GameWidget::paintEvent(QPaintEvent* evt)
+{
+}
+
+void GameWidget::timerEvent(QTimerEvent* evt)
+{
+  if (evt->timerId() == m_resizeTimer)
+  {
+    m_window->OnSize(width(), height());
+
+    killTimer(m_resizeTimer);
+    m_resizeTimer = 0;
+  }
+}
+
 
 }

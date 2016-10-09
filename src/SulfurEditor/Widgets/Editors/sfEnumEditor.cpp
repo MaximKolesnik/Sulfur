@@ -20,14 +20,12 @@ EnumEditor::EnumEditor(ReflectionBase *object, Property *prop, QWidget *parent)
   : LabeledEditor(object, prop, parent)
 {
   CreateComboBox();
-  UpdateValue();
 }
 
 EnumEditor::EnumEditor(void *ptr, QWidget *parent)
   : LabeledEditor(ptr, parent)
 {
   CreateComboBox();
-  UpdateValue();
 }
 
 EnumEditor::~EnumEditor()
@@ -44,17 +42,18 @@ void EnumEditor::CreateComboBox()
   m_comboBox = new QComboBox();
   m_layout->addWidget(m_comboBox);
 
-  QObject::connect(
-    m_comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-    this, &EnumEditor::OnValueSelected
-    );
-
   if (m_property != nullptr)
   {
     auto& enumValues = m_property->GetTypeInfo()->GetEnumValues();
     for (const std::string& value : enumValues)
       m_comboBox->addItem(value.c_str());
   }
+
+  UpdateValue();
+  QObject::connect(
+    m_comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    this, &EnumEditor::OnValueSelected
+    );
 }
 
 void EnumEditor::OnValueSelected(int index)

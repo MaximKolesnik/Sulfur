@@ -21,6 +21,8 @@ namespace Sulfur
 SF_REFLECTED_CLASS_DERIVED(DirectionalLight, IEntity)
 
 public:
+  DirectionalLight();
+
   virtual void Initialize(void) override final;
   virtual DirectionalLight* Clone(void) const override final;
   virtual void Update(void) override {}

@@ -20,6 +20,8 @@ namespace Sulfur
   SF_REFLECTED_CLASS(Scene)
   
   public:
+    Scene();
+
     HNDL CreateObject(const std::string& name, HNDL parent = SF_INV_HANDLE);
     void AddObject(HNDL object, HNDL parent = SF_INV_HANDLE);
     void RemoveFromRoot(HNDL object);

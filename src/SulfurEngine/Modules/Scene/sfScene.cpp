@@ -17,29 +17,34 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 
-HNDL Scene::CreateObject(const std::string& name, HNDL parent)
-{
-  HNDL objHandle = g_SystemTable->ObjFactory->CreateObject(name)->GetHndl();
+  Scene::Scene()
+    : m_cameraObject(SF_INV_HANDLE)
+  {
+  }
 
-  if (parent == SF_INV_HANDLE)
-    m_rootObjects.push_back(objHandle);
-  else
-    g_SystemTable->ObjFactory->GetObject(objHandle)->SetParent(parent);
+  HNDL Scene::CreateObject(const std::string& name, HNDL parent)
+  {
+    HNDL objHandle = g_SystemTable->ObjFactory->CreateObject(name)->GetHndl();
 
-  return objHandle;
-}
+    if (parent == SF_INV_HANDLE)
+      m_rootObjects.push_back(objHandle);
+    else
+      g_SystemTable->ObjFactory->GetObject(objHandle)->SetParent(parent);
 
-void Scene::AddObject(HNDL object, HNDL parent)
-{
-  g_SystemTable->ObjFactory->GetObject(object)->SetParent(parent);
+    return objHandle;
+  }
 
-  if (parent == SF_INV_HANDLE)
-    m_rootObjects.push_back(object);
-}
+  void Scene::AddObject(HNDL object, HNDL parent)
+  {
+    g_SystemTable->ObjFactory->GetObject(object)->SetParent(parent);
 
-void Scene::RemoveFromRoot(HNDL object)
-{
-  m_rootObjects.remove(object);
-}
+    if (parent == SF_INV_HANDLE)
+      m_rootObjects.push_back(object);
+  }
+
+  void Scene::RemoveFromRoot(HNDL object)
+  {
+    m_rootObjects.remove(object);
+  }
 
 }

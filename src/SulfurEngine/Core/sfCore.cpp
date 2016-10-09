@@ -6,6 +6,7 @@
 #include "Modules/Window/sfWindowManager.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
 #include "Modules/Resource/sfResourceManager.hpp"
+#include "Modules/Time/sfTime.hpp"
 #include "Managers/TaskManager/sfTaskManager.hpp"
 #include "Logger/sfLogger.hpp"
 #include "Managers\ScriptManager\sfScriptManager.hpp"
@@ -45,6 +46,7 @@ namespace Sulfur
     g_SystemTable->InputManager = new InputManager();
     g_SystemTable->SceneManager = new SceneManager();
     g_SystemTable->GraphicsManager = new GraphicsManager();
+    g_SystemTable->Time = new Time();
 
     // Start engine in existing window
     if (windowHandle != nullptr)
@@ -90,6 +92,7 @@ namespace Sulfur
     g_SystemTable->GraphicsManager->Update();
     g_SystemTable->ScriptManager->Update();
     g_SystemTable->ObjFactory->EndFrameCleanUp();
+    g_SystemTable->Time->WaitForFrameRate();
   }
 
   void Core::ShutDown(void)

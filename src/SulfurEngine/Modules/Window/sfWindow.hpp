@@ -32,6 +32,8 @@ namespace Sulfur
     void Update();
     void Free();
 
+    void OnSize(UINT32 width, UINT32 height);
+
     bool IsFocused() const;
 
     HWND GetHandle() const;

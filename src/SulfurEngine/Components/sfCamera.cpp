@@ -19,6 +19,12 @@ namespace Sulfur
 
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(ProjectionType)
 
+Camera::Camera()
+  : m_projectionType(ProjectionType::PERSPECTIVE), m_fieldOfView(45.0f), m_nearPlane(0.1f), m_farPlane(1000.0f)
+{
+
+}
+
 void Camera::Initialize(void)
 {
 

@@ -28,8 +28,8 @@ EditorWindow::EditorWindow(QWidget *parent)
   QDockWidget *outputDock = new QDockWidget(tr("Output"), this);
   outputDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
-  m_output = new OutputWidget(outputDock);
-  outputDock->setWidget(m_output);
+  //m_output = new OutputWidget(outputDock);
+  //outputDock->setWidget(m_output);
 
   addDockWidget(Qt::BottomDockWidgetArea, outputDock);
 

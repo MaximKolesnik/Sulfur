@@ -17,6 +17,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfObject.hpp"
 #include "Factories\sfObjectFactory.hpp"
 #include "Factories\sfComponentFactory.hpp"
+#include "Components/sfTransform.hpp"
 
 namespace Sulfur
 {
@@ -61,15 +62,10 @@ namespace Sulfur
       else
       {
         parentObj->m_children.erase(m_hndl);
-        auto &newParentChildren = g_SystemTable->ObjFactory->GetObject(m_owner)->m_children;
-
-        SF_ASSERT(newParentChildren.find(m_hndl) == newParentChildren.end(),
-          "Object is already set as child");
-
-        newParentChildren.insert(m_hndl);
       }
     }
-    else if (parent != SF_INV_HANDLE) //Parent is not set
+    
+    if (parent != SF_INV_HANDLE)
     {
       auto &newParentChildren = g_SystemTable->ObjFactory->GetObject(parent)->m_children;
 
@@ -80,6 +76,9 @@ namespace Sulfur
     }
 
     m_owner = parent;
+
+    Transform *transform = GetComponent<Transform>();
+    transform->Reparent();
   }
 
   void Object::AttachComponent(IEntity *component)

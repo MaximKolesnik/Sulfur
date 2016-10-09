@@ -77,20 +77,37 @@ void RenderSkybox::Process()
 
 void RenderSkybox::SetupCamera(Scene& scene)
 {
-  Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
-  Transform *transform = object->GetComponent<Transform>();
-  Camera *camera = object->GetComponent<Camera>();
+  HNDL objHandle = scene.GetCameraObject();
 
-  const Vector3& translation = transform->GetTranslation();
+  if (objHandle != SF_INV_HANDLE)
+  {
+    Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
+    Transform *transform = object->GetComponent<Transform>();
+    Camera *camera = object->GetComponent<Camera>();
+    const Vector3& translation = transform->GetWorldTranslation();
 
-  PerFrameData perFrame;
-  perFrame.ViewMatrix.SetViewMatrix(transform->GetRight(), transform->GetUp(), transform->GetForward(), transform->GetTranslation());
-  perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, camera->GetFieldOfView(), camera->GetNearPlane(), camera->GetFarPlane());
-  m_perFrameData->SetData(m_context, perFrame);
+    PerFrameData perFrame;
+    perFrame.ViewMatrix.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), translation);
+    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, camera->GetFieldOfView() * SF_RADS_PER_DEG, camera->GetNearPlane(), camera->GetFarPlane());
+    perFrame.ViewPosition = transform->GetWorldTranslation();
+    m_perFrameData->SetData(m_context, perFrame);
 
-  PerObjectData perObject;
-  perObject.WorldMatrix.SetTranslation(translation[0], translation[1], translation[2]);
-  m_perObjectData->SetData(m_context, perObject);
+    PerObjectData perObject;
+    perObject.WorldMatrix.SetTranslation(translation[0], translation[1], translation[2]);
+    m_perObjectData->SetData(m_context, perObject);
+  }
+  else
+  {
+    PerFrameData perFrame;
+    perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
+    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, 3.14159f / 4.0f, 0.1f, 1000.0f);
+    perFrame.ViewPosition = Vector3(0.0f, 0.0f, 0.0f);
+    m_perFrameData->SetData(m_context, perFrame);
+
+    PerObjectData perObject;
+    perObject.WorldMatrix.SetTranslation(0.0f, 0.0f, 0.0f);
+    m_perObjectData->SetData(m_context, perObject);
+  }
 }
 
 }

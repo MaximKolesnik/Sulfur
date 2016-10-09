@@ -111,11 +111,12 @@ void SceneBrowserWidget::Setup()
 
   QMenu *newObjectMenu = new QMenu();
   newObjectMenu->addAction("Empty Object", this, &SceneBrowserWidget::OnAddEmptyObject);
+  newObjectMenu->addAction("Camera", this, &SceneBrowserWidget::OnAddCamera);
   m_newObjectButton->setMenu(newObjectMenu);
 
   QMenu *meshesMenu = newObjectMenu->addMenu("Meshes");
-  meshesMenu->addAction("Camera", this, &SceneBrowserWidget::OnAddCamera);
   meshesMenu->addAction("Cube", this, &SceneBrowserWidget::OnAddCube);
+  meshesMenu->addAction("Plane", this, &SceneBrowserWidget::OnAddPlane);
   meshesMenu->addAction("Capsule", this, &SceneBrowserWidget::OnAddCapsule);
   meshesMenu->addAction("Cone", this, &SceneBrowserWidget::OnAddCone);
   meshesMenu->addAction("Cylinder", this, &SceneBrowserWidget::OnAddCylinder);
@@ -240,8 +241,10 @@ void SceneBrowserWidget::OnItemsMoved(const QModelIndex &parent, int start, int 
 
   for (int i = start; i <= end; ++i)
   {
-    QModelIndex childIndex = parent.child(i, 0);
-    HNDL childHandle = parent.child(i, 0).data(Qt::UserRole).value<HNDL>();
+    HNDL childHandle;
+    if (parentHandle == SF_INV_HANDLE) childHandle = m_sceneTree->model()->index(i, 0).data(Qt::UserRole).value<HNDL>();
+    else childHandle = parent.child(i, 0).data(Qt::UserRole).value<HNDL>();
+
     Object *child = g_SystemTable->ObjFactory->GetObject(childHandle);
     HNDL currentParent = child->GetParent();
 

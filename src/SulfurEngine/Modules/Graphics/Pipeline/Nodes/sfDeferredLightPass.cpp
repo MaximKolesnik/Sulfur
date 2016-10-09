@@ -93,7 +93,7 @@ void DeferredLightPass::RenderDirectionalLights()
     DirectionalLight *directionalLight = static_cast<DirectionalLight*>(*it);
     Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(directionalLight->GetOwner());
 
-    directionalLightData.Direction = transform->GetForward();
+    directionalLightData.Direction = transform->GetWorldForward();
     directionalLightData.Color = directionalLight->GetColor();
     directionalLightData.Intensity = directionalLight->GetIntensity();
     m_directionalLightData->SetData(m_context, directionalLightData);
@@ -113,7 +113,7 @@ void DeferredLightPass::RenderPointLights()
   {
     PointLight *pointLight = static_cast<PointLight*>(*it);
     Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(pointLight->GetOwner());
-    Vector3 pos = transform->GetTranslation();
+    Vector3 pos = transform->GetWorldTranslation();
 
     pointLightData.Position = Vector4(pos[0], pos[1], pos[2], 1.0f);
     pointLightData.Color = pointLight->GetColor();
@@ -136,10 +136,10 @@ void DeferredLightPass::RenderSpotLights()
   {
     SpotLight *spotLight = static_cast<SpotLight*>(*it);
     Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(spotLight->GetOwner());
-    Vector3 pos = transform->GetTranslation();
+    Vector3 pos = transform->GetWorldTranslation();
 
     spotLightData.Position = Vector4(pos[0], pos[1], pos[2], 1.0f);
-    spotLightData.Direction = transform->GetForward();
+    spotLightData.Direction = transform->GetWorldForward();
     spotLightData.Color = spotLight->GetColor();
     spotLightData.Range = spotLight->GetRange();
     spotLightData.Intensity = spotLight->GetIntensity();

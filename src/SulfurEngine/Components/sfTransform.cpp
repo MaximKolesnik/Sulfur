@@ -52,33 +52,66 @@ namespace Sulfur
 
   void Transform::Update()
   {
-    m_localMatrix.SetTransformation(m_rotation, m_scale, m_translation);
+    m_matrix.SetTransformation(m_rotation, m_scale, m_translation);
+    m_right = m_matrix.TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
+    m_up = m_matrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
+    m_forward = m_matrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
 
     Object *object = g_SystemTable->ObjFactory->GetObject(m_owner);
-
     if (object->GetOwner() != SF_INV_HANDLE)
     {
       Transform *parentTransform = g_SystemTable->ObjFactory->GetObject(object->GetOwner())->GetComponent<Transform>();
-      m_worldMatrix = parentTransform->GetWorldMatrix() * m_localMatrix;
+      m_worldMatrix = parentTransform->GetWorldMatrix() * m_matrix;
+      m_worldTranslation = m_worldMatrix * Vector3(0.0f, 0.0f, 0.0f);
+      m_worldRotation = parentTransform->GetWorldRotation() * m_rotation;
+      m_worldScale = parentTransform->GetWorldScale();
+      m_worldScale = Vector3(m_worldScale[0] * m_scale[0], m_worldScale[1] * m_scale[1], m_worldScale[2] * m_scale[2]);
+      m_worldRight = m_worldMatrix.TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
+      m_worldUp = m_worldMatrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
+      m_worldForward = m_worldMatrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
     }
     else
     {
-      m_worldMatrix = m_localMatrix;
+      m_worldMatrix = m_matrix;
+      m_worldTranslation = m_translation;
+      m_worldRotation = m_rotation;
+      m_worldScale = m_scale;
+      m_worldRight = m_right;
+      m_worldUp = m_up;
+      m_worldForward = m_forward;
+    }    
+  }
+
+  void Transform::Reparent()
+  {
+    Object *object = g_SystemTable->ObjFactory->GetObject(m_owner);
+    if (object->GetOwner() != SF_INV_HANDLE)
+    {
+      Transform *parentTransform = g_SystemTable->ObjFactory->GetObject(object->GetOwner())->GetComponent<Transform>();
+      m_matrix = parentTransform->GetWorldMatrix().Inverted() * m_worldMatrix;
+      m_translation = m_matrix * Vector3(0.0f, 0.0f, 0.0f);
+      m_rotation = Quaternion(m_matrix);
+      m_scale = m_worldScale;
+      m_scale = Vector3(m_scale[0] / m_worldScale[0], m_scale[1] / m_worldScale[1], m_scale[2] / m_worldScale[2]);
+      m_right = m_matrix.TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
+      m_up = m_matrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
+      m_forward = m_matrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
     }
-
-    m_right = m_worldMatrix.TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
-    m_up = m_worldMatrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
-    m_forward = m_worldMatrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
+    else
+    {
+      m_matrix = m_worldMatrix;
+      m_translation = m_worldTranslation;
+      m_rotation = m_worldRotation;
+      m_scale = m_worldScale;
+      m_right = m_worldRight;
+      m_up = m_worldUp;
+      m_forward = m_worldForward;
+    }
   }
 
-  const Matrix4& Transform::GetLocalMatrix() const
+  const Matrix4& Transform::GetMatrix() const
   {
-    return m_localMatrix;
-  }
-
-  const Matrix4& Transform::GetWorldMatrix() const
-  {
-    return m_worldMatrix;
+    return m_matrix;
   }
 
   const Vector3& Transform::GetRight() const
@@ -94,6 +127,41 @@ namespace Sulfur
   const Vector3& Transform::GetForward() const
   {
     return m_forward;
+  }
+
+  const Matrix4& Transform::GetWorldMatrix() const
+  {
+    return m_worldMatrix;
+  }
+
+  const Vector3& Transform::GetWorldTranslation() const
+  {
+    return m_worldTranslation;
+  }
+
+  const Quaternion& Transform::GetWorldRotation() const
+  {
+    return m_worldRotation;
+  }
+
+  const Vector3& Transform::GetWorldScale() const
+  {
+    return m_worldScale;
+  }
+
+  const Vector3& Transform::GetWorldRight() const
+  {
+    return m_worldRight;
+  }
+
+  const Vector3& Transform::GetWorldUp() const
+  {
+    return m_worldUp;
+  }
+
+  const Vector3& Transform::GetWorldForward() const
+  {
+    return m_worldForward;
   }
 
 }

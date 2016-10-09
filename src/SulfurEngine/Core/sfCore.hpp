@@ -17,6 +17,8 @@ namespace Sulfur
     void ShutDown(void);
 
     void OnWindowClose();
+    
+    Window* GetWindow() const { return m_window; }
 
   private:
     bool m_running;
