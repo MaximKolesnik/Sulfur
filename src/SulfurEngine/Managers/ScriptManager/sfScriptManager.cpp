@@ -93,13 +93,44 @@ namespace Sulfur
     std::string interFolder = m_scriptFolder + "\\..\\..\\bin\\Scripts\\";
     std::string outFolder = m_scriptFolder + "\\..\\..\\bin\\Scripts\\";
 
+#ifdef _DEBUG
+    std::string engineLib = m_scriptFolder + "\\..\\..\\builds\\bin\\SulfurEngine\\vs2015\\SulfurEngine_d.lib";
+    std::string dependencyPath = m_scriptFolder + "\\..\\..\\dependencies\\";
+    PathCanonicalize(buffer, dependencyPath.c_str());
+    dependencyPath = buffer;
+    m_compiler->AddDependencyLibrary(dependencyPath + "fbx\\lib\\libfbxsdk-mdd.lib");
+    m_compiler->AddDependencyLibrary(dependencyPath + "libjpeg\\lib\\jpeg.lib");
+    m_compiler->AddDependencyLibrary(dependencyPath + "libpng\\lib\\libpng16d.lib");
+    m_compiler->AddDependencyLibrary(dependencyPath + "zlib\\lib\\zlibd.lib");
+    m_compiler->AddDependencyLibrary("d3dcompiler.lib");
+    m_compiler->AddDependencyLibrary("d3d11.lib");
+    m_compiler->AddDependencyLibrary("dxgi.lib");
+    m_compiler->AddDependencyLibrary("dxguid.lib");
+
+#else
+    std::string engineLib = m_scriptFolder + "\\..\\..\\builds\\bin\\SulfurEngine\\vs2015\\SulfurEngine_d.lib";
+    std::string dependencyPath = "\\..\\..\\dependencies\\";
+    PathCanonicalize(buffer, dependencyPath.c_str());
+    dependencyPath = buffer;
+    m_compiler->AddDependencyLibrary(dependencyPath + "fbx\\lib\\libfbxsdk-md.lib");
+    m_compiler->AddDependencyLibrary(dependencyPath + "libjpeg\\lib\\jpeg.lib");
+    m_compiler->AddDependencyLibrary(dependencyPath + "zlib\\lib\\zlib.lib");
+    m_compiler->AddDependencyLibrary("d3dcompiler.lib");
+    m_compiler->AddDependencyLibrary(dependencyPath + "libpng\\lib\\libpng16.lib");
+    m_compiler->AddDependencyLibrary("dxgi.lib");
+    m_compiler->AddDependencyLibrary("dxguid.lib");
+#endif
+
     PathCanonicalize(buffer, interFolder.c_str());
     m_interFolder = buffer;
     PathCanonicalize(buffer, outFolder.c_str());
     m_dllFolder = buffer;
+    PathCanonicalize(buffer, engineLib.c_str());
+    m_engineLib = buffer;
 
     m_compiler->SetOutputDirectory(m_dllFolder);
     m_compiler->SetIntermediateDirectory(m_interFolder);
+    m_compiler->SetEngineLibrary(m_engineLib);
 
     _InitializeScriptData();
   }
