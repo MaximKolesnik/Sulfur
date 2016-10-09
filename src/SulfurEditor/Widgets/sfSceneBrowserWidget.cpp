@@ -240,6 +240,7 @@ void SceneBrowserWidget::OnItemsMoved(const QModelIndex &parent, int start, int 
 
   for (int i = start; i <= end; ++i)
   {
+    QModelIndex childIndex = parent.child(i, 0);
     HNDL childHandle = parent.child(i, 0).data(Qt::UserRole).value<HNDL>();
     Object *child = g_SystemTable->ObjFactory->GetObject(childHandle);
     HNDL currentParent = child->GetParent();
