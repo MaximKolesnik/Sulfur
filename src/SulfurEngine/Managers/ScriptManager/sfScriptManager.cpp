@@ -254,7 +254,8 @@ namespace Sulfur
       SF_CRITICAL_ERR_EXP(res != NULL, "Cannot unload script");
 
       _DeleteFile(scriptFileName + "*");
-      _RenameFiles(tempDllName, scriptData->m_dllName);
+      _DeleteFile(m_dllFolder + scriptFileName + "*");
+      _RenameFiles(m_dllFolder + tempDllName, m_dllFolder + scriptData->m_dllName);
 
       scriptData->m_libHandle = LoadLibrary((m_dllFolder + scriptData->m_dllName + ".dll").c_str());
       SF_ASSERT(scriptData->m_libHandle != NULL, "Dll was not loaded");
@@ -362,7 +363,7 @@ namespace Sulfur
     {
       do
       {
-        DeleteFile(fd.cFileName);
+        DeleteFile((m_dllFolder + fd.cFileName).c_str());
       } while (FindNextFile(hFind, &fd));
       FindClose(hFind);
     }
@@ -383,8 +384,8 @@ namespace Sulfur
         SF_ASSERT(pos != std::string::npos, "File name does not have an extension");
 
         std::string ext = fileName.substr(pos);
-        MoveFile(fileName.c_str(), (newName + ext).c_str());
-
+        BOOL res = MoveFile((m_dllFolder + fileName).c_str(), (newName + ext).c_str());
+        SF_ASSERT(res != 0, "File cannot be renamed");
       } while (FindNextFile(hFind, &fd));
       FindClose(hFind);
     }

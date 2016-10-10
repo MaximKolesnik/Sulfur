@@ -214,7 +214,7 @@ namespace Sulfur
     for (UINT32 i = 1; i < m_numThreads; ++i)
     {
       m_workers[i].m_threadHandle = CreateThread(0, 0, WorkerThreadRoutine, 
-        &m_workers[i], NULL, NULL);
+        &m_workers[i], CREATE_SUSPENDED, NULL);
 
       SF_CRITICAL_ERR_EXP(m_workers[i].m_threadHandle != NULL,
         std::to_string(GetLastError()));

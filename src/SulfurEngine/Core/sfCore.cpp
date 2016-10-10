@@ -110,7 +110,7 @@ namespace Sulfur
     delete g_SystemTable->CompFactory;
     delete g_SystemTable->ObjFactory;
     delete g_SystemTable->Log;
-    delete g_SystemTable->TaskManager;
+    //delete g_SystemTable->TaskManager;
     delete g_SystemTable;
   }
 
