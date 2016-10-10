@@ -190,4 +190,10 @@ namespace Sulfur
 
     m_compMap[scriptName] = slotMap;
   }
+
+  ComponentFactory::ComponentMap& ComponentFactory::GetComponentMap()
+  {
+    return m_compMap;
+  }
+
 }

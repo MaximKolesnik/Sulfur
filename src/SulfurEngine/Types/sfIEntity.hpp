@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 #include "sfTypes.hpp"
 #include "Reflection/sfReflection.hpp"
@@ -10,6 +9,7 @@ namespace Sulfur
   class ComponentFactory;
   class ObjectFactory;
   class Object;
+  class DebugDraw;
 
   SF_REFLECTED_CLASS(IEntity)
 
@@ -20,26 +20,16 @@ namespace Sulfur
     virtual void Initialize(void) = 0;
     virtual IEntity* Clone(void) const = 0;
     virtual void Update(void) = 0;
-
-    HNDL GetHndl(void) const
-    {
-      return m_hndl;
-    }
-
-    HNDL GetOwner(void) const
-    {
-      return m_owner;
-    }
-
-    SF_PUBLIC_PROPERTY(std::string, name, Name, "Name");
+    virtual void DrawDebug(DebugDraw *draw) const {}
 
   protected:
     friend class ComponentFactory;
     friend class ObjectFactory;
     friend class Object;
 
-    HNDL m_owner;
+    SF_PUBLIC_PROPERTY(std::string, name, Name, "Name")
+    SF_PROTECTED_PROPERTY(HNDL, hndl, Hndl, "Handle")
+    SF_PROTECTED_PROPERTY(HNDL, owner, Owner, "Owner")
 
-    HNDL m_hndl;
   };
 }

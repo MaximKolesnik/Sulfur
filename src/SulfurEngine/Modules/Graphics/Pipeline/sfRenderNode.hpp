@@ -30,6 +30,7 @@ namespace Sulfur
     D3D11Context& GetContext();
 
   protected:
+    D3D11Device& m_device;
     D3D11Context m_context;
 
   };

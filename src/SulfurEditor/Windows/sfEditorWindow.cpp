@@ -36,6 +36,11 @@ EditorWindow::EditorWindow(QWidget *parent)
   m_game = new GameWidget();
   setCentralWidget(m_game);
 
+  QObject::connect(
+    m_game, &GameWidget::ObjectSelected,
+    this, &EditorWindow::OnObjectSelectedGameWindow
+    );
+
   QDockWidget *inspectorDock = new QDockWidget(tr("Inspector"), this);
   inspectorDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
@@ -99,16 +104,48 @@ void EditorWindow::CreateMenuBar()
   setMenuBar(m_menuBar);
 
   QMenu *fileMenu = new QMenu("File");
-  fileMenu->addAction("New Project...");
-  fileMenu->addAction("Open Project...");
-  fileMenu->addAction("Save Project");
-  fileMenu->addAction("Save Project As...");
+  fileMenu->addAction("Open Scene", this, &EditorWindow::OnOpenScene);
+  fileMenu->addAction("Save Scene", this, &EditorWindow::OnSaveScene);
+  fileMenu->addAction("Save Scene As...", this, &EditorWindow::OnSaveSceneAs);
   m_menuBar->addMenu(fileMenu);
+}
+
+void EditorWindow::OnOpenScene()
+{
+  QString fileName = QFileDialog::getOpenFileName(this, "Open Scene", QDir::currentPath() + "/Resources", "Sulfur Scene (*.ssc)");
+  if (!fileName.isEmpty())
+  {
+    std::ifstream file(fileName.toUtf8().data(), std::ios_base::binary);
+    Serialization::Deserialize(file, g_SystemTable->SceneManager->GetScene());
+    m_sceneBrowser->SetScene(&g_SystemTable->SceneManager->GetScene());
+  }
+}
+
+void EditorWindow::OnSaveScene()
+{
+  OnSaveSceneAs();
+}
+
+void EditorWindow::OnSaveSceneAs()
+{
+  QString fileName = QFileDialog::getSaveFileName(this, "Save Scene", QDir::currentPath() + "/Resources", "Sulfur Scene (*.ssc)");
+  if (!fileName.isEmpty())
+  {
+    std::ofstream file(fileName.toUtf8().data(), std::ios_base::binary);
+    Serialization::Serialize(file, g_SystemTable->SceneManager->GetScene());
+  }
 }
 
 void EditorWindow::OnObjectSelected(Object *object)
 {
   m_inspector->SetObject(object);
+  m_game->SetSelection(object);
+}
+
+void EditorWindow::OnObjectSelectedGameWindow(Object *object)
+{
+  m_inspector->SetObject(object);
+  m_sceneBrowser->SelectObject(object);
 }
 
 void EditorWindow::OnObjectChanged()

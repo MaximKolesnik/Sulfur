@@ -11,6 +11,7 @@ namespace Sulfur
   class InputManager;
   class SceneManager;
   class GraphicsManager;
+  class DebugDraw;
   class Time;
 
   struct SystemTable
@@ -18,7 +19,7 @@ namespace Sulfur
     SystemTable() : Log(nullptr), ObjFactory(nullptr), CompFactory(nullptr),
       InputManager(nullptr), SceneManager(nullptr), ScriptManager(nullptr), 
       TaskManager(nullptr), WindowManager(nullptr), GraphicsManager(nullptr),
-      Time(nullptr) {};
+      Time(nullptr), DebugDraw(nullptr) {};
 
     Logger* Log;
     ObjectFactory* ObjFactory;
@@ -26,6 +27,7 @@ namespace Sulfur
     InputManager* InputManager;
     SceneManager* SceneManager;
     Time* Time;
+    DebugDraw* DebugDraw;
 
 #ifdef SF_BUILD_SCRIPT //Systems below should not be accessible in scripts
   private:

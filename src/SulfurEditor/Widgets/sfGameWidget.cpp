@@ -19,14 +19,24 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Factories/sfObjectFactory.hpp"
 #include "Components/sfCamera.hpp"
 #include "Components/sfTransform.hpp"
+#include "Modules/Graphics/sfGraphicsManager.hpp"
 #include "Modules/Input/sfInputManager.hpp"
 #include "Modules/Time/sfTime.hpp"
+#include "SystemTable/sfSystemTable.hpp"
+#include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
+#include "Components/sfMeshRenderer.hpp"
+
+#include "Modules/Graphics/State/sfBlendState.hpp"
+#include "Modules/Graphics/State/sfDepthState.hpp"
+#include "Modules/Graphics/State/sfRasterState.hpp"
+#include "Modules/Graphics/State/sfSamplerState.hpp"
 
 namespace Sulfur
 {
 
 GameWidget::GameWidget(QWidget *parent)
-  : QWidget(parent), m_controllingCamera(false), m_cameraYaw(0.0f), m_cameraPitch(0.0f), m_resizeTimer(0)
+  : QWidget(parent), m_controllingCamera(false), m_cameraYaw(0.0f), m_cameraPitch(0.0f), m_resizeTimer(0),
+  m_selection(nullptr)
 {
   setAttribute(Qt::WA_PaintOnScreen, true);
   setAttribute(Qt::WA_NativeWindow, true);
@@ -45,15 +55,21 @@ GameWidget::GameWidget(QWidget *parent)
 
   m_editorCamera = editorCamera->GetHndl();
   g_SystemTable->SceneManager->GetScene().SetCameraObject(m_editorCamera);
+
+  CreatePickingResources();
 }
 
 GameWidget::~GameWidget()
 {
+  m_pickingTarget.Free();
+  m_pickingDepthBuffer.Free();
+  m_stagingTexture->Release();
   Core::Instance()->ShutDown();
 }
 
 void GameWidget::Frame()
 {
+  SelectionDrawing();
   UpdateEditorCamera();
   Core::Instance()->Frame();
 }
@@ -66,6 +82,7 @@ void GameWidget::mousePressEvent(QMouseEvent *event)
     m_controllingCamera = true;
   }
 
+  setFocus(Qt::FocusReason::OtherFocusReason);
   QWidget::mousePressEvent(event);
 }
 
@@ -76,7 +93,13 @@ void GameWidget::mouseReleaseEvent(QMouseEvent *event)
     ShowCursor(TRUE);
     m_controllingCamera = false;
   }
+  else if (event->button() == Qt::MouseButton::LeftButton)
+  {
+    RenderPickingTexture();
+    SelectObjectAt(event->x(), event->y());
+  }
 
+  setFocus(Qt::FocusReason::OtherFocusReason);
   QWidget::mouseReleaseEvent(event);
 }
 
@@ -88,6 +111,140 @@ void GameWidget::mouseDoubleClickEvent(QMouseEvent *event)
 void GameWidget::mouseMoveEvent(QMouseEvent *event)
 {
   QWidget::mouseMoveEvent(event);
+}
+
+void GameWidget::CreatePickingResources()
+{
+  D3D11_TEXTURE2D_DESC description;
+  description.Width = 1024;
+  description.Height = 1024;
+  description.MipLevels = 1;
+  description.ArraySize = 1;
+  description.Format = DXGI_FORMAT_R32_UINT;
+  description.SampleDesc.Count = 1;
+  description.SampleDesc.Quality = 0;
+  description.Usage = D3D11_USAGE_DEFAULT;
+  description.BindFlags = D3D11_BIND_RENDER_TARGET;
+  description.CPUAccessFlags = 0;
+  description.MiscFlags = 0;
+  m_pickingTarget.Init(g_SystemTable->GraphicsManager->GetDevice(), description);
+
+  description.Usage = D3D11_USAGE_STAGING;
+  description.BindFlags = 0;
+  description.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+  g_SystemTable->GraphicsManager->GetDevice().GetD3DResource()->CreateTexture2D(&description, nullptr, &m_stagingTexture);
+
+  description.Usage = D3D11_USAGE_DEFAULT;
+  description.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+  description.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+  description.CPUAccessFlags = 0;
+  m_pickingDepthBuffer.Init(g_SystemTable->GraphicsManager->GetDevice(), description);  
+
+  m_pickingVertexShader.Init(g_SystemTable->GraphicsManager->GetDevice(), "Shaders/VSTest.sbin");
+  m_perFrameData = m_pickingVertexShader.GetConstantBuffer("PerFrameData");
+  m_perObjectData = m_pickingVertexShader.GetConstantBuffer("PerObjectData");
+
+  m_pickingPixelShader.Init(g_SystemTable->GraphicsManager->GetDevice(), "Shaders/PSPicking.sbin");
+  m_pickingData = m_pickingPixelShader.GetConstantBuffer("PickingData");
+}
+
+void GameWidget::RenderPickingTexture()
+{
+  D3D11Context& context = g_SystemTable->GraphicsManager->GetDevice().GetImmediateContext();
+
+  m_pickingTarget.Clear(context, Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+  m_pickingDepthBuffer.Clear(context);
+  m_pickingTarget.Set(context, m_pickingDepthBuffer);
+
+  DepthState::Set(context, DepthState::DEPTH_ENABLED);
+  BlendState::Set(context, BlendState::NO_BLENDING);
+  RasterState::Set(context, RasterState::BACK_FACE_CULLING);
+
+  m_pickingVertexShader.Set(context);
+  m_pickingPixelShader.Set(context);
+
+  Scene& scene = g_SystemTable->SceneManager->GetScene();
+  
+  // Setup camera
+  HNDL objHandle = scene.GetCameraObject();
+  if (objHandle != SF_INV_HANDLE)
+  {
+    Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
+    Transform *transform = object->GetComponent<Transform>();
+    Camera *camera = object->GetComponent<Camera>();
+
+    PerFrameData perFrame;
+    perFrame.ViewMatrix.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), transform->GetWorldTranslation());
+    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)width(), (Real)height(), camera->GetFieldOfView() * SF_RADS_PER_DEG, camera->GetNearPlane(), camera->GetFarPlane());
+    perFrame.ViewPosition = transform->GetWorldTranslation();
+    m_perFrameData->SetData(context, perFrame);
+  }
+  else
+  {
+    PerFrameData perFrame;
+    perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
+    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)width(), (Real)height(), 3.14159f / 4.0f, 0.1f, 1000.0f);
+    perFrame.ViewPosition = Vector3(0.0f, 0.0f, 0.0f);
+    m_perFrameData->SetData(context, perFrame);
+  }
+
+  ComponentFactory::ComponentData componentData = g_SystemTable->CompFactory->GetComponentData<MeshRenderer>();
+  for (auto it = componentData.begin(); it != componentData.end(); ++it)
+  {
+    MeshRenderer *meshRenderer = static_cast<MeshRenderer*>(*it);
+    Mesh *mesh = meshRenderer->GetMesh();
+
+    if (mesh)
+    {
+      Object *object = g_SystemTable->ObjFactory->GetObject(meshRenderer->GetOwner());
+      Transform* transform = object->GetComponent<Transform>();
+
+      PerObjectData perObject;
+      perObject.WorldMatrix = transform->GetWorldMatrix();
+      m_perObjectData->SetData(context, perObject);
+
+      UINT32 handle = (UINT32)meshRenderer->GetOwner() + 1;
+      m_pickingData->SetData(context, handle);
+
+      mesh->Draw(context);
+    }
+  }
+}
+
+void GameWidget::SelectObjectAt(int x, int y)
+{
+  int px = (int)((Real)x / width() * 1024);
+  int py = (int)((Real)y / height() * 1024);
+
+  ID3D11DeviceContext *context = g_SystemTable->GraphicsManager->GetDevice().GetImmediateContext().GetD3DResource();
+  context->CopyResource(m_stagingTexture, m_pickingTarget.GetTexture()->GetD3DResource());
+
+  D3D11_MAPPED_SUBRESOURCE msr;
+  context->Map(m_stagingTexture, 0, D3D11_MAP_READ, 0, &msr);
+
+  UINT32 *pickingData = (UINT32*)msr.pData;
+  UINT32 handle = pickingData[py * 1024 + px];
+
+  if (handle != 0)
+    emit ObjectSelected(g_SystemTable->ObjFactory->GetObject((HNDL)handle-1));
+  else
+    emit ObjectSelected(nullptr);
+
+  context->Unmap(m_stagingTexture, 0);
+}
+
+void GameWidget::SelectionDrawing()
+{
+  if (m_selection)
+  {
+    m_selection->DrawDebug(g_SystemTable->DebugDraw);
+
+    auto& components = m_selection->GetComponents();
+    for (auto it = components.begin(); it != components.end(); ++it)
+    {
+      g_SystemTable->CompFactory->GetComponent(it->first, it->second)->DrawDebug(g_SystemTable->DebugDraw);
+    }
+  }
 }
 
 void GameWidget::UpdateEditorCamera()
@@ -127,6 +284,11 @@ void GameWidget::UpdateEditorCamera()
 QPaintEngine* GameWidget::paintEngine() const
 {
   return nullptr;
+}
+
+void GameWidget::SetSelection(Object *object)
+{
+  m_selection = object;
 }
 
 void GameWidget::resizeEvent(QResizeEvent* evt)

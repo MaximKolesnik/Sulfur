@@ -11,7 +11,8 @@
 #include "Logger/sfLogger.hpp"
 #include "Managers\ScriptManager\sfScriptManager.hpp"
 #include "Modules/Graphics/Scene/sfMesh.hpp"
-#include "Modules\Scene\sfSceneManager.hpp"
+#include "Modules/Scene/sfSceneManager.hpp"
+#include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 
 // Factories
 #include "Factories/sfComponentFactory.hpp"
@@ -47,6 +48,7 @@ namespace Sulfur
     g_SystemTable->SceneManager = new SceneManager();
     g_SystemTable->GraphicsManager = new GraphicsManager();
     g_SystemTable->Time = new Time();
+    g_SystemTable->DebugDraw = new DebugDraw();
 
     // Start engine in existing window
     if (windowHandle != nullptr)

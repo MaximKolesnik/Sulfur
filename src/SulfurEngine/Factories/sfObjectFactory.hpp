@@ -35,10 +35,10 @@ namespace Sulfur
     Object* GetObject(const HNDL object) const;
     void DestroyObject(const HNDL object);
 
-    void EndFrameCleanUp(void);
+    void DestroyAll();
+    SlotMap<Object>& GetObjects();
 
-    void Serialize(std::ostream& str) const;
-    void Deserialize(std::istream& str);
+    void EndFrameCleanUp(void);
 
   private:
     ObjectFactory(const ObjectFactory&) = delete;

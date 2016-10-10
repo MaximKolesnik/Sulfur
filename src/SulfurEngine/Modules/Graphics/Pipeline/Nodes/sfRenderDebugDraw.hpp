@@ -20,6 +20,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
+
+  class Scene;
 	
   class RenderDebugDraw : public RenderNode
   {
@@ -31,11 +33,15 @@ namespace Sulfur
     virtual void Process() override;
 
   private:
+    void SetupCamera(Scene& scene);
+
+  private:
     D3D11VertexShader m_vertexShader;
     D3D11ConstantBuffer *m_perFrameData;
     D3D11ConstantBuffer *m_perObjectData;
 
     D3D11PixelShader m_pixelShader;
+    D3D11PixelShader m_wireframeShader;
 
     RenderTarget *m_renderTarget;
     DepthBuffer *m_depthBuffer;

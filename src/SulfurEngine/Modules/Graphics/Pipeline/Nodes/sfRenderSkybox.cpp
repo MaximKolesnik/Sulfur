@@ -46,8 +46,6 @@ RenderSkybox::RenderSkybox(D3D11Device& device, RenderTarget *renderTarget)
 
   m_skyboxMesh.Init(device);
   m_skyboxMesh.CreateBox(10.0f, 10.0f, 10.0f);
-
-  m_skyboxMap = SF_RESOURCE_MANAGER(CubeMap)->LoadResource("Cubemaps/SkyboxSun5deg.dds");
 }
 
 RenderSkybox::~RenderSkybox()
@@ -58,6 +56,10 @@ RenderSkybox::~RenderSkybox()
 void RenderSkybox::Process()
 {
   m_renderTarget->Clear(m_context);
+
+  CubeMap *skyboxMap = g_SystemTable->SceneManager->GetScene().m_sceneProperties.GetSkybox();
+  if (skyboxMap == nullptr) return;
+
   m_renderTarget->Set(m_context);
 
   DepthState::Set(m_context, DepthState::DEPTH_DISABLED);
@@ -71,7 +73,7 @@ void RenderSkybox::Process()
   Scene& scene = g_SystemTable->SceneManager->GetScene();
   SetupCamera(scene);
 
-  m_skyboxMap->SetPixel(m_context, 0);
+  skyboxMap->SetPixel(m_context, 0);
   m_skyboxMesh.Draw(m_context);
 }
 

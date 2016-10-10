@@ -21,6 +21,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Modules/Graphics/Types/sfColor.hpp"
 #include "Modules/Resource/sfResourcePath.hpp"
+#include "DataStructures/sfSlotMap.hpp"
 
 namespace Sulfur
 {
@@ -55,21 +56,75 @@ void Serialization::Deserialize<std::string>(std::istream& str, std::string& val
 }
 
 template <>
+UINT32 Serialization::SerializedSize<ISlotMap>(const ISlotMap& value)
+{
+  UINT32 size = 0;
+  for (auto it = value.begin(); it != value.end(); ++it)
+  {
+    size += SerializedSize(value.GetSize());
+    size += SerializedSize(**it);
+  }
+
+  return size;
+}
+
+template <>
+void Serialization::Serialize<ISlotMap>(std::ostream& str, const ISlotMap& value)
+{
+  UINT32 size = value.GetSize();
+  Serialize(str, size);
+
+  for (auto it = value.begin(); it != value.end(); ++it)
+  {
+    Serialize(str, it->GetHndl());
+    Serialize(str, **it);
+  }
+}
+
+template <>
+void Serialization::Deserialize<ISlotMap>(std::istream& str, ISlotMap& value)
+{
+  UINT32 size;
+  Deserialize(str, size);
+
+  for (UINT32 i = 0; i < size; ++i)
+  {
+    HNDL handle;
+    Deserialize(str, handle);
+
+    value.CreateAt(handle);
+    IEntity *element = value.At(handle);
+    Deserialize(str, *element);
+  }
+}
+
+template <>
 UINT32 Serialization::SerializedSize<ResourcePath>(const ResourcePath& value)
 {
-  return Serialization::SerializedSize<std::string>(value);
+  UINT32 size = (UINT32)value.size();
+  return (UINT32)value.size() + SerializedSize(size);
 }
 
 template <>
 void Serialization::Serialize<ResourcePath>(std::ostream& str, const ResourcePath& value)
 {
-  Serialization::Serialize<std::string>(str, value);
+  UINT32 size = (UINT32)value.size();
+  str.write(reinterpret_cast<const char*>(&size), sizeof(size));
+  str.write(value.data(), size);
 }
 
 template <>
 void Serialization::Deserialize<ResourcePath>(std::istream& str, ResourcePath& value)
 {
-  Serialization::Deserialize<std::string>(str, value);
+  UINT32 size;
+  str.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+  char *buffer = new char[size + 1];
+  buffer[size] = 0;
+  str.read(buffer, size);
+  value = buffer;
+
+  delete[] buffer;
 }
 
 SF_BASE_TYPE_SERIALIZATION_DEFAULT(bool)

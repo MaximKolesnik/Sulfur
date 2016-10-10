@@ -12,7 +12,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
-
 #include <unordered_set>
 
 #define SF_BASE_TYPE_SPECIALIZATION(type) \
@@ -111,7 +110,7 @@ namespace Sulfur
       for (auto it = value.begin(); it != value.end(); ++it)
       {
         size += SerializedSize(value.GetSize());
-        size += SerializedSize(*static_cast<T*>(*it));
+        size += SerializedSize(*static_cast<const T*>(*it));
       }
 
       return size;
@@ -289,9 +288,6 @@ namespace Sulfur
         HNDL handle;
         Deserialize(str, handle);
 
-        T val;
-        Deserialize(str, val);
-
         value.CreateAt(handle);
         IEntity *element = value.At(handle);
         Deserialize(str, *element);
@@ -321,5 +317,6 @@ namespace Sulfur
   SF_BASE_TYPE_SPECIALIZATION_FD(Vertex)
   SF_BASE_TYPE_SPECIALIZATION_FD(Color)
   SF_BASE_TYPE_SPECIALIZATION_FD(ResourcePath)
+  SF_BASE_TYPE_SPECIALIZATION_FD(ISlotMap)
   
 }

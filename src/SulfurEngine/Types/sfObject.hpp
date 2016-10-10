@@ -19,6 +19,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Types\sfIEntity.hpp"
 #include "Types\sfTypes.hpp"
 #include "Factories\sfComponentFactory.hpp"
+#include "Reflection/sfSerialization.hpp"
 
 namespace Sulfur
 {

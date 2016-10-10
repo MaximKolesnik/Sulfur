@@ -13,9 +13,9 @@ DeferredPixelIn main(VertexIn input)
 
   output.texCoords = input.texCoords.xy;
 
-  output.normal = mul(float4(input.normal, 0.0f), WorldMatrix).xyz;
-  output.tangent = mul(float4(input.tangent, 0.0f), WorldMatrix).xyz;
-  output.binormal = mul(float4(input.binormal, 0.0f), WorldMatrix).xyz;
+  output.normal = mul(float4(input.normal.xyz, 0.0f), WorldMatrix).xyz;
+  output.tangent = mul(float4(input.tangent.xyz, 0.0f), WorldMatrix).xyz;
+  output.binormal = mul(float4(input.binormal.xyz, 0.0f), WorldMatrix).xyz;
 
   output.viewDirection = ViewPosition - output.worldPosition;
 

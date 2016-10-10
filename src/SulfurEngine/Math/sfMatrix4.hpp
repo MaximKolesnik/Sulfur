@@ -1030,7 +1030,7 @@ namespace Sulfur
       return *this;
     }
 
-    SF_FORCE_INLINE Vector3 SF_VEC_CALL TransformNormal(const Vector3 &n)
+    SF_FORCE_INLINE Vector3 SF_VEC_CALL TransformNormal(const Vector3 &n) const
     {
 #ifdef SF_USE_SIMD
       __m128 v = _mm_set_ps(0.0, n[2], n[1], n[0]);

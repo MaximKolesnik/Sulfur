@@ -17,6 +17,7 @@ namespace Sulfur
 {
 
 RenderNode::RenderNode(D3D11Device& device)
+  : m_device(device)
 {
   m_context.Init(device);
 }

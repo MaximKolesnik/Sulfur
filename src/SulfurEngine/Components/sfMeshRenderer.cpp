@@ -13,6 +13,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfMeshRenderer.hpp"
 #include "Factories/sfComponentFactory.hpp"
+#include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 
 namespace Sulfur
 {
@@ -32,6 +33,11 @@ namespace Sulfur
   {
     MeshRenderer *newMeshRenderer = SF_CREATE_COMP(MeshRenderer);
     return newMeshRenderer;
+  }
+
+  void MeshRenderer::DrawDebug(DebugDraw *draw) const
+  {
+    draw->DrawWireframe(this);
   }
 
 }

@@ -53,8 +53,6 @@ private:
 
   RenderTarget *m_renderTarget;
   Texture2D *m_gBuffer;
-  CubeMap *m_skyboxMap;
-  CubeMap m_convolvedSkyboxMap;
 
 };
 

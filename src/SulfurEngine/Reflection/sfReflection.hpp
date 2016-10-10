@@ -162,7 +162,7 @@ ResourcePath CONCAT(m_##name, ResourcePath); \
 public: \
   type* Get##upperName() const { return CONCAT(m_##name, Resource); } \
   const ResourcePath& CONCAT(Get##upperName, ResourcePath)() const { return CONCAT(m_##name, ResourcePath); } \
-  void Set##upperName(const ResourcePath& resourcePath) { CONCAT(m_##name, Resource) = SF_RESOURCE_MANAGER(type)->LoadResource(resourcePath); CONCAT(m_##name, ResourcePath) = resourcePath; }
+  void Set##upperName(const ResourcePath& resourcePath) { CONCAT(m_##name, Resource) = resourcePath.empty() ? nullptr : SF_RESOURCE_MANAGER(type)->LoadResource(resourcePath); CONCAT(m_##name, ResourcePath) = resourcePath; }
 
 
 #define SF_PRIVATE_PROPERTY(type, name, upperName, display) \

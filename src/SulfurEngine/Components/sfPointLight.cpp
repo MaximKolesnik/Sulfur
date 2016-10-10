@@ -13,6 +13,9 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfPointLight.hpp"
 #include "Factories/sfComponentFactory.hpp"
+#include "SystemTable/sfSystemTable.hpp"
+#include "Components/sfTransform.hpp"
+#include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 
 namespace Sulfur
 {
@@ -32,6 +35,12 @@ namespace Sulfur
   {
     PointLight *newPointLight = SF_CREATE_COMP(PointLight);
     return newPointLight;
+  }
+
+  void PointLight::DrawDebug(DebugDraw *draw) const
+  {
+    Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(m_owner);
+    draw->DrawSphere(transform->GetTranslation(), m_range, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
   }
 
 }

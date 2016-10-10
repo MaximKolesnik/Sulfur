@@ -13,6 +13,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfDeferredLightPass.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
+#include "Modules/Scene/sfSceneManager.hpp"
+#include "SystemTable/sfSystemTable.hpp"
 
 #include "Modules/Graphics/State/sfBlendState.hpp"
 #include "Modules/Graphics/State/sfDepthState.hpp"
@@ -42,9 +44,6 @@ DeferredLightPass::DeferredLightPass(D3D11Device& device, RenderTarget *renderTa
 
   m_spotLightPixelShader.Init(device, "Shaders/PSDeferredSpotLight.sbin");
   m_spotLightData = m_spotLightPixelShader.GetConstantBuffer("SpotLightData");
-
-  m_skyboxMap = SF_RESOURCE_MANAGER(CubeMap)->LoadResource("Cubemaps/SkyboxSun5deg.dds");
-  m_skyboxMap->Convolve(device, m_convolvedSkyboxMap);
 }
 
 DeferredLightPass::~DeferredLightPass()
@@ -72,8 +71,12 @@ void DeferredLightPass::Process()
 
 void DeferredLightPass::RenderAmbientLight()
 {
-  m_skyboxMap->SetPixel(m_context, 1);
-  m_convolvedSkyboxMap.SetPixel(m_context, 2);
+  SceneProperties& sceneProps = g_SystemTable->SceneManager->GetScene().m_sceneProperties;
+  CubeMap *skyboxMap = sceneProps.GetSkybox();
+  if (skyboxMap == nullptr || !sceneProps.GetIbl()) return;
+
+  skyboxMap->SetPixel(m_context, 1);
+  skyboxMap->Convolved(m_device)->SetPixel(m_context, 2);
 
   BlendState::Set(m_context, BlendState::ALPHA);
   m_ambientPixelShader.Set(m_context);

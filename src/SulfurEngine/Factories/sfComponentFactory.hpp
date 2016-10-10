@@ -27,6 +27,7 @@ namespace Sulfur
   class ComponentFactory
   {
   public:
+    typedef std::unordered_map<std::string, ISlotMap*> ComponentMap;
     class ComponentData;
 
     ComponentFactory(void);
@@ -55,6 +56,8 @@ namespace Sulfur
     template <class CompType>
     ComponentData GetComponentData(void);
 
+    ComponentMap& GetComponentMap();
+
   private:
     friend class ScriptManager;
 
@@ -67,7 +70,7 @@ namespace Sulfur
     std::string _RemoveScope(const std::string name) const;
 
     std::vector<std::string> m_componentTypes;
-    std::unordered_map<std::string, ISlotMap*> m_compMap;
+    ComponentMap m_compMap;
 
     //Scripts
     void _InsertNewScript(const std::string &scriptName, ISlotMap *slotMap);

@@ -35,9 +35,13 @@ namespace Sulfur
 
   private:
     void CreateMenuBar();
+    void OnOpenScene();
+    void OnSaveScene();
+    void OnSaveSceneAs();
 
   public slots:
     void OnObjectSelected(Object *object);
+    void OnObjectSelectedGameWindow(Object *object);
     void OnObjectChanged();
 
   private:

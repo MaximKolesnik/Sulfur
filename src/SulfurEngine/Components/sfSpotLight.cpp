@@ -13,6 +13,9 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfSpotLight.hpp"
 #include "Factories/sfComponentFactory.hpp"
+#include "SystemTable/sfSystemTable.hpp"
+#include "Components/sfTransform.hpp"
+#include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 
 namespace Sulfur
 {
@@ -33,6 +36,13 @@ namespace Sulfur
   {
     SpotLight *newSpotLight = SF_CREATE_COMP(SpotLight);
     return newSpotLight;
+  }
+
+  void SpotLight::DrawDebug(DebugDraw *draw) const
+  {
+    Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(m_owner);
+    transform->Update();
+    draw->DrawCone(transform->GetTranslation(), transform->GetWorldForward(), transform->GetWorldRight(), transform->GetWorldUp(), m_range, m_outerAngle / 2.0f, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
   }
 
 }

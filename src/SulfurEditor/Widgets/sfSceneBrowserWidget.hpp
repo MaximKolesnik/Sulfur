@@ -13,6 +13,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include "Modules/Scene/sfScene.hpp"
+#include "Windows/sfScenePropertiesDialog.hpp"
 
 namespace Sulfur
 {
@@ -46,6 +47,7 @@ namespace Sulfur
     void AddComponentObject(const std::string& objectName, const std::string& component);
 
   public slots:
+    void OnPropertiesClicked();
     void OnSceneTreeSelectionChanged();
     void OnItemsMoved(const QModelIndex &parent, int start, int end);
 
@@ -65,10 +67,12 @@ namespace Sulfur
     void ObjectSelected(Object *object);
 
   private:
+    ScenePropertiesDialog *m_scenePropertiesDialog;
     Scene *m_scene;
 
     QGridLayout *m_layout;
     QToolButton *m_newObjectButton;
+    QPushButton *m_propertiesButton;
     QTreeWidget *m_sceneTree;
     std::unordered_map<HNDL, QTreeWidgetItem*> m_itemMap;
   

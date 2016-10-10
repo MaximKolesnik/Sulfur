@@ -45,6 +45,7 @@ SceneBrowserWidget::~SceneBrowserWidget()
 void SceneBrowserWidget::SetScene(Scene *scene)
 {
   m_scene = scene;
+  m_scenePropertiesDialog->SetScene(scene);
   m_sceneTree->clear();
   m_itemMap.clear();
 
@@ -55,13 +56,18 @@ void SceneBrowserWidget::SetScene(Scene *scene)
 
 void SceneBrowserWidget::SelectObject(Object *object)
 {
-  SelectObject(object->GetHndl());
+  if (object)
+    SelectObject(object->GetHndl());
+  else
+    m_sceneTree->clearSelection();
 }
 
 void SceneBrowserWidget::SelectObject(HNDL object)
 {
   m_sceneTree->clearSelection();
-  m_itemMap[object]->setSelected(true);
+
+  if (object != SF_INV_HANDLE)
+    m_itemMap[object]->setSelected(true);
 }
 
 void SceneBrowserWidget::UpdateSelectedObjects()
@@ -126,6 +132,15 @@ void SceneBrowserWidget::Setup()
   lightsMenu->addAction("Point Light", this, &SceneBrowserWidget::OnAddPointLight);
   lightsMenu->addAction("Spot Light", this, &SceneBrowserWidget::OnAddSpotLight);
   lightsMenu->addAction("Directional Light", this, &SceneBrowserWidget::OnAddDirectionalLight);
+
+  m_scenePropertiesDialog = new ScenePropertiesDialog();
+  m_propertiesButton = new QPushButton("Properties");
+  m_layout->addWidget(m_propertiesButton, 0, 1);
+
+  QObject::connect(
+    m_propertiesButton, &QPushButton::clicked,
+    this, &SceneBrowserWidget::OnPropertiesClicked
+    );
 
   QObject::connect(
     m_sceneTree, &QTreeWidget::itemSelectionChanged,
@@ -219,6 +234,11 @@ void SceneBrowserWidget::AddComponentObject(const std::string& objectName, const
 
   AddObject(object);
   SelectObject(object);
+}
+
+void SceneBrowserWidget::OnPropertiesClicked()
+{
+  m_scenePropertiesDialog->show();
 }
 
 void SceneBrowserWidget::OnSceneTreeSelectionChanged()

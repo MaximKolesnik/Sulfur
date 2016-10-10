@@ -46,7 +46,6 @@ namespace Sulfur
 
     RenderTarget *m_renderTarget;
     Mesh m_skyboxMesh;
-    CubeMap *m_skyboxMap;
 
   };
   

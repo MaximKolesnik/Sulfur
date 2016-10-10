@@ -12,6 +12,15 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfDebugDraw.hpp"
+#include "SystemTable/sfSystemTable.hpp"
+#include "Modules/Scene/sfSceneManager.hpp"
+#include "Factories/sfComponentFactory.hpp"
+#include "Components/sfTransform.hpp"
+#include "Modules/Graphics/State/sfRasterState.hpp"
+#include "Modules/Graphics/Resources//Buffer/sfD3D11ConstantBuffer.hpp"
+#include "Components/sfMeshRenderer.hpp"
+#include "SystemTable/sfSystemTable.hpp"
+#include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 
 namespace Sulfur
 {
@@ -19,6 +28,7 @@ namespace Sulfur
 const Vector4 DebugDraw::DEFAULT_COLOR = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
 DebugDraw::DebugDraw()
+  : m_vertexCount(0), m_indexCount(0)
 {
 }
 
@@ -37,6 +47,32 @@ void DebugDraw::Free()
   m_vertexBuffer.Free();
   m_indexBuffer.Free();
 }
+
+void DebugDraw::DrawBox2D(const Matrix4& transform, Real w, Real h, const Vector4& color)
+{
+  Real hw = w / 2.0f, hh = h / 2.0f;
+  Vector4 center = transform * Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+  Vector4 right = transform * Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+  Vector4 up = transform * Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+
+  m_vertices[m_vertexCount].m_position = center + right * hw + up * hh;
+  m_vertices[m_vertexCount++].m_color = color;
+
+  m_vertices[m_vertexCount].m_position = center - right * hw + up * hh;
+  m_vertices[m_vertexCount++].m_color = color;
+
+  m_vertices[m_vertexCount].m_position = center - right * hw - up * hh;
+  m_vertices[m_vertexCount++].m_color = color;
+
+  m_vertices[m_vertexCount].m_position = center + right * hw - up * hh;
+  m_vertices[m_vertexCount++].m_color = color;
+
+  m_indices[m_indexCount++] = 0; m_indices[m_indexCount++] = 1;
+  m_indices[m_indexCount++] = 1; m_indices[m_indexCount++] = 2;
+  m_indices[m_indexCount++] = 2; m_indices[m_indexCount++] = 3;
+  m_indices[m_indexCount++] = 3; m_indices[m_indexCount++] = 0;
+}
+
 
 void DebugDraw::DrawBox(const Matrix4& transform, Real w, Real h, Real d, const Vector4& color)
 {
@@ -98,11 +134,50 @@ void DebugDraw::DrawSphere(const Matrix4& transform, Real radius, const Vector4&
   DrawCircle(center, Vector3(right.GetX(), right.GetY(), right.GetZ()), radius, color);
   DrawCircle(center, Vector3(up.GetX(), up.GetY(), up.GetZ()), radius, color);
   DrawCircle(center, Vector3(forward.GetX(), forward.GetY(), forward.GetZ()), radius, color);
+  DrawSphereHorizon(center, radius, color);
+}
+
+void DebugDraw::DrawSphere(const Vector3& center, Real radius, const Vector4& color)
+{
+  DrawCircle(center, Vector3(1.0f, 0.0f, 0.0f), radius, color);
+  DrawCircle(center, Vector3(0.0f, 1.0f, 0.0f), radius, color);
+  DrawCircle(center, Vector3(0.0f, 0.0f, 1.0f), radius, color);
+  DrawSphereHorizon(center, radius, color);
+}
+
+void DebugDraw::DrawSphereHorizon(const Vector3& center, Real radius, const Vector4& color)
+{
+  Vector3 eye = Vector3(0.0f, 0.0f, 0.0f);
+  HNDL cameraObject = g_SystemTable->SceneManager->GetScene().GetCameraObject();
+  if (cameraObject != SF_INV_HANDLE)
+    eye = g_SystemTable->CompFactory->GetComponent<Transform>(cameraObject)->GetTranslation();
+
+  Vector3 ec = center - eye;
+  Real d = ec.Length();
+  Real l = sqrtf(d * d - radius * radius);
+  Real hR = radius * l / d;
+
+  Real z = l * hR / radius;
+  Vector3 hC = eye + z * ec / d;
+
+  DrawCircle(hC, ec / -d, hR, color);
+}
+
+void DebugDraw::DrawCone(const Vector3& tip, const Vector3& direction, const Vector3& right, const Vector3& up, Real height, Real angle, const Vector4& color)
+{
+  Real baseRadius = tanf(angle * SF_RADS_PER_DEG) * 2.0f * height;
+  Vector3 baseCenter = tip + direction * height;
+
+  DrawCircle(baseCenter, direction, baseRadius, color);
+  DrawLine(tip, baseCenter + right * baseRadius, color);
+  DrawLine(tip, baseCenter - right * baseRadius, color); 
+  DrawLine(tip, baseCenter + up * baseRadius, color);
+  DrawLine(tip, baseCenter - up * baseRadius, color);
 }
 
 void DebugDraw::DrawVector(const Vector3& origin, const Vector3& direction, const Vector4& color)
 {
-  const Real ARROW_SIZE = 5.0f;
+  const Real ARROW_SIZE = 0.1f;
 
   Vector3 forward = direction.Normalized();
   Vector3 right = Vector3(0.0f, 1.0f, 0.0f).Cross(forward);
@@ -168,6 +243,11 @@ void DebugDraw::DrawCircle(const Vector3& center, const Vector3& normal, Real ra
   }
 }
 
+void DebugDraw::DrawWireframe(const MeshRenderer *meshRenderer)
+{
+  m_wireFrameRenderers.push_back(meshRenderer);
+}
+
 void DebugDraw::Draw(D3D11Context& context)
 {
   m_vertexBuffer.SetData(context, m_vertices, m_vertexCount);
@@ -181,6 +261,26 @@ void DebugDraw::Draw(D3D11Context& context)
 
   m_vertexCount = 0;
   m_indexCount = 0;
+}
+
+void DebugDraw::DrawWireframe(D3D11Context& context, D3D11ConstantBuffer *perObjectBuffer)
+{
+  RasterState::Set(context, RasterState::WIREFRAME);
+  PerObjectData perObject;
+  for (const MeshRenderer *meshRenderer : m_wireFrameRenderers)
+  {
+    Mesh *mesh = meshRenderer->GetMesh();
+    if (mesh != nullptr)
+    {
+      Transform* transform = g_SystemTable->CompFactory->GetComponent<Transform>(meshRenderer->GetOwner());
+
+      perObject.WorldMatrix = transform->GetWorldMatrix();
+      perObjectBuffer->SetData(context, perObject);
+
+      mesh->Draw(context);
+    }
+  }
+  m_wireFrameRenderers.clear();
 }
 
 }

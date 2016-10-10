@@ -65,6 +65,18 @@ namespace Sulfur
     m_objectsToDelete.push_back(object);
   }
 
+  void ObjectFactory::DestroyAll()
+  {
+    for (auto it = m_objects.begin(); it != m_objects.end(); ++it)
+      DestroyObject(it->GetHndl());
+    EndFrameCleanUp();
+  }
+
+  SlotMap<Object>& ObjectFactory::GetObjects()
+  {
+    return m_objects;
+  }
+
   void ObjectFactory::EndFrameCleanUp(void)
   {
     for (auto &handle : m_objectsToDelete)
@@ -75,20 +87,6 @@ namespace Sulfur
     }
 
     m_objectsToDelete.clear();
-  }
-
-  void ObjectFactory::Serialize(std::ostream& str) const
-  {
-    Serialization::Serialize(str, m_objects);
-  }
-
-  void ObjectFactory::Deserialize(std::istream& str)
-  {
-    for (auto it = m_objects.begin(); it != m_objects.end(); ++it)
-      DestroyObject(it->GetHndl());
-    EndFrameCleanUp();
-
-    Serialization::Deserialize(str, m_objects);
   }
 
   void ObjectFactory::_Destroy(Object *obj)

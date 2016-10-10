@@ -13,6 +13,13 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include "Modules/Window/sfWindow.hpp"
+#include "Types/sfObject.hpp"
+#include "Modules/Graphics/Resources/Shader/sfD3D11VertexShader.hpp"
+#include "Modules/Graphics/Resources/Shader/sfD3D11PixelShader.hpp"
+#include "Modules/Graphics/Resources/Buffer/sfD3D11ConstantBuffer.hpp"
+
+#include "Modules/Graphics/Target/sfDepthBuffer.hpp"
+#include "Modules/Graphics/Target/sfRenderTarget.hpp"
 
 namespace Sulfur
 {
@@ -36,13 +43,22 @@ namespace Sulfur
 
     virtual QPaintEngine* paintEngine() const;
 
+    void SetSelection(Object *object);
+
   protected:
     virtual void resizeEvent(QResizeEvent* evt) override;
     virtual void paintEvent(QPaintEvent* evt) override;
     virtual void timerEvent(QTimerEvent* evt) override;
 
   private:
+    void CreatePickingResources();
+    void RenderPickingTexture();
+    void SelectObjectAt(int x, int y);
+    void SelectionDrawing();
     void UpdateEditorCamera();
+
+  signals:
+    void ObjectSelected(Object *object);
 
   private:
     Window *m_window;
@@ -54,6 +70,18 @@ namespace Sulfur
 
     int m_resizeTimer;
   
+    Object *m_selection;
+
+    D3D11VertexShader m_pickingVertexShader;
+    D3D11ConstantBuffer *m_perFrameData;
+    D3D11ConstantBuffer *m_perObjectData;
+
+    D3D11PixelShader m_pickingPixelShader;
+    D3D11ConstantBuffer *m_pickingData;
+
+    ID3D11Texture2D *m_stagingTexture;
+    RenderTarget m_pickingTarget;
+    DepthBuffer m_pickingDepthBuffer;
   };
   
 }

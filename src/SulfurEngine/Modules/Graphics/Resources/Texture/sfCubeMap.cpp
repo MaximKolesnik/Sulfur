@@ -41,6 +41,7 @@ void CubeMap::Init(ID3D11Texture2D *texture)
     );
 
   WrapperBase::Init(texture);
+  m_convolved = nullptr;
 }
 
 void CubeMap::Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description, const BYTE *pixelData)
@@ -51,10 +52,14 @@ void CubeMap::Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description,
     );
 
   Texture2D::Init(device, description, pixelData);
+  m_convolved = nullptr;
 }
 
-void CubeMap::Convolve(D3D11Device& device, CubeMap& output)
+CubeMap* CubeMap::Convolved(D3D11Device& device)
 {
+  if (m_convolved != nullptr)
+    return m_convolved;
+
   D3D11_TEXTURE2D_DESC description = GetDescription();
   description.Width = description.Height = 128;
   description.MipLevels = 1;
@@ -98,11 +103,14 @@ void CubeMap::Convolve(D3D11Device& device, CubeMap& output)
     device.GetImmediateContext().Draw(6, 0);
   }
 
-  output.Init(*target.GetTexture());
+  m_convolved = new CubeMap();
+  m_convolved->Init(*target.GetTexture());
 
   target.RenderTarget::WrapperBase::Free();
   vertexShader.Free();
   pixelShader.Free();
+
+  return m_convolved;
 }
 
 void CubeMap::CreateShaderResourceView(D3D11Device& device)

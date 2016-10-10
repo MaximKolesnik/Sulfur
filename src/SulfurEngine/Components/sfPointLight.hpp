@@ -26,6 +26,7 @@ public:
   virtual void Initialize(void) override final;
   virtual PointLight* Clone(void) const override final;
   virtual void Update(void) override {}
+  virtual void DrawDebug(DebugDraw *draw) const override;
 
 private:
   SF_PRIVATE_PROPERTY(Color, color, Color, "Color")
