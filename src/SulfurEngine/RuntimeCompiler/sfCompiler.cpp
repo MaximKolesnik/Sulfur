@@ -150,7 +150,7 @@ namespace Sulfur
     SF_CRITICAL_ERR_EXP(res,
       "Script output obj directory does not exist and cannot be created");
 
-    std::string compilerFlags = " /W3 /WX /LD /EHsc /O2 ";
+    std::string compilerFlags = " /W3 /WX /LD /EHsc /Ox ";
 #ifdef _DEBUG
     compilerFlags += "/MDd ";
 #else
