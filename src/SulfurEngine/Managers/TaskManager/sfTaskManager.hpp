@@ -68,6 +68,7 @@ namespace Sulfur
     void _ProcessWaitingTask(Task *task);
     Task* _PullAwakeTask(WorkerThread *pullingWorker);
     void _ResumeThreads(void);
+    void _HandleWaitingTasks(void);
 
     UINT32 m_numThreads; //hardware concurrent threads
 

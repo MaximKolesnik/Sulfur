@@ -65,6 +65,12 @@ namespace Sulfur
     std::unique_lock<std::mutex> lock(m_queueMutex);
     Task *task = nullptr;
 
+    if (m_waitingTasksMutex.try_lock())
+    {
+      _HandleWaitingTasks();
+      m_waitingTasksMutex.unlock();
+    }
+
     if ((task = _PullAwakeTask(pullingWorker))) //Check for awake task for current thread
       return task;
     else if (m_taskQueue.empty())               //Pull from graph
@@ -157,39 +163,14 @@ namespace Sulfur
 
     if (task->m_waitingTaskCounter)
     {
-      SF_ASSERT(task->m_waitingTaskCounter->m_counter.load() > 0, 
+      SF_ASSERT(task->m_waitingTaskCounter->m_counter.load() > 0,
         "Waiting counter is invalid");
 
       --(task->m_waitingTaskCounter->m_counter);
 
-      //Schedule this task if ready
-      if (task->m_waitingTaskCounter->m_counter.load() == 0)
-      {
-        Task *waitingTask = task->m_waitingTaskCounter->m_waitingTask;
-        
-        SF_ASSERT(waitingTask != nullptr, "Waiting task is not set");
-
-        m_waitingTasksMutex.lock();       //WaitingTasks lock
-
-        //Task may not be pushed on waiting queue yet
-        auto it = std::find(m_waitingTasks.begin(), m_waitingTasks.end(),
-          waitingTask);
-        if (it == m_waitingTasks.end())
-        {
-          m_waitingTasksMutex.unlock();
-          return;
-        }
-
-        m_waitingTasks.erase(it);
-
-        m_awakeTasksMutex.lock();         //AwakeTasks lock
-        m_awakeTasks[waitingTask->m_executingWorker->m_threadHandle].push_back(waitingTask);
-        m_awakeTasksMutex.unlock();       //AwakeTasks unlock
-
-        m_waitingTasksMutex.unlock();     //WaitingTasks unlock
-      }
+      SF_ASSERT(task->m_waitingTaskCounter->m_counter.load() >= 0,
+        "Waiting taks counter is less than zero");
     }
-
 
     m_graphMutex.lock();                  //Graph lock
     m_depGraph->NotifyTaskCompletion(taskName);
@@ -214,7 +195,7 @@ namespace Sulfur
     for (UINT32 i = 1; i < m_numThreads; ++i)
     {
       m_workers[i].m_threadHandle = CreateThread(0, 0, WorkerThreadRoutine, 
-        &m_workers[i], CREATE_SUSPENDED, NULL);
+        &m_workers[i], NULL, NULL);
 
       SF_CRITICAL_ERR_EXP(m_workers[i].m_threadHandle != NULL,
         std::to_string(GetLastError()));
@@ -306,6 +287,24 @@ namespace Sulfur
       EnterCriticalSection(&m_workers[i].m_suspendedCS);
       WakeConditionVariable(&m_workers[i].m_suspendedCV);
       LeaveCriticalSection(&m_workers[i].m_suspendedCS);
+    }
+  }
+
+  void TaskManager::_HandleWaitingTasks(void)
+  {
+    for (auto it = m_waitingTasks.begin(); it != m_waitingTasks.end();)
+    {
+      if ((*it)->m_waitingCounter.m_counter.load() == 0)
+      {
+        Task *thisTask = *it;
+        m_waitingTasks.erase(it++);
+
+        m_awakeTasksMutex.lock();         //AwakeTasks lock
+        m_awakeTasks[thisTask->m_executingWorker->m_threadHandle].push_back(thisTask);
+        m_awakeTasksMutex.unlock();       //AwakeTasks unlock
+      }
+      else
+        ++it;
     }
   }
 }
