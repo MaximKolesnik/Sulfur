@@ -63,6 +63,16 @@ namespace Sulfur
   {
     if (m_compiler)
       delete m_compiler;
+
+    for (auto it : m_scriptMap)
+    {
+      ScriptData *data = it.second;
+      if (data->m_compiled)
+      {
+        g_SystemTable->CompFactory->_RemoveScript(data->m_scriptName);
+        FreeLibrary(data->m_libHandle);
+      }
+    }
   }
 
   void ScriptManager::Initialize(void)

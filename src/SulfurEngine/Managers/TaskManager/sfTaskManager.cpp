@@ -171,11 +171,15 @@ namespace Sulfur
 
         m_waitingTasksMutex.lock();       //WaitingTasks lock
 
-        SF_ASSERT(std::find(m_waitingTasks.begin(), m_waitingTasks.end(), 
-          waitingTask) != m_waitingTasks.end(), "Waiting task is not on a waiting queue");
-
+        //Task may not be pushed on waiting queue yet
         auto it = std::find(m_waitingTasks.begin(), m_waitingTasks.end(),
           waitingTask);
+        if (it == m_waitingTasks.end())
+        {
+          m_waitingTasksMutex.unlock();
+          return;
+        }
+
         m_waitingTasks.erase(it);
 
         m_awakeTasksMutex.lock();         //AwakeTasks lock
@@ -210,13 +214,13 @@ namespace Sulfur
     for (UINT32 i = 1; i < m_numThreads; ++i)
     {
       m_workers[i].m_threadHandle = CreateThread(0, 0, WorkerThreadRoutine, 
-        &m_workers[i], CREATE_SUSPENDED, NULL);
+        &m_workers[i], NULL, NULL);
 
       SF_CRITICAL_ERR_EXP(m_workers[i].m_threadHandle != NULL,
         std::to_string(GetLastError()));
 
       SetThreadAffinityMask(m_workers[i].m_threadHandle, 1i64 << i);
-      m_workers[i].m_coreAffinity = 1;
+      m_workers[i].m_coreAffinity = i;
       m_workers[i].m_taskManager = this;
       InitializeConditionVariable(&m_workers[i].m_suspendedCV);
       InitializeCriticalSection(&m_workers[i].m_suspendedCS);

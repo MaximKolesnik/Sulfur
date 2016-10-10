@@ -24,6 +24,6 @@ void TestScript::Update()
 	HNDL obj = GetOwner();
 	HNDL transHndl = g_SystemTable->ObjFactory->GetObject(obj)->GetComponentHandle<Transform>();
 	Transform *t = g_SystemTable->CompFactory->GetComponent<Transform>(transHndl);
-	t->SetTranslation(Vector3(0.0,0.0,5.0)); 
+	t->SetTranslation(Vector3(0.0,0.0,6.0)); 
 	t->SetRotationEulerXZY(0.0f, 45.0f, 0.0f);
 }

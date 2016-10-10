@@ -52,7 +52,7 @@ namespace Sulfur
     WorkerThread *m_executingWorker = nullptr;
 
     bool m_done = false;
-    bool m_waiting = false;
+    std::atomic<bool> m_waiting = false;
 
     void *m_data = nullptr;
 

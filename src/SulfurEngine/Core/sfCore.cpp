@@ -20,6 +20,7 @@
 
 #include "SystemTable\sfSystemTable.hpp"
 #include "Components\sfMeshRenderer.hpp"
+#include "Components\sfTransform.hpp"
 
 namespace Sulfur
 {
@@ -99,6 +100,18 @@ namespace Sulfur
 
   void Core::ShutDown(void)
   {
+    delete g_SystemTable->ScriptManager;
+    delete g_SystemTable->WindowManager;
+    delete g_SystemTable->InputManager;
+    delete g_SystemTable->SceneManager;
+    delete g_SystemTable->GraphicsManager;
+    delete g_SystemTable->Time;
+    delete g_SystemTable->DebugDraw;
+    delete g_SystemTable->CompFactory;
+    delete g_SystemTable->ObjFactory;
+    delete g_SystemTable->Log;
+    delete g_SystemTable->TaskManager;
+    delete g_SystemTable;
   }
 
   void Core::OnWindowClose()

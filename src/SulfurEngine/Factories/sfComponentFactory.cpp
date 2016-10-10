@@ -143,6 +143,7 @@ namespace Sulfur
     SF_ASSERT(m_compMap.find(scriptName) == m_compMap.end(), "Script already exists");
 
     m_compMap[scriptName] = slotMap;
+    m_componentTypes.push_back(scriptName);
   }
 
   void ComponentFactory::_RemoveScript(const std::string &scriptName)
@@ -156,6 +157,7 @@ namespace Sulfur
     delete m_compMap[scriptName];
 
     m_compMap.erase(scriptName);
+    m_componentTypes.erase(std::find(m_componentTypes.begin(), m_componentTypes.end(), scriptName));
   }
 
   std::vector<std::pair<HNDL, HNDL> > ComponentFactory::_DeallocateScripts(const std::string &scriptName)

@@ -57,10 +57,10 @@ namespace Sulfur
             thisThread->m_taskManager->_ProcessCompletedTask(task);
           else if (task->m_waiting)
             thisThread->m_taskManager->_ProcessWaitingTask(task);
-
-          if (thisThread->m_taskManager->IsDone())
-            break;
         }
+
+        if (thisThread->m_taskManager->IsDone())
+          break;
       }
 
       //Only exit it is main thread worker

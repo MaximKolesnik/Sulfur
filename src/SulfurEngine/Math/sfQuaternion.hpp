@@ -31,7 +31,7 @@ namespace Sulfur
   public:
     SF_FORCE_INLINE SF_VEC_CALL Quaternion(void)
     {
-
+      Set(1, 0, 0, 0);
     }
 
     SF_FORCE_INLINE explicit SF_VEC_CALL Quaternion(Real q0, Real q1, Real q2,
@@ -110,11 +110,11 @@ namespace Sulfur
 
       m_data = _mm_add_ps(q1, q2);
 #else
-#endif
       m_comps[0] = cx * cy * cz - sx * sy * sz;
       m_comps[1] = sx * sy * cz + cx * cy * sz;
       m_comps[2] = sx * cy * cz + cx * sy * sz;
       m_comps[3] = cx * sy * cz - sx * cy * sz;
+#endif
     }
 
     SF_FORCE_INLINE void SF_VEC_CALL GetEulerXYZ(Real &roll, Real &pitch, Real &yaw) const
