@@ -57,10 +57,10 @@ namespace Sulfur
     m_up = m_matrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
     m_forward = m_matrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
 
-    Object *object = g_SystemTable->ObjFactory->GetObject(m_owner);
+    Object *object = SF_GET_OBJECT(m_owner);
     if (object->GetOwner() != SF_INV_HANDLE)
     {
-      Transform *parentTransform = g_SystemTable->ObjFactory->GetObject(object->GetOwner())->GetComponent<Transform>();
+      Transform *parentTransform = SF_GET_OBJECT(object->GetOwner())->GetComponent<Transform>();
       m_worldMatrix = parentTransform->GetWorldMatrix() * m_matrix;
       m_worldTranslation = m_worldMatrix * Vector3(0.0f, 0.0f, 0.0f);
       m_worldRotation = parentTransform->GetWorldRotation() * m_rotation;
@@ -84,10 +84,10 @@ namespace Sulfur
 
   void Transform::Reparent()
   {
-    Object *object = g_SystemTable->ObjFactory->GetObject(m_owner);
+    Object *object = SF_GET_OBJECT(m_owner);
     if (object->GetOwner() != SF_INV_HANDLE)
     {
-      Transform *parentTransform = g_SystemTable->ObjFactory->GetObject(object->GetOwner())->GetComponent<Transform>();
+      Transform *parentTransform = SF_GET_OBJECT(object->GetOwner())->GetComponent<Transform>();
       m_matrix = parentTransform->GetWorldMatrix().Inverted() * m_worldMatrix;
       m_translation = m_matrix * Vector3(0.0f, 0.0f, 0.0f);
       m_rotation = Quaternion(m_matrix);

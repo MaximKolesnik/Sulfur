@@ -26,12 +26,11 @@ namespace Sulfur
 {
   class ComponentFactory
   {
+    SF_SINGLETON(ComponentFactory);
+
   public:
     typedef std::unordered_map<std::string, ISlotMap*> ComponentMap;
     class ComponentData;
-
-    ComponentFactory(void);
-    ~ComponentFactory(void);
 
     //Register all components
     void Initialize(void);
@@ -61,9 +60,6 @@ namespace Sulfur
   private:
     friend class ScriptManager;
 
-    ComponentFactory(const ComponentFactory&) = delete;
-    ComponentFactory& operator=(const ComponentFactory&) = delete;
-
     template <typename CompType>
     void _RegisterComponent(void);
 
@@ -72,12 +68,6 @@ namespace Sulfur
     std::vector<std::string> m_componentTypes;
     ComponentMap m_compMap;
 
-    //Scripts
-    void _InsertNewScript(const std::string &scriptName, ISlotMap *slotMap);
-    void _RemoveScript(const std::string &scriptName);
-    std::vector<std::pair<HNDL, HNDL> > _DeallocateScripts(const std::string &scriptName);
-    void _RestoreScripts(const std::vector<std::pair<HNDL, HNDL> > &hndls, const std::string &scriptName,
-      ISlotMap *slotMap);
   public:
 
     class ComponentData
@@ -170,14 +160,14 @@ namespace Sulfur
   }
 
 #define SF_CREATE_COMP(Type) \
-Sulfur::g_SystemTable->CompFactory->CreateComponent<Type>()
+Sulfur::ComponentFactory::Instance()->CreateComponent<Type>()
 
 #define SF_GET_COMP_STR(TypeStr, Handle) \
-Sulfur::g_SystemTable->CompFactory->GetComponent(TypeStr, Handle)
+Sulfur::ComponentFactory::Instance()->GetComponent(TypeStr, Handle)
 
 #define SF_GET_COMP_TYPE(Type, Handle) \
-Sulfur::g_SystemTable->CompFactory->GetComponent<Type>(Handle)
+Sulfur::ComponentFactory::Instance()->GetComponent<Type>(Handle)
 
 #define SF_GET_COMP_DATA(Type) \
-Sulfur::g_SystemTable->CompFactory->GetComponentData<Type>()
+Sulfur::ComponentFactory::Instance()->GetComponentData<Type>()
 }

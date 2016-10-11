@@ -108,7 +108,7 @@ namespace Sulfur
     auto res = m_components.find(compType);
 
     if (res != m_components.end())
-      return g_SystemTable->CompFactory->GetComponent<CompType>(res->second);
+      return ComponentFactory::Instance()->GetComponent<CompType>(res->second);
     return nullptr;
   }
 

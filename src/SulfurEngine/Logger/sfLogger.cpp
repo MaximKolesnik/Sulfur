@@ -28,6 +28,16 @@ namespace Sulfur
 {
   Logger::Logger(void)
   {
+   
+  }
+
+  Logger::~Logger(void)
+  {
+    m_logFile.close();                                                          
+  }
+
+  void Logger::Initialize(void)
+  {
     // Show console window
     if (EngineSettings::ShowConsole)
     {
@@ -64,11 +74,6 @@ namespace Sulfur
     m_logFile.open((EngineSettings::LogDir + logName).c_str(), std::ofstream::out);
     if (!m_logFile.is_open())
       SF_CRITICAL_ERR("Log file cannot be created");
-  }
-
-  Logger::~Logger(void)
-  {
-    m_logFile.close();                                                          
   }
 
   void Logger::Log(const std::string &message, const std::string &fileName,

@@ -9,7 +9,6 @@
 #include "Modules/Time/sfTime.hpp"
 #include "Managers/TaskManager/sfTaskManager.hpp"
 #include "Logger/sfLogger.hpp"
-#include "Managers\ScriptManager\sfScriptManager.hpp"
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
@@ -17,10 +16,6 @@
 // Factories
 #include "Factories/sfComponentFactory.hpp"
 #include "Factories/sfObjectFactory.hpp"
-
-#include "SystemTable\sfSystemTable.hpp"
-#include "Components\sfMeshRenderer.hpp"
-#include "Components\sfTransform.hpp"
 
 namespace Sulfur
 {
@@ -34,26 +29,13 @@ namespace Sulfur
 
   void Core::StartUp(HWND windowHandle)
   {
-    //Init system table
-    g_SystemTable = new SystemTable();
-    g_SystemTable->Log = new Logger();
-
-    g_SystemTable->CompFactory = new ComponentFactory();
-    g_SystemTable->CompFactory->Initialize();
-
-    g_SystemTable->ObjFactory = new ObjectFactory();
-    g_SystemTable->ScriptManager = new ScriptManager();
-    g_SystemTable->TaskManager = new TaskManager();
-    g_SystemTable->WindowManager = new WindowManager();
-    g_SystemTable->InputManager = new InputManager();
-    g_SystemTable->SceneManager = new SceneManager();
-    g_SystemTable->GraphicsManager = new GraphicsManager();
-    g_SystemTable->Time = new Time();
-    g_SystemTable->DebugDraw = new DebugDraw();
+    Logger::Instance()->Initialize();
+    ComponentFactory::Instance()->Initialize();
+    TaskManager::Instance()->Initialize();
 
     // Start engine in existing window
     if (windowHandle != nullptr)
-      m_window = g_SystemTable->WindowManager->AddWindow(windowHandle);
+      m_window = WindowManager::Instance()->AddWindow(windowHandle);
     
     // Create a new window for the engine
     else
@@ -63,20 +45,17 @@ namespace Sulfur
       description.Height = 720;
       description.Title = "Sulfur Engine";
 
-      m_window = g_SystemTable->WindowManager->NewWindow(description);
+      m_window = WindowManager::Instance()->NewWindow(description);
       m_window->RegisterCallbackOnClose(this, &Core::OnWindowClose);
     }
 
-    g_SystemTable->InputManager->Init(m_window);
-    g_SystemTable->GraphicsManager->Init(*m_window);
-    g_SystemTable->ScriptManager->Initialize();
+    InputManager::Instance()->Init(m_window);
+    GraphicsManager::Instance()->Init(*m_window);
     m_running = true;
 
-    TaskManager* tm = g_SystemTable->TaskManager;
+    TaskManager* tm = TaskManager::Instance();
     tm->AddNode("UpdateTransforms");
-    tm->AddNode("UpdateScripts");
-    tm->SetStartingTask("UpdateScripts");
-    tm->SetDependency("UpdateTransforms", "UpdateScripts");
+    tm->SetStartingTask("UpdateTransforms");
     tm->CompleteGraph();
   }
 
@@ -89,29 +68,17 @@ namespace Sulfur
 
   void Core::Frame(void)
   {
-    g_SystemTable->WindowManager->Update();
-    g_SystemTable->InputManager->Update();
-    g_SystemTable->TaskManager->RunTasks();
-    g_SystemTable->GraphicsManager->Update();
-    g_SystemTable->ScriptManager->Update();
-    g_SystemTable->ObjFactory->EndFrameCleanUp();
-    g_SystemTable->Time->WaitForFrameRate();
+    WindowManager::Instance()->Update();
+    InputManager::Instance()->Update();
+    TaskManager::Instance()->RunTasks();
+    GraphicsManager::Instance()->Update();
+    ObjectFactory::Instance()->EndFrameCleanUp();
+    Time::Instance()->WaitForFrameRate();
   }
 
   void Core::ShutDown(void)
   {
-    delete g_SystemTable->ScriptManager;
-    delete g_SystemTable->WindowManager;
-    delete g_SystemTable->InputManager;
-    delete g_SystemTable->SceneManager;
-    delete g_SystemTable->GraphicsManager;
-    delete g_SystemTable->Time;
-    delete g_SystemTable->DebugDraw;
-    delete g_SystemTable->CompFactory;
-    delete g_SystemTable->ObjFactory;
-    delete g_SystemTable->Log;
-    //delete g_SystemTable->TaskManager;
-    delete g_SystemTable;
+    
   }
 
   void Core::OnWindowClose()

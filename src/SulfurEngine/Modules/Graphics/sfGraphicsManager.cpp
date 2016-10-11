@@ -15,7 +15,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Core/sfD3D11Factory.hpp"
 #include "Pipeline/Pipelines/sfDeferredPipeline.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
-#include "SystemTable/sfSystemTable.hpp"
 
 // States
 #include "State/sfBlendState.hpp"
@@ -40,7 +39,7 @@ void GraphicsManager::Init(Window& window)
   m_window = &window;
   InitDevice();
 
-  g_SystemTable->DebugDraw->Init(m_device);
+  DebugDraw::Instance()->Init(m_device);
   m_renderWindow.Init(m_device, window);
   m_pipeline = new DeferredPipeline(m_device, &m_renderWindow);
 

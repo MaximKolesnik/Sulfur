@@ -1,11 +1,10 @@
 #pragma once
-#include <iostream>
+
 #include "Types/sfSingleton.hpp"
 #include "Modules/Window/sfWindow.hpp"
 
 namespace Sulfur
 {
-
   class Core
   {
     SF_SINGLETON(Core)
@@ -23,7 +22,6 @@ namespace Sulfur
   private:
     bool m_running;
     Window *m_window;
-
   };
 
 }

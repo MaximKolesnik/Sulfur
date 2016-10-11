@@ -58,7 +58,7 @@ EditorWindow::EditorWindow(QWidget *parent)
   sceneDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
   m_sceneBrowser = new SceneBrowserWidget(sceneDock);
-  m_sceneBrowser->SetScene(&g_SystemTable->SceneManager->GetScene());
+  m_sceneBrowser->SetScene(&SceneManager::Instance()->GetScene());
   sceneDock->setWidget(m_sceneBrowser);
 
   QObject::connect(
@@ -116,8 +116,8 @@ void EditorWindow::OnOpenScene()
   if (!fileName.isEmpty())
   {
     std::ifstream file(fileName.toUtf8().data(), std::ios_base::binary);
-    Serialization::Deserialize(file, g_SystemTable->SceneManager->GetScene());
-    m_sceneBrowser->SetScene(&g_SystemTable->SceneManager->GetScene());
+    Serialization::Deserialize(file, SceneManager::Instance()->GetScene());
+    m_sceneBrowser->SetScene(&SceneManager::Instance()->GetScene());
   }
 }
 
@@ -132,7 +132,7 @@ void EditorWindow::OnSaveSceneAs()
   if (!fileName.isEmpty())
   {
     std::ofstream file(fileName.toUtf8().data(), std::ios_base::binary);
-    Serialization::Serialize(file, g_SystemTable->SceneManager->GetScene());
+    Serialization::Serialize(file, SceneManager::Instance()->GetScene());
   }
 }
 

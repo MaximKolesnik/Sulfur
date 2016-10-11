@@ -34,9 +34,10 @@ namespace Sulfur
 
   class TaskManager
   {
+    SF_SINGLETON(TaskManager);
   public:
-    TaskManager(void);
-    ~TaskManager(void);
+
+    void Initialize(void);
 
     void RunTasks(void);
 
@@ -59,9 +60,6 @@ namespace Sulfur
 
     //Map for waking tasks with thread affinity;
     typedef std::unordered_map<Thread, std::list<Task*> > TaskMapThread;
-
-    TaskManager(const TaskManager &) = delete;
-    TaskManager& operator=(const TaskManager&) = delete;
 
     void _CreateWorkerThreads(void);
     void _ProcessCompletedTask(Task *task);

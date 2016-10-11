@@ -18,20 +18,20 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include <fstream>
 #include <assert.h>
 
+#include "Types\sfSingleton.hpp"
+
 namespace Sulfur
 {
   class Logger
   {
+    SF_SINGLETON(Logger);
   public:
-    Logger(void);
-    ~Logger(void);
+    void Initialize(void);
 
     void Log(const std::string &message, const std::string &fileName,
       const std::string &functionName, UINT64 lineNumber, const std::string &type);
 
   private:
-    Logger(const Logger&) = delete;
-    Logger& operator=(const Logger&) = delete;
 
     //HH:MM:SS
     std::string _GetCurrentTime(void) const;
@@ -41,6 +41,6 @@ namespace Sulfur
   };
 
 #define SF_LOG_MESSAGE(message) \
-Sulfur::g_SystemTable->Log->Log(message, __FILE__, __FUNCTION__, __LINE__, "MESSAGE")
+Sulfur::Logger::Instance()->Log(message, __FILE__, __FUNCTION__, __LINE__, "MESSAGE")
 
 }

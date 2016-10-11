@@ -117,7 +117,7 @@ namespace Sulfur
       HNDL handle = compIt->second;
       ++compIt;
       
-      g_SystemTable->CompFactory->DeleteComponent(name, handle);
+      ComponentFactory::Instance()->DeleteComponent(name, handle);
     }
 
     m_objects.Erase(obj->m_hndl);

@@ -16,7 +16,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
-#include "SystemTable/sfSystemTable.hpp"
 #include "Factories/sfObjectFactory.hpp"
 #include "Components/sfTransform.hpp"
 #include "Components/sfCamera.hpp"
@@ -47,16 +46,16 @@ void RenderDebugDraw::Process()
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
 
-  SetupCamera(g_SystemTable->SceneManager->GetScene());
+  SetupCamera(SceneManager::Instance()->GetScene());
 
   PerObjectData perObject;
   perObject.WorldMatrix.SetIdentity();
   m_perObjectData->SetData(m_context, perObject);
 
-  g_SystemTable->DebugDraw->Draw(m_context);
+  DebugDraw::Instance()->Draw(m_context);
 
   m_wireframeShader.Set(m_context);
-  g_SystemTable->DebugDraw->DrawWireframe(m_context, m_perObjectData);
+  DebugDraw::Instance()->DrawWireframe(m_context, m_perObjectData);
 }
 
 void RenderDebugDraw::SetupCamera(Scene& scene)
@@ -65,7 +64,7 @@ void RenderDebugDraw::SetupCamera(Scene& scene)
 
   if (objHandle != SF_INV_HANDLE)
   {
-    Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
+    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
     Transform *transform = object->GetComponent<Transform>();
     Camera *camera = object->GetComponent<Camera>();
 

@@ -12,14 +12,12 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfDebugDraw.hpp"
-#include "SystemTable/sfSystemTable.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Factories/sfComponentFactory.hpp"
 #include "Components/sfTransform.hpp"
 #include "Modules/Graphics/State/sfRasterState.hpp"
 #include "Modules/Graphics/Resources//Buffer/sfD3D11ConstantBuffer.hpp"
 #include "Components/sfMeshRenderer.hpp"
-#include "SystemTable/sfSystemTable.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 
 namespace Sulfur
@@ -148,9 +146,9 @@ void DebugDraw::DrawSphere(const Vector3& center, Real radius, const Vector4& co
 void DebugDraw::DrawSphereHorizon(const Vector3& center, Real radius, const Vector4& color)
 {
   Vector3 eye = Vector3(0.0f, 0.0f, 0.0f);
-  HNDL cameraObject = g_SystemTable->SceneManager->GetScene().GetCameraObject();
+  HNDL cameraObject = SceneManager::Instance()->GetScene().GetCameraObject();
   if (cameraObject != SF_INV_HANDLE)
-    eye = g_SystemTable->CompFactory->GetComponent<Transform>(cameraObject)->GetTranslation();
+    eye = ComponentFactory::Instance()->GetComponent<Transform>(cameraObject)->GetTranslation();
 
   Vector3 ec = center - eye;
   Real d = ec.Length();
@@ -272,7 +270,7 @@ void DebugDraw::DrawWireframe(D3D11Context& context, D3D11ConstantBuffer *perObj
     Mesh *mesh = meshRenderer->GetMesh();
     if (mesh != nullptr)
     {
-      Transform* transform = g_SystemTable->CompFactory->GetComponent<Transform>(meshRenderer->GetOwner());
+      Transform* transform = ComponentFactory::Instance()->GetComponent<Transform>(meshRenderer->GetOwner());
 
       perObject.WorldMatrix = transform->GetWorldMatrix();
       perObjectBuffer->SetData(context, perObject);

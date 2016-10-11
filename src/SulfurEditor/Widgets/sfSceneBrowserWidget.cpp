@@ -20,7 +20,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/sfGraphicsManager.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Resource/sfResourceManager.hpp"
-#include "SystemTable/sfSystemTable.hpp"
 
 namespace Sulfur
 {
@@ -75,7 +74,7 @@ void SceneBrowserWidget::UpdateSelectedObjects()
   QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
   if (selection.empty()) return;
 
-  Object *object = g_SystemTable->ObjFactory->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
+  Object *object = SF_GET_OBJECT(selection.front()->data(0, Qt::UserRole).value<HNDL>());
   selection.front()->setText(0, object->m_name.c_str());
 }
 
@@ -155,7 +154,7 @@ void SceneBrowserWidget::Setup()
 
 void SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
 {
-  AddObject(g_SystemTable->ObjFactory->GetObject(objectHandle), root);
+  AddObject(SF_GET_OBJECT(objectHandle), root);
 }
 
 void SceneBrowserWidget::AddObject(Object *object, QTreeWidgetItem *root)
@@ -193,16 +192,16 @@ void SceneBrowserWidget::DeleteSelectedObjects()
       parent->removeChild(item);
     }
 
-    g_SystemTable->ObjFactory->DestroyObject(objectHandle);
+    ObjectFactory::Instance()->DestroyObject(objectHandle);
   }
 }
 
 Object* SceneBrowserWidget::CreateObjectInFrontOfCamera(const std::string& name)
 {
-  Object *object = g_SystemTable->ObjFactory->GetObject(m_scene->CreateObject(name));
+  Object *object = SF_GET_OBJECT(m_scene->CreateObject(name));
   Transform *transform = object->GetComponent<Transform>();
 
-  Object *cameraObject = g_SystemTable->ObjFactory->GetObject(m_scene->GetCameraObject());
+  Object *cameraObject = SF_GET_OBJECT(m_scene->GetCameraObject());
   Transform *cameraTransform = cameraObject->GetComponent<Transform>();
 
   transform->SetTranslation(
@@ -217,7 +216,7 @@ void SceneBrowserWidget::AddMeshObject(const std::string& objectName, const std:
 {
   Object *object = CreateObjectInFrontOfCamera(objectName);
 
-  MeshRenderer *meshRenderer = g_SystemTable->CompFactory->CreateComponent<MeshRenderer>();
+  MeshRenderer *meshRenderer = ComponentFactory::Instance()->CreateComponent<MeshRenderer>();
   meshRenderer->SetMesh(resourceName);
 
   object->AttachComponent(meshRenderer);
@@ -229,7 +228,7 @@ void SceneBrowserWidget::AddComponentObject(const std::string& objectName, const
 {
   Object *object = CreateObjectInFrontOfCamera(objectName);
 
-  IEntity *componentInstance = g_SystemTable->CompFactory->CreateComponent(component);
+  IEntity *componentInstance = ComponentFactory::Instance()->CreateComponent(component);
   object->AttachComponent(componentInstance);
 
   AddObject(object);
@@ -248,7 +247,7 @@ void SceneBrowserWidget::OnSceneTreeSelectionChanged()
     emit ObjectSelected(nullptr);
   else
   {
-    Object *object = g_SystemTable->ObjFactory->GetObject(selection.front()->data(0, Qt::UserRole).value<HNDL>());
+    Object *object = SF_GET_OBJECT(selection.front()->data(0, Qt::UserRole).value<HNDL>());
     emit ObjectSelected(object);
   }
 }
@@ -265,7 +264,7 @@ void SceneBrowserWidget::OnItemsMoved(const QModelIndex &parent, int start, int 
     if (parentHandle == SF_INV_HANDLE) childHandle = m_sceneTree->model()->index(i, 0).data(Qt::UserRole).value<HNDL>();
     else childHandle = parent.child(i, 0).data(Qt::UserRole).value<HNDL>();
 
-    Object *child = g_SystemTable->ObjFactory->GetObject(childHandle);
+    Object *child = SF_GET_OBJECT(childHandle);
     HNDL currentParent = child->GetParent();
 
     if (parentHandle != currentParent)

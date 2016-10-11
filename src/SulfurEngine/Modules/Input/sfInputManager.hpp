@@ -28,9 +28,8 @@ namespace Sulfur
       POINT MousePosition;
     };
 
+    SF_SINGLETON(InputManager);
   public:
-    InputManager();
-    ~InputManager();
 
     void Init(Window *window);
     void Update();
@@ -50,9 +49,6 @@ namespace Sulfur
 
   private:
     void FillState();
-
-    InputManager(const InputManager &) = delete;
-    InputManager& operator=(const InputManager&) = delete;
 
   private:
     Window *m_window;

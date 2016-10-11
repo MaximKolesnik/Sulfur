@@ -42,7 +42,7 @@ namespace Sulfur
       D3D11_TEXTURE2D_DESC description;
       DdsHeaderToTextureDescription(header, description);
 
-      resource->Init(g_SystemTable->GraphicsManager->GetDevice(), description, pixelData);
+      resource->Init(GraphicsManager::Instance()->GetDevice(), description, pixelData);
     }
 
   };

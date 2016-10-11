@@ -7,7 +7,7 @@ namespace Sulfur
 {
   void UpdateTransform(HNDL objectHandle)
   {
-    Object *object = g_SystemTable->ObjFactory->GetObject(objectHandle);
+    Object *object = SF_GET_OBJECT(objectHandle);
 
     Transform *transform = object->GetComponent<Transform>();
     transform->Update();
@@ -32,7 +32,7 @@ namespace Sulfur
     static std::vector<HNDL> roots[JOBS];
     static void *data[JOBS];
 
-    Scene& scene = g_SystemTable->SceneManager->GetScene();
+    Scene& scene = SceneManager::Instance()->GetScene();
     auto& rootObjects = scene.GetRootObjects();
     UINT32 transformsPerJob = (UINT32)((rootObjects.size() + JOBS - 1) / JOBS);
     auto it = rootObjects.begin();

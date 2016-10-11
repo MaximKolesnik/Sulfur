@@ -61,7 +61,7 @@ void JpegImporter::Load(BYTE *buffer, UINT32 bufferSize, Texture2D *resource)
   description.BindFlags = D3D11_BIND_SHADER_RESOURCE;
   description.CPUAccessFlags = 0;
   description.MiscFlags = 0;
-  resource->Init(g_SystemTable->GraphicsManager->GetDevice(), description, rgba);
+  resource->Init(GraphicsManager::Instance()->GetDevice(), description, rgba);
 
   jpeg_finish_decompress(&decompress);
   delete[] pixelData;

@@ -138,61 +138,6 @@ namespace Sulfur
       return name.substr(scopePos + 1);
   }
 
-  void ComponentFactory::_InsertNewScript(const std::string &scriptName, ISlotMap *slotMap)
-  {
-    SF_ASSERT(m_compMap.find(scriptName) == m_compMap.end(), "Script already exists");
-
-    m_compMap[scriptName] = slotMap;
-    m_componentTypes.push_back(scriptName);
-  }
-
-  void ComponentFactory::_RemoveScript(const std::string &scriptName)
-  {
-    SF_ASSERT(m_compMap.find(scriptName) != m_compMap.end(), "Script does not exist");
-
-    ComponentData data = GetComponentData(scriptName);
-    for (auto it : data)
-      DeleteComponent(it);
-
-    delete m_compMap[scriptName];
-
-    m_compMap.erase(scriptName);
-    m_componentTypes.erase(std::find(m_componentTypes.begin(), m_componentTypes.end(), scriptName));
-  }
-
-  std::vector<std::pair<HNDL, HNDL> > ComponentFactory::_DeallocateScripts(const std::string &scriptName)
-  {
-    SF_ASSERT(m_compMap.find(scriptName) != m_compMap.end(), "Script does not exist");
-
-    ComponentData data = GetComponentData(scriptName);
-    
-    std::vector<std::pair<HNDL, HNDL> > hndls;
-    for (auto it : data)
-      hndls.push_back(std::pair<HNDL, HNDL>(it->GetHndl(), it->GetOwner()));
-
-    delete m_compMap[scriptName];
-
-    return hndls;
-  }
-
-  void ComponentFactory::_RestoreScripts(const std::vector<std::pair<HNDL, HNDL> > &hndls,
-    const std::string &scriptName, ISlotMap *slotMap)
-  {
-    SF_ASSERT(m_compMap.find(scriptName) != m_compMap.end(), "Script does not exist");
-
-    for (auto it : hndls)
-    {
-      slotMap->CreateAt(it.first);
-      IEntity *script = slotMap->At(it.first);
-      script->m_hndl = it.first;
-      script->m_owner = it.second;
-      script->m_name = scriptName;
-      script->Initialize();
-    }
-
-    m_compMap[scriptName] = slotMap;
-  }
-
   ComponentFactory::ComponentMap& ComponentFactory::GetComponentMap()
   {
     return m_compMap;

@@ -23,10 +23,8 @@ namespace Sulfur
 	
   class GraphicsManager
   {
+    SF_SINGLETON(GraphicsManager)
   public:
-    GraphicsManager();
-    ~GraphicsManager();
-
     void Init(Window& window);
     void Free();
 
@@ -38,8 +36,6 @@ namespace Sulfur
     void InitDevice();
 
   private:
-    GraphicsManager(const GraphicsManager &) = delete;
-    GraphicsManager& operator=(const GraphicsManager&) = delete;
 
     Window *m_window;
     D3D11Device m_device;

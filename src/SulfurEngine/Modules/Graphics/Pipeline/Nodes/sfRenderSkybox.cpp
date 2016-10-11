@@ -57,7 +57,7 @@ void RenderSkybox::Process()
 {
   m_renderTarget->Clear(m_context);
 
-  CubeMap *skyboxMap = g_SystemTable->SceneManager->GetScene().m_sceneProperties.GetSkybox();
+  CubeMap *skyboxMap = SceneManager::Instance()->GetScene().m_sceneProperties.GetSkybox();
   if (skyboxMap == nullptr) return;
 
   m_renderTarget->Set(m_context);
@@ -70,7 +70,7 @@ void RenderSkybox::Process()
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
 
-  Scene& scene = g_SystemTable->SceneManager->GetScene();
+  Scene& scene = SceneManager::Instance()->GetScene();
   SetupCamera(scene);
 
   skyboxMap->SetPixel(m_context, 0);
@@ -83,7 +83,7 @@ void RenderSkybox::SetupCamera(Scene& scene)
 
   if (objHandle != SF_INV_HANDLE)
   {
-    Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
+    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
     Transform *transform = object->GetComponent<Transform>();
     Camera *camera = object->GetComponent<Camera>();
     const Vector3& translation = transform->GetWorldTranslation();

@@ -22,7 +22,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/sfGraphicsManager.hpp"
 #include "Modules/Input/sfInputManager.hpp"
 #include "Modules/Time/sfTime.hpp"
-#include "SystemTable/sfSystemTable.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Components/sfMeshRenderer.hpp"
 
@@ -30,6 +29,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/State/sfDepthState.hpp"
 #include "Modules/Graphics/State/sfRasterState.hpp"
 #include "Modules/Graphics/State/sfSamplerState.hpp"
+#include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 
 namespace Sulfur
 {
@@ -44,9 +44,9 @@ GameWidget::GameWidget(QWidget *parent)
   Core::Instance()->StartUp((HWND)winId());
   m_window = Core::Instance()->GetWindow();
 
-  Object *editorCamera = g_SystemTable->ObjFactory->CreateObject("EditorCamera");
+  Object *editorCamera = ObjectFactory::Instance()->CreateObject("EditorCamera");
 
-  Camera *cameraComponent = g_SystemTable->CompFactory->CreateComponent<Camera>();
+  Camera *cameraComponent = ComponentFactory::Instance()->CreateComponent<Camera>();
   cameraComponent->SetProjectionType(ProjectionType::PERSPECTIVE);
   cameraComponent->SetNearPlane(0.1f);
   cameraComponent->SetFarPlane(1000.0f);
@@ -54,7 +54,7 @@ GameWidget::GameWidget(QWidget *parent)
   editorCamera->AttachComponent(cameraComponent);
 
   m_editorCamera = editorCamera->GetHndl();
-  g_SystemTable->SceneManager->GetScene().SetCameraObject(m_editorCamera);
+  SceneManager::Instance()->GetScene().SetCameraObject(m_editorCamera);
 
   CreatePickingResources();
 }
@@ -127,30 +127,30 @@ void GameWidget::CreatePickingResources()
   description.BindFlags = D3D11_BIND_RENDER_TARGET;
   description.CPUAccessFlags = 0;
   description.MiscFlags = 0;
-  m_pickingTarget.Init(g_SystemTable->GraphicsManager->GetDevice(), description);
+  m_pickingTarget.Init(GraphicsManager::Instance()->GetDevice(), description);
 
   description.Usage = D3D11_USAGE_STAGING;
   description.BindFlags = 0;
   description.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-  g_SystemTable->GraphicsManager->GetDevice().GetD3DResource()->CreateTexture2D(&description, nullptr, &m_stagingTexture);
+  GraphicsManager::Instance()->GetDevice().GetD3DResource()->CreateTexture2D(&description, nullptr, &m_stagingTexture);
 
   description.Usage = D3D11_USAGE_DEFAULT;
   description.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
   description.BindFlags = D3D11_BIND_DEPTH_STENCIL;
   description.CPUAccessFlags = 0;
-  m_pickingDepthBuffer.Init(g_SystemTable->GraphicsManager->GetDevice(), description);  
+  m_pickingDepthBuffer.Init(GraphicsManager::Instance()->GetDevice(), description);
 
-  m_pickingVertexShader.Init(g_SystemTable->GraphicsManager->GetDevice(), "Shaders/VSTest.sbin");
+  m_pickingVertexShader.Init(GraphicsManager::Instance()->GetDevice(), "Shaders/VSTest.sbin");
   m_perFrameData = m_pickingVertexShader.GetConstantBuffer("PerFrameData");
   m_perObjectData = m_pickingVertexShader.GetConstantBuffer("PerObjectData");
 
-  m_pickingPixelShader.Init(g_SystemTable->GraphicsManager->GetDevice(), "Shaders/PSPicking.sbin");
+  m_pickingPixelShader.Init(GraphicsManager::Instance()->GetDevice(), "Shaders/PSPicking.sbin");
   m_pickingData = m_pickingPixelShader.GetConstantBuffer("PickingData");
 }
 
 void GameWidget::RenderPickingTexture()
 {
-  D3D11Context& context = g_SystemTable->GraphicsManager->GetDevice().GetImmediateContext();
+  D3D11Context& context = GraphicsManager::Instance()->GetDevice().GetImmediateContext();
 
   m_pickingTarget.Clear(context, Vector4(0.0f, 0.0f, 0.0f, 0.0f));
   m_pickingDepthBuffer.Clear(context);
@@ -163,13 +163,13 @@ void GameWidget::RenderPickingTexture()
   m_pickingVertexShader.Set(context);
   m_pickingPixelShader.Set(context);
 
-  Scene& scene = g_SystemTable->SceneManager->GetScene();
+  Scene& scene = SceneManager::Instance()->GetScene();
   
   // Setup camera
   HNDL objHandle = scene.GetCameraObject();
   if (objHandle != SF_INV_HANDLE)
   {
-    Object *object = g_SystemTable->ObjFactory->GetObject(scene.GetCameraObject());
+    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
     Transform *transform = object->GetComponent<Transform>();
     Camera *camera = object->GetComponent<Camera>();
 
@@ -188,7 +188,7 @@ void GameWidget::RenderPickingTexture()
     m_perFrameData->SetData(context, perFrame);
   }
 
-  ComponentFactory::ComponentData componentData = g_SystemTable->CompFactory->GetComponentData<MeshRenderer>();
+  ComponentFactory::ComponentData componentData = ComponentFactory::Instance()->GetComponentData<MeshRenderer>();
   for (auto it = componentData.begin(); it != componentData.end(); ++it)
   {
     MeshRenderer *meshRenderer = static_cast<MeshRenderer*>(*it);
@@ -196,7 +196,7 @@ void GameWidget::RenderPickingTexture()
 
     if (mesh)
     {
-      Object *object = g_SystemTable->ObjFactory->GetObject(meshRenderer->GetOwner());
+      Object *object = SF_GET_OBJECT(meshRenderer->GetOwner());
       Transform* transform = object->GetComponent<Transform>();
 
       PerObjectData perObject;
@@ -216,7 +216,7 @@ void GameWidget::SelectObjectAt(int x, int y)
   int px = (int)((Real)x / width() * 1024);
   int py = (int)((Real)y / height() * 1024);
 
-  ID3D11DeviceContext *context = g_SystemTable->GraphicsManager->GetDevice().GetImmediateContext().GetD3DResource();
+  ID3D11DeviceContext *context = GraphicsManager::Instance()->GetDevice().GetImmediateContext().GetD3DResource();
   context->CopyResource(m_stagingTexture, m_pickingTarget.GetTexture()->GetD3DResource());
 
   D3D11_MAPPED_SUBRESOURCE msr;
@@ -226,7 +226,7 @@ void GameWidget::SelectObjectAt(int x, int y)
   UINT32 handle = pickingData[py * 1024 + px];
 
   if (handle != 0)
-    emit ObjectSelected(g_SystemTable->ObjFactory->GetObject((HNDL)handle-1));
+    emit ObjectSelected(SF_GET_OBJECT((HNDL)handle-1));
   else
     emit ObjectSelected(nullptr);
 
@@ -237,28 +237,28 @@ void GameWidget::SelectionDrawing()
 {
   if (m_selection)
   {
-    m_selection->DrawDebug(g_SystemTable->DebugDraw);
+    m_selection->DrawDebug(DebugDraw::Instance());
 
     auto& components = m_selection->GetComponents();
     for (auto it = components.begin(); it != components.end(); ++it)
     {
-      g_SystemTable->CompFactory->GetComponent(it->first, it->second)->DrawDebug(g_SystemTable->DebugDraw);
+      ComponentFactory::Instance()->GetComponent(it->first, it->second)->DrawDebug(DebugDraw::Instance());
     }
   }
 }
 
 void GameWidget::UpdateEditorCamera()
 {
-  Object *editorCamera = g_SystemTable->ObjFactory->GetObject(m_editorCamera);
+  Object *editorCamera = SF_GET_OBJECT(m_editorCamera);
   Transform *transform = editorCamera->GetComponent<Transform>();
   transform->Update();
 
   if (m_controllingCamera)
   {
-    InputManager *inputManager = g_SystemTable->InputManager;
+    InputManager *inputManager = InputManager::Instance();
 
     // Camera rotation
-    Real rotationAmount = 50.0f * g_SystemTable->Time->GetDt();
+    Real rotationAmount = 50.0f * Time::Instance()->GetDt();
     m_cameraYaw += inputManager->MouseDeltaX() * -rotationAmount;
     m_cameraPitch += inputManager->MouseDeltaY() * -rotationAmount;
     while (m_cameraYaw < 0.0f) m_cameraYaw += 360.0f;
@@ -271,7 +271,7 @@ void GameWidget::UpdateEditorCamera()
     transform->SetRotation(rotation);
 
     // Camera movement
-    Real translationAmount = (1.0f + inputManager->IsKeyDown(VK_SHIFT)) * g_SystemTable->Time->GetDt();
+    Real translationAmount = (1.0f + inputManager->IsKeyDown(VK_SHIFT)) * Time::Instance()->GetDt();
     transform->SetTranslation(
       transform->GetTranslation() +
       transform->GetUp() * (inputManager->IsKeyDown('E') - inputManager->IsKeyDown('Q')) * translationAmount +

@@ -14,7 +14,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfDeferredLightPass.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
-#include "SystemTable/sfSystemTable.hpp"
 
 #include "Modules/Graphics/State/sfBlendState.hpp"
 #include "Modules/Graphics/State/sfDepthState.hpp"
@@ -71,7 +70,7 @@ void DeferredLightPass::Process()
 
 void DeferredLightPass::RenderAmbientLight()
 {
-  SceneProperties& sceneProps = g_SystemTable->SceneManager->GetScene().m_sceneProperties;
+  SceneProperties& sceneProps = SceneManager::Instance()->GetScene().m_sceneProperties;
   CubeMap *skyboxMap = sceneProps.GetSkybox();
   if (skyboxMap == nullptr || !sceneProps.GetIbl()) return;
 
@@ -90,11 +89,11 @@ void DeferredLightPass::RenderDirectionalLights()
   m_directionalLightShader.Set(m_context);
 
   DirectionalLightData directionalLightData;
-  ComponentFactory::ComponentData directionalLights = g_SystemTable->CompFactory->GetComponentData<DirectionalLight>();
+  ComponentFactory::ComponentData directionalLights = ComponentFactory::Instance()->GetComponentData<DirectionalLight>();
   for (auto it = directionalLights.begin(); it != directionalLights.end(); ++it)
   {
     DirectionalLight *directionalLight = static_cast<DirectionalLight*>(*it);
-    Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(directionalLight->GetOwner());
+    Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(directionalLight->GetOwner());
 
     directionalLightData.Direction = transform->GetWorldForward();
     directionalLightData.Color = directionalLight->GetColor();
@@ -111,11 +110,11 @@ void DeferredLightPass::RenderPointLights()
   m_pointLightPixelShader.Set(m_context);
 
   PointLightData pointLightData;
-  ComponentFactory::ComponentData pointLights = g_SystemTable->CompFactory->GetComponentData<PointLight>();
+  ComponentFactory::ComponentData pointLights = ComponentFactory::Instance()->GetComponentData<PointLight>();
   for (auto it = pointLights.begin(); it != pointLights.end(); ++it)
   {
     PointLight *pointLight = static_cast<PointLight*>(*it);
-    Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(pointLight->GetOwner());
+    Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(pointLight->GetOwner());
     Vector3 pos = transform->GetWorldTranslation();
 
     pointLightData.Position = Vector4(pos[0], pos[1], pos[2], 1.0f);
@@ -134,11 +133,11 @@ void DeferredLightPass::RenderSpotLights()
   m_spotLightPixelShader.Set(m_context);
 
   SpotLightData spotLightData;
-  ComponentFactory::ComponentData spotLights = g_SystemTable->CompFactory->GetComponentData<SpotLight>();
+  ComponentFactory::ComponentData spotLights = ComponentFactory::Instance()->GetComponentData<SpotLight>();
   for (auto it = spotLights.begin(); it != spotLights.end(); ++it)
   {
     SpotLight *spotLight = static_cast<SpotLight*>(*it);
-    Transform *transform = g_SystemTable->CompFactory->GetComponent<Transform>(spotLight->GetOwner());
+    Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(spotLight->GetOwner());
     Vector3 pos = transform->GetWorldTranslation();
 
     spotLightData.Position = Vector4(pos[0], pos[1], pos[2], 1.0f);

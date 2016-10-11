@@ -32,9 +32,9 @@ GameWidget::GameWidget(QWidget *parent)
 
   Core::Instance()->StartUp((HWND)winId());
   
-  Object *editorCamera = g_SystemTable->ObjFactory->CreateObject("EditorCamera");
+  Object *editorCamera = ObjectFactory::Instance()->CreateObject("EditorCamera");
 
-  Camera *cameraComponent = g_SystemTable->CompFactory->CreateComponent<Camera>();
+  Camera *cameraComponent = ComponentFactory::Instance()->CreateComponent<Camera>();
   cameraComponent->SetProjectionType(ProjectionType::PERSPECTIVE);
   cameraComponent->SetNearPlane(0.1f);
   cameraComponent->SetFarPlane(1000.0f);
@@ -42,7 +42,7 @@ GameWidget::GameWidget(QWidget *parent)
   editorCamera->AttachComponent(cameraComponent);
 
   m_editorCamera = editorCamera->GetHndl();
-  g_SystemTable->SceneManager->GetScene().SetCameraObject(m_editorCamera);
+  SceneManager::Instance()->GetScene().SetCameraObject(m_editorCamera);
 }
 
 GameWidget::~GameWidget()
@@ -90,13 +90,13 @@ void GameWidget::mouseMoveEvent(QMouseEvent *event)
 
 void GameWidget::UpdateEditorCamera()
 {
-  Object *editorCamera = g_SystemTable->ObjFactory->GetObject(m_editorCamera);
+  Object *editorCamera = SF_GET_OBJECT(m_editorCamera);
   Transform *transform = editorCamera->GetComponent<Transform>();
   transform->Update();
 
   if (m_controllingCamera)
   {
-    InputManager *inputManager = g_SystemTable->InputManager;
+    InputManager *inputManager = InputManager::Instance();
 
     Quaternion rotation = transform->GetRotation();
     rotation = Quaternion(Vector3::c_yAxis, inputManager->MouseDeltaX() * -0.01f) * rotation;

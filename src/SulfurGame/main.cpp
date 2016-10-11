@@ -1,7 +1,6 @@
 #include "sfSulfurPCH.hpp"
 #include "Core/sfCore.hpp"
 #include "Factories\sfComponentFactory.hpp"
-#include "SystemTable\sfSystemTable.hpp"
 
 #if(0)
 

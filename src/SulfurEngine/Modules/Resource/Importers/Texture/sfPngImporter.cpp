@@ -44,7 +44,7 @@ void PngImporter::Load(BYTE *buffer, UINT32 bufferSize, Texture2D *resource)
       description.CPUAccessFlags = 0;
       description.MiscFlags = 0;
 
-      resource->Init(g_SystemTable->GraphicsManager->GetDevice(), description, pixelData);
+      resource->Init(GraphicsManager::Instance()->GetDevice(), description, pixelData);
     }
 
     delete[] pixelData;

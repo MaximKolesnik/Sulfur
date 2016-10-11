@@ -12,16 +12,16 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #pragma once
-#include "Settings/sfEngineSettings.hpp"
+
+#include "Types\sfSingleton.hpp"
 
 namespace Sulfur
 {
 	
   class Time
   {
-  
+    SF_SINGLETON(Time);
   public:
-    Time(Real frameRate = EngineSettings::DefaultFPS);
 
     void WaitForFrameRate();
     Real GetDt();

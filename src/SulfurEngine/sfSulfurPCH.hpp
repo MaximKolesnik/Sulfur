@@ -25,4 +25,3 @@
 #include "Settings/sfEngineSettings.hpp"
 #include "Logger/sfLogger.hpp"
 #include "Error/sfError.hpp"
-#include "SystemTable\sfSystemTable.hpp"

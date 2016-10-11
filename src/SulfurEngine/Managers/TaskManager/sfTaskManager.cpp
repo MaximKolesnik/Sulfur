@@ -101,34 +101,7 @@ namespace Sulfur
 
   TaskManager::TaskManager(void) : m_workers(nullptr)
   {
-    m_numThreads = std::thread::hardware_concurrency();
-    SF_CRITICAL_ERR_EXP(m_numThreads != 0, "Number of concurent threads is not computable");
     
-    _CreateWorkerThreads();
-    
-    //Fill internal registry
-    TaskRegistry::REGMAP &regMap = TaskRegistry::GetRegistry();
-    for (auto &it : regMap)
-    {
-      std::pair<std::string, Task*> newPair;
-      newPair.first = it.first;
-      
-      Task *task = new Task(it.first, it.second);
-      task->m_fiber = CreateFiberEx(EngineSettings::FiberStackSize,
-        EngineSettings::FiberReservedStackSize, FIBER_FLAG_FLOAT_SWITCH,
-        it.second, task);
-      task->m_taskManager = this;
-
-      newPair.second = task;
-
-      SF_CRITICAL_ERR_EXP(task->m_fiber != NULL, "Cannot create fiber");
-      SF_ASSERT(m_taskRegistry.find(it.first) == m_taskRegistry.end(),
-        std::string("Task " + it.first + " is already registered").c_str());
-
-      m_taskRegistry.emplace(newPair);
-    }
-
-    m_depGraph = new DependencyGraph();
   }
 
   TaskManager::~TaskManager(void)
@@ -155,6 +128,38 @@ namespace Sulfur
         DeleteFiber(fiber);
       delete it.second;
     }
+  }
+
+  void TaskManager::Initialize(void)
+  {
+    m_numThreads = std::thread::hardware_concurrency();
+    SF_CRITICAL_ERR_EXP(m_numThreads != 0, "Number of concurent threads is not computable");
+
+    _CreateWorkerThreads();
+
+    //Fill internal registry
+    TaskRegistry::REGMAP &regMap = TaskRegistry::GetRegistry();
+    for (auto &it : regMap)
+    {
+      std::pair<std::string, Task*> newPair;
+      newPair.first = it.first;
+
+      Task *task = new Task(it.first, it.second);
+      task->m_fiber = CreateFiberEx(EngineSettings::FiberStackSize,
+        EngineSettings::FiberReservedStackSize, FIBER_FLAG_FLOAT_SWITCH,
+        it.second, task);
+      task->m_taskManager = this;
+
+      newPair.second = task;
+
+      SF_CRITICAL_ERR_EXP(task->m_fiber != NULL, "Cannot create fiber");
+      SF_ASSERT(m_taskRegistry.find(it.first) == m_taskRegistry.end(),
+        std::string("Task " + it.first + " is already registered").c_str());
+
+      m_taskRegistry.emplace(newPair);
+    }
+
+    m_depGraph = new DependencyGraph();
   }
 
   void TaskManager::_ProcessCompletedTask(Task *task)

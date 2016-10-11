@@ -25,10 +25,10 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #ifdef _DEBUG
 #define SF_WARNING(message) \
-Sulfur::g_SystemTable->Log->Log(message, __FILE__, __FUNCTION__, __LINE__, "WARNING")
+Sulfur::Logger::Instance()->Log(message, __FILE__, __FUNCTION__, __LINE__, "WARNING")
 
 #define SF_WARNING_EXP(exp, message) \
-if (!(exp)) Sulfur::g_SystemTable->Log->Log(message, __FILE__, __FUNCTION__, __LINE__, "WARNING")
+if (!(exp)) Sulfur::Logger::Instance()->Log(message, __FILE__, __FUNCTION__, __LINE__, "WARNING")
 
 #define SF_WARNING_HRESULT(hresult, message) \
 if (FAILED(hresult)) { \
@@ -41,7 +41,7 @@ SF_WARNING(text); \
 
 #define SF_WARNING_MB(message) \
 { \
-Sulfur::g_SystemTable->Log->Log(message, __FILE__, __FUNCTION__, __LINE__, "WARNING"); \
+Sulfur::Logger::Instance()->Log(message, __FILE__, __FUNCTION__, __LINE__, "WARNING"); \
 std::string dialogText = message; \
 dialogText += "\n"; \
 dialogText += "Do you want to continue? No to start debugging"; \
@@ -60,7 +60,7 @@ switch (res) \
 #define SF_WARNING_EXP_MB(exp, message) \
 if (!(exp)) \
 { \
-Sulfur::g_SystemTable->Log->Log(message, __FILE__, __FUNCTION__, __LINE__, "WARNING"); \
+Sulfur::Logger::Instance()->Log(message, __FILE__, __FUNCTION__, __LINE__, "WARNING"); \
 std::string dialogText = message; \
 dialogText += "\n"; \
 dialogText += "Do you want to continue? No to start debugging"; \
@@ -88,7 +88,7 @@ SF_WARNING_MB(text); \
 #define SF_ASSERT(exp, message) \
 if (!(exp)) \
 { \
-  Sulfur::g_SystemTable->Log->Log((message), __FILE__, __FUNCTION__, __LINE__, "ASSERT"); \
+  Sulfur::Logger::Instance()->Log((message), __FILE__, __FUNCTION__, __LINE__, "ASSERT"); \
   assert(false); \
 }
 
@@ -105,7 +105,7 @@ if (!(exp)) \
 //Use critical error without logging, if not sure that logger is initialized
 #define SF_LOG_CRITICAL_ERR(message) \
 { \
-Sulfur::g_SystemTable->Log->Log(message, __FILE__, __FUNCTION__, __LINE__, "CRITICAL ERROR"); \
+Sulfur::Logger::Instance()->Log(message, __FILE__, __FUNCTION__, __LINE__, "CRITICAL ERROR"); \
 std::string dialogText = message; \
 dialogText += "\n"; \
 dialogText += "CRITICAL ERROR"; \

@@ -105,14 +105,6 @@ premakeDef.projects["UnitTests"] = {
 	pchHeader = "stdafx.h",
 	pchSource = "stdafx.cpp"
 }
-
-premakeDef.projects["SulfurMinEngine"] = {
-	language = "C++",
-	kind = "StaticLib",
-	dependencies = {"SulfurEngine", "D3D11", "libpng", "libjpeg", "fbx", "dds", "WinApi"},
-	pchHeader = "sfMinPCH.hpp",
-	pchSource = "sfMinPCH.cpp"
-}
 -------------------------------------------------------------------------------
 -- Executable Projects --------------------------------------------------------
 -------------------------------------------------------------------------------

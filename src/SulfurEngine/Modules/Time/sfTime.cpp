@@ -12,18 +12,24 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfTime.hpp"
+#include "Settings/sfEngineSettings.hpp"
 
 namespace Sulfur
 {
 
-  Time::Time(Real frameRate)
-    : m_frameRate(frameRate), m_dt(0.0f)
+  Time::Time()
+    : m_frameRate(EngineSettings::DefaultFPS), m_dt(0.0f)
   {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
 
     m_frequency = (Real)frequency.QuadPart;
     QueryPerformanceCounter(&m_startCycle);
+  }
+
+  Time::~Time()
+  {
+
   }
 
   void Time::WaitForFrameRate()
