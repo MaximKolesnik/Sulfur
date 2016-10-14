@@ -40,6 +40,10 @@ namespace Sulfur
     virtual Object* Clone(void) const override final;
     virtual void Update(void) override final {};
 
+    bool IsAlive(void) const { return m_isAlive; }
+
+    void Destroy(void);
+
     void SetParent(HNDL parent);
     HNDL GetParent(void) const { return m_owner; }
 
@@ -68,8 +72,10 @@ namespace Sulfur
 
     void _CloneChildren(Object *parent, const ChildrenSet &children) const;
 
-    SF_PRIVATE_PROPERTY(ComponentMap, components, Components, "Components")
-    SF_PRIVATE_PROPERTY(ChildrenSet, children, Children, "Children")
+    SF_PRIVATE_PROPERTY(ComponentMap, components, Components, "Components");
+    SF_PRIVATE_PROPERTY(ChildrenSet, children, Children, "Children");
+
+    bool m_isAlive;
   };
 
   template <class CompType>

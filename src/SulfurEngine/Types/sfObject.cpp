@@ -21,7 +21,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  Object::Object(void)
+  Object::Object(void) : m_isAlive(true)
   {
 
   }
@@ -39,6 +39,11 @@ namespace Sulfur
   Object* Object::Clone(void) const
   {
     return _Clone(this);
+  }
+
+  void Object::Destroy(void)
+  {
+    ObjectFactory::Instance()->DestroyObject(this);
   }
 
   void Object::SetParent(HNDL parent)

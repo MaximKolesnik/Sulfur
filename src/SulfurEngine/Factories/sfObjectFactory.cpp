@@ -62,7 +62,21 @@ namespace Sulfur
   {
     SF_ASSERT(object != SF_INV_HANDLE, "Invalid handle");
 
-    m_objectsToDelete.push_back(object);
+    Object *objPtr = GetObject(object);
+    if (objPtr->m_isAlive)
+    {
+      objPtr->m_isAlive = false;
+      m_objectsToDelete.push_back(object);
+    }
+  }
+
+  void ObjectFactory::DestroyObject(Object *object)
+  {
+    if (object && object->m_isAlive)
+    {
+      object->m_isAlive = false;
+      m_objectsToDelete.push_back(object->m_hndl);
+    }
   }
 
   void ObjectFactory::DestroyAll()

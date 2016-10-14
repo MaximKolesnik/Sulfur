@@ -32,7 +32,9 @@ namespace Sulfur
     Object* CreateEmptyObject(const std::string &name = "DefaultObject");
 
     Object* GetObject(const HNDL object) const;
+
     void DestroyObject(const HNDL object);
+    void DestroyObject(Object *object);
 
     void DestroyAll();
     SlotMap<Object>& GetObjects();
