@@ -55,8 +55,13 @@ namespace Sulfur
 
     TaskManager* tm = TaskManager::Instance();
     tm->AddNode("UpdateTransforms");
+    tm->AddNode("TriggerEventsEndFrame");
     tm->SetStartingTask("UpdateTransforms");
+    tm->SetDependency("TriggerEventsEndFrame", "UpdateTransforms");
     tm->CompleteGraph();
+
+    Object *testObj = SF_CREATE_OBJECT("testEvent");
+    EventManager::Instance()->PushEvent<IEntity::OnTestEvent>(OnTestEventData(testObj->GetHndl(), "Test"));
   }
 
   void Core::GameLoop(void)

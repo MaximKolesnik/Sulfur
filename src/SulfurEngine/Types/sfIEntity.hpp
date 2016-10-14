@@ -1,7 +1,10 @@
 #pragma once
+
 #include <string>
+
 #include "sfTypes.hpp"
 #include "Reflection/sfReflection.hpp"
+//#include "Events\sfEvents.hpp"
 
 namespace Sulfur
 {
@@ -27,9 +30,10 @@ namespace Sulfur
     friend class ObjectFactory;
     friend class Object;
 
-    SF_PUBLIC_PROPERTY(std::string, name, Name, "Name")
-    SF_PROTECTED_PROPERTY(HNDL, hndl, Hndl, "Handle")
-    SF_PROTECTED_PROPERTY(HNDL, owner, Owner, "Owner")
+    SF_PUBLIC_PROPERTY(std::string, name, Name, "Name");
+    SF_PROTECTED_PROPERTY(HNDL, hndl, Hndl, "Handle");
+    SF_PROTECTED_PROPERTY(HNDL, owner, Owner, "Owner");
 
+    //SF_COMPONENT_EVENTS
   };
 }
