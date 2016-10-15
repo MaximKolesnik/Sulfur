@@ -15,15 +15,15 @@ namespace Sulfur
   {
     SF_SINGLETON(EventManager);
   public:
-    //template <void (IEntity::*EventFunc) (typename EventDataType *)>
-    //void PushEvent(const EventDataType &data)
-    //{
-    //  m_queueMutex.lock();   //Queue lock
+    template <typename EventFunc, typename EventData>
+    void PushEvent(EventFunc func, EventData &data)
+    {
+      m_queueMutex.lock();   //Queue lock
 
-    //  m_eventQueue.push(new EventMessage<EventFunc>(data));
+      m_eventQueue.push(new EventMessage<EventFunc, EventData>(func, data));
 
-    //  m_queueMutex.unlock();
-    //}
+      m_queueMutex.unlock();
+    }
 
     //Generally should be used only from task manager
     void TriggerAll(void);
@@ -35,11 +35,11 @@ namespace Sulfur
       virtual void Trigger(void) = 0;
     };
 
-    template <void (IEntity::*EventFunc) (int *) >
+    template <typename EventFunc, typename EventData>
     struct EventMessage : public IEventMessage
     {
-      EventMessage(const int &data)
-        : m_data(data)
+      EventMessage(EventFunc func, const EventData &data)
+        : m_func(func), m_data(data)
       {
 
       }
@@ -47,10 +47,11 @@ namespace Sulfur
       virtual void Trigger(void) override
       {
         Object *obj = SF_GET_OBJECT(m_data.m_thisObject);
-        obj->_SendEventsToComps<EventFunc>(&m_data);
+        obj->_SendEventsToComps<EventData, EventFunc>(m_func, &m_data);
       }
 
-      int  m_data;
+      EventFunc m_func;
+      EventData m_data;
     };
 
     std::mutex   m_queueMutex;

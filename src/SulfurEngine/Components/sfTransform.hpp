@@ -69,8 +69,9 @@ public:
 
   SF_PRIVATE_PROPERTY(Vector3, translation, Translation, "Translation")
   SF_PRIVATE_PROPERTY(Quaternion, rotation, Rotation, "Rotation")
-  SF_PRIVATE_PROPERTY(Vector3, scale, Scale, "Scale")
-
+  SF_PRIVATE_PROPERTY(Vector3, scale, Scale, "Scale");
+  
+  virtual void OnTestEvent(OnTestEventData *data);
 private:
   Matrix4 m_matrix;
   Vector3 m_right;

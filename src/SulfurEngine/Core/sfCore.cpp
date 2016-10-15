@@ -12,6 +12,7 @@
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Managers\EventManager\sfEventManager.hpp"
 
 // Factories
 #include "Factories/sfComponentFactory.hpp"
@@ -60,8 +61,8 @@ namespace Sulfur
     tm->SetDependency("TriggerEventsEndFrame", "UpdateTransforms");
     tm->CompleteGraph();
 
-    Object *testObj = SF_CREATE_OBJECT("testEvent");
-    EventManager::Instance()->PushEvent<IEntity::OnTestEvent>(OnTestEventData(testObj->GetHndl(), "Test"));
+    /*Object *testObj = SF_CREATE_OBJECT("testEvent");
+    EventManager::Instance()->PushEvent(IEntity::&OnTestEvent, OnTestEventData(testObj->GetHndl(), "Test"));*/
   }
 
   void Core::GameLoop(void)

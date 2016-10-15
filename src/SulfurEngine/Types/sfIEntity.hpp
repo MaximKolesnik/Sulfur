@@ -4,7 +4,7 @@
 
 #include "sfTypes.hpp"
 #include "Reflection/sfReflection.hpp"
-//#include "Events\sfEvents.hpp"
+#include "Events\sfEvents.hpp"
 
 namespace Sulfur
 {
@@ -34,6 +34,6 @@ namespace Sulfur
     SF_PROTECTED_PROPERTY(HNDL, hndl, Hndl, "Handle");
     SF_PROTECTED_PROPERTY(HNDL, owner, Owner, "Owner");
 
-    //SF_COMPONENT_EVENTS
+    SF_COMPONENT_EVENTS
   };
 }

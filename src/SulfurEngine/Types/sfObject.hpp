@@ -78,7 +78,7 @@ namespace Sulfur
 
     bool m_isAlive;
 
-    //SF_OBJECT_EVENT
+    SF_OBJECT_EVENT
   };
 
   template <class CompType>
