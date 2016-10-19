@@ -196,7 +196,7 @@ namespace Sulfur
 
     SF_FORCE_INLINE bool SF_VEC_CALL IsZeroEpsilon(void) const
     {
-      return LengthSq() != SF_EPSILON * SF_EPSILON;
+      return LengthSq() < SF_EPSILON * SF_EPSILON;
     }
 
     SF_FORCE_INLINE Vector4 SF_VEC_CALL operator+(const Vector4 &other) const
@@ -374,7 +374,7 @@ namespace Sulfur
     return v.Normalize();
   }
 
-  SF_FORCE_INLINE Vector4& SF_VEC_CALL Normalized(const Vector4 &v)
+  SF_FORCE_INLINE Vector4 SF_VEC_CALL Normalized(const Vector4 &v)
   {
     return v.Normalized();
   }

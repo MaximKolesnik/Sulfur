@@ -41,6 +41,8 @@ namespace UnitTests
   {
     TEST_METHOD(Object1)
     {
+      ComponentFactory::Instance()->Initialize();
+
       Object *parent = SF_CREATE_OBJECT("Test");
       Object *child1 = SF_CREATE_OBJECT("Test");
       Object *child2 = SF_CREATE_OBJECT("Test");
@@ -108,6 +110,8 @@ namespace UnitTests
 
     TEST_METHOD(Object2)
     {
+      ComponentFactory::Instance()->Initialize();
+
       Object *parent = SF_CREATE_OBJECT("Test");
       Object *child1 = SF_CREATE_OBJECT("Test");
       Object *child2 = SF_CREATE_OBJECT("Test");
@@ -145,6 +149,8 @@ namespace UnitTests
 
     TEST_METHOD(Object3)
     {
+      ComponentFactory::Instance()->Initialize();
+
       Object *empty = SF_CREATE_EMPTY_OBJECT("TestEmpty");
       Object *obj = SF_CREATE_OBJECT("Test");
 
@@ -169,6 +175,8 @@ namespace UnitTests
 
     TEST_METHOD(Object4)
     {
+      ComponentFactory::Instance()->Initialize();
+
       Object *parent = SF_CREATE_OBJECT("Test");
       Object *child1 = SF_CREATE_OBJECT("Test");
       Object *child2 = SF_CREATE_OBJECT("Test");

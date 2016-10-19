@@ -26,7 +26,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  ComponentFactory::ComponentFactory(void)
+  ComponentFactory::ComponentFactory(void) : m_initialized(false)
   {
 
   }
@@ -102,6 +102,11 @@ namespace Sulfur
 
   void ComponentFactory::Initialize(void)
   {
+    if (m_initialized)
+      return;
+
+    m_initialized = true;
+
     this->_RegisterComponent<Transform>();
     this->_RegisterComponent<Camera>();
     this->_RegisterComponent<MeshRenderer>();

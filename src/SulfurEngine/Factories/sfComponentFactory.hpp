@@ -68,6 +68,8 @@ namespace Sulfur
     std::vector<std::string> m_componentTypes;
     ComponentMap m_compMap;
 
+    bool m_initialized;
+
   public:
 
     class ComponentData

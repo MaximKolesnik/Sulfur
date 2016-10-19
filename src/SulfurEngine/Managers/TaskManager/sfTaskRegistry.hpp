@@ -47,8 +47,6 @@ namespace Sulfur
     class TaskRegistration;
   }
 
-#ifdef SF_BUILDING_LIB
-
 #define SF_DECLARE_TASK(TaskName)                             \
 VOID CALLBACK TaskName(PVOID lpParam);                        \
 namespace TaskRegistry { namespace                            \
@@ -63,10 +61,6 @@ class TaskRegistration;                                       \
     const Entry<TaskName> &TaskRegistration<TaskName>::entry  \
     = Entry<TaskName>(std::string(#TaskName), TaskName);      \
 }     }                                                         
-#else
-#define SF_DECLARE_TASK(TaskName)                             \
-VOID CALLBACK TaskName(PVOID lpParam);                        
-#endif
 
 #define SF_DEFINE_TASK(TaskName)                                    \
 VOID CALLBACK TaskName(PVOID lpParam)                               \

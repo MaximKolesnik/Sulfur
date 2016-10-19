@@ -107,6 +107,7 @@ namespace UnitTests
   {
     TEST_METHOD(TaskManager1)
     {
+      TaskManager::Instance()->Initialize();
       TaskManager *man = TaskManager::Instance();
 
       man->AddNode("TestTask1");
@@ -141,6 +142,8 @@ namespace UnitTests
 
     TEST_METHOD(TaskManager2)
     {
+      TaskManager::Instance()->Initialize();
+
       TaskManager *man = TaskManager::Instance();
 
       man->AddNode("TestTask9");
@@ -152,7 +155,7 @@ namespace UnitTests
       Assert::IsTrue(counter == 4);
 
       int i = 6;
-      for (int j = 0; i < taskNumCompletion.size(); ++j)
+      for (int j = 0; j < taskNumCompletion.size(); ++j)
       {
         Assert::IsTrue(taskNumCompletion[j] == i++);
       }

@@ -99,7 +99,7 @@ namespace Sulfur
     }
   }
 
-  TaskManager::TaskManager(void) : m_workers(nullptr)
+  TaskManager::TaskManager(void) : m_workers(nullptr), m_initialized(false)
   {
     
   }
@@ -132,6 +132,11 @@ namespace Sulfur
 
   void TaskManager::Initialize(void)
   {
+    if (m_initialized)
+      return;
+
+    m_initialized = true;
+
     m_numThreads = std::thread::hardware_concurrency();
     SF_CRITICAL_ERR_EXP(m_numThreads != 0, "Number of concurent threads is not computable");
 
