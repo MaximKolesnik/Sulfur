@@ -124,6 +124,15 @@ namespace Sulfur
 #endif
     }
 
+    SF_FORCE_INLINE void ZeroOut(void)
+    {
+#ifdef SF_USE_SIMD
+      m_data = _mm_setzero_ps();
+#else
+      m_comps[0] = m_comps[1] = m_comps[2] = m_comps[3] = Real(0.0);
+#endif
+    }
+
     SF_FORCE_INLINE Real SF_VEC_CALL Dot(const Vector4 &other) const
     {
 #ifdef SF_USE_SIMD
@@ -351,6 +360,11 @@ namespace Sulfur
   }
 
   SF_FORCE_INLINE Real SF_VEC_CALL Dot(const Vector4 &v1, const Vector4 &v2)
+  {
+    return v1.Dot(v2);
+  }
+
+  SF_FORCE_INLINE Real SF_VEC_CALL Dot(const Vector4 &v1, const Vector3 &v2)
   {
     return v1.Dot(v2);
   }
