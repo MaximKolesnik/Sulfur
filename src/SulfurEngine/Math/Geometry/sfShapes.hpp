@@ -15,8 +15,8 @@ namespace Sulfur
       LineSegment();
       LineSegment(const Vector3 &start, const Vector3 &end);
 
-      Vector3 mStart;
-      Vector3 mEnd;
+      Vector3 m_start;
+      Vector3 m_end;
     };
 
     class Ray
@@ -30,8 +30,8 @@ namespace Sulfur
       // Returns the a point at the given t value.
       Vector3 GetPoint(Real t) const;
 
-      Vector3 mStart;
-      Vector3 mDirection;
+      Vector3 m_start;
+      Vector3 m_direction;
     };
 
     Matrix3 ComputeCovarianceMatrix(const std::vector<Vector3>& points);
@@ -57,8 +57,8 @@ namespace Sulfur
       // See if this aabb is equal to another (with epsilon). Used for unit testing.
       bool Compare(const Sphere& rhs, Real epsilon) const;
 
-      Vector3 mCenter;
-      Real mRadius;
+      Vector3 m_center;
+      Real m_radius;
     };
 
     class Aabb
@@ -90,8 +90,8 @@ namespace Sulfur
       Vector3 GetCenter() const;
       Vector3 GetHalfSize() const;
 
-      Vector3 mMin;
-      Vector3 mMax;
+      Vector3 m_min;
+      Vector3 m_max;
     };
 
     class Triangle
@@ -100,7 +100,7 @@ namespace Sulfur
       Triangle();
       Triangle(const Vector3& p0, const Vector3& p1, const Vector3& p2);
 
-      Vector3 mPoints[3];
+      Vector3 m_points[3];
     };
 
     class Plane
@@ -123,7 +123,7 @@ namespace Sulfur
       Real GetDistance() const;
 
 
-      Vector4 mData;
+      Vector4 m_data;
     };
 
     class Frustum
@@ -137,10 +137,10 @@ namespace Sulfur
       Vector4* GetPlanes() const;
 
       // The normals all point inwards (towards the centroid of the frustum).
-      Plane mPlanes[6];
+      Plane m_planes[6];
 
       // To easily draw the frustum the original points it was constructed from are stored.
-      Vector3 mPoints[8];
+      Vector3 m_points[8];
     };
   }
 }

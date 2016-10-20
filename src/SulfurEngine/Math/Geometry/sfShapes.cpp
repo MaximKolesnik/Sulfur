@@ -7,37 +7,37 @@ namespace Sulfur
   {
     LineSegment::LineSegment()
     {
-      mStart = mEnd = Vector3::c_zero;
+      m_start = m_end = Vector3::c_zero;
     }
 
     LineSegment::LineSegment(const Vector3 &start, const Vector3 &end)
     {
-      mStart = start;
-      mEnd = end;
+      m_start = start;
+      m_end = end;
     }
 
     Ray::Ray()
     {
-      mStart = mDirection = Vector3::c_zero;
+      m_start = m_direction = Vector3::c_zero;
     }
 
     Ray::Ray(const Vector3 &start, const Vector3 &dir)
     {
-      mStart = start;
-      mDirection = dir;
+      m_start = start;
+      m_direction = dir;
     }
 
     Ray Ray::Transform(const Matrix4& transform) const
     {
       Ray transformedRay;
-      transformedRay.mStart = transform * mStart;
-      transformedRay.mDirection = TransformNormal(transform, mDirection);
+      transformedRay.m_start = transform * m_start;
+      transformedRay.m_direction = TransformNormal(transform, m_direction);
       return transformedRay;
     }
 
     Vector3 Ray::GetPoint(Real t) const
     {
-      return mStart + mDirection * t;
+      return m_start + m_direction * t;
     }
 
     Matrix3 ComputeCovarianceMatrix(const std::vector<Vector3>& points)
@@ -151,14 +151,14 @@ namespace Sulfur
     //-----------------------------------------------------------------------------Sphere
     Sphere::Sphere()
     {
-      mCenter = Vector3::c_zero;
-      mRadius = 0;
+      m_center = Vector3::c_zero;
+      m_radius = 0;
     }
 
     Sphere::Sphere(const Vector3& center, Real radius)
     {
-      mCenter = center;
-      mRadius = radius;
+      m_center = center;
+      m_radius = radius;
     }
 
     void Sphere::ComputeCentroid(const std::vector<Vector3>& points)
@@ -188,19 +188,19 @@ namespace Sulfur
       Real centerY = (points[maxY].GetY() + points[minY].GetY()) * Real(0.5);
       Real centerZ = (points[maxZ].GetZ() + points[minZ].GetZ()) * Real(0.5);
 
-      mCenter = Vector3(centerX, centerY, centerZ);
+      m_center = Vector3(centerX, centerY, centerZ);
 
       //Furthest point
-      Real maxDistSq = LengthSq(points[0] - mCenter);
+      Real maxDistSq = LengthSq(points[0] - m_center);
       for (int i = 1; i < count; ++i)
       {
-        Real thisDistance = LengthSq(points[i] - mCenter);
+        Real thisDistance = LengthSq(points[i] - m_center);
 
         if (thisDistance > maxDistSq)
           maxDistSq = thisDistance;
       }
 
-      mRadius = sqrtf(maxDistSq);
+      m_radius = sqrtf(maxDistSq);
     }
 
     void Sphere::ComputeRitter(const std::vector<Vector3>& points)
@@ -249,20 +249,20 @@ namespace Sulfur
         max = maxZ;
       }
 
-      mCenter = (points[max] + points[min]) * Real(0.5);
-      mRadius = Length(points[max] - mCenter);
+      m_center = (points[max] + points[min]) * Real(0.5);
+      m_radius = Length(points[max] - m_center);
 
       //Expand sphere
       for (int i = 0; i < count; ++i)
       {
-        Vector3 centerToPoint = points[i] - mCenter;
-        if (centerToPoint.LengthSq() <= mRadius * mRadius)
+        Vector3 centerToPoint = points[i] - m_center;
+        if (centerToPoint.LengthSq() <= m_radius * m_radius)
           continue;
 
-        Vector3 onSphere = mCenter - (mRadius * centerToPoint.Normalized());
+        Vector3 onSphere = m_center - (m_radius * centerToPoint.Normalized());
 
-        mCenter = (points[i] + onSphere) * Real(0.5);
-        mRadius = Length(points[i] - onSphere) * Real(0.5);
+        m_center = (points[i] + onSphere) * Real(0.5);
+        m_radius = Length(points[i] - onSphere) * Real(0.5);
       }
     }
 
@@ -316,43 +316,43 @@ namespace Sulfur
 
       //Compute initial sphere
       Real dist = Length(points[max] - points[min]);
-      mRadius = dist * Real(0.5);
-      mCenter = (points[max] + points[min]) * Real(0.5);
+      m_radius = dist * Real(0.5);
+      m_center = (points[max] + points[min]) * Real(0.5);
 
       //Expand sphere
       for (int i = 0; i < count; ++i)
       {
-        Vector3 centerToPoint = points[i] - mCenter;
-        if (centerToPoint.LengthSq() <= mRadius * mRadius)
+        Vector3 centerToPoint = points[i] - m_center;
+        if (centerToPoint.LengthSq() <= m_radius * m_radius)
           continue;
 
-        Vector3 onSphere = mCenter - (mRadius * centerToPoint.Normalized());
+        Vector3 onSphere = m_center - (m_radius * centerToPoint.Normalized());
 
-        mCenter = (points[i] + onSphere) * Real(0.5);
-        mRadius = Length(points[i] - onSphere) * Real(0.5);
+        m_center = (points[i] + onSphere) * Real(0.5);
+        m_radius = Length(points[i] - onSphere) * Real(0.5);
       }
     }
 
 
     bool Sphere::ContainsPoint(const Vector3& point)
     {
-      return PointSphere(point, mCenter, mRadius);
+      return PointSphere(point, m_center, m_radius);
     }
 
     Vector3 Sphere::GetCenter() const
     {
-      return mCenter;
+      return m_center;
     }
 
     Real Sphere::GetRadius() const
     {
-      return mRadius;
+      return m_radius;
     }
 
     bool Sphere::Compare(const Sphere& rhs, Real epsilon) const
     {
-      Real posDiff = Length(mCenter - rhs.mCenter);
-      Real radiusDiff = MathUtils::Abs(mRadius - rhs.mRadius);
+      Real posDiff = Length(m_center - rhs.m_center);
+      Real radiusDiff = MathUtils::Abs(m_radius - rhs.m_radius);
 
       return posDiff < epsilon && radiusDiff < epsilon;
     }
@@ -360,14 +360,14 @@ namespace Sulfur
     Aabb::Aabb()
     {
       //set the aabb to an initial bad value (where the min is smaller than the max)
-      mMin.Splat(SF_REAL_MAX);
-      mMax.Splat(-SF_REAL_MAX);
+      m_min.Splat(SF_REAL_MAX);
+      m_max.Splat(-SF_REAL_MAX);
     }
 
     Aabb::Aabb(const Vector3& min, const Vector3& max)
     {
-      mMin = min;
-      mMax = max;
+      m_min = min;
+      m_max = max;
     }
 
     Aabb Aabb::BuildFromCenterAndHalfExtents(const Vector3& center, const Vector3& halfExtents)
@@ -377,26 +377,25 @@ namespace Sulfur
 
     Real Aabb::GetVolume() const
     {
-      return (mMax.GetX() - mMin.GetX()) * (mMax.GetY() - mMin.GetY()) 
-        * (mMax.GetZ() - mMin.GetZ());
+      return (m_max[0] - m_min[0]) * (m_max[1] - m_min[1]) * (m_max[2] - m_min[2]);
     }
 
     Real Aabb::GetSurfaceArea() const
     {
-      Real length = mMax.GetX() - mMin.GetX();
-      Real width = mMax.GetY() - mMin.GetY();
-      Real height = mMax.GetZ() - mMin.GetZ();
+      Real length = m_max[0] - m_min[0];
+      Real width = m_max[1] - m_min[1];
+      Real height = m_max[2] - m_min[2];
 
       return 2 * length * height + 2 * width * height + 2 * length * width;
     }
 
     bool Aabb::Contains(const Aabb& aabb) const
     {
-      if (mMax.GetX() <= aabb.mMax.GetX() || mMin.GetX() >= aabb.mMin.GetX())
+      if (m_max[0] <= aabb.m_max[0] || m_min[0] >= aabb.m_min[0])
         return false;
-      if (mMax.GetY() <= aabb.mMax.GetY() || mMin.GetY() >= aabb.mMin.GetY())
+      if (m_max[1] <= aabb.m_max[1] || m_min[1] >= aabb.m_min[1])
         return false;
-      if (mMax.GetZ() <= aabb.mMax.GetZ() || mMin.GetZ() >= aabb.mMin.GetZ())
+      if (m_max[2] <= aabb.m_max[2] || m_min[2] >= aabb.m_min[2])
         return false;
 
       return true;
@@ -406,8 +405,8 @@ namespace Sulfur
     {
       for (int i = 0; i < 3; ++i)
       {
-        mMin[i] = std::min(mMin[i], point[i]);
-        mMax[i] = std::max(mMax[i], point[i]);
+        m_min[i] = std::min(m_min[i], point[i]);
+        m_max[i] = std::max(m_max[i], point[i]);
       }
     }
 
@@ -416,16 +415,16 @@ namespace Sulfur
       Aabb result;
       for (int i = 0; i < 3; ++i)
       {
-        result.mMin[i] = std::min(lhs.mMin[i], rhs.mMin[i]);
-        result.mMax[i] = std::max(lhs.mMax[i], rhs.mMax[i]);
+        result.m_min[i] = std::min(lhs.m_min[i], rhs.m_min[i]);
+        result.m_max[i] = std::max(lhs.m_max[i], rhs.m_max[i]);
       }
       return result;
     }
 
     bool Aabb::Compare(const Aabb& rhs, Real epsilon) const
     {
-      Real pos1Diff = Length(mMin - rhs.mMin);
-      Real pos2Diff = Length(mMax - rhs.mMax);
+      Real pos1Diff = Length(m_min - rhs.m_min);
+      Real pos2Diff = Length(m_max - rhs.m_max);
 
       return pos1Diff < epsilon && pos2Diff < epsilon;
     }
@@ -449,45 +448,45 @@ namespace Sulfur
 
       center = translation + rotation * (scale * center);
 
-      mMin = center - hSize;
-      mMax = center + hSize;
+      m_min = center - hSize;
+      m_max = center + hSize;
     }
 
     Vector3 Aabb::GetMin() const
     {
-      return mMin;
+      return m_min;
     }
 
     Vector3 Aabb::GetMax() const
     {
-      return mMax;
+      return m_max;
     }
 
     Vector3 Aabb::GetCenter() const
     {
-      return (mMin + mMax) * Real(0.5);
+      return (m_min + m_max) * Real(0.5);
     }
 
     Vector3 Aabb::GetHalfSize() const
     {
-      return (mMax - mMin) * Real(0.5);
+      return (m_max - m_min) * Real(0.5);
     }
 
     Triangle::Triangle()
     {
-      mPoints[0] = mPoints[1] = mPoints[2] = Vector3::c_zero;
+      m_points[0] = m_points[1] = m_points[2] = Vector3::c_zero;
     }
 
     Triangle::Triangle(const Vector3& p0, const Vector3& p1, const Vector3& p2)
     {
-      mPoints[0] = p0;
-      mPoints[1] = p1;
-      mPoints[2] = p2;
+      m_points[0] = p0;
+      m_points[1] = p1;
+      m_points[2] = p2;
     }
 
     Plane::Plane()
     {
-      mData = Vector4::c_zero;
+      m_data = Vector4::c_zero;
     }
 
     Plane::Plane(const Vector3& p0, const Vector3& p1, const Vector3& p2)
@@ -507,57 +506,57 @@ namespace Sulfur
       if (normal.LengthSq() != 0)
         normal.Normalize();
 
-      mData.Set(normal.GetX(), normal.GetY(), normal.GetZ(), Dot(normal, p0));
+      m_data.Set(normal.GetX(), normal.GetY(), normal.GetZ(), Dot(normal, p0));
     }
 
     void Plane::Set(const Vector3& normal, const Vector3& point)
     {
       Vector3 normalizedNormal = Normalized(normal);
 
-      mData.Set(normalizedNormal.GetX(), normalizedNormal.GetY(), normalizedNormal.GetZ(),
+      m_data.Set(normalizedNormal.GetX(), normalizedNormal.GetY(), normalizedNormal.GetZ(),
         Dot(normalizedNormal, point));
     }
 
     Vector3 Plane::GetNormal() const
     {
-      return Vector3(mData.GetX(), mData.GetY(), mData.GetZ());
+      return Vector3(m_data.GetX(), m_data.GetY(), m_data.GetZ());
     }
 
     Real Plane::GetDistance() const
     {
-      return mData.GetW();
+      return m_data.GetW();
     }
 
 
     void Frustum::Set(const Vector3& lbn, const Vector3& rbn, const Vector3& rtn, const Vector3& ltn,
       const Vector3& lbf, const Vector3& rbf, const Vector3& rtf, const Vector3& ltf)
     {
-      mPoints[0] = lbn;
-      mPoints[1] = rbn;
-      mPoints[2] = rtn;
-      mPoints[3] = ltn;
-      mPoints[4] = lbf;
-      mPoints[5] = rbf;
-      mPoints[6] = rtf;
-      mPoints[7] = ltf;
+      m_points[0] = lbn;
+      m_points[1] = rbn;
+      m_points[2] = rtn;
+      m_points[3] = ltn;
+      m_points[4] = lbf;
+      m_points[5] = rbf;
+      m_points[6] = rtf;
+      m_points[7] = ltf;
 
       //left
-      mPlanes[0].Set(lbf, ltf, lbn);
+      m_planes[0].Set(lbf, ltf, lbn);
       //right
-      mPlanes[1].Set(rbn, rtf, rbf);
+      m_planes[1].Set(rbn, rtf, rbf);
       //top
-      mPlanes[2].Set(ltn, ltf, rtn);
+      m_planes[2].Set(ltn, ltf, rtn);
       //bot
-      mPlanes[3].Set(rbn, lbf, lbn);
+      m_planes[3].Set(rbn, lbf, lbn);
       //near
-      mPlanes[4].Set(lbn, ltn, rbn);
+      m_planes[4].Set(lbn, ltn, rbn);
       //far
-      mPlanes[5].Set(rbf, rtf, lbf);
+      m_planes[5].Set(rbf, rtf, lbf);
     }
 
     Vector4* Frustum::GetPlanes() const
     {
-      return (Vector4*)mPlanes;
+      return (Vector4*)m_planes;
     }
 
   }
