@@ -25,7 +25,6 @@ namespace Sulfur
 
     static const float m_fatteningFactor;
 
-    // Add your implementation here
   private:
 
     struct Node

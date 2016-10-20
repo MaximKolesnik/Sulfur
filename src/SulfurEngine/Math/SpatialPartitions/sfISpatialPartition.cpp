@@ -31,7 +31,7 @@ namespace Sulfur
 
   SpatialPartitionQueryData::SpatialPartitionQueryData()
   {
-    mDepth = 0;
+    m_depth = 0;
   }
 
   CastResult::CastResult()

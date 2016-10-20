@@ -358,7 +358,8 @@ namespace Sulfur
       return;
 
     float t;
-    if (Geometry::RayAabb(ray.mStart, ray.mDirection, node->m_aabb.mMin, node->m_aabb.mMax, t))
+    if (Geometry::RayAabb(ray.m_start, ray.m_direction, 
+      node->m_aabb.m_min, node->m_aabb.m_max, t))
     {
 
       if (node->IsLeaf())
@@ -378,8 +379,8 @@ namespace Sulfur
       return;
 
     Geometry::IntersectionType::Type result =
-      Geometry::FrustumAabb(&frustum.mPlanes->mData, node->m_aabb.mMin,
-      node->m_aabb.mMax, node->m_lastAxis);
+      Geometry::FrustumAabb(&frustum.m_planes->m_data, node->m_aabb.m_min,
+      node->m_aabb.m_max, node->m_lastAxis);
 
     if (result == Geometry::IntersectionType::Inside)
     {
@@ -428,7 +429,8 @@ namespace Sulfur
     if (!node1 || !node2)
       return;
 
-    if (Geometry::AabbAabb(node1->m_aabb.mMin, node1->m_aabb.mMax, node2->m_aabb.mMin, node2->m_aabb.mMax))
+    if (Geometry::AabbAabb(node1->m_aabb.m_min, node1->m_aabb.m_max, 
+      node2->m_aabb.m_min, node2->m_aabb.m_max))
     {
       if (node1->IsLeaf() && node2->IsLeaf())
       {

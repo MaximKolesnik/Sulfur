@@ -118,7 +118,7 @@ namespace Sulfur
     {
       Plane triPlane(triP0, triP1, triP2);
 
-      if (RayPlane(rayStart, rayDir, triPlane.mData, t, triExpansionEpsilon))
+      if (RayPlane(rayStart, rayDir, triPlane.m_data, t, triExpansionEpsilon))
       {
         Vector3 interPoint = rayStart + t * rayDir;
         Real u = 0.0, v = 0.0, w = 0.0;

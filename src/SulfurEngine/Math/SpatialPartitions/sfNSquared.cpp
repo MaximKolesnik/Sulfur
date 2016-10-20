@@ -92,7 +92,7 @@ namespace Sulfur
 
   void BoundingSphereSpatialPartition::CreateProxy(Proxy& proxy, SpatialPartitionData& data)
   {
-    proxy.m_uIntProxy = reinterpret_cast<uintptr_t>(&proxy);
+    proxy.m_uIntProxy = (unsigned int)reinterpret_cast<uintptr_t>(&proxy);
     m_objects[proxy.m_uIntProxy] = data;
   }
 
@@ -114,7 +114,7 @@ namespace Sulfur
       float radius = it.second.m_boundingSphere.m_radius;
       float t = 0;
 
-      if (Geometry::RaySphere(ray.mStart, ray.mDirection, center, radius, t))
+      if (Geometry::RaySphere(ray.m_start, ray.m_direction, center, radius, t))
         results.AddResult(CastResult(it.second.m_clientData, t));
     }
   }
@@ -127,7 +127,7 @@ namespace Sulfur
       float radius = it.second.m_boundingSphere.m_radius;
       size_t lastAxis = 0;
 
-      if (Geometry::FrustumSphere(&frustum.mPlanes->mData, center, radius, lastAxis) 
+      if (Geometry::FrustumSphere(&frustum.m_planes->m_data, center, radius, lastAxis) 
         != Geometry::IntersectionType::Outside)
         results.AddResult(CastResult(it.second.m_clientData));
     }
@@ -171,7 +171,7 @@ namespace Sulfur
 
   void BoundingAabbSpatialPartition::CreateProxy(Proxy& proxy, SpatialPartitionData& data)
   {
-    proxy.m_uIntProxy = reinterpret_cast<uintptr_t>(&proxy);
+    proxy.m_uIntProxy = (unsigned int)reinterpret_cast<uintptr_t>(&proxy);
     m_objects[proxy.m_uIntProxy] = data;
   }
 
@@ -202,11 +202,11 @@ namespace Sulfur
   {
     for (auto &it : m_objects)
     {
-      Vector3 &max = it.second.m_aabb.mMax;
-      Vector3 &min = it.second.m_aabb.mMin;
+      Vector3 &max = it.second.m_aabb.m_max;
+      Vector3 &min = it.second.m_aabb.m_min;
       size_t lastAxis = 0;
 
-      if (Geometry::FrustumAabb(&frustum.mPlanes->mData, min, max, lastAxis) 
+      if (Geometry::FrustumAabb(&frustum.m_planes->m_data, min, max, lastAxis) 
         != Geometry::IntersectionType::Outside)
         results.AddResult(CastResult(it.second.m_clientData));
     }

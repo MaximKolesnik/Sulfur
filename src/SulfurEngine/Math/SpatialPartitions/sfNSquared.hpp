@@ -60,7 +60,6 @@ namespace Sulfur
 
     void FilloutData(std::vector<SpatialPartitionQueryData>& results) const override;
 
-    // Add your implementation here
   private:
     std::unordered_map<int, SpatialPartitionData> m_objects;
   };
