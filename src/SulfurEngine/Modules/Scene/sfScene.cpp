@@ -18,7 +18,7 @@ namespace Sulfur
 {
 
   SceneProperties::SceneProperties()
-    : m_skyboxResource(nullptr), m_skyboxResourcePath()
+    : m_skyboxResource(nullptr), m_skyboxResourcePath(), m_ibl(true)
   {
 
   }
