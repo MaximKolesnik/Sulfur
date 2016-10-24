@@ -62,6 +62,9 @@ class TaskRegistration;                                       \
     = Entry<TaskName>(std::string(#TaskName), TaskName);      \
 }     }                                                         
 
+#define SF_FRIEND_TASK(TaskName)                                    \
+friend VOID CALLBACK TaskName(PVOID lpParam);                        
+
 #define SF_DEFINE_TASK(TaskName)                                    \
 VOID CALLBACK TaskName(PVOID lpParam)                               \
 {                                                                   \

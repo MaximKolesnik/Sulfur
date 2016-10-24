@@ -1,16 +1,51 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "Types\sfSingleton.hpp"
+#include "Types\sfTypes.hpp"
+#include "Math\sfVector3.hpp"
+#include "Managers\TaskManager\sfTaskRegistry.hpp"
+#include "Data\sfColliderData.hpp"
 
 namespace Sulfur
 {
+  class DynamicAabbTree;
+
+  SF_DECLARE_TASK(IntegrateBodies);
+  SF_DECLARE_TASK(PostAndCleanup);
+  SF_DECLARE_TASK(BroadPhase);
+
   namespace Physics
   {
+    struct RigidBodyData;
+    class BroadPhase;
+
     class PhysicsWorld
     {
       SF_SINGLETON(PhysicsWorld);
     public:
+      static const Vector3 c_gravity;
+
+      void AddRigidBody(HNDL rbHndl);
+      void RemoveRigidBody(HNDL rbHndl);
+
+      void AddCollider(HNDL colHndl, ColliderType type);
+      void RemoveCollider(HNDL colHndl);
+
+      typedef std::unordered_map<HNDL, RigidBodyData*> RigidBodyList;
+      typedef std::unordered_map<HNDL, ColliderData*> ColliderList;
+
     private:
+      SF_FRIEND_TASK(Sulfur::IntegrateBodies);
+      SF_FRIEND_TASK(Sulfur::PostAndCleanup);
+      SF_FRIEND_TASK(Sulfur::BroadPhase);
+
+      //void _UpdateRBData(HNDL rbHndl);
+
+      RigidBodyList m_rigidBodies;
+      ColliderList m_colliders;
+      BroadPhase *m_broadPhase;
     };
   }
 }

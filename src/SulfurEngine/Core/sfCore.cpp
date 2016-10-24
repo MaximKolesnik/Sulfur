@@ -1,5 +1,4 @@
 #include "sfCore.hpp"
-#include "Components/sfCamera.hpp"
 
 // Modules
 #include "Modules/Input/sfInputManager.hpp"
@@ -17,6 +16,13 @@
 // Factories
 #include "Factories/sfComponentFactory.hpp"
 #include "Factories/sfObjectFactory.hpp"
+
+//Test
+#include "Components/sfCamera.hpp"
+#include "Components\sfRigidBody.hpp"
+#include "Components\sfMeshRenderer.hpp"
+#include "Components\sfTransform.hpp"
+#include "Components\sfSpotLight.hpp"
 
 namespace Sulfur
 {
@@ -57,9 +63,43 @@ namespace Sulfur
     TaskManager* tm = TaskManager::Instance();
     tm->AddNode("UpdateTransforms");
     tm->AddNode("TriggerEventsEndFrame");
+    tm->AddNode("IntegrateBodies");
+    tm->AddNode("PostAndCleanup");
     tm->SetStartingTask("UpdateTransforms");
-    tm->SetDependency("TriggerEventsEndFrame", "UpdateTransforms");
+    tm->SetDependency("IntegrateBodies", "UpdateTransforms");
+    tm->SetDependency("PostAndCleanup", "IntegrateBodies");
+    tm->SetDependency("TriggerEventsEndFrame", "PostAndCleanup");
     tm->CompleteGraph();
+
+    std::ifstream file("Resources\\TestScene.ssc", std::ios_base::binary);
+    if (file.is_open())
+      Serialization::Deserialize(file, SceneManager::Instance()->GetScene());
+
+    Object *cameraObj = SF_CREATE_OBJECT("Camera");
+    SceneManager::Instance()->GetScene().AddObject(cameraObj->GetHndl());
+
+    Camera *camera = ComponentFactory::Instance()->CreateComponent<Camera>();
+    cameraObj->AttachComponent(camera);
+    SceneManager::Instance()->GetScene().SetCameraObject(cameraObj->GetHndl());
+
+    Object *testObj1 = SF_CREATE_OBJECT("testObj1");
+    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, 0.0, 50.0));
+    testObj1->GetComponent<Transform>()->Update();
+    testObj1->AttachComponent(SF_CREATE_COMP(RigidBody));
+    MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
+    mesh->SetMesh("Models\\cube.fbx");
+    testObj1->AttachComponent(mesh);
+    SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
+    SceneManager::Instance()->GetScene().m_sceneProperties.SetIbl(true);
+    
+    Object *spotLight = SF_CREATE_OBJECT("sl");
+    spotLight->AttachComponent(SF_CREATE_COMP(SpotLight));
+    spotLight->GetComponent<SpotLight>()->SetIntensity(100);
+    spotLight->GetComponent<SpotLight>()->SetRange(200);
+    spotLight->GetComponent<SpotLight>()->SetOuterAngle(100);
+    spotLight->GetComponent<SpotLight>()->SetInnerAngle(100);
+    SceneManager::Instance()->GetScene().AddObject(spotLight->GetHndl());
+    
 
     /*Object *testObj = SF_CREATE_OBJECT("testEvent");
     EventManager::Instance()->PushEvent(IEntity::&OnTestEvent, OnTestEventData(testObj->GetHndl(), "Test"));*/

@@ -3,6 +3,7 @@
 #include "Types\sfIEntity.hpp"
 #include "Math\sfQuaternion.hpp"
 #include "Math\sfVector3.hpp"
+#include "Modules\Physics\Data\sfRigidBodyData.hpp"
 
 namespace Sulfur
 {
@@ -10,17 +11,19 @@ namespace Sulfur
   public:
     RigidBody(void);
     virtual ~RigidBody(void);
+
+    virtual void Initialize(void) override;
+    virtual RigidBody* Clone(void) const override;
+    virtual void Update(void) override;
+    virtual void DrawDebug(DebugDraw *draw) const override;
+
+    Physics::RBDynamicState GetDynamicState(void) const { return m_dynamicState; }
+
   private:
-    Vector3 m_position;
-    Vector3 m_velocity;
-    Vector3 m_acceleration;
+    SF_PRIVATE_PROPERTY(Vector3, velocity, Velocity, "Velocity of the object");
+    Physics::RBDynamicState m_dynamicState;
+    SF_PRIVATE_PROPERTY_READ_ONLY(Real, invMass, InverseMass, "Inverse Mass of the object");
 
-    Quaternion m_orientation;
 
-    Vector3 m_forces;
-
-    Real m_mass;
-
-    bool m_isStatic;
   };
 }

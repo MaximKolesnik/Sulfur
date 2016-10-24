@@ -23,6 +23,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components/sfPointLight.hpp"
 #include "Components/sfSpotLight.hpp"
 #include "Components/sfDirectionalLight.hpp"
+#include "Components\sfRigidBody.hpp"
 
 namespace Sulfur
 {
@@ -113,6 +114,7 @@ namespace Sulfur
     this->_RegisterComponent<PointLight>();
     this->_RegisterComponent<SpotLight>();
     this->_RegisterComponent<DirectionalLight>();
+    this->_RegisterComponent<RigidBody>();
   }
 
   IEntity* ComponentFactory::GetComponent(const std::string &name, 
