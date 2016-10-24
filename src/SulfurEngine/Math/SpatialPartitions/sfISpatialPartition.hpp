@@ -17,7 +17,7 @@ namespace Sulfur
     union
     {
       void* m_proxy;
-      unsigned int m_uIntProxy;
+      UINT64 m_uIntProxy;
     };
   };
 
@@ -59,7 +59,7 @@ namespace Sulfur
   public:
     CastResult();
     explicit CastResult(void* clientData);
-    CastResult(void* clientData, float time);
+    CastResult(void* clientData, Real time);
 
     // Comparison function used for unit testing
     bool operator<(const CastResult& rhs) const;

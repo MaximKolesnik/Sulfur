@@ -14,7 +14,7 @@ namespace Sulfur
 
   SF_DECLARE_TASK(IntegrateBodies);
   SF_DECLARE_TASK(PostAndCleanup);
-  SF_DECLARE_TASK(BroadPhase);
+  //SF_DECLARE_TASK(BroadPhase);
 
   namespace Physics
   {
@@ -39,7 +39,7 @@ namespace Sulfur
     private:
       SF_FRIEND_TASK(Sulfur::IntegrateBodies);
       SF_FRIEND_TASK(Sulfur::PostAndCleanup);
-      SF_FRIEND_TASK(Sulfur::BroadPhase);
+      //SF_FRIEND_TASK(Sulfur::BroadPhase);
 
       //void _UpdateRBData(HNDL rbHndl);
 

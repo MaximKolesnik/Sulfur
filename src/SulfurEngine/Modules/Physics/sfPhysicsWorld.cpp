@@ -7,6 +7,7 @@
 #include "Factories\sfComponentFactory.hpp"
 #include "Factories\sfObjectFactory.hpp"
 #include "Integration\sfExplicitEuler.hpp"
+#include "BroadPhase\sfBroadPhase.hpp"
 
 /******************************************************************************
 Maxim TODO: Wrap all integrators
@@ -44,7 +45,7 @@ namespace Sulfur
   {
     const Vector3 PhysicsWorld::c_gravity = Vector3(Real(0.0), Real(-9.8), Real(0.0));
 
-    PhysicsWorld::PhysicsWorld(void) : m_partSpace(new DynamicAabbTree())
+    PhysicsWorld::PhysicsWorld(void) : m_broadPhase(new BroadPhase())
     {
 
     }
@@ -82,6 +83,7 @@ namespace Sulfur
       ColliderData *colliderData = new ColliderData(colHndl, type);
       colliderData->Initialize();
 
+      m_broadPhase->AddProxy(colliderData->m_proxy, colliderData);
       m_colliders.insert({ colHndl, colliderData });
     }
 
@@ -89,6 +91,8 @@ namespace Sulfur
     {
       SF_ASSERT(m_colliders.find(colHndl) != m_colliders.end(),
         "Collider is not tracked by PhysicsWorld");
+
+      m_broadPhase->RemoveProxy(m_colliders[colHndl]->m_proxy);
 
       delete m_colliders[colHndl];
       m_colliders.erase(colHndl);

@@ -1,5 +1,6 @@
 #include "sfRigidBody.hpp"
 #include "Modules\Physics\sfPhysicsWorld.hpp"
+#include "Modules\Physics\Data\sfRigidBodyData.hpp"
 
 namespace Sulfur
 {
@@ -8,7 +9,7 @@ Maxim TODO: Calculate mass according to physics material and collider type
             and size
 *******************************************************************************/
   RigidBody::RigidBody(void) : IEntity(), m_velocity(0.0, 0.0, 0.0), 
-    m_dynamicState(RB_Dynamic), m_invMass(1.0)
+    m_dynamicState(Physics::RB_Dynamic), m_invMass(1.0)
   {
 
   }
