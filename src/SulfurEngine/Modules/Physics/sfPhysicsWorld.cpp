@@ -19,10 +19,18 @@ namespace Sulfur
   {
     for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
     {
+      if (it.second->m_state == Physics::RB_Static)
+        continue;
+
       Physics::ExplicitEuler integrator;
       integrator.Integrate(it.second);
     }
   } SF_END_DEFINE_TASK(IntegrateBodies);
+
+  SF_DEFINE_TASK(BroadPhase)
+  {
+    Physics::PhysicsWorld::Instance()->m_broadPhase->
+  } SF_END_DEFINE_TASK(BroadPhase)
 
   SF_DEFINE_TASK(PostAndCleanup)
   {

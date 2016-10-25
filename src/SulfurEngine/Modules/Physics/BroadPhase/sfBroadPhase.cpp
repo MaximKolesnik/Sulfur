@@ -58,5 +58,10 @@ namespace Sulfur
       spData.m_clientData = reinterpret_cast<void*>(data);
       m_space->UpdateProxy(proxy, spData);
     }
+
+    void BroadPhase::DrawDebug(DebugDraw *draw) const
+    {
+
+    }
   }
 }

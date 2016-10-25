@@ -5,6 +5,7 @@
 namespace Sulfur
 {
   class DynamicAabbTree;
+  class DebugDraw;
 
   namespace Physics
   {
@@ -19,6 +20,7 @@ namespace Sulfur
       void AddProxy(Proxy &proxy, ColliderData *data);
       void RemoveProxy(Proxy &proxy);
       void UpdateProxy(Proxy &proxy, ColliderData *data);
+      void DrawDebug(DebugDraw *draw) const;
 
     private:
       DynamicAabbTree *m_space;

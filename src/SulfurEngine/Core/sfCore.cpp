@@ -83,7 +83,7 @@ namespace Sulfur
     SceneManager::Instance()->GetScene().SetCameraObject(cameraObj->GetHndl());
 
     Object *testObj1 = SF_CREATE_OBJECT("testObj1");
-    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, 5.0, 11.0));
+    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, 0.0, 11.0));
     testObj1->GetComponent<Transform>()->Update();
     testObj1->AttachComponent(SF_CREATE_COMP(RigidBody));
     MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
