@@ -1,4 +1,5 @@
 #include "sfBoxCollider.hpp"
+#include "Modules\Physics\sfPhysicsWorld.hpp"
 
 namespace Sulfur
 {
@@ -14,7 +15,7 @@ namespace Sulfur
 
   void BoxCollider::Initialize(void)
   {
-
+    Physics::PhysicsWorld::Instance()->AddCollider(this->m_hndl, Physics::ColliderType::CT_BOX);
   }
 
   BoxCollider* BoxCollider::Clone(void) const

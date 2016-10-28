@@ -18,7 +18,7 @@ namespace Sulfur
     virtual void DrawDebug(DebugDraw *draw) const override;
 
     Physics::RBDynamicState GetDynamicState(void) const { return m_dynamicState; }
-
+    void SetDynamicState(Physics::RBDynamicState state) { m_dynamicState = state; }
   private:
     SF_PRIVATE_PROPERTY(Vector3, velocity, Velocity, "Velocity of the object");
     Physics::RBDynamicState m_dynamicState;

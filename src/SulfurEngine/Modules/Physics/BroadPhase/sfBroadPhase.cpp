@@ -6,10 +6,6 @@
 #include "Math\SpatialPartitions\sfAabbTree.hpp"
 #include "Factories\sfComponentFactory.hpp"
 
-/******************************************************************************
-Maxim TODO: Stop recomputing all Aabbs, when resting contacts are added
-*******************************************************************************/
-
 namespace Sulfur
 {
   namespace Physics
@@ -30,8 +26,8 @@ namespace Sulfur
       Transform *trans = SF_GET_COMP_TYPE(Transform, data->m_transformHndl);
 
       Geometry::Aabb aabb = 
-        Geometry::Aabb::BuildFromCenterAndHalfExtents(trans->GetTranslation(),
-          trans->GetScale() * Real(0.5));
+        Geometry::Aabb::BuildFromCenterAndHalfExtents(Vector3(0.0, 0.0, 0.0),
+          Vector3(0.5, 0.5, 0.5));
       aabb.Transform(trans->GetScale(), trans->GetRotation().GetMatrix3(), trans->GetTranslation());
 
       spData.m_aabb = aabb;
@@ -50,8 +46,8 @@ namespace Sulfur
       SpatialPartitionData spData;
 
       Geometry::Aabb aabb =
-        Geometry::Aabb::BuildFromCenterAndHalfExtents(trans->GetTranslation(),
-          trans->GetScale() * Real(0.5));
+        Geometry::Aabb::BuildFromCenterAndHalfExtents(Vector3(0.0, 0.0, 0.0),
+          Vector3(0.5, 0.5, 0.5));
       aabb.Transform(trans->GetScale(), trans->GetRotation().GetMatrix3(), trans->GetTranslation());
 
       spData.m_aabb = aabb;
@@ -61,7 +57,7 @@ namespace Sulfur
 
     void BroadPhase::DrawDebug(DebugDraw *draw) const
     {
-
+      m_space->DrawDebug(draw);
     }
   }
 }

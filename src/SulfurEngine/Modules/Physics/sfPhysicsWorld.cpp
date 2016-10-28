@@ -1,6 +1,7 @@
 #include "sfPhysicsWorld.hpp"
 #include "Math\SpatialPartitions\sfAabbTree.hpp"
 #include "Data\sfRigidBodyData.hpp"
+#include "Data\sfColliderData.hpp"
 #include "Error\sfError.hpp"
 #include "Components\sfRigidBody.hpp"
 #include "Components\sfTransform.hpp"
@@ -8,9 +9,13 @@
 #include "Factories\sfObjectFactory.hpp"
 #include "Integration\sfExplicitEuler.hpp"
 #include "BroadPhase\sfBroadPhase.hpp"
+#include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 
 /******************************************************************************
 Maxim TODO: Wrap all integrators
+*******************************************************************************/
+/******************************************************************************
+Maxim TODO: Stop recomputing all Aabbs, when resting contacts are added
 *******************************************************************************/
 
 namespace Sulfur
@@ -29,7 +34,15 @@ namespace Sulfur
 
   SF_DEFINE_TASK(BroadPhase)
   {
+    for (auto &it : Physics::PhysicsWorld::Instance()->m_colliders)
+    {
+      Physics::PhysicsWorld::Instance()->m_broadPhase->UpdateProxy(it.second->m_proxy, it.second);
+    }
+
     Physics::PhysicsWorld::Instance()->m_broadPhase->
+      GetPossibleContacts(Physics::PhysicsWorld::Instance()->m_possiblePairs);
+
+    Physics::PhysicsWorld::Instance()->m_broadPhase->DrawDebug(DebugDraw::Instance());
   } SF_END_DEFINE_TASK(BroadPhase)
 
   SF_DEFINE_TASK(PostAndCleanup)
@@ -47,6 +60,9 @@ namespace Sulfur
       //Clean up
       rbData->m_forces.ZeroOut();
     }
+
+    Physics::PhysicsWorld::Instance()->m_possiblePairs.m_results.clear();
+
   } SF_END_DEFINE_TASK(PostAndCleanup);
 
   namespace Physics

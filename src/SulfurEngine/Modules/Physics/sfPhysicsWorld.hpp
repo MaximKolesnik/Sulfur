@@ -43,6 +43,8 @@ namespace Sulfur
 
       //void _UpdateRBData(HNDL rbHndl);
 
+      QueryResults m_possiblePairs;
+
       RigidBodyList m_rigidBodies;
       ColliderList m_colliders;
       BroadPhase *m_broadPhase;
