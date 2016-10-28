@@ -90,7 +90,7 @@ namespace Sulfur
     //testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, 45.0, 0.0);
     testObj1->GetComponent<Transform>()->Update();
     RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
-    rb1->SetDynamicState(Physics::RB_Dynamic);
+    rb1->SetDynamicState(Physics::RB_Static);
     testObj1->AttachComponent(rb1);
     MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
     mesh->SetMesh("Models\\cube.fbx");
@@ -112,6 +112,30 @@ namespace Sulfur
     testObj2->AttachComponent(SF_CREATE_COMP(BoxCollider));
     SceneManager::Instance()->GetScene().AddObject(testObj2->GetHndl());
 
+    Object *testObj3 = SF_CREATE_OBJECT("testObj3");
+    testObj3->GetComponent<Transform>()->SetTranslation(Vector3(10.0, 0.0, 20.0));
+    testObj3->GetComponent<Transform>()->Update();
+    RigidBody *rb3 = SF_CREATE_COMP(RigidBody);
+    rb3->SetDynamicState(Physics::RB_Static);
+    testObj3->AttachComponent(rb3);
+    MeshRenderer *mesh3 = SF_CREATE_COMP(MeshRenderer);
+    mesh3->SetMesh("Models\\cube.fbx");
+    testObj3->AttachComponent(mesh3);
+    testObj3->AttachComponent(SF_CREATE_COMP(BoxCollider));
+    SceneManager::Instance()->GetScene().AddObject(testObj3->GetHndl());
+
+    Object *testObj4 = SF_CREATE_OBJECT("testObj4");
+    testObj4->GetComponent<Transform>()->SetTranslation(Vector3(-10.0, -2.0, 20.0));
+    testObj4->GetComponent<Transform>()->Update();
+    RigidBody *rb4 = SF_CREATE_COMP(RigidBody);
+    rb4->SetDynamicState(Physics::RB_Static);
+    testObj4->AttachComponent(rb4);
+    MeshRenderer *mesh4 = SF_CREATE_COMP(MeshRenderer);
+    mesh4->SetMesh("Models\\cube.fbx");
+    testObj4->AttachComponent(mesh4);
+    testObj4->AttachComponent(SF_CREATE_COMP(BoxCollider));
+    SceneManager::Instance()->GetScene().AddObject(testObj4->GetHndl());
+
     Object *spotLight = SF_CREATE_OBJECT("sl");
     spotLight->AttachComponent(SF_CREATE_COMP(SpotLight));
     spotLight->GetComponent<SpotLight>()->SetIntensity(100);
@@ -119,7 +143,6 @@ namespace Sulfur
     spotLight->GetComponent<SpotLight>()->SetOuterAngle(100);
     spotLight->GetComponent<SpotLight>()->SetInnerAngle(100);
     SceneManager::Instance()->GetScene().AddObject(spotLight->GetHndl());
-    
 
     /*Object *testObj = SF_CREATE_OBJECT("testEvent");
     EventManager::Instance()->PushEvent(IEntity::&OnTestEvent, OnTestEventData(testObj->GetHndl(), "Test"));*/
