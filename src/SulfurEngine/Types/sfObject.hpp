@@ -83,7 +83,7 @@ namespace Sulfur
   {
     std::string compType = _RemoveScope(typeid(CompType).name());
 
-    SF_ASSERT(g_SystemTable->CompFactory->IsRegistered(compType),
+    SF_ASSERT(ComponentFactory::Instance()->IsRegistered(compType),
       compType + " is not registered");
 
     auto res = m_components.find(compType);

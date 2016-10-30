@@ -1,5 +1,6 @@
 #include "sfCore.hpp"
 #include "Components/sfCamera.hpp"
+#include "Reflection/sfFunction.hpp"
 
 // Modules
 #include "Modules/Input/sfInputManager.hpp"
@@ -12,6 +13,7 @@
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Modules/Script/sfScriptManager.hpp"
 
 // Factories
 #include "Factories/sfComponentFactory.hpp"
@@ -57,11 +59,12 @@ namespace Sulfur
     tm->AddNode("UpdateTransforms");
     tm->SetStartingTask("UpdateTransforms");
     tm->CompleteGraph();
+
+    ScriptManager::Instance()->Init();
   }
 
   void Core::GameLoop(void)
   {
-
     while (m_running)
       Frame();
   }
@@ -78,7 +81,8 @@ namespace Sulfur
 
   void Core::ShutDown(void)
   {
-    
+    ScriptManager::Instance()->Free();
+    GraphicsManager::Instance()->Free();
   }
 
   void Core::OnWindowClose()

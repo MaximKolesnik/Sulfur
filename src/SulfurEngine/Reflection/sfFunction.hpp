@@ -59,3 +59,71 @@ std::function<ReturnType(Args...)> easy_bind(ReturnType(Object::*MemPtr)(Args...
 {
   return details::easy_binder<sizeof...(Args)>::easy_bind(MemPtr, obj);
 }
+
+class Function
+{
+
+public:
+  template <typename ReturnType, typename...Args>
+  ReturnType Call(Args...args)
+  {
+    ReturnType returnValue;
+    CallReturnImpl(&returnValue);
+    return returnValue;
+  }
+
+  template <typename...Args>
+  void Call(Args...args)
+  {
+    CallImpl();
+  }
+
+  template <typename ReturnType, typename Arg1>
+  ReturnType Call(Arg1 arg)
+  {
+    ReturnType returnValue;
+    CallReturnImpl(&returnValue);
+    return returnValue;
+  }
+
+protected:
+  virtual void CallImpl() = 0;
+  virtual void CallReturnImpl(void *returnValue) = 0;
+  virtual void CallReturnImpl(void *returnValue, void *arg1) = 0;
+
+};
+
+template <typename ClassType, typename ReturnType, typename...Args>
+class BoundMemberFunction : public Function
+{
+
+public:
+  typedef ReturnType(ClassType::*FunctionPtr)(Args...);
+  typedef std::function<ReturnType(Args...)> FunctionType;
+
+public:
+  BoundMemberFunction(FunctionPtr function, ClassType *classInstance)
+  {
+    m_function = easy_bind<ClassType, ReturnType, Args...>(function, classInstance);
+  }
+
+protected:
+  virtual void CallImpl() override
+  {
+    m_function();
+  }
+
+  virtual void CallReturnImpl(void *returnValue) override
+  {
+    *reinterpret_cast<ReturnType*>(returnValue) = m_function();
+  }
+
+  virtual void CallReturnImpl(void *returnValue, void *arg1) override
+  {
+    *reinterpret_cast<ReturnType*>(returnValue) = m_function(*reinterpret_cast<int*>(arg1));
+  }
+
+private:
+  FunctionType m_function;
+
+};

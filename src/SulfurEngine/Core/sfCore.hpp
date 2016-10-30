@@ -19,6 +19,8 @@ namespace Sulfur
     
     Window* GetWindow() const { return m_window; }
 
+    int TestFunction() { return 5; }
+
   private:
     bool m_running;
     Window *m_window;

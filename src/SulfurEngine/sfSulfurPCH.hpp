@@ -20,6 +20,10 @@
 #include <dxgi.h>
 #include <d3dcompiler.h>
 
+// Scripting
+#include <python.h>
+#include <structmember.h>
+
 // Engine
 #include "Types/sfTypes.hpp"
 #include "Settings/sfEngineSettings.hpp"
