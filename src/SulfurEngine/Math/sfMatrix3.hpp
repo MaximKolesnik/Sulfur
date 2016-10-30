@@ -162,6 +162,13 @@ namespace Sulfur
       m_rows[2] = Vector3::c_zAxis;
     }
 
+    SF_FORCE_INLINE void SF_VEC_CALL ZeroOut(void)
+    {
+      m_rows[0].ZeroOut();
+      m_rows[1].ZeroOut();
+      m_rows[2].ZeroOut();
+    }
+
     SF_FORCE_INLINE void SF_VEC_CALL SetRotationRad(Real x, Real y, Real z)
     {
       Real cx = MathUtils::Cos(x);

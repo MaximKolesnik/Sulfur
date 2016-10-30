@@ -113,6 +113,16 @@ namespace Sulfur
 #endif
     }
 
+    SF_FORCE_INLINE void SF_VEC_CALL Splat(Real xyz)
+    {
+#ifdef SF_USE_SIMD
+      m_data = _mm_set1_ps(xyz);
+      m_comps[3] = Real(0.0);
+#else
+      m_comps[0] = m_comps[1] = m_comps[2] = xyz;
+#endif
+    }
+
     //Compute dot product of two vectors
     SF_FORCE_INLINE Real SF_VEC_CALL Dot(const Vector3 &other) const
     {
@@ -467,6 +477,28 @@ namespace Sulfur
       return *this;
     }
 
+    SF_FORCE_INLINE Vector3 SF_VEC_CALL operator*(const Vector3 &other) const
+    {
+#ifdef SF_USE_SIMD
+      return Vector3(_mm_mul_ps(m_data, other.Get128()));
+#else
+      return Vector3(m_comps[0] * other.m_comps[0], m_comps[1] * other.m_comps[1],
+        m_comps[2] * other.m_comps[2]);
+#endif
+    }
+
+    SF_FORCE_INLINE Vector3 SF_VEC_CALL operator/(const Vector3 &other) const
+    {
+      SF_ASSERT(other.m_comps[0] == 0.0f 
+        || other.m_comps[1] == 0.0f || other.m_comps[2] == 0.0f, "Division by zero");
+#ifdef SF_USE_SIMD
+      return Vector3(_mm_div_ps(m_data, other.Get128()));
+#else
+      return Vector3(m_comps[0] / other.m_comps[0], m_comps[1] / other.m_comps[1],
+        m_comps[2] / other.m_comps[2]);
+#endif
+    }
+
     SF_FORCE_INLINE Vector3 SF_VEC_CALL operator/(Real scalar) const
     {
       SF_ASSERT(scalar != Real(0.0), "Scaling by 1/0");
@@ -565,6 +597,11 @@ namespace Sulfur
   SF_FORCE_INLINE Vector3& SF_VEC_CALL Normalize(Vector3 &v)
   {
     return v.Normalize();
+  }
+
+  SF_FORCE_INLINE Vector3 SF_VEC_CALL Normalized(const Vector3 &v)
+  {
+    return v.Normalized();
   }
 
   SF_FORCE_INLINE Vector3& SF_VEC_CALL Abs(Vector3 &v)

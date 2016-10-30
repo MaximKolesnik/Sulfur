@@ -42,6 +42,7 @@ void BoolEditor::UpdateValue()
 void BoolEditor::CreateCheckBox()
 {
   m_checkBox = new QCheckBox();
+  m_checkBox->setCheckable(true);
   m_layout->addWidget(m_checkBox);
 
   QObject::connect(
@@ -52,7 +53,7 @@ void BoolEditor::CreateCheckBox()
 
 void BoolEditor::OnStateChanged(int state)
 {
-  //SetValue(state == Qt::Checked ? true : false);
+  SetValue(state == Qt::Checked ? true : false);
 }
 
 }

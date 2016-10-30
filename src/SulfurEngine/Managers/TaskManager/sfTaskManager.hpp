@@ -88,5 +88,7 @@ namespace Sulfur
     std::unordered_map<uintptr_t, Task*> m_dynamicTasks;
 
     DependencyGraph *m_depGraph;
+
+    bool m_initialized;
   };
 }

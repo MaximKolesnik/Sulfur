@@ -26,7 +26,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
-  Logger::Logger(void)
+  Logger::Logger(void) : m_initialized(false)
   {
    
   }
@@ -38,6 +38,11 @@ namespace Sulfur
 
   void Logger::Initialize(void)
   {
+    if (m_initialized)
+      return;
+
+    m_initialized = true;
+
     // Show console window
     if (EngineSettings::ShowConsole)
     {

@@ -164,4 +164,10 @@ namespace Sulfur
     return m_worldForward;
   }
 
+  void Transform::OnTestEvent(OnTestEventData *data)
+  {
+    SF_LOG_MESSAGE("Trasnform Event");
+    SF_LOG_MESSAGE(data->m_message);
+  }
+
 }

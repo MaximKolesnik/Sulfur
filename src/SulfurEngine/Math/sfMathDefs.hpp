@@ -26,6 +26,12 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
+#ifndef SF_USE_DOUBLE_PRECISION
+#define SF_REAL_MAX FLT_MAX
+#else
+#define SF_REAL_MAX DBL_MAX
+#endif
+
   #ifdef SF_USE_SIMD
 
     const __m128 c_SIMDZeroMask = _mm_set_ps(-0.0f, -0.0f, -0.0f, -0.0f);

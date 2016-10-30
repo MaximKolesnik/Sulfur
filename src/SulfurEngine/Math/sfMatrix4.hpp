@@ -188,6 +188,14 @@ namespace Sulfur
       m_rows[3].Set(0.0, 0.0, 0.0, 1.0);
     }
 
+    SF_FORCE_INLINE void SF_VEC_CALL ZeroOut(void)
+    {
+      m_rows[0].ZeroOut();
+      m_rows[1].ZeroOut();
+      m_rows[2].ZeroOut();
+      m_rows[3].ZeroOut();
+    }
+
     //XZY
     SF_FORCE_INLINE void SF_VEC_CALL SetRotationRad(Real roll, Real pitch, Real yaw)
     {
@@ -568,7 +576,7 @@ namespace Sulfur
 
       return *this;
     }
-    
+
     //Provided by intel
     //download.intel.com/design/pentiumiii/sml/24504301.pdf
     SF_FORCE_INLINE Matrix4 SF_VEC_CALL GetCofactorMatrix(void) const
@@ -1354,5 +1362,10 @@ namespace Sulfur
   SF_FORCE_INLINE Matrix4& SF_VEC_CALL Inverse(Matrix4 &m)
   {
     return m.Inverse();
+  }
+
+  SF_FORCE_INLINE Vector3 SF_VEC_CALL TransformNormal(const Matrix4 &m, const Vector3 &n)
+  {
+    return m.TransformNormal(n);
   }
 }

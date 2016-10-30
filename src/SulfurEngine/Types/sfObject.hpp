@@ -20,6 +20,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Types\sfTypes.hpp"
 #include "Factories\sfComponentFactory.hpp"
 #include "Reflection/sfSerialization.hpp"
+#include "Events\sfEvents.hpp"
 
 namespace Sulfur
 {
@@ -76,6 +77,8 @@ namespace Sulfur
     SF_PRIVATE_PROPERTY(ChildrenSet, children, Children, "Children");
 
     bool m_isAlive;
+
+    SF_OBJECT_EVENT
   };
 
   template <class CompType>

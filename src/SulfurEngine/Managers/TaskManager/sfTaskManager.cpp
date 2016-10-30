@@ -99,7 +99,7 @@ namespace Sulfur
     }
   }
 
-  TaskManager::TaskManager(void) : m_workers(nullptr)
+  TaskManager::TaskManager(void) : m_workers(nullptr), m_initialized(false)
   {
     
   }
@@ -132,6 +132,11 @@ namespace Sulfur
 
   void TaskManager::Initialize(void)
   {
+    if (m_initialized)
+      return;
+
+    m_initialized = true;
+
     m_numThreads = std::thread::hardware_concurrency();
     SF_CRITICAL_ERR_EXP(m_numThreads != 0, "Number of concurent threads is not computable");
 
@@ -199,17 +204,17 @@ namespace Sulfur
     //Now start thread for the remaining number of workers
     for (UINT32 i = 1; i < m_numThreads; ++i)
     {
-      m_workers[i].m_threadHandle = CreateThread(0, 0, WorkerThreadRoutine, 
+      InitializeConditionVariable(&m_workers[i].m_suspendedCV);
+      InitializeCriticalSection(&m_workers[i].m_suspendedCS);
+      m_workers[i].m_coreAffinity = i;
+      m_workers[i].m_taskManager = this;
+      m_workers[i].m_threadHandle = CreateThread(0, 0, WorkerThreadRoutine,
         &m_workers[i], NULL, NULL);
 
       SF_CRITICAL_ERR_EXP(m_workers[i].m_threadHandle != NULL,
         std::to_string(GetLastError()));
 
       SetThreadAffinityMask(m_workers[i].m_threadHandle, 1i64 << i);
-      m_workers[i].m_coreAffinity = i;
-      m_workers[i].m_taskManager = this;
-      InitializeConditionVariable(&m_workers[i].m_suspendedCV);
-      InitializeCriticalSection(&m_workers[i].m_suspendedCS);
     }
   }
 

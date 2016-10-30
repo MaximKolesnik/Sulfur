@@ -38,6 +38,8 @@ namespace Sulfur
     std::string _RemoveFullPathFileName(const std::string &fileName) const;
 
     std::ofstream m_logFile;
+
+    bool m_initialized;
   };
 
 #define SF_LOG_MESSAGE(message) \

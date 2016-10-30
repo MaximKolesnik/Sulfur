@@ -1,6 +1,5 @@
 #include "sfCore.hpp"
 #include "Components/sfCamera.hpp"
-#include "Reflection/sfFunction.hpp"
 
 // Modules
 #include "Modules/Input/sfInputManager.hpp"
@@ -13,6 +12,7 @@
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Managers\EventManager\sfEventManager.hpp"
 #include "Modules/Script/sfScriptManager.hpp"
 
 // Factories
@@ -57,14 +57,20 @@ namespace Sulfur
 
     TaskManager* tm = TaskManager::Instance();
     tm->AddNode("UpdateTransforms");
+    tm->AddNode("TriggerEventsEndFrame");
     tm->SetStartingTask("UpdateTransforms");
+    tm->SetDependency("TriggerEventsEndFrame", "UpdateTransforms");
     tm->CompleteGraph();
-
+    
     ScriptManager::Instance()->Init();
+
+    /*Object *testObj = SF_CREATE_OBJECT("testEvent");
+    EventManager::Instance()->PushEvent(IEntity::&OnTestEvent, OnTestEventData(testObj->GetHndl(), "Test"));*/
   }
 
   void Core::GameLoop(void)
   {
+
     while (m_running)
       Frame();
   }

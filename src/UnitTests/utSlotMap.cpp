@@ -170,6 +170,7 @@ namespace UnitTests
 
     TEST_METHOD(SlotMap9)
     {
+      ComponentFactory::Instance()->Initialize();
       std::vector<HNDL> createdTransforms;
       std::vector<HNDL> iteratedTransforms;
       for (int i = 0; i < 20000; ++i)
