@@ -26,6 +26,8 @@ namespace Sulfur
     CollapsableEditor(void *ptr, QWidget *parent = 0);
     ~CollapsableEditor();
 
+    void SetHeaderText(const std::string& text);
+
   private:
     void Setup();
 

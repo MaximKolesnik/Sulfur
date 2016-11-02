@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Types/sfSingleton.hpp"
 #include "Modules/Window/sfWindow.hpp"
 
@@ -18,8 +17,6 @@ namespace Sulfur
     void OnWindowClose();
     
     Window* GetWindow() const { return m_window; }
-
-    int TestFunction() { return 5; }
 
   private:
     bool m_running;

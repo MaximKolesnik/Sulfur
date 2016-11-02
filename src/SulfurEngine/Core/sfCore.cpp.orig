@@ -1,5 +1,6 @@
 #include "sfCore.hpp"
 #include "Components/sfCamera.hpp"
+#include "Reflection/sfFunction.hpp"
 
 // Modules
 #include "Modules/Input/sfInputManager.hpp"
@@ -12,8 +13,11 @@
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
-#include "Managers\EventManager\sfEventManager.hpp"
+<<<<<<< HEAD
 #include "Modules/Script/sfScriptManager.hpp"
+=======
+#include "Managers\EventManager\sfEventManager.hpp"
+>>>>>>> origin/master
 
 // Factories
 #include "Factories/sfComponentFactory.hpp"
@@ -56,18 +60,18 @@ namespace Sulfur
     m_running = true;
 
     TaskManager* tm = TaskManager::Instance();
-    tm->AddNode("UpdateScripts");
     tm->AddNode("UpdateTransforms");
     tm->AddNode("TriggerEventsEndFrame");
-    tm->SetStartingTask("UpdateScripts");
-    tm->SetDependency("UpdateTransforms", "UpdateScripts");
+    tm->SetStartingTask("UpdateTransforms");
     tm->SetDependency("TriggerEventsEndFrame", "UpdateTransforms");
     tm->CompleteGraph();
-    
-    ScriptManager::Instance()->Init();
 
+<<<<<<< HEAD
+    ScriptManager::Instance()->Init();
+=======
     /*Object *testObj = SF_CREATE_OBJECT("testEvent");
     EventManager::Instance()->PushEvent(IEntity::&OnTestEvent, OnTestEventData(testObj->GetHndl(), "Test"));*/
+>>>>>>> origin/master
   }
 
   void Core::GameLoop(void)

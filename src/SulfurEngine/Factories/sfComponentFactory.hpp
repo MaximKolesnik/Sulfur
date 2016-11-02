@@ -57,6 +57,8 @@ namespace Sulfur
 
     ComponentMap& GetComponentMap();
 
+    void RegisterScriptType(const std::string &name);
+
   private:
     friend class ScriptManager;
 

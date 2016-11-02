@@ -11,8 +11,8 @@
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
-
 #pragma once
+#include "Utils/sfClassUtils.hpp"
 
 namespace Sulfur
 {
@@ -56,9 +56,7 @@ namespace Sulfur
       FileWatcher *m_fileWatcher;
     };
 
-    typedef void(*FileWatcherCallback)(const ActionInfo &);
-
-    FileWatcher(FileWatcherCallback func);
+    FileWatcher();
     ~FileWatcher(void);
 
     bool AddDirectoryToWatch(const std::string &dir, bool recursive = true);
@@ -79,7 +77,7 @@ namespace Sulfur
     bool _FilterEvents(const FILE_NOTIFY_INFORMATION *info);
 
     std::unordered_map<std::string, WatchInfo*> m_dirsMap;
-    FileWatcherCallback m_callback;
+    SF_CALLBACK(FileAction, const ActionInfo&)
 
     Action m_actionToConsume = FileNone;
   };
