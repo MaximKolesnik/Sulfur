@@ -6,9 +6,12 @@ namespace Sulfur
 
   namespace Physics
   {
+    struct ColliderData;
+
     struct Contact
     {
-
+      ColliderData *m_colliderA;
+      ColliderData *m_colliderB;
     };
 
     typedef std::vector<Contact> Contacts;
@@ -19,8 +22,8 @@ namespace Sulfur
       IContactGenerator(void) {}
       virtual ~IContactGenerator(void) {}
 
-      virtual void GenerateContacts(Contacts &contacts,
-                                    const QueryResults &possiblePairs) = 0;
+      virtual void BoxToBox(Contacts &contacts,
+        ColliderData *colliderA, ColliderData *colliderB) const = 0;
     private:
     };
   }

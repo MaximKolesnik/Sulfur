@@ -11,6 +11,7 @@
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Modules/Physics/sfPhysicsWorld.hpp"
 #include "Managers\EventManager\sfEventManager.hpp"
 
 // Factories
@@ -59,6 +60,8 @@ namespace Sulfur
 
     InputManager::Instance()->Init(m_window);
     GraphicsManager::Instance()->Init(*m_window);
+    Physics::PhysicsWorld::Instance()->Initialize();
+
     m_running = true;
 
     TaskManager* tm = TaskManager::Instance();
@@ -66,11 +69,13 @@ namespace Sulfur
     tm->AddNode("TriggerEventsEndFrame");
     tm->AddNode("IntegrateBodies");
     tm->AddNode("BroadPhase");
+    tm->AddNode("NarrowPhase");
     tm->AddNode("PostAndCleanup");
     tm->SetStartingTask("UpdateTransforms");
     tm->SetDependency("IntegrateBodies", "UpdateTransforms");
     tm->SetDependency("BroadPhase", "IntegrateBodies");
-    tm->SetDependency("PostAndCleanup", "BroadPhase");
+    tm->SetDependency("NarrowPhase", "BroadPhase");
+    tm->SetDependency("PostAndCleanup", "NarrowPhase");
     tm->SetDependency("TriggerEventsEndFrame", "PostAndCleanup");
     tm->CompleteGraph();
 
@@ -90,7 +95,7 @@ namespace Sulfur
     //testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, 45.0, 0.0);
     testObj1->GetComponent<Transform>()->Update();
     RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
-    rb1->SetDynamicState(Physics::RB_Static);
+    rb1->SetDynamicState(Physics::RB_Dynamic);
     testObj1->AttachComponent(rb1);
     MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
     mesh->SetMesh("Models\\cube.fbx");

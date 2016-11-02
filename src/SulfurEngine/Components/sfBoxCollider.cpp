@@ -3,7 +3,8 @@
 
 namespace Sulfur
 {
-  BoxCollider::BoxCollider(void)
+  BoxCollider::BoxCollider(void) : m_offset(Real(0.0), Real(0.0), Real(0.0)),
+    m_scale(Real(1.0), Real(1.0), Real(1.0))
   {
 
   }

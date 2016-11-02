@@ -1,6 +1,12 @@
 #pragma once
 
 #include "sfIContactGenerator.hpp"
+#include "Math\sfMathDefs.hpp"
+#include "Math\sfVector3.hpp"
+#include "Math\sfQuaternion.hpp"
+#include "Modules\Physics\ColliderGeometry\sfColliderGeometry.hpp"
+#include "Math\Geometry\sfGeometry.hpp"
+#include "Math\Geometry\sfShapes.hpp"
 
 namespace Sulfur
 {
@@ -12,9 +18,45 @@ namespace Sulfur
       SAT(void) : IContactGenerator() {}
       virtual ~SAT(void) {}
 
-      virtual void GenerateContacts(Contacts &contacts, 
-                                    const QueryResults &possiblePairs) override;
+      virtual void BoxToBox(Contacts &contacts, 
+                                    ColliderData *colliderA, ColliderData *colliderB) const override;
     private:
+
+      struct Projection
+      {
+        Projection(Real min = SF_REAL_MAX, Real max = -SF_REAL_MAX) : m_min(min), m_max(max) {}
+        Real m_min;
+        Real m_max;
+      };
+
+      bool _FindSeparatingAxis(const std::vector<Vector3> &worldVertsA, 
+        const std::vector<Vector3> &worldVertsB, const ColliderGeometry &colGeomA,
+        const ColliderGeometry &colGeomB, const Vector3 &posA, const Vector3 &posB, 
+        const Quaternion &orientA, const Quaternion &orientB, Vector3 &penetAxis) const;
+
+      bool _IsAxisSeparating(const std::vector<Vector3> &worldVertsA,
+        const std::vector<Vector3> &worldVertsB, const Vector3 &axis, 
+        Real &penetration) const;
+
+      Projection _ProjectOnAxis(const std::vector<Vector3> &worldVerts,  
+        const Vector3 &axis) const;
+
+      bool _IsOverlaping(const Projection &p1, const Projection &p2) const;
+
+      Real _CalculatePenetration(const Projection &p1, const Projection &p2) const;
+
+      void _GenerateContact(const ColliderGeometry &colGeomA, const ColliderGeometry &colGeomB, 
+        const std::vector<Vector3> &worldVertsA, const std::vector<Vector3> &worldVertsB, 
+        const Vector3 &posA, const Vector3 &posB, const Quaternion &orientA, 
+        const Quaternion &orientB, const Vector3 &contactNormal) const;
+
+      void _ClipConHullToConHull(const ColliderGeometry &colGeomA,
+        const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA,
+        const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
+        const Quaternion &orientA, const Quaternion &orientB, const Vector3 &contactNormal, 
+        std::vector<Vector3> &contactPoints) const;
+
+      void _ClipPointsToPlane(std::vector<Vector3> &verts, const Geometry::Plane plane) const;
     };
   }
 }

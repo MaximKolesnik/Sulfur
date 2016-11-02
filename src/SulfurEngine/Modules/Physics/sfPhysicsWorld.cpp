@@ -10,6 +10,8 @@
 #include "Integration\sfExplicitEuler.hpp"
 #include "BroadPhase\sfBroadPhase.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
+#include "ColliderGeometry\sfGeometryMap.hpp"
+#include "Collision\sfSAT.hpp"
 
 /******************************************************************************
 Maxim TODO: Wrap all integrators
@@ -43,7 +45,18 @@ namespace Sulfur
       GetPossibleContacts(Physics::PhysicsWorld::Instance()->m_possiblePairs);
 
     Physics::PhysicsWorld::Instance()->m_broadPhase->DrawDebug(DebugDraw::Instance());
-  } SF_END_DEFINE_TASK(BroadPhase)
+  } SF_END_DEFINE_TASK(BroadPhase);
+
+  SF_DEFINE_TASK(NarrowPhase)
+  {
+    Physics::SAT sat;
+    Physics::Contacts contacts;
+
+    for (auto it : Physics::PhysicsWorld::Instance()->m_possiblePairs.m_results)
+    {
+      sat.BoxToBox(contacts, (Physics::ColliderData*)it.m_clientData0, (Physics::ColliderData*)it.m_clientData1);
+    }
+  } SF_END_DEFINE_TASK(NarrowPhase);
 
   SF_DEFINE_TASK(PostAndCleanup)
   {
@@ -77,6 +90,11 @@ namespace Sulfur
     PhysicsWorld::~PhysicsWorld(void)
     {
 
+    }
+
+    void PhysicsWorld::Initialize(void)
+    {
+      GeometryMap::Instance()->Initialize();
     }
 
     void PhysicsWorld::AddRigidBody(HNDL rbHndl)
