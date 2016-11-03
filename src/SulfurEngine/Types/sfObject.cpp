@@ -21,16 +21,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 
-SF_SCRIPT_TYPE_DERIVED(sulfur, Object, IEntity)
-  SF_SCRIPT_MEMBER_FUNCTION(IsAlive)
-  SF_SCRIPT_MEMBER_FUNCTION(Destroy)
-  SF_SCRIPT_MEMBER_FUNCTION(SetParent)
-  SF_SCRIPT_MEMBER_FUNCTION(GetParent)
-SF_SCRIPT_TYPE_END()
-
 Object::Object(void) : m_isAlive(true)
 {
-  ob_base = *(PyObject*)(&PythonTypeData<Object>::TypeObject);
 }
 
 Object::~Object(void)

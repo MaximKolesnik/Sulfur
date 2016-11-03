@@ -1,6 +1,6 @@
-import sulfur
+import Sulfur
 
-class TestScript(sulfur.Script):
+class TestScript(Sulfur.Script):
     def __init__(self):
         try:
             super(TestScript, self).__init__()
@@ -13,7 +13,6 @@ class TestScript(sulfur.Script):
         print("Initialize TestScript")
 
     def OnUpdate(self):
-        print(self.owner)
+        self.owner.SetParent(1)
 
-sulfur.RegisterScript(TestScript)
-
+Sulfur.RegisterScript(TestScript)

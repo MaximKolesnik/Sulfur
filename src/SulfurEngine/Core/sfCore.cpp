@@ -13,7 +13,6 @@
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 #include "Managers\EventManager\sfEventManager.hpp"
-#include "Modules/Script/sfScriptManager.hpp"
 
 // Factories
 #include "Factories/sfComponentFactory.hpp"
@@ -56,15 +55,11 @@ namespace Sulfur
     m_running = true;
 
     TaskManager* tm = TaskManager::Instance();
-    tm->AddNode("UpdateScripts");
     tm->AddNode("UpdateTransforms");
     tm->AddNode("TriggerEventsEndFrame");
-    tm->SetStartingTask("UpdateScripts");
-    tm->SetDependency("UpdateTransforms", "UpdateScripts");
+    tm->SetStartingTask("UpdateTransforms");
     tm->SetDependency("TriggerEventsEndFrame", "UpdateTransforms");
     tm->CompleteGraph();
-    
-    ScriptManager::Instance()->Init();
 
     /*Object *testObj = SF_CREATE_OBJECT("testEvent");
     EventManager::Instance()->PushEvent(IEntity::&OnTestEvent, OnTestEventData(testObj->GetHndl(), "Test"));*/
@@ -88,7 +83,6 @@ namespace Sulfur
 
   void Core::ShutDown(void)
   {
-    ScriptManager::Instance()->Free();
     GraphicsManager::Instance()->Free();
   }
 

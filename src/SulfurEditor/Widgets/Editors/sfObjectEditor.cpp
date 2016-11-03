@@ -15,8 +15,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfCollapsableEditor.hpp"
 #include "Factories/sfObjectFactory.hpp"
 #include "Factories/sfComponentFactory.hpp"
-#include "Modules/Script/sfScriptManager.hpp"
-#include "Components/sfScriptComponent.hpp"
 
 namespace Sulfur
 {
@@ -87,23 +85,6 @@ void ObjectEditor::OnAddComponentClicked()
     }
   }
 
-  QMenu *scriptMenu = new QMenu("Script");
-  menu->addMenu(scriptMenu);
-
-  auto& scriptNames = ScriptManager::Instance()->GetScriptNames();
-  for (const std::string& scriptName : scriptNames)
-  {
-    if (!object->HasComponent(scriptName))
-    {
-      QAction *action = scriptMenu->addAction(scriptName.c_str());
-
-      QObject::connect(
-        action, &QAction::triggered,
-        [=]() { this->OnAddScript(action); }
-      );
-    }
-  }
-
   m_newComponentButton->setMenu(menu);
   m_newComponentButton->showMenu();
 }
@@ -118,21 +99,6 @@ void ObjectEditor::OnAddComponent(QAction *action)
   m_childrenLayout->addWidget(m_newComponentButton);
 
   object->AttachComponent(component);
-}
-
-void ObjectEditor::OnAddScript(QAction *action)
-{
-  Object *object = const_cast<Object*>(&GetValue<Object>());
-
-  ScriptComponent *script = ScriptManager::Instance()->CreateScript(action->text().toUtf8().data());
-  CollapsableEditor *editor = static_cast<CollapsableEditor*>(PropertyEditor::Create(script, SF_TYPE_INFO(IEntity)));
-  editor->SetHeaderText(script->m_name);
-  AddChild(editor);
-
-  m_childrenLayout->removeWidget(m_newComponentButton);
-  m_childrenLayout->addWidget(m_newComponentButton);
-
-  object->AttachComponent(script);
 }
 
 }

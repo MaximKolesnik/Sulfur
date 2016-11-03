@@ -23,10 +23,10 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components/sfPointLight.hpp"
 #include "Components/sfSpotLight.hpp"
 #include "Components/sfDirectionalLight.hpp"
-#include "Components/sfScriptComponent.hpp"
 
 namespace Sulfur
 {
+
   ComponentFactory::ComponentFactory(void) : m_initialized(false)
   {
 
@@ -147,16 +147,6 @@ namespace Sulfur
   ComponentFactory::ComponentMap& ComponentFactory::GetComponentMap()
   {
     return m_compMap;
-  }
-
-  void ComponentFactory::RegisterScriptType(const std::string &name)
-  {
-    ISlotMap* newSlotMap = new SlotMap<ScriptComponent>();
-
-    auto result = m_compMap.insert(std::make_pair(name, newSlotMap));
-
-    if (!result.second)
-      delete newSlotMap;
   }
 
 }

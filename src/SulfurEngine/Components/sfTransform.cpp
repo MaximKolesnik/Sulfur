@@ -11,18 +11,13 @@
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
-
-/*******************************************************************************
-Maxim Kolesnik: TODO: Write Clone() as soon as object and component factory
-                      are done.
-*******************************************************************************/
-
 #include "sfTransform.hpp"
 #include "Factories/sfObjectFactory.hpp"
 #include "Factories/sfComponentFactory.hpp"
 
 namespace Sulfur
 {
+
   Transform::Transform(void) 
     : IEntity(), m_translation(0.0f, 0.0f, 0.0f), m_rotation(1.0f, 0.0f, 0.0f, 0.0f), m_scale(1.0f, 1.0f, 1.0f)
   {

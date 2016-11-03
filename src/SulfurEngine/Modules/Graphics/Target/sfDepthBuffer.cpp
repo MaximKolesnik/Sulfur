@@ -24,6 +24,7 @@ void DepthBuffer::Init(D3D11Device& device, Texture2D& texture)
   // TODO: Add support for texture arrays
   D3D11_DEPTH_STENCIL_VIEW_DESC dsvDescription;
   dsvDescription.Format = texture.GetDescription().Format;
+  if (dsvDescription.Format == DXGI_FORMAT_R24G8_TYPELESS) dsvDescription.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
   dsvDescription.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
   dsvDescription.Flags = 0;
   dsvDescription.Texture2D.MipSlice = 0;
@@ -58,6 +59,12 @@ void DepthBuffer::Resize(UINT32 width, UINT32 height)
 
   Free();
   Init(*m_device, description);
+}
+
+void DepthBuffer::Set(D3D11Context& context, UINT32 index)
+{
+  ID3D11RenderTargetView *nullTargets[8] = { nullptr };
+  context.GetD3DResource()->OMSetRenderTargets(8, nullTargets, m_resource);
 }
 
 void DepthBuffer::Clear(D3D11Context& context)

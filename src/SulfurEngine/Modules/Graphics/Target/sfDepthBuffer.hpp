@@ -30,6 +30,7 @@ namespace Sulfur
 
     void Resize(UINT32 width, UINT32 height);
 
+    void Set(D3D11Context& context, UINT32 index = 0);
     void Clear(D3D11Context& context);
 
   private:

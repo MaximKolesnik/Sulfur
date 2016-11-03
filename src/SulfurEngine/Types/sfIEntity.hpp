@@ -4,7 +4,6 @@
 #include "sfTypes.hpp"
 #include "Reflection/sfReflection.hpp"
 #include "Events\sfEvents.hpp"
-#include "Modules/Script/sfScriptBinding.hpp"
 
 namespace Sulfur
 {
@@ -15,7 +14,6 @@ class Object;
 class DebugDraw;
 
 SF_REFLECTED_CLASS(IEntity)
-  SF_SCRIPT_BASE_CLASS
 
 public:
   IEntity(void) : m_hndl(SF_INV_HANDLE), m_owner(SF_INV_HANDLE) {}
