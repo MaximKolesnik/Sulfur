@@ -25,6 +25,8 @@ namespace Sulfur
     Scene& GetScene();
     const Scene& GetScene() const;
 
+    void Update();
+
   private:
     Scene m_scene;
   };

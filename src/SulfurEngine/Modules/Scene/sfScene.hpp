@@ -15,6 +15,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Reflection/sfReflection.hpp"
 #include "Reflection/sfSerialization.hpp"
 #include "Modules/Graphics/Resources/Texture/sfCubeMap.hpp"
+#include "Math/Geometry/sfShapes.hpp"
+#include "Modules/Graphics/Types/sfColor.hpp"
 
 namespace Sulfur
 {
@@ -26,6 +28,7 @@ namespace Sulfur
 
     SF_RESOURCE(CubeMap, skybox, Skybox, "Skybox")
     SF_PRIVATE_PROPERTY(bool, ibl, Ibl, "IBL")
+    SF_PRIVATE_PROPERTY(Color, ambientLight, AmbientLight, "Ambient Light")
 
   };
 
@@ -36,11 +39,19 @@ namespace Sulfur
 
     HNDL CreateObject(const std::string& name, HNDL parent = SF_INV_HANDLE);
     void AddObject(HNDL object, HNDL parent = SF_INV_HANDLE);
-    void RemoveFromRoot(HNDL object);
+    void RemoveObject(HNDL object);
+
+    void UpdateAabb();
+
+    const Geometry::Aabb& GetAabb() const;
 
     SF_PRIVATE_PROPERTY(std::list<HNDL>, rootObjects, RootObjects, "Root Objects")
+    SF_PRIVATE_PROPERTY(std::list<HNDL>, objects, Objects, "Objects")
     SF_PRIVATE_PROPERTY(HNDL, cameraObject, CameraObject, "Camera Object")
     SF_PUBLIC_PROPERTY(SceneProperties, sceneProperties, SceneProperties, "Scene Properties")
+
+  private:
+    Geometry::Aabb m_aabb;
 
   };
 

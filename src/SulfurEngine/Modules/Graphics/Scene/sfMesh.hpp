@@ -17,6 +17,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/Core/sfD3D11Device.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfD3D11VertexBuffer.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfD3D11IndexBuffer.hpp"
+#include "Math/Geometry/sfShapes.hpp"
 
 namespace Sulfur
 {
@@ -46,6 +47,8 @@ namespace Sulfur
     void CreateBoxOutline(Real w, Real h, Real d);
     void CreateVector(Real length, Real arrowSize);
 
+    const Geometry::Aabb& GetAabb() const;
+
   private:
     void UpdateBuffers();
 
@@ -60,6 +63,7 @@ namespace Sulfur
     D3D11Device *m_device;
     D3D11VertexBuffer m_vertexBuffer;
     D3D11IndexBuffer m_indexBuffer;
+    Geometry::Aabb m_aabb;
 
   };
   

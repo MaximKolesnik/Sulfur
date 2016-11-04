@@ -33,9 +33,6 @@ namespace Sulfur
     virtual void Process() override;
 
   private:
-    void SetupCamera(Scene& scene);
-
-  private:
     D3D11VertexShader m_vertexShader;
     D3D11ConstantBuffer *m_perFrameData;
     D3D11ConstantBuffer *m_perObjectData;

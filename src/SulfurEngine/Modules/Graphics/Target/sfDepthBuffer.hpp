@@ -33,6 +33,8 @@ namespace Sulfur
     void Set(D3D11Context& context, UINT32 index = 0);
     void Clear(D3D11Context& context);
 
+    Texture2D* GetTexture();
+
   private:
     D3D11Device *m_device;
     Texture2D m_texture;

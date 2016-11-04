@@ -25,6 +25,7 @@ void DepthBuffer::Init(D3D11Device& device, Texture2D& texture)
   D3D11_DEPTH_STENCIL_VIEW_DESC dsvDescription;
   dsvDescription.Format = texture.GetDescription().Format;
   if (dsvDescription.Format == DXGI_FORMAT_R24G8_TYPELESS) dsvDescription.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+  if (dsvDescription.Format == DXGI_FORMAT_R32G8X24_TYPELESS) dsvDescription.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
   dsvDescription.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
   dsvDescription.Flags = 0;
   dsvDescription.Texture2D.MipSlice = 0;
@@ -65,11 +66,17 @@ void DepthBuffer::Set(D3D11Context& context, UINT32 index)
 {
   ID3D11RenderTargetView *nullTargets[8] = { nullptr };
   context.GetD3DResource()->OMSetRenderTargets(8, nullTargets, m_resource);
+  context.SetViewport((Real)m_texture.GetDescription().Width, (Real)m_texture.GetDescription().Height);
 }
 
 void DepthBuffer::Clear(D3D11Context& context)
 {
   context.GetD3DResource()->ClearDepthStencilView(m_resource, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+Texture2D* DepthBuffer::GetTexture()
+{
+  return &m_texture;
 }
 
 }

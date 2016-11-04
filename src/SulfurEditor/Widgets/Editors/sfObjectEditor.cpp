@@ -41,14 +41,21 @@ void ObjectEditor::UpdateValue()
   Object *object = const_cast<Object*>(&GetValue<Object>());
   AddChild(PropertyEditor::Create(object, object->GetProperty("Name")));
 
+  CollapsableEditor *transformEditor = static_cast<CollapsableEditor*>(PropertyEditor::Create(object->GetComponent("Transform"), SF_TYPE_INFO(IEntity)));
+  transformEditor->SetHeaderText("Transform");
+  AddChild(transformEditor);
+
   auto& components = object->GetComponents();
   for (auto& componentPair : components)
   {
     IEntity *component = ComponentFactory::Instance()->GetComponent(componentPair.first, componentPair.second);
 
-    CollapsableEditor *editor = static_cast<CollapsableEditor*>(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)));
-    editor->SetHeaderText(component->m_name);
-    AddChild(editor);
+    if (component->m_name != "Transform")
+    {
+      CollapsableEditor *editor = static_cast<CollapsableEditor*>(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)));
+      editor->SetHeaderText(component->m_name);
+      AddChild(editor);
+    }
   }
 
   m_newComponentButton = new QToolButton();

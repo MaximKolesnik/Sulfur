@@ -38,6 +38,7 @@ namespace Sulfur
     void Set(D3D11Context& context, DepthBuffer& depthBuffer);
     void Set(D3D11Context& context, DepthBuffer& depthBuffer, UINT32 start, UINT32 count);
     void Clear(D3D11Context& context, const Vector4& color = Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+    void Clear(D3D11Context& context, UINT32 index, const Vector4& color = Vector4(0.5f, 0.5f, 0.5f, 1.0f));
 
     Texture2D* GetTexture();
     const Texture2D* GetTexture() const;

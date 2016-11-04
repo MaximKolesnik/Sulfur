@@ -410,6 +410,12 @@ namespace Sulfur
       }
     }
 
+    void Aabb::Expand(const Aabb& aabb)
+    {
+      Expand(aabb.m_min);
+      Expand(aabb.m_max);
+    }
+
     Aabb Aabb::Combine(const Aabb& lhs, const Aabb& rhs)
     {
       Aabb result;

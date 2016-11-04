@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    char *theme = (char*)Sulfur::FileUtils::ReadFile("Themes/Dark.set");
+    char *theme = (char*)Sulfur::FileUtils::ReadFile("Themes/Darcula.set");
     if (theme != nullptr)
     {
       a.setStyleSheet(theme);
@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
 
     while (w.isVisible())
     {
-      a.processEvents();
       w.Frame();
+      a.processEvents();
     }
 
     return 0;

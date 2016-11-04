@@ -68,6 +68,8 @@ UINT32 Mesh::AddVertex(const Vertex& vertex)
 {
   m_vertices.push_back(vertex);
   m_valid = false;
+  m_aabb.Expand(Vector3(vertex.m_position[0], vertex.m_position[1], vertex.m_position[2]));
+
   return (UINT32)m_vertices.size() - 1;
 }
 
@@ -168,6 +170,11 @@ void Mesh::CreateBox(Real w, Real h, Real d)
   AddTriangle(21, 22, 23);
 
   SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+const Geometry::Aabb& Mesh::GetAabb() const
+{
+  return m_aabb;
 }
 
 void Mesh::UpdateBuffers()

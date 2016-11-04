@@ -48,6 +48,7 @@ namespace Sulfur
 
   public slots:
     void OnPropertiesClicked();
+    void OnObjectActivated(QTreeWidgetItem *item, int column);
     void OnSceneTreeSelectionChanged();
     void OnItemsMoved(const QModelIndex &parent, int start, int end);
 
@@ -65,6 +66,7 @@ namespace Sulfur
 
   signals:
     void ObjectSelected(Object *object);
+    void ObjectActivated(Object *object);
 
   private:
     ScenePropertiesDialog *m_scenePropertiesDialog;

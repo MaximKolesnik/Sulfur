@@ -41,7 +41,7 @@ namespace Sulfur
   {
     Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(m_owner);
     transform->Update();
-    draw->DrawCone(transform->GetTranslation(), transform->GetWorldForward(), transform->GetWorldRight(), transform->GetWorldUp(), m_range, m_outerAngle / 2.0f, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+    draw->DrawCone(transform->GetTranslation(), transform->GetWorldForward(), transform->GetWorldRight(), transform->GetWorldUp(), m_range, m_outerAngle, false, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
   }
 
 }

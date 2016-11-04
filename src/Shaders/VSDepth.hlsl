@@ -1,10 +1,14 @@
 #include "VertexInputs.hlsli"
+#include "PixelInputs.hlsli"
 
-float4 main(VertexIn input) : SV_POSITION
+DepthPixelIn main(float4 position : POSITION)
 {
-  float4 position = mul(input.position, WorldMatrix);
-  position = mul(position, ViewMatrix);
-  position = mul(position, ProjMatrix);
+  DepthPixelIn output;
 
-  return position;
+  output.position = mul(position, WorldMatrix);
+  output.position = mul(output.position, ViewMatrix);
+  output.depth = dot(output.position.xyz, output.position.xyz);
+  output.position = mul(output.position, ProjMatrix);
+
+  return output;
 }
