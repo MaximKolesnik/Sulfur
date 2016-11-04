@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Math\sfVector3.hpp"
+
 namespace Sulfur
 {
   class QueryResults;
@@ -12,6 +14,17 @@ namespace Sulfur
     {
       ColliderData *m_colliderA;
       ColliderData *m_colliderB;
+
+      Vector3 m_contactNormal;
+      Vector3 m_contactPoint;
+      
+      Real m_penetration;
+
+      Real m_massNormal;
+      Real m_massTangent1;
+      Real m_massTangent2;
+
+      Real m_bias;
     };
 
     typedef std::vector<Contact> Contacts;

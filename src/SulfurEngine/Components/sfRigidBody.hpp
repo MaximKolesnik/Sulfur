@@ -21,6 +21,7 @@ namespace Sulfur
     void SetDynamicState(Physics::RBDynamicState state) { m_dynamicState = state; }
   private:
     SF_PRIVATE_PROPERTY(Vector3, velocity, Velocity, "Velocity of the object");
+    SF_PRIVATE_PROPERTY(Vector3, angularVelocity, AngularVelocity, "Angular velocity of the object");
     Physics::RBDynamicState m_dynamicState;
     SF_PRIVATE_PROPERTY_READ_ONLY(Real, invMass, InverseMass, "Inverse Mass of the object");
 

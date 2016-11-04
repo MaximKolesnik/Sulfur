@@ -44,11 +44,11 @@ namespace Sulfur
       ColliderGeometry::Face f0123(Vector3(Real(0.0), Real(1.0), Real(0.0)),
         { 0, 1, 2, 3 });
       ColliderGeometry::Face f4567(Vector3(Real(0.0), Real(-1.0), Real(0.0)),
-        { 4, 5, 6, 7 });
+        { 4, 7, 6, 5 });
       ColliderGeometry::Face f0154(Vector3(Real(0.0), Real(0.0), Real(-1.0)),
-        { 0, 1, 5, 4 });
+        { 0, 4, 5, 1 });
       ColliderGeometry::Face f1265(Vector3(Real(-1.0), Real(0.0), Real(0.0)),
-        { 1, 2, 6, 5 });
+        { 2, 1, 5, 6 });
       ColliderGeometry::Face f2673(Vector3(Real(0.0), Real(0.0), Real(1.0)),
         { 2, 6, 7, 3 });
       ColliderGeometry::Face f0374(Vector3(Real(1.0), Real(0.0), Real(0.0)),

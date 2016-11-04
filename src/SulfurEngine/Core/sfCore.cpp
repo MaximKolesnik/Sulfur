@@ -28,6 +28,22 @@
 
 namespace Sulfur
 {
+  static void TestRB(Vector3 &pos)
+  {
+    Object *testObj1 = SF_CREATE_OBJECT("testObj1");
+    testObj1->GetComponent<Transform>()->SetTranslation(pos);
+    //testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, SF_PI, 0.0);
+    testObj1->GetComponent<Transform>()->Update();
+    RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
+    rb1->SetDynamicState(Physics::RB_Dynamic);
+    testObj1->AttachComponent(rb1);
+    MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
+    mesh->SetMesh("Models\\cube.fbx");
+    testObj1->AttachComponent(mesh);
+    testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
+    SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
+    SceneManager::Instance()->GetScene().m_sceneProperties.SetIbl(true);
+  }
   Core::Core()
   {
   }
@@ -72,10 +88,10 @@ namespace Sulfur
     tm->AddNode("NarrowPhase");
     tm->AddNode("PostAndCleanup");
     tm->SetStartingTask("UpdateTransforms");
-    tm->SetDependency("IntegrateBodies", "UpdateTransforms");
-    tm->SetDependency("BroadPhase", "IntegrateBodies");
+    tm->SetDependency("BroadPhase", "UpdateTransforms");
     tm->SetDependency("NarrowPhase", "BroadPhase");
-    tm->SetDependency("PostAndCleanup", "NarrowPhase");
+    tm->SetDependency("IntegrateBodies", "NarrowPhase");
+    tm->SetDependency("PostAndCleanup", "IntegrateBodies");
     tm->SetDependency("TriggerEventsEndFrame", "PostAndCleanup");
     tm->CompleteGraph();
 
@@ -91,8 +107,8 @@ namespace Sulfur
     SceneManager::Instance()->GetScene().SetCameraObject(cameraObj->GetHndl());
 
     Object *testObj1 = SF_CREATE_OBJECT("testObj1");
-    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, 7.0, 20.0));
-    //testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, 45.0, 0.0);
+    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -3, 20.0));
+    testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, 0.0, 0.0);
     testObj1->GetComponent<Transform>()->Update();
     RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
     rb1->SetDynamicState(Physics::RB_Dynamic);
@@ -103,10 +119,10 @@ namespace Sulfur
     testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
     SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
     SceneManager::Instance()->GetScene().m_sceneProperties.SetIbl(true);
-    
+
     Object *testObj2 = SF_CREATE_OBJECT("testObj2");
     testObj2->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -5.0, 20.0));
-    testObj2->GetComponent<Transform>()->SetScale(Vector3(5.0, 1.0, 5.0));
+    testObj2->GetComponent<Transform>()->SetScale(Vector3(10.0, 1.0, 5.0));
     testObj2->GetComponent<Transform>()->Update();
     RigidBody *rb2 = SF_CREATE_COMP(RigidBody);
     rb2->SetDynamicState(Physics::RB_Static);
@@ -116,6 +132,22 @@ namespace Sulfur
     testObj2->AttachComponent(mesh2);
     testObj2->AttachComponent(SF_CREATE_COMP(BoxCollider));
     SceneManager::Instance()->GetScene().AddObject(testObj2->GetHndl());
+
+    TestRB(Vector3(0.0, -1, 20.0));
+    TestRB(Vector3(0.0, 2, 20.0));
+    TestRB(Vector3(0.0, 4, 20.0));
+    TestRB(Vector3(0.0, 11, 20.0));
+    TestRB(Vector3(0.0, 13, 20.0));
+    TestRB(Vector3(0.0, 15, 20.0));
+    TestRB(Vector3(0.0, 17, 20.0));
+
+    TestRB(Vector3(-3.0, -1, 20.0));
+    TestRB(Vector3(-3.0, 2, 20.0));
+    TestRB(Vector3(-3.0, 4, 20.0));
+    TestRB(Vector3(-3.0, 11, 20.0));
+    TestRB(Vector3(-3.0, 13, 20.0));
+    TestRB(Vector3(-3.0, 15, 20.0));
+    TestRB(Vector3(-3.0, 17, 20.0));
 
     Object *testObj3 = SF_CREATE_OBJECT("testObj3");
     testObj3->GetComponent<Transform>()->SetTranslation(Vector3(10.0, 0.0, 20.0));
@@ -130,7 +162,7 @@ namespace Sulfur
     SceneManager::Instance()->GetScene().AddObject(testObj3->GetHndl());
 
     Object *testObj4 = SF_CREATE_OBJECT("testObj4");
-    testObj4->GetComponent<Transform>()->SetTranslation(Vector3(-10.0, -2.0, 20.0));
+    testObj4->GetComponent<Transform>()->SetTranslation(Vector3(10.0, -2.0, 20.0));
     testObj4->GetComponent<Transform>()->Update();
     RigidBody *rb4 = SF_CREATE_COMP(RigidBody);
     rb4->SetDynamicState(Physics::RB_Static);

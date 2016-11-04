@@ -3,6 +3,7 @@
 #include "Math\sfVector3.hpp"
 #include "Math\sfQuaternion.hpp"
 #include "Types\sfTypes.hpp"
+#include "Math\sfMatrix3.hpp"
 
 namespace Sulfur
 {
@@ -25,6 +26,7 @@ namespace Sulfur
 
       Vector3 m_position;
       Vector3 m_velocity;
+      Vector3 m_angularVelocity;
       Vector3 m_acceleration;
 
       Quaternion m_orientation;
@@ -32,6 +34,9 @@ namespace Sulfur
       Vector3 m_forces;
 
       Real m_invMass;
+      
+      Matrix3 m_inertia;
+      Matrix3 m_invInertia;
 
       RBDynamicState m_state;
 

@@ -19,7 +19,7 @@ namespace Sulfur
       virtual ~SAT(void) {}
 
       virtual void BoxToBox(Contacts &contacts, 
-                                    ColliderData *colliderA, ColliderData *colliderB) const override;
+        ColliderData *colliderA, ColliderData *colliderB) const override;
     private:
 
       struct Projection
@@ -32,7 +32,7 @@ namespace Sulfur
       bool _FindSeparatingAxis(const std::vector<Vector3> &worldVertsA, 
         const std::vector<Vector3> &worldVertsB, const ColliderGeometry &colGeomA,
         const ColliderGeometry &colGeomB, const Vector3 &posA, const Vector3 &posB, 
-        const Quaternion &orientA, const Quaternion &orientB, Vector3 &penetAxis) const;
+        const Quaternion &orientA, const Quaternion &orientB, Vector3 &penetAxis, Real &penetration) const;
 
       bool _IsAxisSeparating(const std::vector<Vector3> &worldVertsA,
         const std::vector<Vector3> &worldVertsB, const Vector3 &axis, 
@@ -45,7 +45,7 @@ namespace Sulfur
 
       Real _CalculatePenetration(const Projection &p1, const Projection &p2) const;
 
-      void _GenerateContact(const ColliderGeometry &colGeomA, const ColliderGeometry &colGeomB, 
+      std::vector<Vector3> _GenerateContact(const ColliderGeometry &colGeomA, const ColliderGeometry &colGeomB,
         const std::vector<Vector3> &worldVertsA, const std::vector<Vector3> &worldVertsB, 
         const Vector3 &posA, const Vector3 &posB, const Quaternion &orientA, 
         const Quaternion &orientB, const Vector3 &contactNormal) const;
@@ -56,7 +56,7 @@ namespace Sulfur
         const Quaternion &orientA, const Quaternion &orientB, const Vector3 &contactNormal, 
         std::vector<Vector3> &contactPoints) const;
 
-      void _ClipPointsToPlane(std::vector<Vector3> &verts, const Geometry::Plane plane) const;
+      void _ClipPointsToPlane(std::vector<Vector3> &verts, const Vector3 &plane, Real planeW) const;
     };
   }
 }

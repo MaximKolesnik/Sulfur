@@ -5,11 +5,14 @@
 #include "Math\sfVector3.hpp"
 #include "Math\sfQuaternion.hpp"
 #include "Modules\Physics\ColliderGeometry\sfGeometryMap.hpp"
+#include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 
 /******************************************************************************
 Maxim TODO: Reduce number of contact points
 *******************************************************************************/
-
+/******************************************************************************
+Maxim TODO: Check edge to edge collision
+*******************************************************************************/
 namespace Sulfur
 {
   namespace Physics
@@ -53,13 +56,31 @@ namespace Sulfur
       }
 
       Vector3 penetAxis;
+      Real penetration;
 
       if (_FindSeparatingAxis(worldVertsA, worldVertsB, boxGeometry, boxGeometry, posA,
-        posB, orientA, orientB, penetAxis))
+        posB, orientA, orientB, penetAxis, penetration))
         return;
 
-      _GenerateContact(boxGeometry, boxGeometry, worldVertsA, worldVertsB, posA,
-        posB, orientA, orientB, penetAxis);
+      auto contactPoints = _GenerateContact(boxGeometry, boxGeometry, worldVertsA, 
+        worldVertsB, posA, posB, orientA, orientB, penetAxis);
+
+      for (auto it : contactPoints)
+      {
+        Contact c;
+        c.m_colliderA = colliderA;
+        c.m_colliderB = colliderB;
+        c.m_contactNormal = penetAxis;
+        c.m_contactPoint = it;
+        c.m_penetration = penetration;
+
+        contacts.push_back(c);
+        Matrix4 m;
+        m.SetTransformation(Quaternion(Real(1.0), 0.0, 0.0, 0.0), 
+          Vector3(Real(0.2), Real(0.2), Real(0.2)), it);
+        DebugDraw::Instance()->DrawBox(m);
+        DebugDraw::Instance()->DrawVector(it, penetAxis);
+      }
 
       return;
     }
@@ -67,9 +88,9 @@ namespace Sulfur
     bool SAT::_FindSeparatingAxis(const std::vector<Vector3> &worldVertsA,
       const std::vector<Vector3> &worldVertsB, const ColliderGeometry &colGeomA,
       const ColliderGeometry &colGeomB, const Vector3 &posA, const Vector3 &posB,
-      const Quaternion &orientA, const Quaternion &orientB, Vector3 &penetAxis) const
+      const Quaternion &orientA, const Quaternion &orientB, Vector3 &penetAxis, Real &minPenetration) const
     {
-      Real minPenetration = SF_REAL_MAX;
+      minPenetration = SF_REAL_MAX;
 
       //Check edges
       const ColliderGeometry::EdgeList& edgesA = colGeomA.GetUniqueEdges();
@@ -93,12 +114,12 @@ namespace Sulfur
           if (!edgeNormal.IsZeroEpsilon())
           {
             edgeNormal.Normalize();
-            if (Dot(posA - posB, edgeNormal) < Real(0.0))
+            if (Dot(posA - posB, edgeNormal) > Real(0.0))
               edgeNormal.Negate();
 
             Real penetration;
             if (_IsAxisSeparating(worldVertsA, worldVertsB, edgeNormal, penetration))
-              return false;
+              return true;
 
             if (minPenetration > penetration)
             {
@@ -110,8 +131,8 @@ namespace Sulfur
       }
 
       //Check faces
-      const ColliderGeometry::FaceList& facesA = colGeomA.GetUniqueFaces();
-      const ColliderGeometry::FaceList& facesB = colGeomB.GetUniqueFaces();
+      const ColliderGeometry::FaceList& facesA = colGeomA.GetFaces();
+      const ColliderGeometry::FaceList& facesB = colGeomB.GetFaces();
       size_t numFacesA = facesA.size();
       size_t numFacesB = facesB.size();
 
@@ -124,7 +145,7 @@ namespace Sulfur
 
         Real penetration;
         if (_IsAxisSeparating(worldVertsA, worldVertsB, worldFaceNormal, penetration))
-          return false;
+          return true;
 
         if (minPenetration > penetration)
         {
@@ -142,7 +163,7 @@ namespace Sulfur
 
         Real penetration;
         if (_IsAxisSeparating(worldVertsA, worldVertsB, worldFaceNormal, penetration))
-          return false;
+          return true;
 
         if (minPenetration > penetration)
         {
@@ -151,7 +172,10 @@ namespace Sulfur
         }
       }
 
-      return true;
+      if ((Dot(-(posA - posB), penetAxis))<0.0f)
+        penetAxis.Negate();
+
+      return false;
     }
 
     bool SAT::_IsAxisSeparating(const std::vector<Vector3> &worldVertsA,
@@ -161,11 +185,11 @@ namespace Sulfur
       Projection projB = _ProjectOnAxis(worldVertsB, axis);
 
       if (!_IsOverlaping(projA, projB))
-        return false;
+        return true;
 
       penetration = _CalculatePenetration(projA, projB);
 
-      return true;
+      return false;
     }
 
     SAT::Projection SAT::_ProjectOnAxis(const std::vector<Vector3> &worldVerts, 
@@ -195,13 +219,13 @@ namespace Sulfur
 
     Real SAT::_CalculatePenetration(const Projection &p1, const Projection &p2) const
     {
-      SF_ASSERT(p1.m_max - p1.m_min > Real(0.0), "Penetration is negative");
-      SF_ASSERT(p2.m_max - p2.m_min > Real(0.0), "Penetration is negative");
+      SF_ASSERT(p1.m_max - p2.m_min > Real(0.0), "Penetration is negative");
+      SF_ASSERT(p2.m_max - p1.m_min > Real(0.0), "Penetration is negative");
 
-      return std::min(p1.m_max - p1.m_min, p2.m_max - p2.m_min);
+      return std::min(p1.m_max - p2.m_min, p2.m_max - p1.m_min);
     }
 
-    void SAT::_GenerateContact(const ColliderGeometry &colGeomA, 
+    std::vector<Vector3> SAT::_GenerateContact(const ColliderGeometry &colGeomA,
       const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA, 
       const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
       const Quaternion &orientA, const Quaternion &orientB, const Vector3 &contactNormal) const
@@ -211,10 +235,7 @@ namespace Sulfur
       _ClipConHullToConHull(colGeomA, colGeomB, worldVertsA, worldVertsB, posA,
         posB, orientA, orientB, contactNormal, contactPoints);
 
-      if (!contactPoints.empty())
-      {
-        return;
-      }
+      return contactPoints;
     }
 
     void SAT::_ClipConHullToConHull(const ColliderGeometry &colGeomA,
@@ -238,9 +259,9 @@ namespace Sulfur
         Vector3 faceNormalWorld = orientB.Rotated(facesB[faceB].m_normal);
 
         Real dist = Dot(contactNormal, faceNormalWorld);
-        if (dist > maxDist)
+        if (dist < minDist)
         {
-          maxDist = dist;
+          minDist = dist;
           closestBInd = faceB;
         }
       }
@@ -256,9 +277,9 @@ namespace Sulfur
         Vector3 faceNormalWorld = orientA.Rotated(facesA[faceA].m_normal);
 
         Real dist = Dot(contactNormal, faceNormalWorld);
-        if (dist < minDist)
+        if (dist > maxDist)
         {
-          minDist = dist;
+          maxDist = dist;
           closestAInd = faceA;
         }
       }
@@ -276,9 +297,9 @@ namespace Sulfur
 
         Vector3 worldEdge = v0 - v1;
         Vector3 clipPlaneNormal = -Cross(worldEdge, orientA.Rotated(closestA.m_normal));
-        Geometry::Plane clipPlane(clipPlaneNormal, v0);
+        Real planeW = -Dot(v0, clipPlaneNormal);
 
-        _ClipPointsToPlane(faceVerts, clipPlane);
+        _ClipPointsToPlane(faceVerts, clipPlaneNormal, planeW);
 
         if (faceVerts.size() == 0)
           return;
@@ -289,37 +310,35 @@ namespace Sulfur
       Geometry::Plane planeA(faceANormalWorld, posA);
       for (size_t i = 0; i < numClippedPts; ++i)
       {
-        if (Dot(planeA.m_data, Vector4(faceVerts[i][0], faceVerts[i][1], faceVerts[i][2], Real(1.0)))
-          <= maxDist)
+        Real dist = Dot(planeA.m_data, Vector4(faceVerts[i][0], faceVerts[i][1], faceVerts[i][2], Real(-1.0)));
+        if (dist <= maxDist)
         {
           contactPoints.push_back(faceVerts[i]);
         }
       }
     }
 
-    void SAT::_ClipPointsToPlane(std::vector<Vector3> &verts, 
-      const Geometry::Plane plane) const
+    void SAT::_ClipPointsToPlane(std::vector<Vector3> &verts, const Vector3 &plane, 
+      Real planeW) const
     {
       std::vector<Vector3> clippedVerts;
 
       Vector3 v0 = verts.back();
       Vector3 v1;
-      Geometry::IntersectionType::Type startType = Geometry::PointPlane(v0, plane.m_data, 0.0);
 
+      Real startDist = Dot(plane, v0) + planeW;
+      Real endDist;
       for (size_t vi = 0; vi < verts.size(); ++vi)
       {
         v1 = verts[vi];
+        endDist = Dot(plane, v1) + planeW;
 
-        Geometry::IntersectionType::Type endType = Geometry::PointPlane(v1, plane.m_data, 0.0);
-
-        if (startType == Geometry::IntersectionType::Outside)
+        if (startDist < 0)
         {
-          if (endType == Geometry::IntersectionType::Outside)
+          if (endDist < 0)
             clippedVerts.push_back(v1);
           else
           {
-            Real startDist = Dot(plane.m_data, Vector4(v0[0], v0[1], v0[2], Real(1.0)));
-            Real endDist = Dot(plane.m_data, Vector4(v1[0], v1[1], v1[2], Real(1.0)));
             Real t = startDist / (startDist - endDist);
             SF_ASSERT(t >= Real(0.0), "Lerp t value is negative");
             clippedVerts.push_back(Lerp(v0, v1, t));
@@ -327,10 +346,8 @@ namespace Sulfur
         }
         else
         {
-          if (endType == Geometry::IntersectionType::Outside)
+          if (endDist < 0)
           {
-            Real startDist = Dot(plane.m_data, Vector4(v0[0], v0[1], v0[2], Real(1.0)));
-            Real endDist = Dot(plane.m_data, Vector4(v1[0], v1[1], v1[2], Real(1.0)));
             Real t = startDist / (startDist - endDist);
             SF_ASSERT(t >= Real(0.0), "Lerp t value is negative");
             clippedVerts.push_back(Lerp(v0, v1, t));
@@ -338,7 +355,7 @@ namespace Sulfur
           }
         }
 
-        startType = endType;
+        startDist = endDist;
         v0 = v1;
       }
 

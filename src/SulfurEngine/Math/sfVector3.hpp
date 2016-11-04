@@ -661,4 +661,32 @@ namespace Sulfur
   {
     return v.RotateDeg(axis, angleDeg);
   }
+
+  SF_FORCE_INLINE void SF_VEC_CALL GramSchmidt(Vector3 &e1,
+    Vector3 &e2, Vector3 &e3)
+  {
+    Real absX = MathUtils::Abs(e1[0]);
+    if (absX > MathUtils::Abs(e1[1]) &&
+      absX > MathUtils::Abs(e1[2]))
+    {
+      e2[0] = -e1[1];
+      e2[1] = e1[0];
+      e2[2] = Real(0.0);
+    }
+    else
+    {
+      e2[0] = Real(0.0);
+      e2[1] = e1[2];
+      e2[2] = -e1[1];
+    }
+
+    e1.Normalize();
+    e2.Normalize();
+    e3 = e1.Cross(e2);
+    e3.Normalize();
+
+    SF_ASSERT(Dot(e1, e2) == 0, "Basis is not orthogonal");
+    SF_ASSERT(Dot(e1, e3) == 0, "Basis is not orthogonal");
+  }
+
 }

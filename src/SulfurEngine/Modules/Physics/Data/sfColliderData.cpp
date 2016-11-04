@@ -5,6 +5,12 @@
 #include "Factories\sfObjectFactory.hpp"
 #include "Error\sfError.hpp"
 #include "Components\sfTransform.hpp"
+#include "Components\sfRigidBody.hpp"
+#include "Modules\Physics\sfPhysicsWorld.hpp"
+
+/******************************************************************************
+Maxim TODO: Handle the case when collider is attached before the rigid body
+*******************************************************************************/
 
 namespace Sulfur
 {
@@ -17,6 +23,8 @@ namespace Sulfur
       m_proxy = Proxy();
       m_proxy.m_uIntProxy = m_compHndl;
 
+      Object *owner = nullptr;
+
       //Sync comp data
       switch (m_type)
       {
@@ -26,7 +34,9 @@ namespace Sulfur
         m_isGhost = sphereCol->GetIsGhost();
         m_offset = sphereCol->GetOffset();
         m_radius = sphereCol->GetRadius();
-        m_transformHndl = SF_GET_OBJECT(sphereCol->GetOwner())->GetComponentHandle<Transform>();
+
+        owner = SF_GET_OBJECT(sphereCol->GetOwner());
+        m_transformHndl = owner->GetComponentHandle<Transform>();
       }
       break;
       case ColliderType::CT_BOX:
@@ -35,14 +45,25 @@ namespace Sulfur
         m_isGhost = boxCol->GetIsGhost();
         m_offset = boxCol->GetOffset();
         m_scale = boxCol->GetScale();
-        m_transformHndl = SF_GET_OBJECT(boxCol->GetOwner())->GetComponentHandle<Transform>();
+
+        owner = SF_GET_OBJECT(boxCol->GetOwner());
+        m_transformHndl = owner->GetComponentHandle<Transform>();
       }
       break;
       default:
         SF_CRITICAL_ERR("Unrecognized collider type");
       }
-      
+
+      SF_ASSERT(owner, "Owner is null");
       SF_ASSERT(m_transformHndl != SF_INV_HANDLE, "Transform handle is not set");
+
+      if (owner->HasComponent<RigidBody>())
+      {
+        SF_ASSERT(Physics::PhysicsWorld::Instance()->m_rigidBodies.find(owner->GetComponentHandle<RigidBody>())
+          != Physics::PhysicsWorld::Instance()->m_rigidBodies.end(), "RigidBody is not attached");
+
+        m_rbData = Physics::PhysicsWorld::Instance()->m_rigidBodies[owner->GetComponentHandle<RigidBody>()];
+      }
 
     }
   }

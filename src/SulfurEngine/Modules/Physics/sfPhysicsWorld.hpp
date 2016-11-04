@@ -27,6 +27,8 @@ namespace Sulfur
       SF_SINGLETON(PhysicsWorld);
     public:
       static const Vector3 c_gravity;
+      static const Real c_allowedPenetration;
+      static const Real c_biasFactor;
 
       void Initialize(void);
 
@@ -44,6 +46,8 @@ namespace Sulfur
       SF_FRIEND_TASK(Sulfur::PostAndCleanup);
       SF_FRIEND_TASK(Sulfur::BroadPhase);
       SF_FRIEND_TASK(Sulfur::NarrowPhase);
+      friend struct ColliderData;
+      friend struct RigidBodyData;
 
       //void _UpdateRBData(HNDL rbHndl);
 

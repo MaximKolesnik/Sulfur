@@ -8,6 +8,8 @@ namespace Sulfur
 {
   namespace Physics
   {
+    struct RigidBodyData;
+
     enum ColliderType
     {
       CT_BOX = 0,
@@ -18,7 +20,8 @@ namespace Sulfur
     struct ColliderData
     {
       //Data should be initialized as soon as collider is added to PhysicsWorld
-      ColliderData(HNDL colHndl, ColliderType type) : m_compHndl(colHndl), m_type(type) {}
+      ColliderData(HNDL colHndl, ColliderType type) : m_compHndl(colHndl), m_type(type),
+        m_rbData(nullptr) {}
 
       void Initialize(void);
 
@@ -35,6 +38,8 @@ namespace Sulfur
 
       HNDL m_transformHndl = SF_INV_HANDLE;
       HNDL m_compHndl = SF_INV_HANDLE; //Collider component hndl
+
+      RigidBodyData *m_rbData;
     };
   }
 }
