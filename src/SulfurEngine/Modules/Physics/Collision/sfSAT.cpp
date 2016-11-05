@@ -92,6 +92,8 @@ namespace Sulfur
     {
       minPenetration = SF_REAL_MAX;
 
+      Vector3 maxAxis;
+
       //Check edges
       const ColliderGeometry::EdgeList& edgesA = colGeomA.GetUniqueEdges();
       const ColliderGeometry::EdgeList& edgesB = colGeomB.GetUniqueEdges();
@@ -219,8 +221,8 @@ namespace Sulfur
 
     Real SAT::_CalculatePenetration(const Projection &p1, const Projection &p2) const
     {
-      SF_ASSERT(p1.m_max - p2.m_min > Real(0.0), "Penetration is negative");
-      SF_ASSERT(p2.m_max - p1.m_min > Real(0.0), "Penetration is negative");
+      SF_ASSERT(p1.m_max - p2.m_min >= Real(0.0), "Penetration is negative");
+      SF_ASSERT(p2.m_max - p1.m_min >= Real(0.0), "Penetration is negative");
 
       return std::min(p1.m_max - p2.m_min, p2.m_max - p1.m_min);
     }

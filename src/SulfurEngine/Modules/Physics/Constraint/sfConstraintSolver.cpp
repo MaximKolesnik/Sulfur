@@ -28,13 +28,14 @@ namespace Sulfur
 
         Vector3 rACrossN = rA.Cross(it.m_contactNormal);
         Vector3 rBCrossN = rB.Cross(it.m_contactNormal);
-        Real kn = ((bodyA->m_invInertia * rACrossN.Cross(rA))
-          + (bodyB->m_invInertia * rBCrossN.Cross(rB))).Dot(it.m_contactNormal);
+        Real kn = (((bodyA->m_invInertia * rACrossN).Cross(rA))
+          + (bodyB->m_invInertia * rBCrossN).Cross(rB)).Dot(it.m_contactNormal);
         kn += sumInvMass;
 
         it.m_massNormal = Real(1.0) / kn;
 
-        Vector3 relVel = bodyB->m_velocity - bodyA->m_velocity;
+        Vector3 relVel = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
+          - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA);;
         Vector3 relVelTan = relVel - it.m_contactNormal * (relVel.Dot(it.m_contactNormal));
 
         Vector3 t1, t2;
@@ -79,8 +80,8 @@ namespace Sulfur
         Vector3 rA = it.m_contactPoint - bodyA->m_position;
         Vector3 rB = it.m_contactPoint - bodyB->m_position;
 
-        Vector3 dv = bodyB->m_velocity + rB.Cross(bodyB->m_angularVelocity)
-          - bodyA->m_velocity - rA.Cross(bodyA->m_angularVelocity);
+        Vector3 dv = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
+          - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA);
 
         Real vn = dv.Dot(it.m_contactNormal);
         Real dPn = it.m_massNormal * (-vn + it.m_bias);
@@ -90,30 +91,40 @@ namespace Sulfur
         Vector3 Pn = dPn * it.m_contactNormal;
 
         bodyA->m_velocity -= bodyA->m_invMass * Pn;
-        //bodyA->m_angularVelocity -= dPn * (bodyA->m_invInertia * rA.Cross(it.m_contactNormal));
+        Vector3 is = bodyA->m_invInertia * rA.Cross(it.m_contactNormal);
+        bodyA->m_angularVelocity -= dPn * is;
 
         bodyB->m_velocity += bodyB->m_invMass * Pn;
-        //bodyB->m_angularVelocity += dPn * (bodyB->m_invInertia * rB.Cross(it.m_contactNormal));
+        is = (bodyB->m_invInertia * rB.Cross(it.m_contactNormal));
+        bodyB->m_angularVelocity += dPn * is;
 
-        dv = bodyB->m_velocity + rB.Cross(bodyB->m_angularVelocity)
-          - bodyA->m_velocity - rA.Cross(bodyA->m_angularVelocity);
-
-        Vector3 relVel = bodyB->m_velocity - bodyA->m_velocity;
+        Vector3 relVel = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
+          - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA);
         Vector3 relVelTan = relVel - it.m_contactNormal * (relVel.Dot(it.m_contactNormal));
 
-        float dPt = -(it.m_massTangent1 * (Dot(dv, relVelTan)) +
-          it.m_massTangent2 * (Dot(dv, relVelTan)));
+        Vector3 t1, t2;
+        if (relVelTan.IsZeroEpsilon())
+          GramSchmidt(it.m_contactNormal, t1, t2);
+        else
+        {
+          relVelTan.Normalize();
+          t1 = relVelTan;
+          t2 = t1.Cross(it.m_contactNormal);
+        }
 
-        Real maxPt = Real(0.3) * dPn;
+        float dPt = (it.m_massTangent1 * (-Dot(dv, t1)) +
+          it.m_massTangent2 * (-Dot(dv, t2)));
+
+        Real maxPt = Real(0.8) * dPn;
         dPt = std::max(-maxPt, std::min(dPt, maxPt));
 
-        Vector3 Pt = dPt * relVelTan;
+        Vector3 Pt = dPt * t1 + dPt * t2;
 
         bodyA->m_velocity -= bodyA->m_invMass * Pt;
-        //bodyA->m_angularVelocity -= bodyA->m_invInertia * Cross(rA, Pt);
+        bodyA->m_angularVelocity -= bodyA->m_invInertia * Cross(rA, Pt);
 
         bodyB->m_velocity += bodyB->m_invMass * Pt;
-        //bodyB->m_angularVelocity += bodyB->m_invInertia * Cross(rB, Pt);
+        bodyB->m_angularVelocity += bodyB->m_invInertia * Cross(rB, Pt);
       }
     }
   }

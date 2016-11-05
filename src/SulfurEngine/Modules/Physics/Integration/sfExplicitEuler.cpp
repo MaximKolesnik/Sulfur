@@ -35,11 +35,14 @@ namespace Sulfur
       bData->m_acceleration = bData->m_forces * bData->m_invMass;
 
       bData->m_velocity = bData->m_velocity + bData->m_acceleration * EngineSettings::DefaultFPS;
-      bData->m_position = bData->m_position + bData->m_velocity * Time::Instance()->GetDt();
+      bData->m_position = bData->m_position + bData->m_velocity * EngineSettings::DefaultFPS;
 
-      //bData->m_angularVelocity = bData->m_angularVelocity + bData->m_angularVelocity* Time::Instance()->GetDt();
-      //bData->m_orientation = QuatIntegrate(bData->m_orientation, bData->m_angularVelocity, Time::Instance()->GetDt());
-      //bData->m_orientation.Normalize();
+      //bData->m_angularVelocity = bData->m_angularVelocity + bData->m_angularVelocity* EngineSettings::DefaultFPS;
+      Vector3 euler;
+      bData->m_orientation.GetEulerXYZ(euler[2], euler[0], euler[1]);
+      euler += bData->m_angularVelocity * EngineSettings::DefaultFPS;
+      bData->m_orientation.SetEuler(euler[2], euler[0], euler[1]);
+      bData->m_orientation.Normalize();
     }
   }
 }
