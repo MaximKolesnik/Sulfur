@@ -39,9 +39,12 @@ namespace Sulfur
 
       //bData->m_angularVelocity = bData->m_angularVelocity + bData->m_angularVelocity* EngineSettings::DefaultFPS;
       Vector3 euler;
-      bData->m_orientation.GetEulerXYZ(euler[2], euler[0], euler[1]);
-      euler -= bData->m_angularVelocity * EngineSettings::DefaultFPS;
-      bData->m_orientation.SetEuler(euler[2], euler[0], euler[1]);
+      bData->m_orientation.GetEulerXYZ(euler[0], euler[2], euler[1]);
+
+      euler += bData->m_angularVelocity * EngineSettings::DefaultFPS;
+
+
+      bData->m_orientation.SetEuler(euler[0], euler[2], euler[1]);
       bData->m_orientation.Normalize();
 
       static Real damping = pow(Real(0.85), EngineSettings::DefaultFPS);

@@ -25,6 +25,8 @@ namespace Sulfur
       Real m_massTangent1;
       Real m_massTangent2;
 
+      Vector3 Pn = Vector3::c_zero, Pt = Vector3::c_zero;
+
       Real m_bias;
     };
 

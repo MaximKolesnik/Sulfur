@@ -81,6 +81,14 @@ namespace Sulfur
           * std::max(Real(0.0), it.m_penetration - PhysicsWorld::c_allowedPenetration);
         /*it.m_bias = Dot(it.m_contactNormal, bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
           - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA)) * (-0.5f);*/
+
+        /*Vector3 P = it.Pn * it.m_contactNormal + it.Pt * it.m_tangent;
+
+        body1->velocity -= body1->invMass * P;
+        body1->angularVelocity -= body1->invI * Cross(r1, P);
+
+        body2->velocity += body2->invMass * P;
+        body2->angularVelocity += body2->invI * Cross(r2, P);*/
       }
     }
 
