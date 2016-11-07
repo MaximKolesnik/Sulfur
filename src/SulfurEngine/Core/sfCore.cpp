@@ -107,8 +107,8 @@ namespace Sulfur
     SceneManager::Instance()->GetScene().SetCameraObject(cameraObj->GetHndl());
 
     Object *testObj1 = SF_CREATE_OBJECT("testObj1");
-    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -3, 20.0));
-    testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, SF_PI / 6, 0.0);
+    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -3.8f, 20.0));
+    testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, 0.0, 0.0);
     testObj1->GetComponent<Transform>()->Update();
     RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
     rb1->SetDynamicState(Physics::RB_Dynamic);
@@ -122,7 +122,7 @@ namespace Sulfur
 
     Object *testObj2 = SF_CREATE_OBJECT("testObj2");
     testObj2->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -5.0, 20.0));
-    testObj2->GetComponent<Transform>()->SetScale(Vector3(30.0, 1.0, 5.0));
+    testObj2->GetComponent<Transform>()->SetScale(Vector3(30.0, 1, 5.0));
     testObj2->GetComponent<Transform>()->Update();
     RigidBody *rb2 = SF_CREATE_COMP(RigidBody);
     rb2->SetDynamicState(Physics::RB_Static);
@@ -133,12 +133,11 @@ namespace Sulfur
     testObj2->AttachComponent(SF_CREATE_COMP(BoxCollider));
     SceneManager::Instance()->GetScene().AddObject(testObj2->GetHndl());
 
-
-    //TestRB(Vector3(Real(0.0), -1, 20.0));
-    /*TestRB(Vector3(0.0, -1, 20.0));
-    TestRB(Vector3(0.0, 2, 20.0));
-    TestRB(Vector3(0.0, 4, 20.0));
-    TestRB(Vector3(0.0, 11, 20.0));
+    //TestRB(Vector3(Real(0.0), 3, 20.0));
+    TestRB(Vector3(0.6f, -2.6f, 20.0));
+    //TestRB(Vector3(0.0, -1.4f, 20.0));
+    //TestRB(Vector3(0.0, -1, 20.0));
+    /*TestRB(Vector3(0.0, 11, 20.0));
     TestRB(Vector3(0.0, 13, 20.0));
     TestRB(Vector3(0.0, 15, 20.0));
     TestRB(Vector3(0.0, 17, 20.0));

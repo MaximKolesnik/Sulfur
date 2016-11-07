@@ -17,7 +17,8 @@ namespace Sulfur
 
       Vector3 m_contactNormal;
       Vector3 m_contactPoint;
-      
+      Vector3 m_tangent;
+
       Real m_penetration;
 
       Real m_massNormal;

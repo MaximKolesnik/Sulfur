@@ -33,6 +33,12 @@ namespace Sulfur
 
       if (m_state == RB_Static)
         m_invMass = 0.0;
+      else
+      {
+        Vector3 scale = trans->GetScale();
+        m_invMass = 1 / (scale[0] * scale[1] * scale[2]);
+      }
+
 
       if (m_invMass != Real(0.0))
       {

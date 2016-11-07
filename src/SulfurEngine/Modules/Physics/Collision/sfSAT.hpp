@@ -35,11 +35,12 @@ namespace Sulfur
         const Quaternion &orientA, const Quaternion &orientB, Vector3 &penetAxis, Real &penetration) const;
 
       bool _IsAxisSeparating(const std::vector<Vector3> &worldVertsA,
-        const std::vector<Vector3> &worldVertsB, const Vector3 &axis, 
+        const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
+        const Quaternion &orientA, const Quaternion &orientB, const Vector3 &axis, 
         Real &penetration) const;
 
       Projection _ProjectOnAxis(const std::vector<Vector3> &worldVerts,  
-        const Vector3 &axis) const;
+        const Vector3 &pos, const Quaternion &orient, const Vector3 &axis) const;
 
       bool _IsOverlaping(const Projection &p1, const Projection &p2) const;
 

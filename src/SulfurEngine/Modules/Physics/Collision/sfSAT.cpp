@@ -92,8 +92,6 @@ namespace Sulfur
     {
       minPenetration = SF_REAL_MAX;
 
-      Vector3 maxAxis;
-
       //Check edges
       const ColliderGeometry::EdgeList& edgesA = colGeomA.GetUniqueEdges();
       const ColliderGeometry::EdgeList& edgesB = colGeomB.GetUniqueEdges();
@@ -103,13 +101,13 @@ namespace Sulfur
       for (size_t edgeA = 0; edgeA < numEdgesA; ++edgeA)
       {
         ColliderGeometry::Edge eA = edgesA[edgeA];
-        Vector3 evA = worldVertsA[eA.m_v1] - worldVertsA[eA.m_v0];
+        Vector3 evA = worldVertsA[eA.m_v0] - worldVertsA[eA.m_v1];
         orientA.Rotate(evA);
 
         for (size_t edgeB = 0; edgeB < numEdgesB; ++edgeB)
         {
           ColliderGeometry::Edge eB = edgesB[edgeB];
-          Vector3 evB = worldVertsB[eB.m_v1] - worldVertsB[eB.m_v0];
+          Vector3 evB = worldVertsB[eB.m_v0] - worldVertsB[eB.m_v1];
           orientB.Rotate(evB);
 
           Vector3 edgeNormal = Cross(evA, evB);
@@ -120,7 +118,8 @@ namespace Sulfur
               edgeNormal.Negate();
 
             Real penetration;
-            if (_IsAxisSeparating(worldVertsA, worldVertsB, edgeNormal, penetration))
+            if (_IsAxisSeparating(worldVertsA, worldVertsB, posA, posB, 
+              orientA, orientB, edgeNormal, penetration))
               return true;
 
             if (minPenetration > penetration)
@@ -133,8 +132,8 @@ namespace Sulfur
       }
 
       //Check faces
-      const ColliderGeometry::FaceList& facesA = colGeomA.GetFaces();
-      const ColliderGeometry::FaceList& facesB = colGeomB.GetFaces();
+      const ColliderGeometry::FaceList& facesA = colGeomA.GetUniqueFaces();
+      const ColliderGeometry::FaceList& facesB = colGeomB.GetUniqueFaces();
       size_t numFacesA = facesA.size();
       size_t numFacesB = facesB.size();
 
@@ -146,7 +145,8 @@ namespace Sulfur
           worldFaceNormal.Negate();
 
         Real penetration;
-        if (_IsAxisSeparating(worldVertsA, worldVertsB, worldFaceNormal, penetration))
+        if (_IsAxisSeparating(worldVertsA, worldVertsB, posA, posB,
+          orientA, orientB, worldFaceNormal, penetration))
           return true;
 
         if (minPenetration > penetration)
@@ -164,7 +164,8 @@ namespace Sulfur
           worldFaceNormal.Negate();
 
         Real penetration;
-        if (_IsAxisSeparating(worldVertsA, worldVertsB, worldFaceNormal, penetration))
+        if (_IsAxisSeparating(worldVertsA, worldVertsB, posA, posB,
+          orientA, orientB, worldFaceNormal, penetration))
           return true;
 
         if (minPenetration > penetration)
@@ -181,10 +182,12 @@ namespace Sulfur
     }
 
     bool SAT::_IsAxisSeparating(const std::vector<Vector3> &worldVertsA,
-      const std::vector<Vector3> &worldVertsB, const Vector3 &axis, Real &penetration) const
+      const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
+      const Quaternion &orientA, const Quaternion &orientB, const Vector3 &axis, 
+      Real &penetration) const
     {
-      Projection projA = _ProjectOnAxis(worldVertsA, axis);
-      Projection projB = _ProjectOnAxis(worldVertsB, axis);
+      Projection projA = _ProjectOnAxis(worldVertsA, posA, orientA, axis);
+      Projection projB = _ProjectOnAxis(worldVertsB, posB, orientB, axis);
 
       if (!_IsOverlaping(projA, projB))
         return true;
@@ -195,9 +198,11 @@ namespace Sulfur
     }
 
     SAT::Projection SAT::_ProjectOnAxis(const std::vector<Vector3> &worldVerts, 
-      const Vector3 &axis) const
+      const Vector3 &pos, const Quaternion &orient, const Vector3 &axis) const
     {
       Projection proj;
+      //Real offset = Dot(pos, axis);
+      //Vector3 localAxis = orient.Inverted().Rotated(axis);
 
       size_t numVerts = worldVerts.size();
       for (size_t vert = 0; vert < numVerts; ++vert)
@@ -208,6 +213,12 @@ namespace Sulfur
         if (p > proj.m_max)
           proj.m_max = p;
       }
+
+      /*if (proj.m_min > proj.m_max)
+        std::swap(proj.m_min, proj.m_max);
+      
+      proj.m_min += offset;
+      proj.m_max += offset;*/
 
       return proj;
     }
@@ -309,14 +320,15 @@ namespace Sulfur
 
       size_t numClippedPts = faceVerts.size();
       Vector3 faceANormalWorld = orientA.Rotated(closestA.m_normal);
-      Geometry::Plane planeA(faceANormalWorld, posA);
+      Geometry::Plane planeA(faceANormalWorld, worldVertsA[closestA.m_vertIndecies[0]]);
+        //- Dot(faceANormalWorld, posA);
       for (size_t i = 0; i < numClippedPts; ++i)
       {
-        Real dist = Dot(planeA.m_data, Vector4(faceVerts[i][0], faceVerts[i][1], faceVerts[i][2], Real(-1.0)));
-        if (dist <= maxDist)
-        {
+        Geometry::IntersectionType::Type type = 
+          Geometry::PointPlane(faceVerts[i], planeA.m_data, SF_EPSILON);
+
+        if (type == Geometry::IntersectionType::Outside)
           contactPoints.push_back(faceVerts[i]);
-        }
       }
     }
 
@@ -324,6 +336,11 @@ namespace Sulfur
       Real planeW) const
     {
       std::vector<Vector3> clippedVerts;
+      if (verts.size() < 2)
+      {
+        verts.clear();
+        return;
+      }
 
       Vector3 v0 = verts.back();
       Vector3 v1;
