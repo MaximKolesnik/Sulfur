@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math\sfVector3.hpp"
-
 namespace Sulfur
 {
   namespace Physics
@@ -21,6 +20,26 @@ namespace Sulfur
         } m_features;
         UINT64 m_value;
       };
+    };
+
+    struct ContactKey
+    {
+      ContactKey(ColliderData *cA, ColliderData *cB)
+      {
+        if (cA < cB)
+        {
+          m_a = cA;
+          m_b = cB;
+        }
+        else
+        {
+          m_a = cB;
+          m_b = cA;
+        }
+      }
+
+      ColliderData *m_a;
+      ColliderData *m_b;
     };
 
     struct Contact

@@ -3,6 +3,7 @@
 #include "Modules\Physics\Data\sfRigidBodyData.hpp"
 #include "Modules\Physics\sfPhysicsWorld.hpp"
 #include "Modules\Time\sfTime.hpp"
+#include "Modules\Physics\Collision\sfContact.hpp"
 
 namespace Sulfur
 {

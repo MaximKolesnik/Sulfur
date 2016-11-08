@@ -76,9 +76,9 @@ namespace Sulfur
         contacts.push_back(c);
         Matrix4 m;
         m.SetTransformation(Quaternion(Real(1.0), 0.0, 0.0, 0.0), 
-          Vector3(Real(0.2), Real(0.2), Real(0.2)), it);
+          Vector3(Real(0.2), Real(0.2), Real(0.2)), it.m_point);
         DebugDraw::Instance()->DrawBox(m);
-        DebugDraw::Instance()->DrawVector(it, penetAxis);
+        DebugDraw::Instance()->DrawVector(it.m_point, penetAxis);
       }
 
       return;
@@ -237,12 +237,13 @@ namespace Sulfur
       return std::min(p1.m_max - p2.m_min, p2.m_max - p1.m_min);
     }
 
-    std::vector<Vector3> SAT::_GenerateContact(const ColliderGeometry &colGeomA,
+    std::vector<ContactPoint> SAT::_GenerateContact(const ColliderGeometry &colGeomA,
       const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA, 
       const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
-      const Quaternion &orientA, const Quaternion &orientB, const Vector3 &contactNormal) const
+      const Quaternion &orientA, const Quaternion &orientB, 
+      const Vector3 &contactNormal) const
     {
-      std::vector<Vector3> contactPoints;
+      std::vector<ContactPoint> contactPoints;
 
       _ClipConHullToConHull(colGeomA, colGeomB, worldVertsA, worldVertsB, posA,
         posB, orientA, orientB, contactNormal, contactPoints);
@@ -254,7 +255,7 @@ namespace Sulfur
       const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA,
       const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
       const Quaternion &orientA, const Quaternion &orientB, const Vector3 &contactNormal, 
-      std::vector<Vector3> &contactPoints) const
+      std::vector<ContactPoint> &contactPoints) const
     {
       Real minDist = SF_REAL_MAX;
       Real maxDist = -SF_REAL_MAX;
@@ -327,7 +328,14 @@ namespace Sulfur
           Geometry::PointPlane(faceVerts[i], planeA.m_data, SF_EPSILON);
 
         if (type == Geometry::IntersectionType::Outside)
-          contactPoints.push_back(faceVerts[i]);
+        {
+          ContactPoint p;
+          p.m_features.m_incidentFeature = closestAInd;
+          p.m_features.m_witnessFeature = closestBInd;
+          p.m_point = faceVerts[i];
+
+          contactPoints.push_back(p);
+        }
       }
     }
 

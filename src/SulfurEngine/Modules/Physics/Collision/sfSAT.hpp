@@ -7,6 +7,7 @@
 #include "Modules\Physics\ColliderGeometry\sfColliderGeometry.hpp"
 #include "Math\Geometry\sfGeometry.hpp"
 #include "Math\Geometry\sfShapes.hpp"
+#include "Modules\Physics\Collision\sfContact.hpp"
 
 namespace Sulfur
 {
@@ -46,16 +47,17 @@ namespace Sulfur
 
       Real _CalculatePenetration(const Projection &p1, const Projection &p2) const;
 
-      std::vector<Vector3> _GenerateContact(const ColliderGeometry &colGeomA, const ColliderGeometry &colGeomB,
-        const std::vector<Vector3> &worldVertsA, const std::vector<Vector3> &worldVertsB, 
-        const Vector3 &posA, const Vector3 &posB, const Quaternion &orientA, 
-        const Quaternion &orientB, const Vector3 &contactNormal) const;
+      std::vector<ContactPoint> _GenerateContact(const ColliderGeometry &colGeomA, 
+        const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA, 
+        const std::vector<Vector3> &worldVertsB, const Vector3 &posA, 
+        const Vector3 &posB, const Quaternion &orientA, const Quaternion &orientB, 
+        const Vector3 &contactNormal) const;
 
       void _ClipConHullToConHull(const ColliderGeometry &colGeomA,
         const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA,
         const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
         const Quaternion &orientA, const Quaternion &orientB, const Vector3 &contactNormal, 
-        std::vector<Vector3> &contactPoints) const;
+        std::vector<ContactPoint> &contactPoints) const;
 
       void _ClipPointsToPlane(std::vector<Vector3> &verts, const Vector3 &plane, Real planeW) const;
     };
