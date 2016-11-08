@@ -89,7 +89,7 @@ namespace Sulfur
   {
     const Vector3 PhysicsWorld::c_gravity = Vector3(Real(0.0), Real(-9.8), Real(0.0));
     const Real PhysicsWorld::c_allowedPenetration = Real(0.001);
-    const Real PhysicsWorld::c_biasFactor = Real(0.4);
+    const Real PhysicsWorld::c_biasFactor = Real(0.2);
 
     PhysicsWorld::PhysicsWorld(void) : m_broadPhase(new BroadPhase())
     {

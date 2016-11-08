@@ -11,7 +11,7 @@ namespace Sulfur
     void ConstraintSolver::Solve(Contacts &contacts) const
     {
       _PrepareContacts(contacts);
-      for (int i = 0; i < 2; ++i)
+      for (int i = 0; i < 3; ++i)
         _ApplyImpulses(contacts);
     }
 
@@ -117,12 +117,15 @@ namespace Sulfur
         bodyB->m_velocity += bodyB->m_invMass * Pn;
         bodyB->m_angularVelocity += bodyB->m_invInertia * rB.Cross(Pn);
 
-        dv = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
-          - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA);
+        /*dv = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
+          - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA);*/
 
         Real dvt = dv.Dot(it.m_tangent);
-        Real dPt = (0.6f) * it.m_massTangent1 * (-dvt);
+        Real dPt = it.m_massTangent1 * (-dvt);
+        Real maxPt = Real(0.3) * dPt;
+        dPt = maxPt;//std::max(-maxPt, std::min(dPt, maxPt));
         Vector3 Pt = dPt * it.m_tangent;
+
         bodyA->m_velocity -= bodyA->m_invMass * Pt;
         bodyA->m_angularVelocity -= bodyA->m_invInertia * rA.Cross(Pt);
 
@@ -143,19 +146,24 @@ namespace Sulfur
         //  t2 = t1.Cross(it.m_contactNormal);
         //}
 
-        //float dPt1 = (it.m_massTangent1 * (-Dot(dv, t1)));
+        //Real dPt1 = (it.m_massTangent1 * (-Dot(dv, t1)));
         //Real dPt2 = (it.m_massTangent2 * (-Dot(dv, t2)));
 
         ////Real maxPt = Real(0.8) * dPn;
         ////dPt = std::max(-maxPt, std::min(dPt, maxPt));
 
         ////Vector3 Pt = dPt * t1;
+        //Real dPt1Max = Real(0.8) * dPt1;
+        //Real dPt2Max = Real(0.8) * dPt2;
+        //dPt1 = std::max(-dPt1Max, std::min(dPt1, dPt1Max));
+        //dPt2 = std::max(-dPt2Max, std::min(dPt2, dPt2Max));
+        //Vector3 dPt = dPt1 * t1 + dPt2 * t2;
 
-        //bodyA->m_velocity -= bodyA->m_invMass * dPt1 * t1;
-        ////bodyA->m_angularVelocity -= bodyA->m_invInertia * Cross(rA, dPt1 * t1);
+        //bodyA->m_velocity -= bodyA->m_invMass * dPt;
+        //bodyA->m_angularVelocity -= bodyA->m_invInertia * Cross(rA, dPt);
 
-        //bodyB->m_velocity += bodyB->m_invMass * dPt2 * t2;
-        ////bodyB->m_angularVelocity += bodyB->m_invInertia * Cross(rB, dPt2 * t2);
+        //bodyB->m_velocity += bodyB->m_invMass * dPt;
+        //bodyB->m_angularVelocity += bodyB->m_invInertia * Cross(rB, dPt);
       }
     }
   }

@@ -108,7 +108,7 @@ namespace Sulfur
 
     Object *testObj1 = SF_CREATE_OBJECT("testObj1");
     testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -0.0f, 20.0));
-    testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, 0.0, 0.0);
+    testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, SF_PI/4, 0.0);
     testObj1->GetComponent<Transform>()->Update();
     RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
     rb1->SetDynamicState(Physics::RB_Dynamic);
@@ -122,7 +122,7 @@ namespace Sulfur
 
     Object *testObj2 = SF_CREATE_OBJECT("testObj2");
     testObj2->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -5.0, 20.0));
-    testObj2->GetComponent<Transform>()->SetScale(Vector3(30.0, 1, 5.0));
+    testObj2->GetComponent<Transform>()->SetScale(Vector3(30.0, 0.1f, 5.0));
     testObj2->GetComponent<Transform>()->Update();
     RigidBody *rb2 = SF_CREATE_COMP(RigidBody);
     rb2->SetDynamicState(Physics::RB_Static);
@@ -134,16 +134,16 @@ namespace Sulfur
     SceneManager::Instance()->GetScene().AddObject(testObj2->GetHndl());
 
     //TestRB(Vector3(Real(0.0), 3, 20.0));
-    TestRB(Vector3(0.0f, 2.0f, 19.4f));
-    ///*TestRB(Vector3(0.0, -1.4f, 20.0));
-    //TestRB(Vector3(0.0, -1, 20.0));
-    //TestRB(Vector3(0.0, 11, 20.0));
-    //TestRB(Vector3(0.0, 13, 20.0));
-    //TestRB(Vector3(0.0, 15, 20.0));
-    //TestRB(Vector3(0.0, 17, 20.0));
-    //TestRB(Vector3(0.0, 19, 20.0));
-    //TestRB(Vector3(0.0, 21, 20.0));
-    //TestRB(Vector3(0.0, 23, 20.0));*/
+    /*TestRB(Vector3(0.6f, -3.8f, 20.0f));
+    TestRB(Vector3(0.0, -2.6f, 20.0));
+    TestRB(Vector3(0.0, -1.4f, 20.0));
+    TestRB(Vector3(0.0, -0.2f, 20.0));
+    TestRB(Vector3(0.0, 1.0f, 20.0));
+    TestRB(Vector3(0.0, 2.2f, 20.0));
+    TestRB(Vector3(0.0, 3.4f, 20.0));
+    TestRB(Vector3(0.0, 4.6f, 20.0));
+    TestRB(Vector3(0.0, 5.8f, 20.0));
+    TestRB(Vector3(0.0, 7.0f, 20.0));
 
     TestRB(Vector3(-3.0, -1, 20.0));
     TestRB(Vector3(-3.0, 2, 20.0));
@@ -159,7 +159,7 @@ namespace Sulfur
     TestRB(Vector3(3.0, 11, 20.0));
     TestRB(Vector3(3.0, 13, 20.0));
     TestRB(Vector3(3.0, 15, 20.0));
-    TestRB(Vector3(3.0, 17, 20.0));
+    TestRB(Vector3(3.0, 17, 20.0));*/
 
     Object *testObj3 = SF_CREATE_OBJECT("testObj3");
     testObj3->GetComponent<Transform>()->SetTranslation(Vector3(10.0, 0.0, 20.0));

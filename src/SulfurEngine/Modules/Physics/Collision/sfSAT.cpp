@@ -1,5 +1,4 @@
 #include "sfSAT.hpp"
-#include "Math\SpatialPartitions\sfISpatialPartition.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
 #include "Components\sfTransform.hpp"
 #include "Math\sfVector3.hpp"
