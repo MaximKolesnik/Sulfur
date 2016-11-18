@@ -21,7 +21,7 @@ namespace Sulfur
   {
     struct RigidBodyData;
     class BroadPhase;
-
+    class NarrowPhase;
     class PhysicsWorld
     {
       SF_SINGLETON(PhysicsWorld);
@@ -35,11 +35,16 @@ namespace Sulfur
       void AddRigidBody(HNDL rbHndl);
       void RemoveRigidBody(HNDL rbHndl);
 
-      void AddCollider(HNDL colHndl, ColliderType type);
-      void RemoveCollider(HNDL colHndl);
+      void AddCollider(HNDL owner, HNDL colHndl, ColliderType type);
+      void RemoveCollider(HNDL owner, HNDL colHndl);
 
       typedef std::unordered_map<HNDL, RigidBodyData*> RigidBodyList;
       typedef std::unordered_map<HNDL, ColliderData*> ColliderList;
+
+      void SetDrawDebug(bool flag)
+      {
+        m_drawDebug = flag;
+      }
 
     private:
       SF_FRIEND_TASK(Sulfur::IntegrateBodies);
@@ -49,13 +54,14 @@ namespace Sulfur
       friend struct ColliderData;
       friend struct RigidBodyData;
 
-      //void _UpdateRBData(HNDL rbHndl);
-
       QueryResults m_possiblePairs;
 
       RigidBodyList m_rigidBodies;
       ColliderList m_colliders;
       BroadPhase *m_broadPhase;
+      NarrowPhase *m_narrowPhase;
+
+      bool m_drawDebug;
     };
   }
 }

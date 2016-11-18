@@ -25,6 +25,7 @@
 #include "Components\sfTransform.hpp"
 #include "Components\sfSpotLight.hpp"
 #include "Components\sfBoxCollider.hpp"
+#include "Components\sfSphereCollider.hpp"
 
 namespace Sulfur
 {
@@ -38,9 +39,9 @@ namespace Sulfur
     rb1->SetDynamicState(Physics::RB_Dynamic);
     testObj1->AttachComponent(rb1);
     MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
-    mesh->SetMesh("Models\\cube.fbx");
+    mesh->SetMesh("Models\\sphere.fbx");
     testObj1->AttachComponent(mesh);
-    testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
+    testObj1->AttachComponent(SF_CREATE_COMP(SphereCollider));
     SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
     SceneManager::Instance()->GetScene().m_sceneProperties.SetIbl(true);
   }
@@ -107,22 +108,22 @@ namespace Sulfur
     SceneManager::Instance()->GetScene().SetCameraObject(cameraObj->GetHndl());
 
     Object *testObj1 = SF_CREATE_OBJECT("testObj1");
-    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -0.0f, 20.0));
-    testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, SF_PI/4, 0.0);
+    testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0f, 1.0f, 20.0));
+    testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0.0, 0.0, 0.0);
     testObj1->GetComponent<Transform>()->Update();
     RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
     rb1->SetDynamicState(Physics::RB_Dynamic);
     testObj1->AttachComponent(rb1);
     MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
-    mesh->SetMesh("Models\\cube.fbx");
+    mesh->SetMesh("Models\\Sphere.fbx");
     testObj1->AttachComponent(mesh);
-    testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
+    testObj1->AttachComponent(SF_CREATE_COMP(SphereCollider));
     SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
     SceneManager::Instance()->GetScene().m_sceneProperties.SetIbl(true);
 
     Object *testObj2 = SF_CREATE_OBJECT("testObj2");
-    testObj2->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -5.0, 20.0));
-    testObj2->GetComponent<Transform>()->SetScale(Vector3(30.0, 0.1f, 5.0));
+    testObj2->GetComponent<Transform>()->SetTranslation(Vector3(0.0, -5.0f, 20.0));
+    testObj2->GetComponent<Transform>()->SetScale(Vector3(20.0, 0.1f, 5.0));
     testObj2->GetComponent<Transform>()->Update();
     RigidBody *rb2 = SF_CREATE_COMP(RigidBody);
     rb2->SetDynamicState(Physics::RB_Static);
@@ -134,11 +135,10 @@ namespace Sulfur
     SceneManager::Instance()->GetScene().AddObject(testObj2->GetHndl());
 
     //TestRB(Vector3(Real(0.0), 3, 20.0));
-    /*TestRB(Vector3(0.6f, -3.8f, 20.0f));
+    TestRB(Vector3(0.6f, -3.8f, 20.0f));
     TestRB(Vector3(0.0, -2.6f, 20.0));
     TestRB(Vector3(0.0, -1.4f, 20.0));
     TestRB(Vector3(0.0, -0.2f, 20.0));
-    TestRB(Vector3(0.0, 1.0f, 20.0));
     TestRB(Vector3(0.0, 2.2f, 20.0));
     TestRB(Vector3(0.0, 3.4f, 20.0));
     TestRB(Vector3(0.0, 4.6f, 20.0));
@@ -159,9 +159,9 @@ namespace Sulfur
     TestRB(Vector3(3.0, 11, 20.0));
     TestRB(Vector3(3.0, 13, 20.0));
     TestRB(Vector3(3.0, 15, 20.0));
-    TestRB(Vector3(3.0, 17, 20.0));*/
+    TestRB(Vector3(3.0, 17, 20.0));
 
-    Object *testObj3 = SF_CREATE_OBJECT("testObj3");
+    /*Object *testObj3 = SF_CREATE_OBJECT("testObj3");
     testObj3->GetComponent<Transform>()->SetTranslation(Vector3(10.0, 0.0, 20.0));
     testObj3->GetComponent<Transform>()->Update();
     RigidBody *rb3 = SF_CREATE_COMP(RigidBody);
@@ -183,7 +183,7 @@ namespace Sulfur
     mesh4->SetMesh("Models\\cube.fbx");
     testObj4->AttachComponent(mesh4);
     testObj4->AttachComponent(SF_CREATE_COMP(BoxCollider));
-    SceneManager::Instance()->GetScene().AddObject(testObj4->GetHndl());
+    SceneManager::Instance()->GetScene().AddObject(testObj4->GetHndl());*/
 
     Object *spotLight = SF_CREATE_OBJECT("sl");
     spotLight->AttachComponent(SF_CREATE_COMP(SpotLight));

@@ -1,4 +1,5 @@
 #include "sfSphereCollider.hpp"
+#include "Modules\Physics\sfPhysicsWorld.hpp"
 
 namespace Sulfur
 {
@@ -15,7 +16,8 @@ namespace Sulfur
 
   void SphereCollider::Initialize(void)
   {
-
+    Physics::PhysicsWorld::Instance()->AddCollider(this->m_owner, this->m_hndl,
+      Physics::ColliderType::CT_SPHERE);
   }
 
   SphereCollider* SphereCollider::Clone(void) const

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math\sfVector3.hpp"
+#include "Modules\Physics\Collision\sfContact.hpp"
 
 namespace Sulfur
 {
@@ -11,11 +12,23 @@ namespace Sulfur
     class IContactGenerator
     {
     public:
+      typedef void (IContactGenerator::*CollisionFunc)(Contacts &, 
+        ColliderData *, ColliderData *) const;
+
       IContactGenerator(void) {}
       virtual ~IContactGenerator(void) {}
 
       virtual void BoxToBox(Contacts &contacts,
         ColliderData *colliderA, ColliderData *colliderB) const = 0;
+      virtual void SphereToSphere(Contacts &contacts, ColliderData *colliderA,
+        ColliderData *colliderB) const = 0;
+      virtual void SphereToBox(Contacts &contacts, ColliderData *sphere, 
+        ColliderData *box) const = 0;
+      virtual void BoxToSphere(Contacts &contacts, ColliderData *box,
+        ColliderData *sphere) const
+      {
+        SphereToBox(contacts, sphere, box);
+      }
     private:
     };
   }

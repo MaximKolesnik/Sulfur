@@ -43,9 +43,16 @@ namespace Sulfur
 
       euler += bData->m_angularVelocity * EngineSettings::DefaultFPS;
 
+      for (int i = 0; i < 3; ++i)
+      {
+        if (euler[i] > SF_PI / 2)
+          euler[i] -= SF_PI / 2;
+        if (euler[i] < -SF_PI / 2)
+          euler[i] += SF_PI / 2;
+      }
 
       bData->m_orientation.SetEuler(euler[0], euler[2], euler[1]);
-      bData->m_orientation.Normalize();
+      //bData->m_orientation.Normalize();
 
       static Real damping = pow(Real(0.85), EngineSettings::DefaultFPS);
 

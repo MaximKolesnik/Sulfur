@@ -7,21 +7,6 @@ namespace Sulfur
   {
     struct ColliderData;
 
-    struct ContactPoint
-    {
-      Vector3 m_point;
-
-      union
-      {
-        struct
-        {
-          INT32 m_incidentFeature;
-          INT32 m_witnessFeature;
-        } m_features;
-        UINT64 m_value;
-      };
-    };
-
     struct ContactKey
     {
       ContactKey(ColliderData *cA, ColliderData *cB)
@@ -48,7 +33,7 @@ namespace Sulfur
       ColliderData *m_colliderB;
 
       Vector3 m_contactNormal;
-      ContactPoint m_contactPoint;
+      Vector3 m_contactPoint;
       Vector3 m_tangent;
 
       Real m_penetration;

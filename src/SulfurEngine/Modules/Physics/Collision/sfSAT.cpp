@@ -5,6 +5,7 @@
 #include "Math\sfQuaternion.hpp"
 #include "Modules\Physics\ColliderGeometry\sfGeometryMap.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
+#include "Modules\Physics\Data\sfRigidBodyData.hpp"
 
 /******************************************************************************
 Maxim TODO: Reduce number of contact points
@@ -16,7 +17,7 @@ namespace Sulfur
 {
   namespace Physics
   {
-    void SAT::BoxToBox(Contacts &contacts, ColliderData *colliderA, 
+    void SAT::BoxToBox(Contacts &contacts, ColliderData *colliderA,
       ColliderData *colliderB) const
     {
       Transform *transA = SF_GET_COMP_TYPE(Transform, colliderA->m_transformHndl);
@@ -61,7 +62,7 @@ namespace Sulfur
         posB, orientA, orientB, penetAxis, penetration))
         return;
 
-      auto contactPoints = _GenerateContact(boxGeometry, boxGeometry, worldVertsA, 
+      auto contactPoints = _GenerateContact(boxGeometry, boxGeometry, worldVertsA,
         worldVertsB, posA, posB, orientA, orientB, penetAxis);
 
       for (auto it : contactPoints)
@@ -74,14 +75,118 @@ namespace Sulfur
         c.m_penetration = penetration;
 
         contacts.push_back(c);
-        Matrix4 m;
-        m.SetTransformation(Quaternion(Real(1.0), 0.0, 0.0, 0.0), 
-          Vector3(Real(0.2), Real(0.2), Real(0.2)), it.m_point);
-        DebugDraw::Instance()->DrawBox(m);
-        DebugDraw::Instance()->DrawVector(it.m_point, penetAxis);
       }
 
       return;
+    }
+
+    void SAT::SphereToSphere(Contacts &contacts,
+      ColliderData *colliderA, ColliderData *colliderB) const
+    {
+      Vector3 posA, posB;
+      Transform *transA = SF_GET_COMP_TYPE(Transform, colliderA->m_transformHndl);
+      Transform *transB = SF_GET_COMP_TYPE(Transform, colliderB->m_transformHndl);
+
+      SF_ASSERT(transA, "Transform handle on collider A is not set");
+      SF_ASSERT(transB, "Transform handle on collider B is not set");
+
+      if (colliderA->m_rbData)
+        posA = colliderA->m_rbData->m_position + colliderA->m_offset;
+      else
+        posA = transA->GetTranslation();
+
+      if (colliderB->m_rbData)
+        posB = colliderB->m_rbData->m_position + colliderB->m_offset;
+      else
+        posB = transB->GetTranslation();
+
+      Real radA = transA->GetScale().MaxAxisValue() * colliderA->m_radius;
+      Real radB = transB->GetScale().MaxAxisValue() * colliderB->m_radius;
+      Vector3 CtoC = posB - posA;
+      Real CtoCLength = CtoC.Length();
+
+      if (CtoCLength > radA + radB)
+        return;
+
+      Contact c;
+
+      c.m_colliderA = colliderA;
+      c.m_colliderB = colliderB;
+      c.m_contactNormal = CtoC.Normalized();
+      c.m_contactPoint = posA + CtoC * Real(0.5);
+      c.m_penetration = radA + radB - CtoC.Length();
+
+      contacts.push_back(c);
+    }
+
+    void SAT::SphereToBox(Contacts &contacts, ColliderData *sphere,
+      ColliderData *box) const
+    {
+      Transform *transSphere = SF_GET_COMP_TYPE(Transform, sphere->m_transformHndl);
+      Transform *transBox = SF_GET_COMP_TYPE(Transform, box->m_transformHndl);
+
+      SF_ASSERT(transSphere, "Transform handle on sphere is not set");
+      SF_ASSERT(transBox, "Transform handle on box B is not set");
+
+      Vector3 spherePos;
+      if (sphere->m_rbData)
+        spherePos = sphere->m_rbData->m_position + sphere->m_offset;
+      else
+        spherePos = transSphere->GetTranslation();
+
+      Vector3 halfSizes;
+      Vector3 boxPos;
+      if (box->m_rbData)
+      {
+        Vector3 scale = transBox->GetScale() * box->m_scale;
+        halfSizes = scale / 2;
+        boxPos = transBox->GetTranslation() + box->m_offset;
+      }
+      else
+      {
+        halfSizes = transBox->GetScale() / 2;
+        boxPos = transBox->GetTranslation();
+      }
+
+      Real radius = transSphere->GetScale().MaxAxisValue() * sphere->m_radius;
+      Vector3 relSpherePos = transBox->GetRotation().Inverted().Rotated(spherePos - boxPos);
+
+      if (MathUtils::Abs(relSpherePos[0]) - radius > halfSizes[0]
+          ||
+          MathUtils::Abs(relSpherePos[1]) - radius > halfSizes[1]
+          ||
+          MathUtils::Abs(relSpherePos[2]) - radius > halfSizes[2])
+        return;
+
+      Vector3 closestPoint(0, 0, 0);
+      Real dist;
+
+      for (int i = 0; i < 3; ++i)
+      {
+        dist = relSpherePos[i];
+
+        if (dist > halfSizes[i])
+          dist = halfSizes[i];
+        if (dist < -halfSizes[i])
+          dist = -halfSizes[i];
+        
+        closestPoint[i] = dist;
+      }
+
+      dist = (closestPoint - relSpherePos).LengthSq();
+      if (dist > radius * radius)
+        return;
+
+      Vector3 closestPointWorld = transBox->GetRotation().Rotated(closestPoint + boxPos);
+
+      Contact c;
+      c.m_colliderA = box;
+      c.m_colliderB = sphere;
+      c.m_contactNormal = (spherePos - closestPointWorld).Normalized();
+      c.m_contactPoint = closestPointWorld;
+      c.m_penetration = radius - MathUtils::Sqrt(dist);
+
+      contacts.push_back(c);
     }
 
     bool SAT::_FindSeparatingAxis(const std::vector<Vector3> &worldVertsA,
@@ -237,13 +342,13 @@ namespace Sulfur
       return std::min(p1.m_max - p2.m_min, p2.m_max - p1.m_min);
     }
 
-    std::vector<ContactPoint> SAT::_GenerateContact(const ColliderGeometry &colGeomA,
+    std::vector<Vector3> SAT::_GenerateContact(const ColliderGeometry &colGeomA,
       const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA, 
       const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
       const Quaternion &orientA, const Quaternion &orientB, 
       const Vector3 &contactNormal) const
     {
-      std::vector<ContactPoint> contactPoints;
+      std::vector<Vector3> contactPoints;
 
       _ClipConHullToConHull(colGeomA, colGeomB, worldVertsA, worldVertsB, posA,
         posB, orientA, orientB, contactNormal, contactPoints);
@@ -255,7 +360,7 @@ namespace Sulfur
       const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA,
       const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
       const Quaternion &orientA, const Quaternion &orientB, const Vector3 &contactNormal, 
-      std::vector<ContactPoint> &contactPoints) const
+      std::vector<Vector3> &contactPoints) const
     {
       Real minDist = SF_REAL_MAX;
       Real maxDist = -SF_REAL_MAX;
@@ -329,12 +434,7 @@ namespace Sulfur
 
         if (type == Geometry::IntersectionType::Outside)
         {
-          ContactPoint p;
-          p.m_features.m_incidentFeature = closestAInd;
-          p.m_features.m_witnessFeature = closestBInd;
-          p.m_point = faceVerts[i];
-
-          contactPoints.push_back(p);
+          contactPoints.push_back(faceVerts[i]);
         }
       }
     }

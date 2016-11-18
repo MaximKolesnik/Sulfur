@@ -20,7 +20,12 @@ namespace Sulfur
       virtual ~SAT(void) {}
 
       virtual void BoxToBox(Contacts &contacts, 
-        ColliderData *colliderA, ColliderData *colliderB) const override;
+        ColliderData *colliderA, ColliderData *colliderB) const override final;
+      virtual void SphereToSphere(Contacts &contacts,
+        ColliderData *colliderA, ColliderData *colliderB) const override final;
+      virtual void SphereToBox(Contacts &contacts, ColliderData *sphere,
+        ColliderData *box) const override final;
+
     private:
 
       struct Projection
@@ -47,7 +52,7 @@ namespace Sulfur
 
       Real _CalculatePenetration(const Projection &p1, const Projection &p2) const;
 
-      std::vector<ContactPoint> _GenerateContact(const ColliderGeometry &colGeomA, 
+      std::vector<Vector3> _GenerateContact(const ColliderGeometry &colGeomA,
         const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA, 
         const std::vector<Vector3> &worldVertsB, const Vector3 &posA, 
         const Vector3 &posB, const Quaternion &orientA, const Quaternion &orientB, 
@@ -57,7 +62,7 @@ namespace Sulfur
         const ColliderGeometry &colGeomB, const std::vector<Vector3> &worldVertsA,
         const std::vector<Vector3> &worldVertsB, const Vector3 &posA, const Vector3 &posB, 
         const Quaternion &orientA, const Quaternion &orientB, const Vector3 &contactNormal, 
-        std::vector<ContactPoint> &contactPoints) const;
+        std::vector<Vector3> &contactPoints) const;
 
       void _ClipPointsToPlane(std::vector<Vector3> &verts, const Vector3 &plane, Real planeW) const;
     };

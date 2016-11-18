@@ -11,8 +11,8 @@
 #include "BroadPhase\sfBroadPhase.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 #include "ColliderGeometry\sfGeometryMap.hpp"
-#include "Collision\sfSAT.hpp"
 #include "Modules\Physics\Constraint\sfConstraintSolver.hpp"
+#include "Modules\Physics\NarrowPhase\sfNarrowPhase.hpp"
 
 /******************************************************************************
 Maxim TODO: Wrap all integrators
@@ -24,6 +24,17 @@ Maxim TODO: Stop recomputing all Aabbs, when resting contacts are added
 namespace Sulfur
 {
 
+  static void DrawContacts(Physics::Contacts &contacts)
+  {
+    for (auto it : contacts)
+    {
+      Matrix4 m;
+      m.SetTransformation(Quaternion(Real(1.0), 0.0, 0.0, 0.0),
+        Vector3(Real(0.2), Real(0.2), Real(0.2)), it.m_contactPoint);
+      DebugDraw::Instance()->DrawBox(m);
+      DebugDraw::Instance()->DrawVector(it.m_contactPoint, it.m_contactNormal);
+    }
+  }
 
   SF_DEFINE_TASK(IntegrateBodies)
   {
@@ -47,18 +58,23 @@ namespace Sulfur
     Physics::PhysicsWorld::Instance()->m_broadPhase->
       GetPossibleContacts(Physics::PhysicsWorld::Instance()->m_possiblePairs);
 
-    Physics::PhysicsWorld::Instance()->m_broadPhase->DrawDebug(DebugDraw::Instance());
+    /*if (Physics::PhysicsWorld::Instance()->m_drawDebug)
+      Physics::PhysicsWorld::Instance()->m_broadPhase->DrawDebug(DebugDraw::Instance());*/
   } SF_END_DEFINE_TASK(BroadPhase);
 
   SF_DEFINE_TASK(NarrowPhase)
   {
-    Physics::SAT sat;
     Physics::Contacts contacts;
 
     for (auto it : Physics::PhysicsWorld::Instance()->m_possiblePairs.m_results)
     {
-      sat.BoxToBox(contacts, (Physics::ColliderData*)it.m_clientData0, (Physics::ColliderData*)it.m_clientData1);
+      Physics::PhysicsWorld::Instance()->m_narrowPhase->
+        Collide(contacts, (Physics::ColliderData*)it.m_clientData0, 
+          (Physics::ColliderData*)it.m_clientData1);
     }
+
+    if (Physics::PhysicsWorld::Instance()->m_drawDebug)
+      DrawContacts(contacts);
 
     Physics::ConstraintSolver solver;
     if (!contacts.empty())
@@ -91,7 +107,8 @@ namespace Sulfur
     const Real PhysicsWorld::c_allowedPenetration = Real(0.001);
     const Real PhysicsWorld::c_biasFactor = Real(0.2);
 
-    PhysicsWorld::PhysicsWorld(void) : m_broadPhase(new BroadPhase())
+    PhysicsWorld::PhysicsWorld(void) : m_broadPhase(new BroadPhase()),
+      m_narrowPhase(new NarrowPhase()), m_drawDebug(true)
     {
 
     }
@@ -126,41 +143,27 @@ namespace Sulfur
       m_rigidBodies.erase(rbHndl);
     }
 
-    void PhysicsWorld::AddCollider(HNDL colHndl, ColliderType type)
+    void PhysicsWorld::AddCollider(HNDL owner, HNDL colHndl, ColliderType type)
     {
-      SF_ASSERT(m_colliders.find(colHndl) == m_colliders.end(),
+      SF_ASSERT(m_colliders.find(owner) == m_colliders.end(),
         "Collider is already tracked by PhysicsWorld");
 
       ColliderData *colliderData = new ColliderData(colHndl, type);
       colliderData->Initialize();
 
       m_broadPhase->AddProxy(colliderData->m_proxy, colliderData);
-      m_colliders.insert({ colHndl, colliderData });
+      m_colliders.insert({ owner, colliderData });
     }
 
-    void PhysicsWorld::RemoveCollider(HNDL colHndl)
+    void PhysicsWorld::RemoveCollider(HNDL owner, HNDL colHndl)
     {
-      SF_ASSERT(m_colliders.find(colHndl) != m_colliders.end(),
+      SF_ASSERT(m_colliders.find(owner) != m_colliders.end(),
         "Collider is not tracked by PhysicsWorld");
 
-      m_broadPhase->RemoveProxy(m_colliders[colHndl]->m_proxy);
+      m_broadPhase->RemoveProxy(m_colliders[owner]->m_proxy);
 
-      delete m_colliders[colHndl];
-      m_colliders.erase(colHndl);
+      delete m_colliders[owner];
+      m_colliders.erase(owner);
     }
-
-    /*void PhysicsWorld::_UpdateRBData(HNDL rbHndl)
-    {
-      SF_ASSERT(m_rigidBodies.find(rbHndl) != m_rigidBodies.end(),
-        "RigidBody is not tracked by PhysicsWorld");
-
-      RigidBodyData *rbData = m_rigidBodies[rbHndl];
-      RigidBody *rbComp = ComponentFactory::Instance()->GetComponent<RigidBody>(rbHndl);
-      Transform *rbTransform = SF_GET_COMP_TYPE(Transform, rbData->m_transformHndl);
-
-      rbData->m_position = rbTransform->GetTranslation();
-      rbData->m_velocity = rbComp->GetVelocity();
-      rbData->m_invMass = rbComp->GetInverseMass();
-    }*/
   }
 }

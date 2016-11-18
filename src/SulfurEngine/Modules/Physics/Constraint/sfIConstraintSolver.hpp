@@ -7,7 +7,7 @@ namespace Sulfur
 {
   namespace Physics
   {
-    class IConstraintSolver
+    /*class IConstraintSolver
     {
     public:
       void AddContact(Contact *contact);
@@ -20,6 +20,6 @@ namespace Sulfur
 
     private:
       void _UpdateEntry(Contact &contact);
-    };
+    };*/
   }
 }
