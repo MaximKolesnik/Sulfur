@@ -9,10 +9,10 @@
 #include "Factories\sfObjectFactory.hpp"
 #include "Integration\sfExplicitEuler.hpp"
 #include "BroadPhase\sfBroadPhase.hpp"
-#include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 #include "ColliderGeometry\sfGeometryMap.hpp"
 #include "Modules\Physics\Constraint\sfConstraintSolver.hpp"
 #include "Modules\Physics\NarrowPhase\sfNarrowPhase.hpp"
+#include "Modules\Physics\DebugDraw\sfDebug.hpp"
 
 /******************************************************************************
 Maxim TODO: Wrap all integrators
@@ -23,19 +23,6 @@ Maxim TODO: Stop recomputing all Aabbs, when resting contacts are added
 
 namespace Sulfur
 {
-
-  static void DrawContacts(Physics::Contacts &contacts)
-  {
-    for (auto it : contacts)
-    {
-      Matrix4 m;
-      m.SetTransformation(Quaternion(Real(1.0), 0.0, 0.0, 0.0),
-        Vector3(Real(0.2), Real(0.2), Real(0.2)), it.m_contactPoint);
-      DebugDraw::Instance()->DrawBox(m);
-      DebugDraw::Instance()->DrawVector(it.m_contactPoint, it.m_contactNormal);
-    }
-  }
-
   SF_DEFINE_TASK(IntegrateBodies)
   {
     for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
@@ -57,9 +44,6 @@ namespace Sulfur
 
     Physics::PhysicsWorld::Instance()->m_broadPhase->
       GetPossibleContacts(Physics::PhysicsWorld::Instance()->m_possiblePairs);
-
-    /*if (Physics::PhysicsWorld::Instance()->m_drawDebug)
-      Physics::PhysicsWorld::Instance()->m_broadPhase->DrawDebug(DebugDraw::Instance());*/
   } SF_END_DEFINE_TASK(BroadPhase);
 
   SF_DEFINE_TASK(NarrowPhase)
@@ -72,9 +56,6 @@ namespace Sulfur
         Collide(contacts, (Physics::ColliderData*)it.m_clientData0, 
           (Physics::ColliderData*)it.m_clientData1);
     }
-
-    if (Physics::PhysicsWorld::Instance()->m_drawDebug)
-      DrawContacts(contacts);
 
     Physics::ConstraintSolver solver;
     if (!contacts.empty())
@@ -108,7 +89,7 @@ namespace Sulfur
     const Real PhysicsWorld::c_biasFactor = Real(0.2);
 
     PhysicsWorld::PhysicsWorld(void) : m_broadPhase(new BroadPhase()),
-      m_narrowPhase(new NarrowPhase()), m_drawDebug(true)
+      m_narrowPhase(new NarrowPhase())
     {
 
     }
@@ -164,6 +145,11 @@ namespace Sulfur
 
       delete m_colliders[owner];
       m_colliders.erase(owner);
+    }
+
+    void PhysicsWorld::DebugDrawColliders(void) const
+    {
+      DrawColliders(m_colliders);
     }
   }
 }

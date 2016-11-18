@@ -13,8 +13,13 @@ namespace Sulfur
 
       m_collisionFunction[CT_BOX][CT_BOX] = &IContactGenerator::BoxToBox;
       m_collisionFunction[CT_BOX][CT_SPHERE] = &IContactGenerator::BoxToSphere;
+      m_collisionFunction[CT_BOX][CT_CAPSULE] = &IContactGenerator::BoxToCapsule;
       m_collisionFunction[CT_SPHERE][CT_BOX] = &IContactGenerator::SphereToBox;
       m_collisionFunction[CT_SPHERE][CT_SPHERE] = &IContactGenerator::SphereToSphere;
+      m_collisionFunction[CT_SPHERE][CT_CAPSULE] = &IContactGenerator::SphereToCapsule;
+      m_collisionFunction[CT_CAPSULE][CT_CAPSULE] = &IContactGenerator::CapsuleToCapsule;
+      m_collisionFunction[CT_CAPSULE][CT_BOX] = &IContactGenerator::CapsuleToBox;
+      m_collisionFunction[CT_CAPSULE][CT_SPHERE] = &IContactGenerator::CapsuleToSphere;
     }
 
     NarrowPhase::~NarrowPhase(void)

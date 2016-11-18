@@ -20,5 +20,6 @@ namespace Sulfur
     SF_PRIVATE_PROPERTY(bool, isGhost, IsGhost, "Ghost collider");
     SF_PRIVATE_PROPERTY(Vector3, offset, Offset, "Collider offset from the center");
     SF_PRIVATE_PROPERTY(Real, radius, Radius, "Radius of the collider");
+    SF_PRIVATE_PROPERTY(Real, centerLineLength, CenterLineLength, "Length of the center line");
   };
 }

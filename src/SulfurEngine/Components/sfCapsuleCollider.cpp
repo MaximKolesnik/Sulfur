@@ -4,7 +4,7 @@
 namespace Sulfur
 {
   CapsuleCollider::CapsuleCollider(void) : m_offset(Real(0.0), Real(0.0), Real(0.0)),
-    m_radius(Real(0.5))
+    m_radius(Real(0.5)), m_centerLineLength(Real(1.0))
   {
 
   }

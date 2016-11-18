@@ -26,6 +26,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components\sfRigidBody.hpp"
 #include "Components\sfBoxCollider.hpp"
 #include "Components\sfSphereCollider.hpp"
+#include "Components\sfCapsuleCollider.hpp"
 
 namespace Sulfur
 {
@@ -119,6 +120,7 @@ namespace Sulfur
     this->_RegisterComponent<RigidBody>();
     this->_RegisterComponent<BoxCollider>();
     this->_RegisterComponent<SphereCollider>();
+    this->_RegisterComponent<CapsuleCollider>();
   }
 
   IEntity* ComponentFactory::GetComponent(const std::string &name, 

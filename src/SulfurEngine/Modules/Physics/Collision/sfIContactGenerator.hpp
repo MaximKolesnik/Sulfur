@@ -20,14 +20,32 @@ namespace Sulfur
 
       virtual void BoxToBox(Contacts &contacts,
         ColliderData *colliderA, ColliderData *colliderB) const = 0;
-      virtual void SphereToSphere(Contacts &contacts, ColliderData *colliderA,
-        ColliderData *colliderB) const = 0;
-      virtual void SphereToBox(Contacts &contacts, ColliderData *sphere, 
-        ColliderData *box) const = 0;
       virtual void BoxToSphere(Contacts &contacts, ColliderData *box,
         ColliderData *sphere) const
       {
         SphereToBox(contacts, sphere, box);
+      }
+      virtual void BoxToCapsule(Contacts &contacts, ColliderData *box,
+        ColliderData *capsule) const = 0;
+
+      virtual void SphereToSphere(Contacts &contacts, ColliderData *colliderA,
+        ColliderData *colliderB) const = 0;
+      virtual void SphereToBox(Contacts &contacts, ColliderData *sphere, 
+        ColliderData *box) const = 0;
+      virtual void SphereToCapsule(Contacts &contacts, ColliderData *sphere,
+        ColliderData *capsule) const = 0;
+
+      virtual void CapsuleToCapsule(Contacts &contacts, ColliderData *colliderA,
+        ColliderData *colliderB) const = 0;
+      virtual void CapsuleToBox(Contacts &contacts, ColliderData *capsule,
+        ColliderData *box) const
+      {
+        BoxToCapsule(contacts, box, capsule);
+      }
+      virtual void CapsuleToSphere(Contacts &contacts, ColliderData *capsule,
+        ColliderData *sphere) const
+      {
+        SphereToCapsule(contacts, sphere, capsule);
       }
     private:
     };

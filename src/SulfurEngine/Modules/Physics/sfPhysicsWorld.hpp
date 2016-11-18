@@ -41,10 +41,8 @@ namespace Sulfur
       typedef std::unordered_map<HNDL, RigidBodyData*> RigidBodyList;
       typedef std::unordered_map<HNDL, ColliderData*> ColliderList;
 
-      void SetDrawDebug(bool flag)
-      {
-        m_drawDebug = flag;
-      }
+      //Debug
+      void DebugDrawColliders(void) const;
 
     private:
       SF_FRIEND_TASK(Sulfur::IntegrateBodies);
@@ -60,8 +58,6 @@ namespace Sulfur
       ColliderList m_colliders;
       BroadPhase *m_broadPhase;
       NarrowPhase *m_narrowPhase;
-
-      bool m_drawDebug;
     };
   }
 }

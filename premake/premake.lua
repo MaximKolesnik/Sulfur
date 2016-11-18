@@ -135,6 +135,12 @@ premakeDef.projects["SulfurGame"] = {
 	dependencies = { "SulfurEngine" }
 }
 
+premakeDef.projects["SulfurSandbox"] = {
+  language = "C++",
+  kind = "WindowedApp",
+  dependencies = { "SulfurEngine" }
+}
+
 premakeDef.projects["ShaderCompiler"] = {
 	language = "C++",
 	kind = "ConsoleApp",

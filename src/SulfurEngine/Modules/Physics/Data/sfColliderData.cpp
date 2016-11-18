@@ -1,6 +1,7 @@
 #include "sfColliderData.hpp"
 #include "Components\sfSphereCollider.hpp"
 #include "Components\sfBoxCollider.hpp"
+#include "Components\sfCapsuleCollider.hpp"
 #include "Factories\sfComponentFactory.hpp"
 #include "Factories\sfObjectFactory.hpp"
 #include "Error\sfError.hpp"
@@ -50,6 +51,18 @@ namespace Sulfur
         m_transformHndl = owner->GetComponentHandle<Transform>();
       }
       break;
+      case ColliderType::CT_CAPSULE:
+      {
+        CapsuleCollider *capCol = SF_GET_COMP_TYPE(CapsuleCollider, m_compHndl);
+        m_isGhost = capCol->GetIsGhost();
+        m_radius = capCol->GetRadius();
+        m_offset = capCol->GetOffset();
+        m_lineLength = capCol->GetCenterLineLength();
+
+        owner = SF_GET_OBJECT(capCol->GetOwner());
+        m_transformHndl = owner->GetComponentHandle<Transform>();
+      }
+        break;
       default:
         SF_CRITICAL_ERR("Unrecognized collider type");
       }

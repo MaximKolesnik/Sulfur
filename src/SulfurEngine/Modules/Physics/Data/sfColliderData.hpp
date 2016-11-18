@@ -28,11 +28,11 @@ namespace Sulfur
 
       bool m_isGhost;
       Vector3 m_offset;
-      union
-      {
-        Vector3 m_scale;
-        Real m_radius; //Sphere, Capsule
-      };
+
+      //TODO restructure this
+      Vector3 m_scale;
+      Real m_lineLength; //Capsule
+      Real m_radius; //Sphere, Capsule
 
       Proxy m_proxy; //Spatial partition proxy
       ColliderType m_type;
