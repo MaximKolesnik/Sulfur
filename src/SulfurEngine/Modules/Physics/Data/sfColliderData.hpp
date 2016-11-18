@@ -14,6 +14,7 @@ namespace Sulfur
     {
       CT_BOX = 0,
       CT_SPHERE,
+      CT_CAPSULE,
       CT_NUM_TYPES
     };
 
@@ -30,7 +31,7 @@ namespace Sulfur
       union
       {
         Vector3 m_scale;
-        Real m_radius; //Sphere
+        Real m_radius; //Sphere, Capsule
       };
 
       Proxy m_proxy; //Spatial partition proxy

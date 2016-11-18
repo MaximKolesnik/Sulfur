@@ -115,7 +115,7 @@ namespace Sulfur
     rb1->SetDynamicState(Physics::RB_Dynamic);
     testObj1->AttachComponent(rb1);
     MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
-    mesh->SetMesh("Models\\Sphere.fbx");
+    mesh->SetMesh("Models\\capsule.fbx");
     testObj1->AttachComponent(mesh);
     testObj1->AttachComponent(SF_CREATE_COMP(SphereCollider));
     SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
