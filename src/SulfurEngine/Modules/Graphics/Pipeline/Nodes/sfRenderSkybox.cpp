@@ -13,6 +13,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfRenderSkybox.hpp"
 
+#include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 #include "Factories/sfComponentFactory.hpp"
@@ -32,8 +33,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 
-RenderSkybox::RenderSkybox(D3D11Device& device, RenderTarget *renderTarget)
-  : RenderNode(device), m_renderTarget(renderTarget)
+RenderSkybox::RenderSkybox(D3D11Device& device, RenderTarget *renderTarget, DepthBuffer *depthBuffer)
+  : RenderNode(device), m_renderTarget(renderTarget), m_depthBuffer(depthBuffer)
 {
   m_vertexShader.Init(device, "./Shaders/VSSkybox.sbin");
   m_perFrameData = m_vertexShader.GetConstantBuffer("PerFrameData");
@@ -55,14 +56,12 @@ RenderSkybox::~RenderSkybox()
 
 void RenderSkybox::Process()
 {
-  m_renderTarget->Clear(m_context);
-
   CubeMap *skyboxMap = SceneManager::Instance()->GetScene().m_sceneProperties.GetSkybox();
   if (skyboxMap == nullptr) return;
 
-  m_renderTarget->Set(m_context);
+  m_renderTarget->Set(m_context, *m_depthBuffer);
 
-  DepthState::Set(m_context, DepthState::DEPTH_DISABLED);
+  DepthState::Set(m_context, DepthState::DEPTH_ENABLED);
   BlendState::Set(m_context, BlendState::NO_BLENDING);
   RasterState::Set(m_context, RasterState::FRONT_FACE_CULLING);
   SamplerState::SetPixel(m_context, SamplerState::LINEAR, 0);

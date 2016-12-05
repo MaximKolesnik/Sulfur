@@ -26,6 +26,8 @@ namespace Sulfur
     virtual void Free();
 
     D3D11ConstantBuffer* GetConstantBuffer(const std::string& name);
+    UINT32 GetTextureRegister(const std::string& name);
+    UINT32 GetSamplerRegister(const std::string& name);
 
   private:
     void ReflectShader(const BYTE *compiledShader, UINT32 size);
@@ -40,6 +42,10 @@ namespace Sulfur
     // Constant buffers
     std::vector<D3D11ConstantBuffer> m_cbuffers;
     std::unordered_map<std::string, UINT32> m_cbufferMap;
+
+    // Resource bindings
+    std::unordered_map<std::string, UINT32> m_samplers;
+    std::unordered_map<std::string, UINT32> m_textures;
 
     ID3D11InputLayout *m_inputLayout;
 

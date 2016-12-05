@@ -8,6 +8,7 @@ SkyboxPixelIn main(VertexIn input)
   output.position = mul(input.position, WorldMatrix);
   output.position = mul(output.position, ViewMatrix);
   output.position = mul(output.position, ProjMatrix);
+  output.position.z = output.position.w - 0.01f;
 
   output.texCoords = normalize(input.position.xyz);
 

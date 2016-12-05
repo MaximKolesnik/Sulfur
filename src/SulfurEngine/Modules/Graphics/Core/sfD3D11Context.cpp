@@ -67,4 +67,21 @@ void D3D11Context::DrawIndexed(UINT32 indexCount, UINT32 indexStart, UINT32 vert
   m_resource->DrawIndexed(indexCount, indexStart, vertexStart);
 }
 
+void D3D11Context::Dispatch(UINT32 threadsX, UINT32 threadsY, UINT32 threadsZ)
+{
+  m_resource->Dispatch(threadsX, threadsY, threadsZ);
+}
+
+void D3D11Context::ResetPixelTexture(int slot)
+{
+  ID3D11ShaderResourceView *n = nullptr;
+  m_resource->PSSetShaderResources(slot, 1, &n);
+}
+
+void D3D11Context::ResetRenderTargets()
+{
+  ID3D11RenderTargetView *renderTargets[8] = { nullptr };
+  m_resource->OMSetRenderTargets(8, renderTargets, nullptr);
+}
+
 }

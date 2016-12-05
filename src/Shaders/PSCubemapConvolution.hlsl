@@ -1,5 +1,4 @@
 #include "PixelInputs.hlsli"
-#include "GBuffer.hlsli"
 
 cbuffer ConvolutionData
 {
@@ -12,12 +11,12 @@ cbuffer ConvolutionData
   float ThetaStep;
 };
 
-TextureCube environmentMap;
-SamplerState pointSampler;
+TextureCube TEX_Cubemap;
+SamplerState SS_Sampler;
 
-float4 main(PixelIn input) : SV_TARGET
+float4 main(ScreenPixelIn input) : SV_TARGET
 {
-  input.position.xy = input.position.xy / float2(OutputWidth, OutputHeight) * 2.0f - 1.0f;
+  input.position.xy = input.texCoords * 2.0f - 1.0f;
   input.position.y *= -1.0f;
 
   float3 normal = normalize(float3(input.position.xy, 1));
@@ -44,12 +43,11 @@ float4 main(PixelIn input) : SV_TARGET
     {
       float3 temp = cos(phi) * right + sin(phi) * up;
       float3 sampleVector = cos(theta) * normal + sin(theta) * temp;
-      sampledColour += environmentMap.Sample(pointSampler, sampleVector).rgb *
+      sampledColour += TEX_Cubemap.Sample(SS_Sampler, sampleVector).rgb *
         cos(theta) * sin(theta);
       index++;
     }
   }
 
   return float4(3.14159f * sampledColour / index, 1);
-  //return float4(CubeFace / 5.0f, CubeFace / 5.0f, CubeFace / 5.0f, 1);
 }

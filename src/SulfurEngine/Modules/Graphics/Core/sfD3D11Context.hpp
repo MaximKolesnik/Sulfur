@@ -35,6 +35,11 @@ namespace Sulfur
     void Draw(UINT32 vertexCount, UINT32 vertexStart);
     void DrawIndexed(UINT32 indexCount, UINT32 indexStart, UINT32 vertexStart);
 
+    void Dispatch(UINT32 threadsX, UINT32 threadsY, UINT32 threadsZ);
+
+    void ResetPixelTexture(int slot);
+    void ResetRenderTargets();
+
   };
   
 }

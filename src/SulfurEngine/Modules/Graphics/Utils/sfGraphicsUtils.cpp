@@ -16,9 +16,21 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components/sfCamera.hpp"
 #include "Components/sfTransform.hpp"
 #include "Components/sfMeshRenderer.hpp"
+#include "Modules/Graphics/State/sfRasterState.hpp"
 
 namespace Sulfur
 {
+
+void GraphicsUtils::Init(D3D11Device& device)
+{
+  s_fullscreenQuadVertexShader.Init(device, "Shaders/VSFullScreenQuad.sbin");
+  s_screenDataConstantBuffer = s_fullscreenQuadVertexShader.GetConstantBuffer("ScreenData");
+}
+
+void GraphicsUtils::Free()
+{
+  s_fullscreenQuadVertexShader.Free();
+}
 
 UINT32 GraphicsUtils::DxgiFormatBpp(DXGI_FORMAT format)
 {
@@ -155,28 +167,67 @@ DXGI_FORMAT GraphicsUtils::DxgiFormatFromTypeAndMask(D3D_REGISTER_COMPONENT_TYPE
 
   case D3D_REGISTER_COMPONENT_UINT32:
     if (mask == 1)  return DXGI_FORMAT_R32_UINT;
-    if (mask == 3)  return DXGI_FORMAT_R32G32_UINT;
-    if (mask == 7)  return DXGI_FORMAT_R32G32B32_UINT;
-    if (mask == 15) return DXGI_FORMAT_R32G32B32A32_UINT;
+    if (mask <= 3)  return DXGI_FORMAT_R32G32_UINT;
+    if (mask <= 7)  return DXGI_FORMAT_R32G32B32_UINT;
+    if (mask <= 15) return DXGI_FORMAT_R32G32B32A32_UINT;
     break;
 
   case D3D_REGISTER_COMPONENT_SINT32:
     if (mask == 1)  return DXGI_FORMAT_R32_SINT;
-    if (mask == 3)  return DXGI_FORMAT_R32G32_SINT;
-    if (mask == 7)  return DXGI_FORMAT_R32G32B32_SINT;
-    if (mask == 15) return DXGI_FORMAT_R32G32B32A32_SINT;
+    if (mask <= 3)  return DXGI_FORMAT_R32G32_SINT;
+    if (mask <= 7)  return DXGI_FORMAT_R32G32B32_SINT;
+    if (mask <= 15) return DXGI_FORMAT_R32G32B32A32_SINT;
     break;
 
   case D3D_REGISTER_COMPONENT_FLOAT32:
     if (mask == 1)  return DXGI_FORMAT_R32_FLOAT;
-    if (mask == 3)  return DXGI_FORMAT_R32G32_FLOAT;
-    if (mask == 7)  return DXGI_FORMAT_R32G32B32_FLOAT;
-    if (mask == 15) return DXGI_FORMAT_R32G32B32A32_FLOAT;
+    if (mask <= 3)  return DXGI_FORMAT_R32G32_FLOAT;
+    if (mask <= 7)  return DXGI_FORMAT_R32G32B32_FLOAT;
+    if (mask <= 15) return DXGI_FORMAT_R32G32B32A32_FLOAT;
     break;
 
   }
 
   return DXGI_FORMAT_UNKNOWN;
+}
+
+void GraphicsUtils::GetCameraTransformMatrix(Scene& scene, Matrix4& trans)
+{
+  HNDL objHandle = scene.GetCameraObject();
+  if (objHandle != SF_INV_HANDLE)
+  {
+    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
+    Transform *transform = object->GetComponent<Transform>();
+    trans = transform->GetWorldMatrix();
+  }
+  else
+    trans.SetIdentity();
+}
+
+void GraphicsUtils::GetCameraViewMatrix(Scene& scene, Matrix4& view)
+{
+  HNDL objHandle = scene.GetCameraObject();
+  if (objHandle != SF_INV_HANDLE)
+  {
+    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
+    Transform *transform = object->GetComponent<Transform>();
+    view.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), transform->GetWorldTranslation());
+  }
+  else
+    view.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
+}
+
+void GraphicsUtils::GetProjectionMatrixFromScene(Scene& scene, Real width, Real height, Matrix4& proj)
+{
+  HNDL objHandle = scene.GetCameraObject();
+  if (objHandle != SF_INV_HANDLE)
+  {
+    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
+    Camera *camera = object->GetComponent<Camera>();
+    proj.SetPerspectiveFovLH(width, height, camera->GetFieldOfView() * SF_RADS_PER_DEG, camera->GetNearPlane(), camera->GetFarPlane());
+  }
+  else
+    proj.SetPerspectiveFovLH(width, height, 3.14159f / 4.0f, 0.1f, 1000.0f);
 }
 
 void GraphicsUtils::SetupCamera(D3D11Context& context, Real width, Real height, Scene& scene, D3D11ConstantBuffer *perFrameBuffer)
@@ -252,6 +303,47 @@ void GraphicsUtils::RenderMeshRenderer(D3D11Context& context, MeshRenderer *mesh
 
     mesh->Draw(context);
   }
+}
+
+D3D11VertexShader GraphicsUtils::s_fullscreenQuadVertexShader;
+D3D11ConstantBuffer *GraphicsUtils::s_screenDataConstantBuffer = nullptr;
+
+void GraphicsUtils::RenderFullscreenQuad(D3D11Context& context)
+{
+  s_fullscreenQuadVertexShader.Set(context);
+  context.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+  RasterState::Set(context, RasterState::BACK_FACE_CULLING);
+  context.Draw(4, 0);
+}
+
+void GraphicsUtils::RenderFullscreenQuad(D3D11Context& context, Scene& scene, Real width, Real height)
+{
+  HNDL objHandle = scene.GetCameraObject();
+  if (objHandle != SF_INV_HANDLE)
+  {
+    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
+    Camera *camera = object->GetComponent<Camera>();
+    RenderFullscreenQuad(context, camera->GetFieldOfView() * SF_RADS_PER_DEG, width, height);
+  }
+  else
+  {
+    RenderFullscreenQuad(context, 3.14159f / 4.0f, width, height);
+  }
+}
+
+void GraphicsUtils::RenderFullscreenQuad(D3D11Context& context, Real fov, Real width, Real height)
+{
+  Real hH = tan(fov / 2.0f);
+  Real hW = hH * width / height;
+  Vector3 frustum[4] = {
+    Vector3(-hW, hH, 1.0f),
+    Vector3(hW, hH, 1.0f),
+    Vector3(-hW, -hH, 1.0f),
+    Vector3(hW, -hH, 1.0f)
+  };
+
+  s_screenDataConstantBuffer->SetData(context, frustum, 4);
+  RenderFullscreenQuad(context);
 }
 
 }

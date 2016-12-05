@@ -15,6 +15,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Core/sfD3D11Factory.hpp"
 #include "Pipeline/Pipelines/sfDeferredPipeline.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Managers/TaskManager/sfTaskManager.hpp"
+#include "Utils/sfGraphicsUtils.hpp"
 
 // States
 #include "State/sfBlendState.hpp"
@@ -24,6 +26,36 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
+
+SF_DEFINE_TASK(ExecuteGraphicsPipelineNode)
+{
+  RenderNode *node = reinterpret_cast<RenderNode *>(_taskData->m_data);
+  node->Process();
+}
+SF_END_DEFINE_TASK(ExecuteGraphicsPipelineNode)
+
+SF_DEFINE_TASK(RenderGraphics)
+{
+  GraphicsManager *mgr = GraphicsManager::Instance();
+  RenderPipeline *pipeline = mgr->GetPipeline();
+  auto& nodeList = pipeline->GetNodes();
+  RenderNode * const *nodes = nodeList.data();
+
+  const UINT32 JOBS = 8;
+  UINT32 jobIndex = 0;
+  UINT32 nodeCount = (UINT32)nodeList.size();
+  while (jobIndex < nodeCount)
+  {
+    UINT32 jobsLeft = nodeCount - jobIndex;
+    UINT32 jobsToRun = std::min(jobsLeft, JOBS);
+    SF_ENQUEUE_JOBS(ExecuteGraphicsPipelineNode, ((void**)(nodes + jobIndex)), JOBS, jobsToRun);
+    SF_YEILD_AND_WAIT();
+    jobIndex += jobsToRun;
+  }
+
+  mgr->FinishRender();
+}
+SF_END_DEFINE_TASK(RenderGraphics)
 
 GraphicsManager::GraphicsManager()
   : m_window(nullptr)
@@ -47,6 +79,8 @@ void GraphicsManager::Init(Window& window)
   DepthState::InitDefaultStates(m_device);
   RasterState::InitDefaultStates(m_device);
   SamplerState::InitDefaultStates(m_device);
+
+  GraphicsUtils::Init(m_device);
 }
 
 void GraphicsManager::Free()
@@ -56,12 +90,13 @@ void GraphicsManager::Free()
   RasterState::FreeDefaultStates();
   SamplerState::FreeDefaultStates();
 
+  GraphicsUtils::Free();
+
   m_device.Free();
 }
 
-void GraphicsManager::Update()
+void GraphicsManager::FinishRender()
 {
-  m_pipeline->BuildCommandLists();
   m_pipeline->ExecuteCommandLists(m_device.GetImmediateContext());
   m_renderWindow.Present();
 }
@@ -69,6 +104,11 @@ void GraphicsManager::Update()
 D3D11Device& GraphicsManager::GetDevice()
 {
   return m_device;
+}
+
+RenderPipeline* GraphicsManager::GetPipeline()
+{
+  return m_pipeline;
 }
 
 void GraphicsManager::InitDevice()

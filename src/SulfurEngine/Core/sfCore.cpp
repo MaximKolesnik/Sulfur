@@ -56,9 +56,11 @@ namespace Sulfur
 
     TaskManager* tm = TaskManager::Instance();
     tm->AddNode("UpdateTransforms");
+    tm->AddNode("RenderGraphics");
     tm->AddNode("TriggerEventsEndFrame");
     tm->SetStartingTask("UpdateTransforms");
-    tm->SetDependency("TriggerEventsEndFrame", "UpdateTransforms");
+    tm->SetDependency("RenderGraphics", "UpdateTransforms");
+    tm->SetDependency("TriggerEventsEndFrame", "RenderGraphics");
     tm->CompleteGraph();
 
     /*Object *testObj = SF_CREATE_OBJECT("testEvent");
@@ -75,9 +77,9 @@ namespace Sulfur
   {
     WindowManager::Instance()->Update();
     InputManager::Instance()->Update();
-    TaskManager::Instance()->RunTasks();
     SceneManager::Instance()->Update();
-    GraphicsManager::Instance()->Update();
+    TaskManager::Instance()->RunTasks();
+    //GraphicsManager::Instance()->Update();
     ObjectFactory::Instance()->EndFrameCleanUp();
     Time::Instance()->WaitForFrameRate();
   }

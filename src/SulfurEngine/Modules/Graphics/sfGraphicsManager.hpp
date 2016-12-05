@@ -17,32 +17,37 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Core/sfD3D11Device.hpp"
 #include "Target/sfRenderWindow.hpp"
 #include "Pipeline/sfRenderPipeline.hpp"
+#include "Managers/TaskManager/sfTaskRegistry.hpp"
 
 namespace Sulfur
 {
+
+SF_DECLARE_TASK(ExecuteGraphicsPipelineNode)
+SF_DECLARE_TASK(RenderGraphics)
 	
-  class GraphicsManager
-  {
-    SF_SINGLETON(GraphicsManager)
-  public:
-    void Init(Window& window);
-    void Free();
+class GraphicsManager
+{
+  SF_SINGLETON(GraphicsManager)
+public:
+  void Init(Window& window);
+  void Free();
 
-    void Update();
+  void FinishRender();
 
-    D3D11Device& GetDevice();
+  D3D11Device& GetDevice();
+  RenderPipeline* GetPipeline();
 
-  private:
-    void InitDevice();
+private:
+  void InitDevice();
 
-  private:
+private:
 
-    Window *m_window;
-    D3D11Device m_device;
+  Window *m_window;
+  D3D11Device m_device;
 
-    RenderWindow m_renderWindow;
-    RenderPipeline *m_pipeline;
+  RenderWindow m_renderWindow;
+  RenderPipeline *m_pipeline;
   
-  };
+};
   
 }

@@ -1,42 +1,53 @@
+Texture2D GB_DiffuseMetallic;
+Texture2D GB_NormalRoughness;
+Texture2D GB_ViewPosition;
+
 struct GBufferOutput
 {
-  float4 Diffuse : SV_Target0;
-  float4 NormalMetallic : SV_Target1;
-  float4 WorldPositionRoughness : SV_Target2;
-  float4 ViewSpacePositionDepth : SV_Target3;
-  float4 ViewDirection : SV_Target4;
-  float4 Emissive : SV_Target5;
+  float4 DiffuseMetallic : SV_Target0;
+  float4 NormalRoughness : SV_Target1;
+  float4 ViewPosition : SV_Target2;
 };
 
 struct GBufferData
 {
-  float4 Diffuse;
-  float4 Emissive;
+  float3 Diffuse;
   float3 Normal;
-  float3 WorldPosition;
-  float3 ViewSpacePosition;
-  float3 ViewDirection;
   float Depth;
+  float3 ViewPosition;
   float Metallic;
   float Roughness;
 };
 
-void UnpackGBuffer(in Texture2DArray tex, in SamplerState ss, in float2 uv, out GBufferData data)
+float3 UnpackGBufferDiffuse(in SamplerState ss, in float2 uv)
 {
-  float4 diffuse = tex.Sample(ss, float3(uv, 0));
-  float4 normalMetallic = tex.Sample(ss, float3(uv, 1));
-  float4 worldPositionRoughness = tex.Sample(ss, float3(uv, 2));
-  float4 viewSpacePositionDepth = tex.Sample(ss, float3(uv, 3));
-  float4 viewDirection = tex.Sample(ss, float3(uv, 4));
-  float4 emissive = tex.Sample(ss, float3(uv, 5));
+  return GB_DiffuseMetallic.Sample(ss, uv).rgb;
+}
 
-  data.Diffuse = diffuse;
-  data.Emissive = emissive;
-  data.Normal = normalMetallic.xyz;
-  data.WorldPosition = worldPositionRoughness.xyz;
-  data.ViewSpacePosition = viewSpacePositionDepth.xyz;
-  data.ViewDirection = viewDirection.xyz;
-  data.Depth = viewSpacePositionDepth.w;
-  data.Metallic = normalMetallic.w;
-  data.Roughness = worldPositionRoughness.w;
+float3 UnpackGBufferNormal(in SamplerState ss, in float2 uv)
+{
+  return GB_NormalRoughness.Sample(ss, uv).xyz;
+}
+
+float3 UnpackGBufferViewPosition(in SamplerState ss, in float2 uv)
+{
+  return GB_ViewPosition.Sample(ss, uv).xyz;
+}
+
+float UnpackGBufferDepth(in SamplerState ss, in float2 uv)
+{
+  return length(UnpackGBufferViewPosition(ss, uv));
+}
+
+void UnpackGBuffer(in SamplerState ss, in float2 uv, out GBufferData data)
+{
+  float4 diffuseMetallic = GB_DiffuseMetallic.Sample(ss, uv);
+  float4 normalRoughness = GB_NormalRoughness.Sample(ss, uv);
+
+  data.Diffuse = diffuseMetallic.rgb;
+  data.Metallic = diffuseMetallic.a;
+  data.Normal = normalRoughness.rgb;
+  data.Roughness = normalRoughness.a;
+  data.ViewPosition = UnpackGBufferViewPosition(ss, uv);
+  data.Depth = length(data.ViewPosition);
 }

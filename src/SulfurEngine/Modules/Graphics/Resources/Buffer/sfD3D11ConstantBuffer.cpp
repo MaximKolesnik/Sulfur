@@ -39,4 +39,9 @@ void D3D11ConstantBuffer::SetPixel(D3D11Context& context, UINT32 slot)
   context.GetD3DResource()->PSSetConstantBuffers(slot, 1, &m_resource);
 }
 
+void D3D11ConstantBuffer::SetCompute(D3D11Context& context, UINT32 slot)
+{
+  context.GetD3DResource()->CSSetConstantBuffers(slot, 1, &m_resource);
+}
+
 }

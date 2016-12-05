@@ -13,6 +13,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #include "sfD3D11Device.hpp"
 #include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
+#include "Modules/Graphics/Resources/Shader/sfD3D11VertexShader.hpp"
+#include "Modules/Graphics/Resources/Shader/sfD3D11PixelShader.hpp"
 
 namespace Sulfur
 {
@@ -75,6 +77,32 @@ D3D11Context& D3D11Device::GetImmediateContext()
 const D3D11Context& D3D11Device::GetImmediateContext() const
 {
   return m_immediateContext;
+}
+
+D3D11VertexShader* D3D11Device::GetVertexShader(const std::string& file)
+{
+  auto it = m_vertexShaders.find(file);
+  if (it != m_vertexShaders.end())
+    return it->second;
+
+  D3D11VertexShader *shader = new D3D11VertexShader();
+  shader->Init(*this, file);
+
+  m_vertexShaders[file] = shader;
+  return shader;
+}
+
+D3D11PixelShader* D3D11Device::GetPixelShader(const std::string& file)
+{
+  auto it = m_pixelShaders.find(file);
+  if (it != m_pixelShaders.end())
+    return it->second;
+
+  D3D11PixelShader *shader = new D3D11PixelShader();
+  shader->Init(*this, file);
+
+  m_pixelShaders[file] = shader;
+  return shader;
 }
 
 }

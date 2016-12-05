@@ -82,10 +82,10 @@ _taskData->m_done = true;             \
   (uintptr_t)&_id, DataPtr, #TaskName, _taskData);                    \
 }}
 
-#define SF_ENQUEUE_JOBS(TaskName, DataArr, NumJobs) \
+#define SF_ENQUEUE_JOBS(TaskName, DataArr, MaxJobs, NumJobs) \
 {                                         \
-  static int arr[NumJobs];                     \
-  for (int i = 0; i < NumJobs; ++i)                       \
+  static int arr[MaxJobs];                     \
+  for (UINT32 i = 0; i < NumJobs; ++i)                       \
   _taskData->m_executingWorker->m_taskManager->EnqueueTask(TaskName, \
   (uintptr_t)&(arr[i]), DataArr[i], #TaskName, _taskData);                    \
 }

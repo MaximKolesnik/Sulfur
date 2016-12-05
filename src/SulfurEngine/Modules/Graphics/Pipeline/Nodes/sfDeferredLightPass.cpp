@@ -31,21 +31,22 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 
-DeferredLightPass::DeferredLightPass(D3D11Device& device, RenderTarget *renderTarget, Texture2D *gBuffer)
-  : RenderNode(device), m_renderTarget(renderTarget), m_gBuffer(gBuffer)
+DeferredLightPass::DeferredLightPass(D3D11Device& device, RenderTarget *renderTarget, GBuffer *gbuffer)
+  : RenderNode(device), m_renderTarget(renderTarget), m_gbuffer(gbuffer)
 {
   m_fullscreenQuadVertexShader.Init(device, "Shaders/VSFullScreenQuad.sbin");
-  m_ambientPixelShader.Init(device, "Shaders/PSDeferredAmbient.sbin");
-  m_ambientLightData = m_ambientPixelShader.GetConstantBuffer("AmbientLightData");
 
   m_directionalLightShader.Init(device, "Shaders/PSDeferredDirectionalLight.sbin");
   m_directionalLightData = m_directionalLightShader.GetConstantBuffer("DirectionalLightData");
+  m_dlShadowMapRegister = m_directionalLightShader.GetTextureRegister("TEX_ShadowMap");
 
   m_pointLightPixelShader.Init(device, "Shaders/PSDeferredPointLight.sbin");
   m_pointLightData = m_pointLightPixelShader.GetConstantBuffer("PointLightData");
+  m_plShadowMapRegister = m_pointLightPixelShader.GetTextureRegister("TEX_ShadowMap");
 
   m_spotLightPixelShader.Init(device, "Shaders/PSDeferredSpotLight.sbin");
   m_spotLightData = m_spotLightPixelShader.GetConstantBuffer("SpotLightData");
+  m_slShadowMapRegister = m_spotLightPixelShader.GetTextureRegister("TEX_ShadowMap");
 
   m_depthVertexShader.Init(device, "Shaders/VSDepth.sbin");
   m_perFrameData = m_depthVertexShader.GetConstantBuffer("PerFrameData");
@@ -66,10 +67,12 @@ DeferredLightPass::DeferredLightPass(D3D11Device& device, RenderTarget *renderTa
   description.CPUAccessFlags = 0;
   description.MiscFlags = 0;
   m_shadowMap.Init(device, description);
+  m_shadowMapTarget.Init(device, m_shadowMap);
 
   description.ArraySize = 6;
   description.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
   m_shadowCube.Init(device, description);
+  m_shadowCubeTarget.Init(device, m_shadowCube);
 
   description.ArraySize = 1;
   description.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -86,44 +89,16 @@ DeferredLightPass::~DeferredLightPass()
 
 void DeferredLightPass::Process()
 {
-  RenderAmbientLight();
-  RenderDirectionalLights();
-  RenderPointLights();
-  RenderSpotLights();
+  Matrix4 view, camera;
+  GraphicsUtils::GetCameraViewMatrix(SceneManager::Instance()->GetScene(), view);
+  GraphicsUtils::GetCameraTransformMatrix(SceneManager::Instance()->GetScene(), camera);
+
+  RenderDirectionalLights(view, camera);
+  RenderPointLights(view, camera);
+  RenderSpotLights(view, camera);
 }
 
-void DeferredLightPass::RenderAmbientLight()
-{
-  SceneProperties& sceneProps = SceneManager::Instance()->GetScene().m_sceneProperties;
-  CubeMap *skyboxMap = sceneProps.GetSkybox();
-
-  m_renderTarget->Set(m_context);
-  m_gBuffer->SetPixel(m_context, 0);
-
-  m_fullscreenQuadVertexShader.Set(m_context);
-  m_ambientPixelShader.Set(m_context);
-
-  DepthState::Set(m_context, DepthState::DEPTH_DISABLED);
-  RasterState::Set(m_context, RasterState::NO_CULLING);
-  SamplerState::SetPixel(m_context, SamplerState::LINEAR, 0);
-  BlendState::Set(m_context, BlendState::ALPHA);
-  m_context.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-  AmbientLightData ambientLightData;
-  ambientLightData.AmbientLight = sceneProps.GetAmbientLight();
-  ambientLightData.UseIBL = sceneProps.GetIbl() && skyboxMap;
-  m_ambientLightData->SetData(m_context, ambientLightData);
-
-  if (ambientLightData.UseIBL)
-  {
-    skyboxMap->SetPixel(m_context, 1);
-    skyboxMap->Convolved(m_device)->SetPixel(m_context, 2);
-  }
-
-  m_context.Draw(6, 0);
-}
-
-void DeferredLightPass::RenderDirectionalLights()
+void DeferredLightPass::RenderDirectionalLights(Matrix4& view, Matrix4& camera)
 {
   const Geometry::Aabb& sceneAabb = SceneManager::Instance()->GetScene().GetAabb();
   Vector3 aabbCorners[8] = {
@@ -145,7 +120,7 @@ void DeferredLightPass::RenderDirectionalLights()
     DirectionalLight *directionalLight = static_cast<DirectionalLight*>(*it);
     Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(directionalLight->GetOwner());
 
-    PrepShadowMap(m_shadowMap);
+    PrepShadowMap(m_shadowMapTarget);
 
     if (directionalLight->GetCastsShadows())
     {
@@ -178,20 +153,22 @@ void DeferredLightPass::RenderDirectionalLights()
       perFrameData.ProjMatrix.SetOrthographicLH(size[0], size[1], 0.1f, size[2] + 0.1f);
       m_perFrameData->SetData(m_context, perFrameData);
       GraphicsUtils::RenderWorld(m_context, nullptr, m_perObjectData);
-      directionalLightData.ShadowMapTransform = perFrameData.ProjMatrix * perFrameData.ViewMatrix;
+      directionalLightData.Position = view * directionalLightData.Position;
+      directionalLightData.ShadowMapTransform = perFrameData.ProjMatrix * perFrameData.ViewMatrix * camera;
     }
 
-    PrepLightPass(&m_directionalLightShader, m_shadowMap);
-    directionalLightData.Direction = transform->GetWorldForward();
+    PrepLightPass(&m_directionalLightShader, &m_shadowMap, m_dlShadowMapRegister);
+    directionalLightData.Direction = view.TransformNormal(transform->GetWorldForward());
     directionalLightData.Color = directionalLight->GetColor();
     directionalLightData.Intensity = directionalLight->GetIntensity();
+    directionalLightData.CastsShadows = directionalLight->GetCastsShadows();
     m_directionalLightData->SetData(m_context, directionalLightData);
 
-    m_context.Draw(6, 0);
+    GraphicsUtils::RenderFullscreenQuad(m_context);
   }
 }
 
-void DeferredLightPass::RenderPointLights()
+void DeferredLightPass::RenderPointLights(Matrix4& view, Matrix4& camera)
 {
   static const Vector3 rights[6] = { -Vector3::c_zAxis, Vector3::c_zAxis, Vector3::c_xAxis, Vector3::c_xAxis, Vector3::c_xAxis, -Vector3::c_xAxis };
   static const Vector3 ups[6] = { Vector3::c_yAxis, Vector3::c_yAxis, -Vector3::c_zAxis, Vector3::c_zAxis, Vector3::c_yAxis, Vector3::c_yAxis };
@@ -208,30 +185,30 @@ void DeferredLightPass::RenderPointLights()
 
     for (UINT32 i = 0; i < 6; ++i)
     {
-      PrepShadowMap(m_shadowCube, i);
+      PrepShadowMap(m_shadowCubeTarget, i);
 
       if (pointLight->GetCastsShadows())
       {
-        perFrameData.ViewMatrix.SetViewMatrix(rights[i], ups[i], forwards[i], pos);
+        perFrameData.ViewMatrix.SetViewMatrix(camera.TransformNormal(rights[i]), camera.TransformNormal(ups[i]), camera.TransformNormal(forwards[i]), pos);
         perFrameData.ProjMatrix.SetPerspectiveFovLH((float)EngineSettings::ShadowMapSize, (float)EngineSettings::ShadowMapSize, SF_RADS_PER_DEG * 90.0f, 0.1f, pointLight->GetRange());
         m_perFrameData->SetData(m_context, perFrameData);
         GraphicsUtils::RenderWorld(m_context, nullptr, m_perObjectData);
       }
-
     }
 
-    PrepLightPass(&m_pointLightPixelShader, m_shadowCube);
-    pointLightData.Position = Vector4(pos[0], pos[1], pos[2], 1.0f);
+    PrepLightPass(&m_pointLightPixelShader, &m_shadowCube, m_plShadowMapRegister);
+    pointLightData.Position = view * Vector4(pos[0], pos[1], pos[2], 1.0f);
     pointLightData.Color = pointLight->GetColor();
     pointLightData.Range = pointLight->GetRange();
     pointLightData.Intensity = pointLight->GetIntensity();
+    pointLightData.CastsShadows = pointLight->GetCastsShadows();
     m_pointLightData->SetData(m_context, pointLightData);
 
-    m_context.Draw(6, 0);
+    GraphicsUtils::RenderFullscreenQuad(m_context);
   }
 }
 
-void DeferredLightPass::RenderSpotLights()
+void DeferredLightPass::RenderSpotLights(Matrix4& view, Matrix4& camera)
 {
   SpotLightData spotLightData;
   PerFrameData perFrameData;
@@ -242,7 +219,7 @@ void DeferredLightPass::RenderSpotLights()
     Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(spotLight->GetOwner());
     Vector3 pos = transform->GetWorldTranslation();
 
-    PrepShadowMap(m_shadowMap);
+    PrepShadowMap(m_shadowMapTarget);
 
     if (spotLight->GetCastsShadows())
     {
@@ -250,21 +227,22 @@ void DeferredLightPass::RenderSpotLights()
       perFrameData.ViewMatrix.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), pos);
       m_perFrameData->SetData(m_context, perFrameData);
       GraphicsUtils::RenderWorld(m_context, nullptr, m_perObjectData);
-      spotLightData.ShadowMapTransform = perFrameData.ProjMatrix * perFrameData.ViewMatrix;
+      spotLightData.ShadowMapTransform = perFrameData.ProjMatrix * perFrameData.ViewMatrix * camera;
     }
 
-    PrepLightPass(&m_spotLightPixelShader, m_shadowMap);
-    spotLightData.Position = Vector4(pos[0], pos[1], pos[2], 1.0f);
-    spotLightData.Direction = transform->GetWorldForward();
+    PrepLightPass(&m_spotLightPixelShader, &m_shadowMap, m_slShadowMapRegister);
+    spotLightData.Position = view * Vector4(pos[0], pos[1], pos[2], 1.0f);
+    spotLightData.Direction = view.TransformNormal(transform->GetWorldForward());
     spotLightData.Color = spotLight->GetColor();
     spotLightData.Range = spotLight->GetRange();
     spotLightData.Intensity = spotLight->GetIntensity();
     spotLightData.InnerAngle = spotLight->GetInnerAngle() * SF_RADS_PER_DEG / 2.0f;
     spotLightData.OuterAngle = spotLight->GetOuterAngle() * SF_RADS_PER_DEG / 2.0f;
     spotLightData.Falloff = spotLight->GetFalloff();
+    spotLightData.CastsShadows = spotLight->GetCastsShadows();
     m_spotLightData->SetData(m_context, spotLightData);
 
-    m_context.Draw(6, 0);
+    GraphicsUtils::RenderFullscreenQuad(m_context);
   }
 }
 
@@ -282,20 +260,18 @@ void DeferredLightPass::PrepShadowMap(RenderTarget& shadowMap, UINT32 index)
   BlendState::Set(m_context, BlendState::NO_BLENDING);
 }
 
-void DeferredLightPass::PrepLightPass(D3D11PixelShader *pixelShader, RenderTarget& shadowMap)
+void DeferredLightPass::PrepLightPass(D3D11PixelShader *pixelShader, Texture2D *shadowMap, int shadowMapSlot)
 {
   m_renderTarget->Set(m_context);
-  m_gBuffer->SetPixel(m_context, 0);
-  shadowMap.GetTexture()->SetPixel(m_context, 1);
+  shadowMap->SetPixel(m_context, shadowMapSlot);
+  m_gbuffer->SetTexturePixel(m_context, *pixelShader);
 
-  m_fullscreenQuadVertexShader.Set(m_context);
   pixelShader->Set(m_context);
 
   DepthState::Set(m_context, DepthState::DEPTH_DISABLED);
-  RasterState::Set(m_context, RasterState::NO_CULLING);
+  RasterState::Set(m_context, RasterState::BACK_FACE_CULLING);
   SamplerState::SetPixel(m_context, SamplerState::LINEAR, 0);
   BlendState::Set(m_context, BlendState::ADDITIVE);
-  m_context.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 }
 
 }

@@ -49,10 +49,41 @@ D3D11ConstantBuffer* D3D11Shader::GetConstantBuffer(const std::string& name)
   return m_cbuffers.data() + it->second;
 }
 
+UINT32 D3D11Shader::GetTextureRegister(const std::string& name)
+{
+  auto it = m_textures.find(name);
+  if (it == m_textures.end())
+    return -1;
+
+  return it->second;
+}
+
+UINT32 D3D11Shader::GetSamplerRegister(const std::string& name)
+{
+  auto it = m_samplers.find(name);
+  if (it == m_samplers.end())
+    return -1;
+
+  return it->second;
+}
+
 void D3D11Shader::ReflectShader(const BYTE *compiledShader, UINT32 size)
 {
   D3DReflect(compiledShader, size, IID_ID3D11ShaderReflection, (void**)&m_reflector);
   m_reflector->GetDesc(&m_description);
+
+  // Get resource registers
+  D3D11_SHADER_INPUT_BIND_DESC desc;
+  for (UINT32 i = 0; i < m_description.BoundResources; ++i)
+  {
+    m_reflector->GetResourceBindingDesc(i, &desc);
+
+    switch (desc.Type)
+    {
+    case D3D_SIT_TEXTURE: m_textures[desc.Name] = desc.BindPoint;
+    case D3D_SIT_SAMPLER: m_samplers[desc.Name] = desc.BindPoint;
+    }
+  }
 }
 
 void D3D11Shader::CreateConstantBuffers(D3D11Device& device)

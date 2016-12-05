@@ -12,13 +12,14 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfDeferredPipeline.hpp"
-#include "../Data/sfDeferredData.hpp"
 
 // Nodes
 #include "../Nodes/sfRenderGbuffer.hpp"
 #include "../Nodes/sfDeferredLightPass.hpp"
 #include "../Nodes/sfRenderDebugDraw.hpp"
 #include "../Nodes/sfRenderSkybox.hpp"
+#include "../Nodes/sfTonemap.hpp"
+#include "../Nodes/sfDeferredAmbient.hpp"
 
 namespace Sulfur
 {
@@ -29,9 +30,11 @@ DeferredPipeline::DeferredPipeline(D3D11Device& device, RenderTarget *renderTarg
   CreateGBuffer(device);
   CreateDepthBuffer(device);
 
-  AddNode(new RenderSkybox(device, m_finalRenderTarget));
   AddNode(new RenderGbuffer(device, &m_gBuffer, &m_depthBuffer));
-  AddNode(new DeferredLightPass(device, m_finalRenderTarget, m_gBuffer.GetTexture()));
+  AddNode(new DeferredAmbient(device, &m_prePostProcessTarget, &m_gBuffer));
+  AddNode(new DeferredLightPass(device, &m_prePostProcessTarget, &m_gBuffer));
+  AddNode(new RenderSkybox(device, &m_prePostProcessTarget, &m_depthBuffer));
+  AddNode(new Tonemap(device, renderTarget, m_prePostProcessTarget.GetTexture()));
   AddNode(new RenderDebugDraw(device, m_finalRenderTarget, &m_depthBuffer));
 }
 
@@ -44,13 +47,13 @@ DeferredPipeline::~DeferredPipeline()
 void DeferredPipeline::CreateGBuffer(D3D11Device& device)
 {
   D3D11_TEXTURE2D_DESC description = m_finalRenderTarget->GetTexture()->GetDescription();
-  description.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-  description.ArraySize = GBufferTargetCount;
-  description.MipLevels = 1;
-  description.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-  m_gBuffer.Init(device, description);
+  m_gBuffer.Init(device, description.Width, description.Height);
+  m_finalRenderTarget->RegisterCallbackOnResize(&m_gBuffer, &GBuffer::Resize);
 
-  m_finalRenderTarget->RegisterCallbackOnResize(&m_gBuffer, &RenderTarget::Resize);
+  description.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+  description.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+  m_prePostProcessTarget.Init(device, description);
+  m_finalRenderTarget->RegisterCallbackOnResize(&m_prePostProcessTarget, &RenderTarget::Resize);
 }
 
 void DeferredPipeline::CreateDepthBuffer(D3D11Device& device)

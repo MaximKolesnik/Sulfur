@@ -32,8 +32,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 
-RenderGbuffer::RenderGbuffer(D3D11Device& device, RenderTarget *gBuffer, DepthBuffer *depthBuffer)
-  : RenderNode(device), m_gBuffer(gBuffer), m_depthBuffer(depthBuffer)
+RenderGbuffer::RenderGbuffer(D3D11Device& device, GBuffer *gbuffer, DepthBuffer *depthBuffer)
+  : RenderNode(device), m_gBuffer(gbuffer), m_depthBuffer(depthBuffer)
 {
   m_vertexShader.Init(device, "./Shaders/VSDeferredPass.sbin");
   m_perFrameData = m_vertexShader.GetConstantBuffer("PerFrameData");
@@ -53,9 +53,9 @@ RenderGbuffer::~RenderGbuffer()
 
 void RenderGbuffer::Process()
 {
-  m_gBuffer->Clear(m_context, Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+  m_gBuffer->Clear(m_context);
   m_depthBuffer->Clear(m_context);
-  m_gBuffer->Set(m_context, *m_depthBuffer);
+  m_gBuffer->SetTarget(m_context, *m_depthBuffer);
 
   DepthState::Set(m_context, DepthState::DEPTH_ENABLED);
   BlendState::Set(m_context, BlendState::NO_BLENDING);
@@ -66,7 +66,7 @@ void RenderGbuffer::Process()
   m_pixelShader.Set(m_context);
 
   Scene& scene = SceneManager::Instance()->GetScene();
-  GraphicsUtils::SetupCamera(m_context, (Real)m_gBuffer->GetTexture()->GetDescription().Width, (Real)m_gBuffer->GetTexture()->GetDescription().Height, scene, m_perFrameData);
+  GraphicsUtils::SetupCamera(m_context, (Real)m_gBuffer->GetWidth(), (Real)m_gBuffer->GetHeight(), scene, m_perFrameData);
   GraphicsUtils::RenderWorld(m_context, m_materialData, m_perObjectData);
 }
 

@@ -25,13 +25,10 @@ namespace Sulfur
     void Init(ID3D11Texture2D *texture);
     void Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description, const BYTE *pixelData = nullptr);
 
-    CubeMap* Convolved(D3D11Device& device);
+    virtual Texture2D* Blurred(D3D11Device& device, D3D11Context& context, DXGI_FORMAT format, bool cached, UINT32 downsamples, UINT32 iterations) override;
 
   protected:
     virtual void CreateShaderResourceView(D3D11Device& device) override;
-
-  private:
-    CubeMap *m_convolved;
 
   };
   

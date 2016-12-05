@@ -27,6 +27,7 @@ namespace Sulfur
     {
       POINT,
       LINEAR,
+      LINEAR_CLAMP,
       ANISOTROPIC,
       BILINEAR_COMPARISON,
       TRILINEAR_COMPARISON,

@@ -95,7 +95,7 @@ void SceneBrowserWidget::keyPressEvent(QKeyEvent *event)
 void SceneBrowserWidget::Setup()
 {
   setContentsMargins(0, 0, 0, 0);
-  setMinimumSize(350, 175);
+  setMinimumSize(250, 175);
   setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Ignored);
 
   m_layout = new QGridLayout();

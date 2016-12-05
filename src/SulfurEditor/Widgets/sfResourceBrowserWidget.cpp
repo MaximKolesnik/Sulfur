@@ -20,7 +20,7 @@ ResourceBrowserWidget::ResourceBrowserWidget(QWidget *parent)
   : QSplitter(parent)
 {
   setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Ignored);
-  setMinimumSize(350, 175);
+  setMinimumSize(250, 175);
 
   m_folderTree = new QTreeView();
   addWidget(m_folderTree);

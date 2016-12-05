@@ -17,16 +17,21 @@ struct PixelIn
   float4 color : COLOR;
 };
 
+struct ScreenPixelIn
+{
+  float4 position : SV_POSITION;
+  float2 texCoords : TEXCOORD0;
+  float3 viewDir : TEXCOORD1;
+};
+
 struct DeferredPixelIn
 {
   float4 position : SV_POSITION;
-  float2 texCoords : TEXCOORD;
+  float2 texCoords : TEXCOORD0;
   float3 normal : NORMAL;
   float3 tangent : TANGENT;
   float3 binormal : BINORMAL;
-  float3 worldPosition : TEXCOORD1;
-  float3 viewSpacePosition : TEXCOORD2;
-  float3 viewDirection : TEXCOORD3;
+  float3 viewPosition : TEXCOORD1;
   float4 color : COLOR;
 };
 

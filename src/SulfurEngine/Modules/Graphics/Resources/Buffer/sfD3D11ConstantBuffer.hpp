@@ -31,6 +31,7 @@ public:
 
   void SetVertex(D3D11Context& context, UINT32 slot);
   void SetPixel(D3D11Context& context, UINT32 slot);
+  void SetCompute(D3D11Context& context, UINT32 slot);
 
 };
 

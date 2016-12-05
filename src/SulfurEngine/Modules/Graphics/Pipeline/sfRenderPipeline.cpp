@@ -33,4 +33,9 @@ void RenderPipeline::AddNode(RenderNode *node)
   m_nodes.push_back(node);
 }
 
+const RenderPipeline::NodeList& RenderPipeline::GetNodes() const
+{
+  return m_nodes;
+}
+
 }

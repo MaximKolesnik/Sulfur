@@ -13,50 +13,52 @@ cbuffer SpotLightData
   float LightInnerAngle;
   float LightOuterAngle;
   float LightFalloff;
+  bool CastsShadows;
 };
 
-Texture2DArray gbuffer : register(t0);
-Texture2D shadowMap : register(t1);
-SamplerState pointSampler;
+Texture2D TEX_ShadowMap;
+SamplerState SS_Sampler;
 
 float4 main(PixelIn input) : SV_TARGET
 {
   GBufferData gbufferData;
-  UnpackGBuffer(gbuffer, pointSampler, input.texCoords, gbufferData);
-  if (gbufferData.Diffuse.a == 0.0f) discard;
+  UnpackGBuffer(SS_Sampler, input.texCoords, gbufferData);
 
-  float3 lightDirection = LightPosition - gbufferData.WorldPosition;
-  float lightDistSqr = dot(lightDirection, lightDirection);
+  float3 V = -normalize(gbufferData.ViewPosition);
+  float3 viewPos = gbufferData.ViewPosition;
+  float3 L = LightPosition.xyz - viewPos;
+  float lightDistSqr = dot(L, L);
   float lightDistance = sqrt(lightDistSqr);
   if (lightDistance > LightRange || lightDistance <= 0.0f) discard;
-  lightDirection /= lightDistance;
-  float3 halfVector = normalize(lightDirection + gbufferData.ViewDirection);
+  L /= lightDistance;
+  float3 H = normalize(L + V);
 
   // Check if in angle range
-  float spotPower = (dot(-LightDirection, lightDirection) - cos(LightOuterAngle)) / (cos(LightInnerAngle) - cos(LightOuterAngle));
+  float spotPower = (dot(-LightDirection, L) - cos(LightOuterAngle)) / (cos(LightInnerAngle) - cos(LightOuterAngle));
   spotPower = pow(saturate(spotPower), LightFalloff);
   if (spotPower <= 0.0f) discard;
 
   // Check shadow map
-  float shadowFactor = 0.0f;
-  float4 shadowPos = mul(float4(gbufferData.WorldPosition, 1.0f), ShadowMapTransform);
-  shadowPos.xy = shadowPos.xy / shadowPos.w / 2.0f + 0.5f;
-  if (shadowPos.x >= 0.0f && shadowPos.x <= 1.0f &&  shadowPos.y >= 0.0f && shadowPos.y <= 1.0f)
-  {
-    float smDepth = shadowMap.Sample(pointSampler, float2(shadowPos.x, 1.0f - shadowPos.y)).r;
+  float shadowFactor = 1.0f;
 
-    if (lightDistSqr - 0.001f < smDepth)
-      shadowFactor = 1.0f;
+  if (CastsShadows)
+  {
+    float4 shadowPos = mul(float4(viewPos, 1.0f), ShadowMapTransform);
+    shadowPos.xy = shadowPos.xy / shadowPos.w / 2.0f + 0.5f;
+    if (shadowPos.x >= 0.0f && shadowPos.x <= 1.0f &&  shadowPos.y >= 0.0f && shadowPos.y <= 1.0f)
+    {
+      float smDepth = TEX_ShadowMap.Sample(SS_Sampler, float2(shadowPos.x, 1.0f - shadowPos.y)).r;
+      if (lightDistSqr - 0.001f >= smDepth)
+        shadowFactor = 0.0f;
+    }
   }
 
-  if (shadowFactor == 0.0f) discard;
-
-  float NoL = max(0.0f, dot(gbufferData.Normal, lightDirection));
-  float NoH = max(0.0f, dot(gbufferData.Normal, halfVector));
-  float NoV = max(0.0f, dot(gbufferData.Normal, gbufferData.ViewDirection));
-  float LoV = max(0.0f, dot(lightDirection, gbufferData.ViewDirection));
-  float LoH = max(0.0f, dot(lightDirection, halfVector));
-  float VoH = max(0.0f, dot(gbufferData.ViewDirection, halfVector));
+  float NoL = max(0.0f, dot(gbufferData.Normal, L));
+  float NoH = max(0.0f, dot(gbufferData.Normal, H));
+  float NoV = max(0.0f, dot(gbufferData.Normal, V));
+  float LoV = max(0.0f, dot(L, V));
+  float LoH = max(0.0f, dot(L, H));
+  float VoH = max(0.0f, dot(V, H));
 
   float3 specularColor = CalculateSpecularColor(gbufferData.Diffuse.rgb, gbufferData.Metallic);
   float3 F = SchlickFresnel(VoH, specularColor);
@@ -73,5 +75,4 @@ float4 main(PixelIn input) : SV_TARGET
   atten = max(0, atten);
 
   return float4(BlendDiffuseSpecular(diffuse, specular, gbufferData.Diffuse.rgb, gbufferData.Metallic) * atten * NoL * LightIntensity * LightColor * spotPower * shadowFactor, 1.0f);
-  //return float4((NoL * diffuseColor / 3.14159f + specular) * atten, 1.0f);
 }

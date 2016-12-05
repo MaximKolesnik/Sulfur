@@ -14,6 +14,11 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfTexture2D.hpp"
 #include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
 #include "Modules/Resource/sfResourceManager.hpp"
+#include "Modules/Graphics/Resources/Shader/sfD3D11VertexShader.hpp"
+#include "Modules/Graphics/Resources/Shader/sfD3D11PixelShader.hpp"
+#include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
+#include "Modules/Graphics/State/sfSamplerState.hpp"
+#include "Modules/Graphics/Target/sfRenderTarget.hpp"
 
 // Importers
 #include "Modules/Resource/Importers/Texture/sfPngImporter.hpp"
@@ -32,6 +37,10 @@ SF_END_REGISTER_RESOURCE_TYPE()
 
 void Texture2D::Init(D3D11Device& device, const D3D11_TEXTURE2D_DESC& description, const BYTE *pixelData)
 {
+  m_blurred = nullptr;
+  m_blurredRenderTarget = nullptr;
+  m_tempRenderTarget = nullptr;
+
   ID3D11Texture2D *texture = nullptr;
   D3D11_SUBRESOURCE_DATA *data = nullptr;
 
@@ -97,9 +106,92 @@ void Texture2D::Init(const Texture2D& texture)
   m_shaderResourceView = texture.m_shaderResourceView;
 }
 
+void Texture2D::Free()
+{
+  if (m_blurred)
+  {
+
+    m_blurredRenderTarget->Free();
+    delete m_blurred;
+    delete m_blurredRenderTarget;
+    m_blurred = nullptr;
+    m_blurredRenderTarget = nullptr;
+  }
+
+  if (m_tempRenderTarget)
+  {
+    m_tempRenderTarget->Free();
+    delete m_tempRenderTarget;
+    m_tempRenderTarget = nullptr;
+  }
+
+  WrapperBase::Free();
+}
+
 void Texture2D::SetPixel(D3D11Context& context, UINT32 slot)
 {
   context.GetD3DResource()->PSSetShaderResources(slot, 1, &m_shaderResourceView);
+}
+
+void Texture2D::GenerateMips(D3D11Context& context)
+{
+  context.GetD3DResource()->GenerateMips(m_shaderResourceView);
+}
+
+Texture2D* Texture2D::Blurred(D3D11Device& device, D3D11Context& context, DXGI_FORMAT format, bool cached, UINT32 downsamples, UINT32 iterations)
+{
+  D3D11_TEXTURE2D_DESC description;
+
+  if (m_blurred != nullptr && cached)
+  {
+    if (downsamples > 0)
+      return m_blurred->Blurred(device, context, format, cached, downsamples - 1, iterations);
+    return m_blurred;
+  }
+  else if (!m_blurred)
+  {
+    description = GetDescription();
+    description.Width /= 2;
+    description.Height /= 2;
+    description.MipLevels = 1;
+    description.BindFlags |= D3D11_BIND_RENDER_TARGET;
+    description.Format = format;
+
+    m_blurred = new Texture2D();
+    m_blurred->Init(device, description);
+    m_blurredRenderTarget = new RenderTarget();
+    m_blurredRenderTarget->Init(device, *m_blurred);
+  }
+  else
+    description = m_blurred->GetDescription();
+
+  SamplerState::SetPixel(context, SamplerState::LINEAR_CLAMP, 0);
+
+  // Downsample
+  if (downsamples > 0)
+  {
+    D3D11PixelShader *scaleShader = device.GetPixelShader("Shaders/PSScale.sbin");
+
+    scaleShader->Set(context);
+    m_blurredRenderTarget->Set(context);
+    SetPixel(context, 0);
+    GraphicsUtils::RenderFullscreenQuad(context);
+
+    return m_blurred->Blurred(device, context, format, cached, downsamples - 1, iterations);
+  }
+
+  if (!m_tempRenderTarget)
+  {
+    m_tempRenderTarget = new RenderTarget();
+    m_tempRenderTarget->Init(device, description);
+  }
+
+  Blur(device, context, this);
+  for (UINT32 i = 1; i < iterations; ++i)
+    Blur(device, context, m_blurred);
+
+  context.ResetRenderTargets();
+  return m_blurred;
 }
 
 void Texture2D::CreateShaderResourceView(D3D11Device& device)
@@ -134,6 +226,25 @@ void Texture2D::CreateShaderResourceView(D3D11Device& device)
     device.GetD3DResource()->CreateShaderResourceView(m_resource, &srvDescription, &m_shaderResourceView),
     "Failed to created shader resource view."
     );
+}
+
+void Texture2D::Blur(D3D11Device& device, D3D11Context& context, Texture2D *source)
+{
+  D3D11PixelShader* vBlurShader = device.GetPixelShader("Shaders/PSGaussianVertical.sbin");
+  D3D11PixelShader* hBlurShader = device.GetPixelShader("Shaders/PSGaussianHorizontal.sbin");
+
+  vBlurShader->Set(context);
+  m_tempRenderTarget->Set(context);
+  source->SetPixel(context, 0);
+  GraphicsUtils::RenderFullscreenQuad(context);
+  context.ResetPixelTexture(0);
+
+  hBlurShader->Set(context);
+  m_blurredRenderTarget->Set(context);
+  m_tempRenderTarget->GetTexture()->SetPixel(context, 0);
+  GraphicsUtils::RenderFullscreenQuad(context);
+  context.ResetPixelTexture(0);
+
 }
 
 }

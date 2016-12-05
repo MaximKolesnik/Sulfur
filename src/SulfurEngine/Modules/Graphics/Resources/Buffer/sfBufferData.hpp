@@ -76,8 +76,19 @@ struct MaterialData
 
 struct AmbientLightData
 {
+  Matrix4 InverseView;
   Color AmbientLight;
   INT32 UseIBL;
+};
+
+struct OcclusionData
+{
+  float Radius;
+  float Amount;
+  float DepthThreshold;
+  float Contrast;
+  float MaxDistance;
+  float Phase;
 };
 
 struct DirectionalLightData
@@ -87,6 +98,7 @@ struct DirectionalLightData
   Vector3 Direction;
   Vector4 Color;
   float Intensity;
+  INT32 CastsShadows;
 };
 
 struct PointLightData
@@ -95,6 +107,7 @@ struct PointLightData
   Vector4 Color;
   float Range;
   float Intensity;
+  INT32 CastsShadows;
 };
 
 struct SpotLightData
@@ -108,6 +121,7 @@ struct SpotLightData
   float InnerAngle;
   float OuterAngle;
   float Falloff;
+  INT32 CastsShadows;
 };
 
 struct ConvolutionData
@@ -119,6 +133,29 @@ struct ConvolutionData
   Real PhiStep;
   Real ThetaRange;
   Real ThetaStep;
+};
+
+struct CubemapScaleData
+{
+  UINT32 CubeFace;
+};
+
+struct TonemapData
+{
+  float Threshold;
+  float WhiteLevel;
+  float Saturation;
+  float Bias;
+  float Exposure;
+  float KeyValue;
+  float AutoExposure;
+  float LuminanceMipLevel;
+};
+
+struct AdaptLuminanceData
+{
+  float DeltaTime;
+  float Rate;
 };
 
 }

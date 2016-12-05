@@ -13,6 +13,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include "../sfRenderPipeline.hpp"
+#include "Modules/Graphics/Target/sfGBuffer.hpp"
 #include "Modules/Graphics/Target/sfRenderTarget.hpp"
 #include "Modules/Graphics/Target/sfDepthBuffer.hpp"
 
@@ -32,7 +33,8 @@ namespace Sulfur
 
   private:
     RenderTarget *m_finalRenderTarget;
-    RenderTarget m_gBuffer;
+    RenderTarget m_prePostProcessTarget;
+    GBuffer m_gBuffer;
     DepthBuffer m_depthBuffer;
 
   };

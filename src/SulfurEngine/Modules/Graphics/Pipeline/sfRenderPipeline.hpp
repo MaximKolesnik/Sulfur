@@ -21,13 +21,17 @@ namespace Sulfur
   {
   
   public:
+    typedef std::vector<RenderNode*> NodeList;
+
+  public:
     void BuildCommandLists();
     void ExecuteCommandLists(D3D11Context& immediateContext);
 
     void AddNode(RenderNode *node);
+    const NodeList& GetNodes() const;
 
   private:
-    std::vector<RenderNode*> m_nodes;
+    NodeList m_nodes;
 
   };
   

@@ -14,6 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #pragma once
 #include "../sfRenderNode.hpp"
 #include "Modules/Graphics/Target/sfRenderTarget.hpp"
+#include "Modules/Graphics/Target/sfDepthBuffer.hpp"
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Graphics/Resources/Shader/sfD3D11VertexShader.hpp"
 #include "Modules/Graphics/Resources/Shader/sfD3D11PixelShader.hpp"
@@ -29,7 +30,7 @@ namespace Sulfur
   {
   
   public:
-    RenderSkybox(D3D11Device& device, RenderTarget *renderTarget);
+    RenderSkybox(D3D11Device& device, RenderTarget *renderTarget, DepthBuffer *depthBuffer);
     ~RenderSkybox();
 
     virtual void Process() override;
@@ -45,6 +46,7 @@ namespace Sulfur
     D3D11PixelShader m_pixelShader;
 
     RenderTarget *m_renderTarget;
+    DepthBuffer *m_depthBuffer;
     Mesh m_skyboxMesh;
 
   };

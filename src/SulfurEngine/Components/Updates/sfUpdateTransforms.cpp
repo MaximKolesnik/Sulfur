@@ -46,7 +46,7 @@ namespace Sulfur
         roots[i].push_back(*it++);
     }
 
-    SF_ENQUEUE_JOBS(UpdateTransformHierarchy, data, JOBS);
+    SF_ENQUEUE_JOBS(UpdateTransformHierarchy, data, JOBS, JOBS);
     SF_YEILD_AND_WAIT();
   }
   SF_END_DEFINE_TASK(UpdateTransforms)

@@ -74,10 +74,22 @@ void SamplerState::InitDefaultStates(D3D11Device& device)
   description.ComparisonFunc = D3D11_COMPARISON_NEVER;
 
   description.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+  description.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
   s_states[POINT].Init(device, description);
 
   description.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  description.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
   s_states[LINEAR].Init(device, description);
+
+  description.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  description.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+  description.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+  description.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+  s_states[LINEAR_CLAMP].Init(device, description);
 
   description.Filter = D3D11_FILTER_ANISOTROPIC;
   s_states[ANISOTROPIC].Init(device, description);
@@ -86,12 +98,21 @@ void SamplerState::InitDefaultStates(D3D11Device& device)
   description.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 
   description.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+  description.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
   s_states[BILINEAR_COMPARISON].Init(device, description);
 
   description.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+  description.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
   s_states[TRILINEAR_COMPARISON].Init(device, description);
 
   description.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
+  description.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  description.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
   s_states[ANISOTROPIC_COMPARISON].Init(device, description);
 }
 

@@ -37,7 +37,7 @@ float ImplicitGeometry(in float NoL, in float NoV)
 
 float NewmannGeometry(in float NoL, in float NoV)
 {
-  return (NoL * NoV) / max(NoL, NoV);
+  return (NoL * NoV) / (max(NoL, NoV) + 0.00001f);
 }
 
 float CookTorrenceGeometry(in float NoL, in float NoV, in float NoH, in float VoH)
