@@ -37,6 +37,12 @@ namespace Sulfur
     }
   }
 
+  SF_DEFINE_TASK(SyncData)
+  {
+    for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
+      it.second->m_position = SF_GET_COMP_TYPE(Transform, it.second->m_transformHndl)->GetTranslation();
+  } SF_END_DEFINE_TASK(SyncData);
+
   SF_DEFINE_TASK(IntegrateBodies)
   {
     for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
