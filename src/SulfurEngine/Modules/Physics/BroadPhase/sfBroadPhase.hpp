@@ -23,6 +23,9 @@ namespace Sulfur
       void DrawDebug(DebugDraw *draw) const;
 
     private:
+      void _GetColliderTransformData(const ColliderData *data, Vector3 &translation, 
+        Vector3 &scale, Quaternion &orient) const;
+
       DynamicAabbTree *m_space;
     };
   }

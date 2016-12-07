@@ -22,13 +22,16 @@ namespace Sulfur
 
     void BroadPhase::AddProxy(Proxy &proxy, ColliderData *data)
     {
+      Vector3 translation, scale;
+      Quaternion orientation;
       SpatialPartitionData spData;
-      Transform *trans = SF_GET_COMP_TYPE(Transform, data->m_transformHndl);
+
+      _GetColliderTransformData(data, translation, scale, orientation);
 
       Geometry::Aabb aabb = 
         Geometry::Aabb::BuildFromCenterAndHalfExtents(Vector3(0.0, 0.0, 0.0),
           Vector3(0.5, 0.5, 0.5));
-      aabb.Transform(trans->GetScale(), trans->GetRotation().GetMatrix3(), trans->GetTranslation());
+      aabb.Transform(scale, orientation.GetMatrix3(), translation);
 
       spData.m_aabb = aabb;
       spData.m_clientData = reinterpret_cast<void*>(data);
@@ -42,13 +45,16 @@ namespace Sulfur
 
     void BroadPhase::UpdateProxy(Proxy &proxy, ColliderData *data)
     {
-      Transform *trans = SF_GET_COMP_TYPE(Transform, data->m_transformHndl);
+      Vector3 translation, scale;
+      Quaternion orientation;
       SpatialPartitionData spData;
+
+      _GetColliderTransformData(data, translation, scale, orientation);
 
       Geometry::Aabb aabb =
         Geometry::Aabb::BuildFromCenterAndHalfExtents(Vector3(0.0, 0.0, 0.0),
           Vector3(0.5, 0.5, 0.5));
-      aabb.Transform(trans->GetScale(), trans->GetRotation().GetMatrix3(), trans->GetTranslation());
+      aabb.Transform(scale, orientation.GetMatrix3(), translation);
 
       spData.m_aabb = aabb;
       spData.m_clientData = reinterpret_cast<void*>(data);
@@ -58,6 +64,31 @@ namespace Sulfur
     void BroadPhase::DrawDebug(DebugDraw *draw) const
     {
       m_space->DrawDebug(draw);
+    }
+
+    void BroadPhase::_GetColliderTransformData(const ColliderData *data, 
+      Vector3 &translation, Vector3 &scale, Quaternion &orient) const
+    {
+      Transform *trans = SF_GET_COMP_TYPE(Transform, data->m_transformHndl);
+      translation = trans->GetTranslation() + data->m_offset;
+      orient = trans->GetRotation();
+
+      switch (data->m_type)
+      {
+      case CT_BOX:
+        scale = trans->GetScale() * data->m_scale;
+        break;
+      case CT_SPHERE:
+        scale.Splat(trans->GetScale().MaxAxisValue() * data->m_radius * 2);
+        break;
+      case CT_CAPSULE:
+        scale[0] = trans->GetScale()[0] * data->m_lineLength * 2;
+        scale[1] = scale[2] = std::max(trans->GetScale()[1], trans->GetScale()[2])
+          * data->m_radius * 2;
+        break;
+      default:
+        SF_CRITICAL_ERR("Unrecognized collider type");
+      }
     }
   }
 }

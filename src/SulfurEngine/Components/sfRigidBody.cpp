@@ -21,7 +21,7 @@ Maxim TODO: Calculate mass according to physics material and collider type
 
   void RigidBody::Initialize(void)
   {
-    Physics::PhysicsWorld::Instance()->AddRigidBody(this->m_hndl);
+    Physics::PhysicsWorld::Instance()->AddRigidBody(this->m_owner, this->m_hndl);
   }
 
   RigidBody* RigidBody::Clone(void) const

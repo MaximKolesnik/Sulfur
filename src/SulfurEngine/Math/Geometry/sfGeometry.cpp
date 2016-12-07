@@ -5,9 +5,74 @@ namespace Sulfur
 {
   namespace Geometry
   {
+    Real ClosestPointsSegmentSegment(const Vector3 &p1, const Vector3 &p2,
+      const Vector3 &q1, const Vector3 &q2, Vector3 &closestP, Vector3 &closestQ)
+    {
+      Vector3 dp = p2 - p1;
+      Vector3 dq = q2 - q1;
+      Vector3 r = p1 - q1;
+      Real a = dp.LengthSq();
+      Real e = dq.LengthSq();
+      Real f = dq.Dot(r);
+
+      if (a <= SF_EPSILON && e <= SF_EPSILON)
+      {
+        closestP = p1;
+        closestQ = q1;
+
+        return (closestP - closestQ).LengthSq();
+      }
+
+      Real pt, qt;
+      if (a <= SF_EPSILON)
+      {
+        pt = Real(0.0);
+        qt = f / e;
+        qt = MathUtils::Clamp(qt, Real(0.0), Real(1.0));
+      }
+      else
+      {
+        Real c = dp.Dot(r);
+
+        if (e <= SF_EPSILON)
+        {
+          qt = Real(0.0);
+          pt = MathUtils::Clamp(-c / a, Real(0.0), Real(1.0));
+        }
+        else
+        {
+          Real b = dp.Dot(dq);
+          Real den = a * e - b * b;
+
+          if (den != Real(0.0))
+            pt = MathUtils::Clamp((b * f - c * e) / den, Real(0.0), Real(1.0));
+          else
+            pt = Real(0.0);
+
+          qt = (b * pt + f) / e;
+
+          if (qt < Real(0.0))
+          {
+            qt = Real(0.0);
+            pt = MathUtils::Clamp(-c / a, Real(0.0), Real(1.0));
+          }
+          else if (qt > Real(1.0))
+          {
+            qt = Real(1.0);
+            pt = MathUtils::Clamp((b - c) / a, Real(0.0), Real(1.0));
+          }
+        }
+      }
+
+      closestP = p1 + dp * pt;
+      closestQ = q1 + dq * qt;
+
+      return (closestP - closestQ).LengthSq();
+    }
+
     Vector3 ProjectPointOnPlane(const Vector3& point, const Vector3& normal, Real planeDistance)
     {
-      Real t = Dot(normal, point) - planeDistance;
+      Real t = Dot(normal, point) + planeDistance;
       Vector3 projection = point - t * normal;
 
       return projection;
@@ -61,7 +126,7 @@ namespace Sulfur
 
     IntersectionType::Type PointPlane(const Vector3& point, const Vector4& plane, Real epsilon)
     {
-      Real w = Dot(Vector4(point.GetX(), point.GetY(), point.GetZ(), -1), plane);
+      Real w = Dot(Vector4(point.GetX(), point.GetY(), point.GetZ(), 1), plane);
 
       if (w < -epsilon)
         return IntersectionType::Outside;
@@ -104,7 +169,7 @@ namespace Sulfur
         return false;
       }
 
-      t = (plane.GetW() - Dot(normal, rayStart)) / denom;
+      t = (-plane.GetW() - Dot(normal, rayStart)) / denom;
 
       if (t >= Real(0.0))
         return true;
@@ -228,7 +293,7 @@ namespace Sulfur
       const Vector3& sphereCenter, Real sphereRadius)
     {
       Real dist = Dot(sphereCenter, Vector3(plane.GetX(), plane.GetY(), plane.GetZ())) 
-        - plane.GetW();
+        + plane.GetW();
 
       if (dist < -sphereRadius)
         return IntersectionType::Type::Outside;
@@ -248,7 +313,7 @@ namespace Sulfur
       Vector3 normalAbs(abs(plane.GetX()), abs(plane.GetY()), abs(plane.GetZ()));
 
       Real r = Dot(extent, normalAbs);
-      Real dist = Dot(normal, center) - plane.GetW();
+      Real dist = Dot(normal, center) + plane.GetW();
 
       if (dist < -r)
         return IntersectionType::Type::Outside;

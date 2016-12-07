@@ -24,7 +24,7 @@ namespace Sulfur
     SF_PRIVATE_PROPERTY(Vector3, angularVelocity, AngularVelocity, "Angular velocity of the object");
     Physics::RBDynamicState m_dynamicState;
     SF_PRIVATE_PROPERTY_READ_ONLY(Real, invMass, InverseMass, "Inverse Mass of the object");
-
+    SF_
 
   };
 }

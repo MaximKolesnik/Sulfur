@@ -30,6 +30,8 @@ namespace Sulfur
 
   public:
     typedef std::unordered_map<std::string, ISlotMap*> ComponentMap;
+    typedef std::unordered_map<std::string, std::string> ComponentGroupMap;
+
     class ComponentData;
 
     //Register all components
@@ -39,6 +41,14 @@ namespace Sulfur
     template <class CompType>
     bool IsRegistered(void) const;
     const std::vector<std::string>& GetComponentTypes() const;
+
+    bool IsGrouped(const std::string &compType) const;
+    template <class CompType>
+    bool IsGrouped(void) const;
+
+    const std::string& GetGroupName(const std::string &compType) const;
+    template <class CompType>
+    const std::string& GetGroupName(void) const;
 
     IEntity* CreateComponent(const std::string &name);
     template <class CompType>
@@ -62,11 +72,14 @@ namespace Sulfur
 
     template <typename CompType>
     void _RegisterComponent(void);
+    template <typename CompType>
+    void _AddToComponentGroup(const std::string &compGroup);
 
     std::string _RemoveScope(const std::string name) const;
 
     std::vector<std::string> m_componentTypes;
     ComponentMap m_compMap;
+    ComponentGroupMap m_compGroupMap;
 
     bool m_initialized;
 
@@ -104,6 +117,30 @@ namespace Sulfur
     return false;
   }
 
+  template <class CompType>
+  bool ComponentFactory::IsGrouped(void) const
+  {
+    std::string compType = _RemoveScope(typeid(CompType).name());
+
+    auto res = m_compGroupMap.find(compType);
+
+    if (res != m_compGroupMap.end())
+      return true;
+    return false;
+  }
+
+  template <class CompType>
+  const std::string& ComponentFactory::GetGroupName(void) const
+  {
+    std::string compType = _RemoveScope(typeid(CompType).name());
+
+    auto res = m_compGroupMap.find(compType);
+    if (res != m_compGroupMap.end())
+      return res->second;
+    else
+      return compType;
+  }
+
   template <typename CompType>
   void ComponentFactory::_RegisterComponent(void)
   {
@@ -118,6 +155,14 @@ namespace Sulfur
       delete newSlotMap;
 
     m_componentTypes.push_back(_RemoveScope(typeid(CompType).name()));
+  }
+
+  template <typename CompType>
+  void ComponentFactory::_AddToComponentGroup(const std::string &compGroup)
+  {
+    std::string compType = _RemoveScope(typeid(CompType).name());
+
+    m_compGroupMap[compType] = compGroup;
   }
 
   template <class CompType>

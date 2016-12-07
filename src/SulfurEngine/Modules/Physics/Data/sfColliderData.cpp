@@ -7,7 +7,6 @@
 #include "Error\sfError.hpp"
 #include "Components\sfTransform.hpp"
 #include "Components\sfRigidBody.hpp"
-#include "Modules\Physics\sfPhysicsWorld.hpp"
 
 /******************************************************************************
 Maxim TODO: Handle the case when collider is attached before the rigid body
@@ -69,15 +68,6 @@ namespace Sulfur
 
       SF_ASSERT(owner, "Owner is null");
       SF_ASSERT(m_transformHndl != SF_INV_HANDLE, "Transform handle is not set");
-
-      if (owner->HasComponent<RigidBody>())
-      {
-        SF_ASSERT(Physics::PhysicsWorld::Instance()->m_rigidBodies.find(owner->GetComponentHandle<RigidBody>())
-          != Physics::PhysicsWorld::Instance()->m_rigidBodies.end(), "RigidBody is not attached");
-
-        m_rbData = Physics::PhysicsWorld::Instance()->m_rigidBodies[owner->GetComponentHandle<RigidBody>()];
-      }
-
     }
   }
 }

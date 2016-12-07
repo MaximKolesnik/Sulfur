@@ -406,6 +406,15 @@ namespace Sulfur
       return Vector3(m_rows[0][i], m_rows[1][i], m_rows[2][i]);
     }
 
+    SF_FORCE_INLINE void SF_VEC_CALL SetColumn(int i, const Vector3 &v)
+    {
+      SF_ASSERT(0 <= i && i < 3, "Index is out of range");
+
+      m_rows[0][i] = v[0];
+      m_rows[1][i] = v[1];
+      m_rows[2][i] = v[2];
+    }
+
     SF_FORCE_INLINE Vector3& SF_VEC_CALL operator[](int i)
     {
       SF_ASSERT(0 <= i && i < 3, "Index is out of range");

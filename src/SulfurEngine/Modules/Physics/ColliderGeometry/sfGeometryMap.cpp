@@ -40,36 +40,53 @@ namespace Sulfur
       m_boxGeometry.m_vertices.push_back(Vector3(Real(-0.5), Real(-0.5), Real(0.5)));  //6
       m_boxGeometry.m_vertices.push_back(Vector3(Real(0.5), Real(-0.5), Real(0.5)));   //7
 
-      //Faces 
-      ColliderGeometry::Face f0123(Vector3(Real(0.0), Real(1.0), Real(0.0)),
-        { 0, 1, 2, 3 });
-      ColliderGeometry::Face f4567(Vector3(Real(0.0), Real(-1.0), Real(0.0)),
-        { 4, 7, 6, 5 });
-      ColliderGeometry::Face f0154(Vector3(Real(0.0), Real(0.0), Real(-1.0)),
-        { 0, 4, 5, 1 });
-      ColliderGeometry::Face f1265(Vector3(Real(-1.0), Real(0.0), Real(0.0)),
-        { 2, 1, 5, 6 });
-      ColliderGeometry::Face f2673(Vector3(Real(0.0), Real(0.0), Real(1.0)),
-        { 2, 6, 7, 3 });
-      ColliderGeometry::Face f0374(Vector3(Real(1.0), Real(0.0), Real(0.0)),
-        { 0, 3, 7, 4 });
+      //HalfEdges
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(2, 1, 0, 4));        //0    
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(17, 0, 1, 1));        //1
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(4, 3, 1, 4));         //2
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(19, 2, 2, 2));        //3
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(6, 5, 2, 4));        //4
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(20, 4, 3, 3));        //5
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(0, 7, 3, 4));        //6
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(22, 6, 0, 0));        //7
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(18, 9, 4, 1));         //8
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(11, 8, 5, 5));       //9
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(16, 11, 7, 0));        //10
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(13, 10, 4, 5));        //11
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(23, 13, 6, 3));       //12
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(15, 12, 7, 5));        //13
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(21, 15, 5, 2));        //14
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(9, 14, 6, 5));        //15
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(7, 17, 4, 0));           //16
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(8, 16, 0, 1));           //17
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(1, 19, 5, 1));           //18
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(14, 18, 1, 2));           //19
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(12, 21, 2, 3));          //20
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(3, 20, 6, 2));          //21
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(10, 23, 3, 0));          //22
+      m_boxGeometry.m_edges.push_back(ColliderGeometry::HalfEdge(5, 22, 7, 3));          //23
 
-      m_boxGeometry.m_faces.push_back(f0123);
-      m_boxGeometry.m_faces.push_back(f4567);
-      m_boxGeometry.m_faces.push_back(f0154);
-      m_boxGeometry.m_faces.push_back(f1265);
-      m_boxGeometry.m_faces.push_back(f2673);
-      m_boxGeometry.m_faces.push_back(f0374);
+      //Faces
+      m_boxGeometry.m_faces.push_back(ColliderGeometry::Face(10));
+      m_boxGeometry.m_faces.push_back(ColliderGeometry::Face(1));
+      m_boxGeometry.m_faces.push_back(ColliderGeometry::Face(3));
+      m_boxGeometry.m_faces.push_back(ColliderGeometry::Face(5));
+      m_boxGeometry.m_faces.push_back(ColliderGeometry::Face(0));
+      m_boxGeometry.m_faces.push_back(ColliderGeometry::Face(9));
 
-      //Unique Faces
-      m_boxGeometry.m_uniqueFaces.push_back(f0123);
-      m_boxGeometry.m_uniqueFaces.push_back(f2673);
-      m_boxGeometry.m_uniqueFaces.push_back(f0374);
-
-      //Unique Edges
-      m_boxGeometry.m_uniqueEdges.push_back(ColliderGeometry::Edge(0, 1));
-      m_boxGeometry.m_uniqueEdges.push_back(ColliderGeometry::Edge(0, 3));
-      m_boxGeometry.m_uniqueEdges.push_back(ColliderGeometry::Edge(0, 4));
+      //Planes
+      m_boxGeometry.m_planes.push_back(Geometry::Plane(Vector3(1, 0, 0), 
+        m_boxGeometry.m_vertices[0]));
+      m_boxGeometry.m_planes.push_back(Geometry::Plane(Vector3(0, 0, -1),
+        m_boxGeometry.m_vertices[0]));
+      m_boxGeometry.m_planes.push_back(Geometry::Plane(Vector3(-1, 0, 0),
+        m_boxGeometry.m_vertices[1]));
+      m_boxGeometry.m_planes.push_back(Geometry::Plane(Vector3(0, 0, 1),
+        m_boxGeometry.m_vertices[2]));
+      m_boxGeometry.m_planes.push_back(Geometry::Plane(Vector3(0, 1, 0),
+        m_boxGeometry.m_vertices[0]));
+      m_boxGeometry.m_planes.push_back(Geometry::Plane(Vector3(0, -1, 0),
+        m_boxGeometry.m_vertices[4]));
     }
   }
 }

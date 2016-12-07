@@ -122,6 +122,14 @@ namespace Sulfur
       // Get the 'd' value (the distance from the origin) which can be computed as Dot(origin - pointOnPlane, normal)
       Real GetDistance() const;
 
+      Plane& Transform(const Matrix4 &transform)
+      {
+        *this = Transformed(transform);
+
+        return *this;
+      }
+
+      Plane Transformed(const Matrix4 &tranform) const;
 
       Vector4 m_data;
     };

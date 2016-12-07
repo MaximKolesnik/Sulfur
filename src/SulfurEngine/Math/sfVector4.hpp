@@ -172,6 +172,24 @@ namespace Sulfur
 #endif
     }
 
+    SF_FORCE_INLINE Real SF_VEC_CALL Dot3(const Vector3 &other) const
+    {
+#ifdef SF_USE_SIMD
+      __m128 m = _mm_mul_ps(m_data, other.Get128());
+      __m128 w = _mm_shuffle_ps(m, m, 0xFF); //_MM_SHUFFLE(3, 3, 3, 3)
+      __m128 z = _mm_shuffle_ps(m, m, 0xAA); //_MM_SHUFFLE(2, 2, 2, 2)
+      __m128 y = _mm_shuffle_ps(m, m, 0x55); //_MM_SHUFFLE(1, 1, 1, 1)
+
+      m = _mm_add_ps(m, z);
+      m = _mm_add_ps(m, y);
+
+      return _mm_cvtss_f32(m);
+#else
+      return m_comps[0] * other[0] + m_comps[1] * other[1]
+        + m_comps[2] * other[2];
+#endif
+    }
+
     SF_FORCE_INLINE Real SF_VEC_CALL Length(void) const
     {
       return MathUtils::Sqrt(this->Dot(*this));

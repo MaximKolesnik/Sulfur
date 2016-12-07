@@ -24,24 +24,24 @@ namespace Sulfur
 
       void Initialize(void);
 
-      Vector3 m_position;
-      Vector3 m_velocity;
-      Vector3 m_angularVelocity;
-      Vector3 m_acceleration;
+      Vector3 m_position = Vector3::c_zero;
+      Vector3 m_velocity = Vector3::c_zero;
+      Vector3 m_angularVelocity = Vector3::c_zero;
+      Vector3 m_acceleration = Vector3::c_zero;
 
       Quaternion m_orientation;
 
-      Vector3 m_forces;
+      Vector3 m_forces = Vector3::c_zero;
 
-      Real m_invMass;
+      Real m_invMass = 0;
       
-      Matrix3 m_inertia;
-      Matrix3 m_invInertia;
+      Matrix3 m_inertia = Matrix3::c_identity;
+      Matrix3 m_invInertia = Matrix3::c_identity;
 
-      RBDynamicState m_state;
+      RBDynamicState m_state = RB_Static;
 
-      HNDL m_transformHndl;
-      HNDL m_compHndl;
+      HNDL m_transformHndl = SF_INV_HANDLE;
+      HNDL m_compHndl = SF_INV_HANDLE;
     };
   }
 }

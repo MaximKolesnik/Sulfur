@@ -50,6 +50,24 @@ namespace Sulfur
     return false;
   }
 
+  bool ComponentFactory::IsGrouped(const std::string &compType) const
+  {
+    auto res = m_compGroupMap.find(compType);
+
+    if (res != m_compGroupMap.end())
+      return true;
+    return false;
+  }
+
+  const std::string& ComponentFactory::GetGroupName(const std::string &compType) const
+  {
+    auto res = m_compGroupMap.find(compType);
+    if (res != m_compGroupMap.end())
+      return res->second;
+    else
+      return compType;
+  }
+
   const std::vector<std::string>& ComponentFactory::GetComponentTypes() const
   {
     return m_componentTypes;
@@ -121,6 +139,10 @@ namespace Sulfur
     this->_RegisterComponent<BoxCollider>();
     this->_RegisterComponent<SphereCollider>();
     this->_RegisterComponent<CapsuleCollider>();
+
+    this->_AddToComponentGroup<BoxCollider>("Colliders");
+    this->_AddToComponentGroup<SphereCollider>("Colliders");
+    this->_AddToComponentGroup<CapsuleCollider>("Colliders");
   }
 
   IEntity* ComponentFactory::GetComponent(const std::string &name, 

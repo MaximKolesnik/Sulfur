@@ -13,6 +13,8 @@ namespace Sulfur
       static const char* Names[] = { "Coplanar", "Outside", "Inside", "Overlaps", "NotImplemented" };
     }
 
+    Real ClosestPointsSegmentSegment(const Vector3 &p1, const Vector3 &p2, 
+      const Vector3 &q1, const Vector3 &q2, Vector3 &closestP, Vector3 &closestQ);
 
     // Helper function that you should likely use in several plane intersection functions. Also required for unit-tests.
     Vector3 ProjectPointOnPlane(const Vector3& point, const Vector3& normal, Real planeDistance);

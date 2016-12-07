@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math\sfVector3.hpp"
+#include "Math\Geometry\sfShapes.hpp"
 
 namespace Sulfur
 {
@@ -9,41 +10,72 @@ namespace Sulfur
     class ColliderGeometry
     {
     public:
-      struct Edge
+      
+      struct HalfEdge
       {
-        Edge(UINT32 v0, UINT32 v1) : m_v0(v0), m_v1(v1) {}
-
-        UINT32 m_v0;
-        UINT32 m_v1;
+        HalfEdge(UINT8 next, UINT8 twin, UINT8 origin, UINT8 face)
+          : m_next(next), m_twin(twin), m_origin(origin), m_face(face) {}
+        UINT8 m_next;
+        UINT8 m_twin;
+        UINT8 m_origin;
+        UINT8 m_face;
       };
 
       struct Face
       {
-        Face(const Vector3 &normal, const std::initializer_list<UINT32> il) 
-          : m_normal(normal), m_vertIndecies(il) {}
-
-        std::vector<UINT32> m_vertIndecies;
-        Vector3 m_normal;
+        Face(UINT8 edge) : m_edge(edge) {}
+        UINT8 m_edge;
       };
 
       typedef std::vector<Vector3> VertexList;
-      typedef std::vector<Edge> EdgeList;
+      typedef std::vector<HalfEdge> EdgeList;
       typedef std::vector<Face> FaceList;
+      typedef std::vector<Geometry::Plane> PlaneList;
 
       ColliderGeometry(void) {}
       ~ColliderGeometry(void) {}
 
       const VertexList& GetVertices(void) const { return m_vertices; }
-      const EdgeList& GetUniqueEdges(void) const { return m_uniqueEdges; }
-      const FaceList& GetUniqueFaces(void) const { return m_uniqueFaces; }
+      const EdgeList& GetEdges(void) const { return m_edges; }
       const FaceList& GetFaces(void) const { return m_faces; }
+      const PlaneList& GetPlanes(void) const { return m_planes; }
+
+      size_t GetVertexCount(void) const { return m_vertices.size(); }
+      size_t GetEdgeCount(void) const { return m_edges.size(); }
+      size_t GetFaceCount(void) const { return m_faces.size(); }
+      size_t GetPlaneCount(void) const { return m_planes.size(); }
+
+      const Vector3& GetVertex(size_t index) const { return m_vertices[index]; }
+      const HalfEdge& GetEdge(size_t index) const { return m_edges[index]; }
+      const Face& GetFace(size_t index) const { return m_faces[index]; }
+      const Geometry::Plane& GetPlane(size_t index) const { return m_planes[index]; }
+
+      Vector3 GetSupport(const Vector3 &dir) const
+      {
+        int maxIndex = -1;
+        Real maxDist = -SF_REAL_MAX;
+        Real dist;
+
+        for (size_t i = 0; i < m_vertices.size(); ++i)
+        {
+          dist = dir.Dot(m_vertices[i]);
+          if (dist > maxDist)
+          {
+            maxDist = dist;
+            maxIndex = (int)i;
+          }
+        }
+
+        return m_vertices[maxIndex];
+      }
+
     private:
       friend class GeometryMap;
 
       VertexList m_vertices;
-      EdgeList m_uniqueEdges;
-      FaceList m_uniqueFaces;
+      EdgeList m_edges;
       FaceList m_faces;
+      PlaneList m_planes;
     };
   }
 }

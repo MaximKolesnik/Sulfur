@@ -13,6 +13,7 @@ namespace Sulfur
     private:
       void _PrepareContacts(Contacts &contacts) const;
       void _ApplyImpulses(Contacts &contacts) const;
+      void _PostChange(Contacts &contact) const;
     };
   }
 }

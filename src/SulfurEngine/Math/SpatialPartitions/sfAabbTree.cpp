@@ -471,13 +471,16 @@ namespace Sulfur
     if (node == nullptr)
       return;
 
-    Matrix4 m;
-    Vector3 aabbCenter = node->m_aabb.GetCenter();
-    Vector3 hs = node->m_aabb.GetHalfSize();
-    //m.SetTranslation(aabbCenter[0], aabbCenter[1], aabbCenter[2]);
-    //m.SetScaling(hs[0] * Real(5.0), hs[1] * Real(5.0), hs[2] * Real(5.0));
-    m.SetTransformation(Quaternion(1.0, 0, 0, 0), hs, aabbCenter);
-    draw->DrawBox(m, 2, 2, 2, Vector4(255.0, 0.0, 0.0, 0.0));
+    if (node->m_height == 0)
+    {
+      Matrix4 m;
+      Vector3 aabbCenter = node->m_aabb.GetCenter();
+      Vector3 hs = node->m_aabb.GetHalfSize();
+      //m.SetTranslation(aabbCenter[0], aabbCenter[1], aabbCenter[2]);
+      //m.SetScaling(hs[0] * Real(5.0), hs[1] * Real(5.0), hs[2] * Real(5.0));
+      m.SetTransformation(Quaternion(1.0, 0, 0, 0), hs, aabbCenter);
+      draw->DrawBox(m, 2, 2, 2, Vector4(255.0, 0.0, 0.0, 0.0));
+    }
 
     _DrawDebug(node->m_left, draw);
     _DrawDebug(node->m_right, draw);

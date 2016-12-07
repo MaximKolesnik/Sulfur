@@ -15,6 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   {
     sulfurEngine->Frame();
     Sulfur::Physics::PhysicsWorld::Instance()->DebugDrawColliders();
+    Sulfur::Physics::PhysicsWorld::Instance()->DebugDrawAABB();
   }
   sulfurEngine->ShutDown();
 

@@ -88,8 +88,12 @@ namespace Sulfur
 
   void Object::AttachComponent(IEntity *component)
   {
-    SF_ASSERT(m_components.find(component->m_name) == m_components.end(),
+    SF_CRITICAL_ERR_EXP(m_components.find(component->m_name) == m_components.end(),
       component->m_name + " is already attached");
+    SF_CRITICAL_ERR_EXP(
+      !HasComponentOfGroup(ComponentFactory::Instance()->GetGroupName(component->m_name)),
+      "Has component of grouped type"
+      );
 
     component->m_owner = m_hndl;
 
@@ -120,6 +124,16 @@ namespace Sulfur
 
     if (res != m_components.end())
       return true;
+    return false;
+  }
+
+  bool Object::HasComponentOfGroup(const std::string &group) const
+  {
+    for (auto &it : m_components)
+    {
+      if (ComponentFactory::Instance()->GetGroupName(it.first) == group)
+        return true;
+    }
     return false;
   }
 

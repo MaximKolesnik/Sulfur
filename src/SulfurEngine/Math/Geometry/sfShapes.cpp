@@ -506,7 +506,7 @@ namespace Sulfur
       if (normal.LengthSq() != 0)
         normal.Normalize();
 
-      m_data.Set(normal.GetX(), normal.GetY(), normal.GetZ(), Dot(normal, p0));
+      m_data.Set(normal.GetX(), normal.GetY(), normal.GetZ(), -Dot(normal, p0));
     }
 
     void Plane::Set(const Vector3& normal, const Vector3& point)
@@ -514,7 +514,9 @@ namespace Sulfur
       Vector3 normalizedNormal = Normalized(normal);
 
       m_data.Set(normalizedNormal.GetX(), normalizedNormal.GetY(), normalizedNormal.GetZ(),
-        Dot(normalizedNormal, point));
+        -Dot(normalizedNormal, point));
+
+      SF_ASSERT(normalizedNormal.Dot(point) + m_data[3] == 0, "Plane is not correct");
     }
 
     Vector3 Plane::GetNormal() const
@@ -527,6 +529,19 @@ namespace Sulfur
       return m_data.GetW();
     }
 
+    Plane Plane::Transformed(const Matrix4 &transform) const
+    {
+      Plane p;
+      p.m_data = m_data;
+
+      p.m_data = transform.Inverted().Transposed() * p.m_data;
+
+      Real l = p.GetNormal().Length();
+
+      p.m_data = p.m_data / l;
+
+      return p;
+    }
 
     void Frustum::Set(const Vector3& lbn, const Vector3& rbn, const Vector3& rtn, const Vector3& ltn,
       const Vector3& lbf, const Vector3& rbf, const Vector3& rtf, const Vector3& ltf)

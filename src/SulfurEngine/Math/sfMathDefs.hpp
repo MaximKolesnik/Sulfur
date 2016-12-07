@@ -91,5 +91,20 @@ namespace Sulfur
     {
       return std::log2(real);
     }
+
+    SF_FORCE_INLINE Real Clamp(Real r, Real min, Real max)
+    {
+      if (r < min)
+        return min;
+      if (r > max)
+        return max;
+      return r;
+    }
+
+    template <class Type>
+    SF_FORCE_INLINE Type GetSign(Type val)
+    {
+      return (val >= Type(0.0)) ? Type(1.0) : Type(-1.0);
+    }
   }
 }

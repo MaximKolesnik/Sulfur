@@ -94,12 +94,22 @@ namespace Sulfur
 
       Vector3 leftSpherePos(-centerLine / 2, Real(0.0), Real(0.0));
       Vector3 rightSpherePos(centerLine / 2, Real(0.0), Real(0.0));
-
-      m.SetTransformation(orientation, Vector3(Real(1.0), Real(1.0), Real(1.0)), 
-        leftSpherePos + translation);
+      Matrix4 helper;
+      m.SetTransformation(Quaternion(), Vector3(Real(1.0), Real(1.0), Real(1.0)),
+        leftSpherePos);
+      helper.SetRotation(orientation);
+      m = helper * m;
+      helper.SetTranslation(translation[0], translation[1], translation[2]);
+      m = helper * m;
+      
       DebugDraw::Instance()->DrawSphere(m, radius);
-      m.SetTransformation(orientation, Vector3(Real(1.0), Real(1.0), Real(1.0)),
-        rightSpherePos + translation);
+      m.SetTransformation(Quaternion(), Vector3(Real(1.0), Real(1.0), Real(1.0)),
+        rightSpherePos);
+      helper.SetRotation(orientation);
+      m = helper * m;
+      helper.SetTranslation(translation[0], translation[1], translation[2]);
+      m = helper * m;
+
       DebugDraw::Instance()->DrawSphere(m, radius);
 
       m.SetTransformation(orientation, Vector3(Real(1.0), Real(1.0), Real(1.0)), translation);
@@ -110,13 +120,14 @@ namespace Sulfur
       for (float angle = 0; angle <= SF_2PI; angle += SF_PI / 6)
       {
         Quaternion rot;
+        Vector3 temp1, temp2;
         rot.SetEuler(angle, Real(0.0), Real(0.0));
 
-        rot.Rotate(p1);
-        rot.Rotate(p2);
-        orientation.Rotate(p1);
-        orientation.Rotate(p2);
-        DebugDraw::Instance()->DrawLine(p1 + translation, p2 + translation);
+        temp1 = rot.Rotated(p1);
+        temp2 = rot.Rotated(p2);
+        temp1 = orientation.Rotated(temp1);
+        temp2 = orientation.Rotated(temp2);
+        DebugDraw::Instance()->DrawLine(temp1 + translation, temp2 + translation);
       }
     }
 

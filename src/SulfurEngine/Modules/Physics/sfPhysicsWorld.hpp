@@ -32,8 +32,8 @@ namespace Sulfur
 
       void Initialize(void);
 
-      void AddRigidBody(HNDL rbHndl);
-      void RemoveRigidBody(HNDL rbHndl);
+      void AddRigidBody(HNDL owner, HNDL rbHndl);
+      void RemoveRigidBody(HNDL owner, HNDL rbHndl);
 
       void AddCollider(HNDL owner, HNDL colHndl, ColliderType type);
       void RemoveCollider(HNDL owner, HNDL colHndl);
@@ -43,21 +43,20 @@ namespace Sulfur
 
       //Debug
       void DebugDrawColliders(void) const;
-
+      void DebugDrawAABB(void) const;
     private:
       SF_FRIEND_TASK(Sulfur::IntegrateBodies);
       SF_FRIEND_TASK(Sulfur::PostAndCleanup);
       SF_FRIEND_TASK(Sulfur::BroadPhase);
       SF_FRIEND_TASK(Sulfur::NarrowPhase);
-      friend struct ColliderData;
-      friend struct RigidBodyData;
+
+      RigidBodyData* _CreateDummyRigidBodyData(HNDL owner) const;
 
       QueryResults m_possiblePairs;
 
       RigidBodyList m_rigidBodies;
       ColliderList m_colliders;
       BroadPhase *m_broadPhase;
-      NarrowPhase *m_narrowPhase;
     };
   }
 }

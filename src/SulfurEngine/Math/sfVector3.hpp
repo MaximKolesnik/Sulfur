@@ -489,8 +489,8 @@ namespace Sulfur
 
     SF_FORCE_INLINE Vector3 SF_VEC_CALL operator/(const Vector3 &other) const
     {
-      SF_ASSERT(other.m_comps[0] == 0.0f 
-        || other.m_comps[1] == 0.0f || other.m_comps[2] == 0.0f, "Division by zero");
+      SF_ASSERT(other.m_comps[0] != 0.0f 
+        && other.m_comps[1] != 0.0f && other.m_comps[2] != 0.0f, "Division by zero");
 #ifdef SF_USE_SIMD
       return Vector3(_mm_div_ps(m_data, other.Get128()));
 #else
