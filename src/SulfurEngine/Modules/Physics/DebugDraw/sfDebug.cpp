@@ -102,7 +102,7 @@ namespace Sulfur
       helper.SetTranslation(translation[0], translation[1], translation[2]);
       m = helper * m;
       
-      DebugDraw::Instance()->DrawSphere(m, radius);
+      DebugDraw::Instance()->DrawSphere(m, radius, true, Vector4(0, 0, 1, 1));
       m.SetTransformation(Quaternion(), Vector3(Real(1.0), Real(1.0), Real(1.0)),
         rightSpherePos);
       helper.SetRotation(orientation);
@@ -110,7 +110,7 @@ namespace Sulfur
       helper.SetTranslation(translation[0], translation[1], translation[2]);
       m = helper * m;
 
-      DebugDraw::Instance()->DrawSphere(m, radius);
+      DebugDraw::Instance()->DrawSphere(m, radius, true, Vector4(0, 0, 1, 1));
 
       m.SetTransformation(orientation, Vector3(Real(1.0), Real(1.0), Real(1.0)), translation);
 
@@ -127,7 +127,8 @@ namespace Sulfur
         temp2 = rot.Rotated(p2);
         temp1 = orientation.Rotated(temp1);
         temp2 = orientation.Rotated(temp2);
-        DebugDraw::Instance()->DrawLine(temp1 + translation, temp2 + translation);
+        DebugDraw::Instance()->DrawLine(temp1 + translation, temp2 + translation, 
+          true, Vector4(0, 0, 1, 1));
       }
     }
 

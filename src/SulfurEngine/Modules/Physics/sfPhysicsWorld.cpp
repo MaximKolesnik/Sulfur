@@ -90,6 +90,9 @@ namespace Sulfur
     for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
     {
       Physics::RigidBodyData *rbData = it.second;
+      if (rbData->m_compHndl == SF_INV_HANDLE)
+        continue;
+
       RigidBody *rbComp = SF_GET_COMP_TYPE(RigidBody, rbData->m_compHndl);
       Transform *rbTrans = SF_GET_OBJECT(rbComp->GetOwner())->GetComponent<Transform>();
 
@@ -207,6 +210,22 @@ namespace Sulfur
           m_rigidBodies.erase(owner);
         }
       }
+    }
+
+    RigidBodyData* PhysicsWorld::GetRigidBodyData(HNDL owner)
+    {
+      SF_ASSERT(m_rigidBodies.find(owner) != m_rigidBodies.end(),
+        "RigidBody is not tracked by Physics");
+
+      return m_rigidBodies[owner];
+    }
+
+    ColliderData* PhysicsWorld::GetColliderData(HNDL owner)
+    {
+      SF_ASSERT(m_colliders.find(owner) != m_colliders.end(),
+        "Collider is not tracked by Physics");
+
+      return m_colliders[owner];
     }
 
     void PhysicsWorld::DebugDrawColliders(void) const

@@ -4,6 +4,7 @@
 #include "Math\sfQuaternion.hpp"
 #include "Types\sfTypes.hpp"
 #include "Math\sfMatrix3.hpp"
+#include "Reflection\sfReflection.hpp"
 
 namespace Sulfur
 {
@@ -44,4 +45,7 @@ namespace Sulfur
       HNDL m_compHndl = SF_INV_HANDLE;
     };
   }
+
+  SF_REGISTER_ENUM_TYPE(Physics::RBDynamicState, "RB_Dynamic", "RB_Static");
+  SF_BASE_TYPE_SPECIALIZATION(Physics::RBDynamicState);
 }

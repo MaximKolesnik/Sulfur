@@ -17,14 +17,23 @@ namespace Sulfur
     virtual void Update(void) override;
     virtual void DrawDebug(DebugDraw *draw) const override;
 
-    Physics::RBDynamicState GetDynamicState(void) const { return m_dynamicState; }
-    void SetDynamicState(Physics::RBDynamicState state) { m_dynamicState = state; }
-  private:
-    SF_PRIVATE_PROPERTY(Vector3, velocity, Velocity, "Velocity of the object");
-    SF_PRIVATE_PROPERTY(Vector3, angularVelocity, AngularVelocity, "Angular velocity of the object");
-    Physics::RBDynamicState m_dynamicState;
-    SF_PRIVATE_PROPERTY_READ_ONLY(Real, invMass, InverseMass, "Inverse Mass of the object");
-    SF_
+    const Vector3& GetVelocity(void) const;
+    const Vector3& GetAngularVelocity(void) const;
+    const Physics::RBDynamicState& GetDynamicState(void) const;
 
+    void SetVelocity(const Vector3 &vel);
+    void SetAngularVelocity(const Vector3 &vel);
+    void SetDynamicState(const Physics::RBDynamicState &vel);
+  private:
+    SF_PRIVATE_PROPERTY_CUSTOM(Vector3, velocity, Velocity, "Velocity of the object",
+      GetVelocity, SetVelocity);
+
+    SF_PRIVATE_PROPERTY_CUSTOM(Vector3, angularVelocity, AngularVelocity, "Angular velocity of the object",
+      GetAngularVelocity, SetAngularVelocity);
+
+    SF_PRIVATE_PROPERTY_CUSTOM(Physics::RBDynamicState, dynamicState, DynamicState,
+      "Body state", GetDynamicState, SetDynamicState);
+
+    SF_PRIVATE_PROPERTY_READ_ONLY(Real, invMass, InverseMass, "Inverse Mass of the object");
   };
 }

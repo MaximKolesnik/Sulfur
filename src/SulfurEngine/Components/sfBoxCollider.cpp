@@ -1,6 +1,6 @@
 #include "sfBoxCollider.hpp"
 #include "Modules\Physics\sfPhysicsWorld.hpp"
-
+#include "Factories\sfComponentFactory.hpp"
 namespace Sulfur
 {
   BoxCollider::BoxCollider(void) : m_offset(Real(0.0), Real(0.0), Real(0.0)),
@@ -11,7 +11,7 @@ namespace Sulfur
 
   BoxCollider::~BoxCollider(void)
   {
-
+    Physics::PhysicsWorld::Instance()->RemoveCollider(this->m_owner, this->m_hndl);
   }
 
   void BoxCollider::Initialize(void)
@@ -22,8 +22,12 @@ namespace Sulfur
 
   BoxCollider* BoxCollider::Clone(void) const
   {
-    SF_CRITICAL_ERR("BoxCollider clone not implemented");
-    return nullptr;
+    BoxCollider *newBox = SF_CREATE_COMP(BoxCollider);
+
+    newBox->m_offset = m_offset;
+    newBox->m_scale = m_scale;
+
+    return newBox;
   }
 
   void BoxCollider::Update(void)
@@ -34,5 +38,31 @@ namespace Sulfur
   void BoxCollider::DrawDebug(DebugDraw *draw) const
   {
 
+  }
+
+  const Vector3& BoxCollider::GetOffset(void) const
+  {
+    return m_offset;
+  }
+
+  const Vector3& BoxCollider::GetScale(void) const
+  {
+    return m_scale;
+  }
+
+  void BoxCollider::SetOffset(const Vector3& offset)
+  {
+    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
+
+    cData->m_offset = offset;
+    m_offset = offset;
+  }
+
+  void BoxCollider::SetScale(const Vector3& scale)
+  {
+    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
+
+    cData->m_scale = m_scale;
+    m_scale = m_scale;
   }
 }

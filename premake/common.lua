@@ -195,6 +195,7 @@ function CreateProject(projName, projKind, proj)
 		qtgenerateddir("../src/"..projName.."/GeneratedFiles")
 		qtmodules(proj.qtModules)
 		qtprefix "Qt5"
+		debugenvs { "QT_QPA_PLATFORM_PLUGIN_PATH=../bin/platforms" }
 	end
 	
 	-- Project configurations

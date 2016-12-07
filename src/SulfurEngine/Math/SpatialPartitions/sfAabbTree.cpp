@@ -1,6 +1,7 @@
 #include "sfAabbTree.hpp"
 #include "Math\Geometry\sfShapes.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
+#include "Math\sfVector4.hpp"
 
 #undef small
 
@@ -479,7 +480,7 @@ namespace Sulfur
       //m.SetTranslation(aabbCenter[0], aabbCenter[1], aabbCenter[2]);
       //m.SetScaling(hs[0] * Real(5.0), hs[1] * Real(5.0), hs[2] * Real(5.0));
       m.SetTransformation(Quaternion(1.0, 0, 0, 0), hs, aabbCenter);
-      draw->DrawBox(m, 2, 2, 2, Vector4(255.0, 0.0, 0.0, 0.0));
+      draw->DrawBox(m, 2, 2, 2, true, Vector4(255.0, 0.0, 0.0, 0.0));
     }
 
     _DrawDebug(node->m_left, draw);

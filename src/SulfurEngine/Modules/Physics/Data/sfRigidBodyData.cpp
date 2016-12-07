@@ -10,6 +10,8 @@ Maxim TODO: INERTIA IS SET ONLY FOR A BOX COLLIDER
 
 namespace Sulfur
 {
+  SF_BASE_TYPE_SERIALIZATION_DEFAULT(Physics::RBDynamicState);
+
   namespace Physics
   {
     void RigidBodyData::Initialize(void)

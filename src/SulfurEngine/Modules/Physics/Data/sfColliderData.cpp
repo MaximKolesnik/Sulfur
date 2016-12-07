@@ -31,7 +31,7 @@ namespace Sulfur
       case ColliderType::CT_SPHERE:
       {
         SphereCollider *sphereCol = SF_GET_COMP_TYPE(SphereCollider, m_compHndl);
-        m_isGhost = sphereCol->GetIsGhost();
+        //m_isGhost = sphereCol->GetIsGhost();
         m_offset = sphereCol->GetOffset();
         m_radius = sphereCol->GetRadius();
 
@@ -42,7 +42,7 @@ namespace Sulfur
       case ColliderType::CT_BOX:
       {
         BoxCollider *boxCol = SF_GET_COMP_TYPE(BoxCollider, m_compHndl);
-        m_isGhost = boxCol->GetIsGhost();
+        //m_isGhost = boxCol->GetIsGhost();
         m_offset = boxCol->GetOffset();
         m_scale = boxCol->GetScale();
 
@@ -53,7 +53,7 @@ namespace Sulfur
       case ColliderType::CT_CAPSULE:
       {
         CapsuleCollider *capCol = SF_GET_COMP_TYPE(CapsuleCollider, m_compHndl);
-        m_isGhost = capCol->GetIsGhost();
+        //m_isGhost = capCol->GetIsGhost();
         m_radius = capCol->GetRadius();
         m_offset = capCol->GetOffset();
         m_lineLength = capCol->GetCenterLineLength();

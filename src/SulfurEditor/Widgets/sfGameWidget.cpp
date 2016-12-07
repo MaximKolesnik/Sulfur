@@ -31,6 +31,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/State/sfSamplerState.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 #include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
+#include "Modules\Physics\sfPhysicsWorld.hpp"
 
 #include "Math/Geometry/sfGeometry.hpp"
 
@@ -76,6 +77,7 @@ void GameWidget::Frame()
   SelectionDrawing();
   UpdateEditorCamera();
   Core::Instance()->Frame();
+  Physics::PhysicsWorld::Instance()->DebugDrawColliders();
 }
 
 void GameWidget::mousePressEvent(QMouseEvent *event)

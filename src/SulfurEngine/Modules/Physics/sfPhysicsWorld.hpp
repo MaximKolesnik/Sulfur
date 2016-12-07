@@ -39,6 +39,9 @@ namespace Sulfur
       void AddCollider(HNDL owner, HNDL colHndl, ColliderType type);
       void RemoveCollider(HNDL owner, HNDL colHndl);
 
+      RigidBodyData* GetRigidBodyData(HNDL owner);
+      ColliderData* GetColliderData(HNDL owner);
+
       typedef std::unordered_map<HNDL, RigidBodyData*> RigidBodyList;
       typedef std::unordered_map<HNDL, ColliderData*> ColliderList;
 
