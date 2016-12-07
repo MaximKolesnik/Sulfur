@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfEngineSettings.hpp
+\author
+\par
+\date
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #include "sfEngineSettings.hpp"
 
 namespace Sulfur

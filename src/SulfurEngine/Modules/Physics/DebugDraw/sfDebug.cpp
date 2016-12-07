@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfDebug.cpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    11/10/2016
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #include "sfDebug.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"

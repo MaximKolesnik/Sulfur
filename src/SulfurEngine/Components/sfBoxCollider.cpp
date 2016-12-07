@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfBoxCollider.cpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    11/15/2016
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #include "sfBoxCollider.hpp"
 #include "Modules\Physics\sfPhysicsWorld.hpp"
 #include "Factories\sfComponentFactory.hpp"
