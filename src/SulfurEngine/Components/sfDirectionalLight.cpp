@@ -39,8 +39,8 @@ namespace Sulfur
   {
     Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(m_owner);
     transform->Update();
-    draw->DrawBox2D(transform->GetWorldMatrix(), 0.75f, 0.75f, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
-    draw->DrawVector(transform->GetTranslation(), transform->GetForward() * 0.75f, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+    draw->DrawBox2D(transform->GetWorldMatrix(), 0.75f, 0.75f, false, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+    draw->DrawVector(transform->GetTranslation(), transform->GetForward() * 0.75f, false, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
   }
 
 }

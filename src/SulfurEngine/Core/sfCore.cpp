@@ -73,7 +73,6 @@ namespace Sulfur
 
   void Core::GameLoop(void)
   {
-
     while (m_running)
       Frame();
   }
@@ -83,6 +82,7 @@ namespace Sulfur
     WindowManager::Instance()->Update();
     InputManager::Instance()->Update();
     TaskManager::Instance()->RunTasks();
+    SceneManager::Instance()->Update();
     GraphicsManager::Instance()->Update();
     ObjectFactory::Instance()->EndFrameCleanUp();
     Time::Instance()->WaitForFrameRate();
@@ -90,7 +90,7 @@ namespace Sulfur
 
   void Core::ShutDown(void)
   {
-    
+    GraphicsManager::Instance()->Free();
   }
 
   void Core::OnWindowClose()

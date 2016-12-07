@@ -12,6 +12,10 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfGraphicsUtils.hpp"
+#include "Factories/sfObjectFactory.hpp"
+#include "Components/sfCamera.hpp"
+#include "Components/sfTransform.hpp"
+#include "Components/sfMeshRenderer.hpp"
 
 namespace Sulfur
 {
@@ -173,6 +177,81 @@ DXGI_FORMAT GraphicsUtils::DxgiFormatFromTypeAndMask(D3D_REGISTER_COMPONENT_TYPE
   }
 
   return DXGI_FORMAT_UNKNOWN;
+}
+
+void GraphicsUtils::SetupCamera(D3D11Context& context, Real width, Real height, Scene& scene, D3D11ConstantBuffer *perFrameBuffer)
+{
+  HNDL objHandle = scene.GetCameraObject();
+
+  if (objHandle != SF_INV_HANDLE)
+  {
+    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
+    Transform *transform = object->GetComponent<Transform>();
+    Camera *camera = object->GetComponent<Camera>();
+
+    PerFrameData perFrame;
+    perFrame.ViewMatrix.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), transform->GetWorldTranslation());
+    perFrame.ProjMatrix.SetPerspectiveFovLH(width, height, camera->GetFieldOfView() * SF_RADS_PER_DEG, camera->GetNearPlane(), camera->GetFarPlane());
+    perFrame.ViewPosition = transform->GetWorldTranslation();
+    perFrameBuffer->SetData(context, perFrame);
+  }
+  else
+  {
+    PerFrameData perFrame;
+    perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
+    perFrame.ProjMatrix.SetPerspectiveFovLH(width, height, 3.14159f / 4.0f, 0.1f, 1000.0f);
+    perFrame.ViewPosition = Vector3(0.0f, 0.0f, 0.0f);
+    perFrameBuffer->SetData(context, perFrame);
+  }
+}
+
+void GraphicsUtils::RenderWorld(D3D11Context& context, D3D11ConstantBuffer *materialBuffer, D3D11ConstantBuffer *perObjectBuffer)
+{
+  ComponentFactory::ComponentData componentData = SF_GET_COMP_DATA(MeshRenderer);
+  for (auto it = componentData.begin(); it != componentData.end(); ++it)
+    RenderMeshRenderer(context, static_cast<MeshRenderer*>(*it), materialBuffer, perObjectBuffer);
+}
+
+void GraphicsUtils::RenderMeshRenderer(D3D11Context& context, MeshRenderer *meshRenderer, D3D11ConstantBuffer *materialBuffer, D3D11ConstantBuffer *perObjectBuffer)
+{
+  Mesh *mesh = meshRenderer->GetMesh();
+
+  if (mesh != nullptr)
+  {
+    Object *object = SF_GET_OBJECT(meshRenderer->GetOwner());
+    Transform *transform = object->GetComponent<Transform>();
+
+    if (materialBuffer)
+    {
+      const Material& material = meshRenderer->GetMaterial();
+      Texture2D *diffuseTexture = material.GetDiffuseTexture();
+      Texture2D *normalTexture = material.GetNormalTexture();
+      Texture2D *materialTexture = material.GetMaterialTexture();
+      Texture2D *emissiveTexture = material.GetEmissiveTexture();
+
+      MaterialData materialData;
+      materialData.DiffuseColor = material.GetDiffuseColor();
+      materialData.EmissiveColor = material.GetEmissiveColor();
+      materialData.UsesDiffuseTexture = diffuseTexture != nullptr;
+      materialData.UsesNormalTexture = normalTexture != nullptr;
+      materialData.UsesMaterialTexture = materialTexture != nullptr;
+      materialData.UsesEmissiveTexture = emissiveTexture != nullptr;
+      materialData.Metallic = material.GetMetallic();
+      materialData.Roughness = material.GetRoughness();
+      materialBuffer->SetData(context, materialData);
+
+      if (materialData.UsesDiffuseTexture != 0) diffuseTexture->SetPixel(context, 0);
+      if (materialData.UsesNormalTexture != 0) normalTexture->SetPixel(context, 1);
+      if (materialData.UsesMaterialTexture != 0) materialTexture->SetPixel(context, 2);
+      if (materialData.UsesEmissiveTexture != 0) emissiveTexture->SetPixel(context, 3);
+    }
+
+    PerObjectData perObject;
+    perObject.WorldMatrix = transform->GetWorldMatrix();
+    perObjectBuffer->SetData(context, perObject);
+
+    mesh->Draw(context);
+  }
 }
 
 }

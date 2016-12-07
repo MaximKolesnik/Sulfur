@@ -19,6 +19,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Factories/sfObjectFactory.hpp"
 #include "Components/sfTransform.hpp"
 #include "Components/sfCamera.hpp"
+#include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
 
 namespace Sulfur
 {
@@ -46,7 +47,8 @@ void RenderDebugDraw::Process()
   m_vertexShader.Set(m_context);
   m_pixelShader.Set(m_context);
 
-  SetupCamera(SceneManager::Instance()->GetScene());
+  Scene& scene = SceneManager::Instance()->GetScene();
+  GraphicsUtils::SetupCamera(m_context, (Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, scene, m_perFrameData);
 
   PerObjectData perObject;
   perObject.WorldMatrix.SetIdentity();
@@ -56,32 +58,6 @@ void RenderDebugDraw::Process()
 
   m_wireframeShader.Set(m_context);
   DebugDraw::Instance()->DrawWireframe(m_context, m_perObjectData);
-}
-
-void RenderDebugDraw::SetupCamera(Scene& scene)
-{
-  HNDL objHandle = scene.GetCameraObject();
-
-  if (objHandle != SF_INV_HANDLE)
-  {
-    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
-    Transform *transform = object->GetComponent<Transform>();
-    Camera *camera = object->GetComponent<Camera>();
-
-    PerFrameData perFrame;
-    perFrame.ViewMatrix.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), transform->GetWorldTranslation());
-    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, camera->GetFieldOfView() * SF_RADS_PER_DEG, camera->GetNearPlane(), camera->GetFarPlane());
-    perFrame.ViewPosition = transform->GetWorldTranslation();
-    m_perFrameData->SetData(m_context, perFrame);
-  }
-  else
-  {
-    PerFrameData perFrame;
-    perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
-    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_renderTarget->GetTexture()->GetDescription().Width, (Real)m_renderTarget->GetTexture()->GetDescription().Height, 3.14159f / 4.0f, 0.1f, 1000.0f);
-    perFrame.ViewPosition = Vector3(0.0f, 0.0f, 0.0f);
-    m_perFrameData->SetData(m_context, perFrame);
-  }
 }
 
 }

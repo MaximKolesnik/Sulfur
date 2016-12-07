@@ -110,6 +110,11 @@ void RenderTarget::Clear(D3D11Context& context, const Vector4& color)
     context.GetD3DResource()->ClearRenderTargetView(m_resource[i], &color[0]);
 }
 
+void RenderTarget::Clear(D3D11Context& context, UINT32 index, const Vector4& color)
+{
+  context.GetD3DResource()->ClearRenderTargetView(m_resource[index], &color[0]);
+}
+
 Texture2D* RenderTarget::GetTexture()
 {
   return &m_texture;

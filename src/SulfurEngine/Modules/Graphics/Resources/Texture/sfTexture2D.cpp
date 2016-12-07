@@ -106,7 +106,9 @@ void Texture2D::CreateShaderResourceView(D3D11Device& device)
 {
   D3D11_SHADER_RESOURCE_VIEW_DESC srvDescription;
   srvDescription.Format = m_description.Format;
-
+  if (srvDescription.Format == DXGI_FORMAT_R24G8_TYPELESS) srvDescription.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+  if (srvDescription.Format == DXGI_FORMAT_R32G8X24_TYPELESS) srvDescription.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+  
   if ((m_description.MiscFlags & D3D11_RESOURCE_MISC_TEXTURECUBE) != 0)
   {
     srvDescription.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;

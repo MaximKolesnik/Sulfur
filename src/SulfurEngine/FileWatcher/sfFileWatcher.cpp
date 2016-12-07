@@ -63,7 +63,7 @@ namespace Sulfur
         actionInfo.m_fileName = watchInfo->m_fileWatcher->_GetFileName(file);
         actionInfo.m_path = watchInfo->m_fileWatcher->_GetPath(file);
 
-        watchInfo->m_fileWatcher->m_callback(actionInfo);
+        watchInfo->m_fileWatcher->NotifyFileAction(actionInfo);
 
         /*switch (notifyStruct->Action)
         {
@@ -90,9 +90,8 @@ namespace Sulfur
       RefreshWatch(watchInfo, FileIOCompletionRoutine);
   }
 
-  FileWatcher::FileWatcher(FileWatcherCallback func) : m_callback(func)
+  FileWatcher::FileWatcher()
   {
-    SF_ASSERT(func != nullptr, "Callback function must be set");
   }
 
   FileWatcher::~FileWatcher(void)

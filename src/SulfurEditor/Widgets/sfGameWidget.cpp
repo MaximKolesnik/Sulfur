@@ -30,13 +30,16 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/State/sfRasterState.hpp"
 #include "Modules/Graphics/State/sfSamplerState.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
+#include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
+
+#include "Math/Geometry/sfGeometry.hpp"
 
 namespace Sulfur
 {
 
 GameWidget::GameWidget(QWidget *parent)
   : QWidget(parent), m_controllingCamera(false), m_cameraYaw(0.0f), m_cameraPitch(0.0f), m_resizeTimer(0),
-  m_selection(nullptr)
+  m_selection(nullptr), m_currentGizmo(TRANSLATION_GIZMO), m_usingGizmo(false)
 {
   setAttribute(Qt::WA_PaintOnScreen, true);
   setAttribute(Qt::WA_NativeWindow, true);
@@ -69,6 +72,7 @@ GameWidget::~GameWidget()
 
 void GameWidget::Frame()
 {
+  RenderPickingTexture();
   SelectionDrawing();
   UpdateEditorCamera();
   Core::Instance()->Frame();
@@ -80,6 +84,16 @@ void GameWidget::mousePressEvent(QMouseEvent *event)
   {
     ShowCursor(FALSE);
     m_controllingCamera = true;
+  }
+  else if (event->button() == Qt::MouseButton::LeftButton)
+  {
+    m_currentGizmoPart = GetGizmoPart(event->x(), event->y());
+    if (m_currentGizmoPart != -1)
+    {
+      m_usingGizmo = true;
+      m_lastIntersection = m_selection->GetComponent<Transform>()->GetWorldTranslation();
+      m_lastMousePos = event->pos();
+    }
   }
 
   setFocus(Qt::FocusReason::OtherFocusReason);
@@ -95,8 +109,10 @@ void GameWidget::mouseReleaseEvent(QMouseEvent *event)
   }
   else if (event->button() == Qt::MouseButton::LeftButton)
   {
-    RenderPickingTexture();
-    SelectObjectAt(event->x(), event->y());
+    if (!m_usingGizmo)
+      SelectObjectAt(event->x(), event->y());
+    else
+      m_usingGizmo = false;
   }
 
   setFocus(Qt::FocusReason::OtherFocusReason);
@@ -111,6 +127,13 @@ void GameWidget::mouseDoubleClickEvent(QMouseEvent *event)
 void GameWidget::mouseMoveEvent(QMouseEvent *event)
 {
   QWidget::mouseMoveEvent(event);
+
+  QPoint pos = event->pos();
+  QPoint d = pos - m_lastMousePos;
+  m_lastMousePos = pos;
+
+  if (m_usingGizmo)
+    UpdateGizmos(pos.x(), pos.y(), d.x(), d.y());
 }
 
 void GameWidget::CreatePickingResources()
@@ -146,6 +169,12 @@ void GameWidget::CreatePickingResources()
 
   m_pickingPixelShader.Init(GraphicsManager::Instance()->GetDevice(), "Shaders/PSPicking.sbin");
   m_pickingData = m_pickingPixelShader.GetConstantBuffer("PickingData");
+
+  m_box.Init(GraphicsManager::Instance()->GetDevice());
+  m_box.CreateBox(0.1f, 0.1f, 1.0f);
+
+  m_plane.Init(GraphicsManager::Instance()->GetDevice());
+  m_plane.CreateBox(2.0f, 2.0f, 0.1f);
 }
 
 void GameWidget::RenderPickingTexture()
@@ -163,30 +192,7 @@ void GameWidget::RenderPickingTexture()
   m_pickingVertexShader.Set(context);
   m_pickingPixelShader.Set(context);
 
-  Scene& scene = SceneManager::Instance()->GetScene();
-  
-  // Setup camera
-  HNDL objHandle = scene.GetCameraObject();
-  if (objHandle != SF_INV_HANDLE)
-  {
-    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
-    Transform *transform = object->GetComponent<Transform>();
-    Camera *camera = object->GetComponent<Camera>();
-
-    PerFrameData perFrame;
-    perFrame.ViewMatrix.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), transform->GetWorldTranslation());
-    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)width(), (Real)height(), camera->GetFieldOfView() * SF_RADS_PER_DEG, camera->GetNearPlane(), camera->GetFarPlane());
-    perFrame.ViewPosition = transform->GetWorldTranslation();
-    m_perFrameData->SetData(context, perFrame);
-  }
-  else
-  {
-    PerFrameData perFrame;
-    perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
-    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)width(), (Real)height(), 3.14159f / 4.0f, 0.1f, 1000.0f);
-    perFrame.ViewPosition = Vector3(0.0f, 0.0f, 0.0f);
-    m_perFrameData->SetData(context, perFrame);
-  }
+  GraphicsUtils::SetupCamera(context, (Real)width(), (Real)height(), SceneManager::Instance()->GetScene(), m_perFrameData);
 
   ComponentFactory::ComponentData componentData = ComponentFactory::Instance()->GetComponentData<MeshRenderer>();
   for (auto it = componentData.begin(); it != componentData.end(); ++it)
@@ -203,7 +209,7 @@ void GameWidget::RenderPickingTexture()
       perObject.WorldMatrix = transform->GetWorldMatrix();
       m_perObjectData->SetData(context, perObject);
 
-      UINT32 handle = (UINT32)meshRenderer->GetOwner() + 1;
+      UINT32 handle = (UINT32)meshRenderer->GetOwner() + 1 + GIZMO_PART_COUNT;
       m_pickingData->SetData(context, handle);
 
       mesh->Draw(context);
@@ -225,12 +231,35 @@ void GameWidget::SelectObjectAt(int x, int y)
   UINT32 *pickingData = (UINT32*)msr.pData;
   UINT32 handle = pickingData[py * 1024 + px];
 
-  if (handle != 0)
-    emit ObjectSelected(SF_GET_OBJECT((HNDL)handle-1));
+  if (handle >= GIZMO_PART_COUNT + 1)
+    emit ObjectSelected(SF_GET_OBJECT((HNDL)handle - 1 - GIZMO_PART_COUNT));
   else
     emit ObjectSelected(nullptr);
 
   context->Unmap(m_stagingTexture, 0);
+}
+
+GameWidget::GizmoPart GameWidget::GetGizmoPart(int x, int y)
+{
+  if (x < 0 || x >= width() || y < 0 || y >= height()) return (GizmoPart)-1;
+  int px = (int)((Real)x / width() * 1024);
+  int py = (int)((Real)y / height() * 1024);
+
+  ID3D11DeviceContext *context = GraphicsManager::Instance()->GetDevice().GetImmediateContext().GetD3DResource();
+  context->CopyResource(m_stagingTexture, m_pickingTarget.GetTexture()->GetD3DResource());
+
+  D3D11_MAPPED_SUBRESOURCE msr;
+  context->Map(m_stagingTexture, 0, D3D11_MAP_READ, 0, &msr);
+
+  UINT32 *pickingData = (UINT32*)msr.pData;
+  UINT32 handle = pickingData[py * 1024 + px];
+
+  GizmoPart part = (GizmoPart)-1;
+  if (handle >= 1 && handle <= GIZMO_PART_COUNT)
+    part = (GizmoPart)(handle - 1);
+
+  context->Unmap(m_stagingTexture, 0);
+  return part;
 }
 
 void GameWidget::SelectionDrawing()
@@ -244,6 +273,239 @@ void GameWidget::SelectionDrawing()
     {
       ComponentFactory::Instance()->GetComponent(it->first, it->second)->DrawDebug(DebugDraw::Instance());
     }
+
+    if (m_currentGizmo == TRANSLATION_GIZMO) RenderTranslationGizmo();
+    if (m_currentGizmo == ROTATION_GIZMO) RenderRotationGizmo();
+    if (m_currentGizmo == SCALING_GIZMO) RenderScalingGizmo();
+  }
+}
+
+void GameWidget::RenderTranslationGizmo()
+{
+  QPoint mouse = this->mapFromGlobal(QCursor::pos());
+  Transform *transform = m_selection->GetComponent<Transform>();
+
+  D3D11Context& context = GraphicsManager::Instance()->GetDevice().GetImmediateContext();
+
+  GraphicsUtils::SetupCamera(context, (Real)width(), (Real)height(), SceneManager::Instance()->GetScene(), m_perFrameData);
+
+  m_pickingDepthBuffer.Clear(context);
+  m_pickingTarget.Set(context, m_pickingDepthBuffer);
+
+  DepthState::Set(context, DepthState::DEPTH_ENABLED);
+  BlendState::Set(context, BlendState::NO_BLENDING);
+  RasterState::Set(context, RasterState::BACK_FACE_CULLING);
+
+  m_pickingVertexShader.Set(context);
+  m_pickingPixelShader.Set(context);
+
+  // Z axis
+  PerObjectData perObject;
+  perObject.WorldMatrix.SetTransformation(transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation() + 0.5f * transform->GetWorldForward());
+  m_perObjectData->SetData(context, perObject);
+  UINT32 handle = (UINT32)TRANSLATION_Z + 1;
+  m_pickingData->SetData(context, handle);
+  m_box.Draw(context);
+
+  // X axis
+  perObject.WorldMatrix.SetTransformation(Quaternion(transform->GetWorldUp(), SF_PI / 2.0f) * transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation() + 0.5f * transform->GetWorldRight());
+  m_perObjectData->SetData(context, perObject);
+  handle = (UINT32)TRANSLATION_X + 1;
+  m_pickingData->SetData(context, handle);
+  m_box.Draw(context);
+
+  // Y axis
+  perObject.WorldMatrix.SetTransformation(Quaternion(transform->GetWorldRight(), SF_PI / 2.0f) * transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation() + 0.5f * transform->GetWorldUp());
+  m_perObjectData->SetData(context, perObject);
+  handle = (UINT32)TRANSLATION_Y + 1;
+  m_pickingData->SetData(context, handle);
+  m_box.Draw(context);
+
+  GizmoPart part = GetGizmoPart(mouse.x(), mouse.y());
+  DebugDraw::Instance()->DrawVector(transform->GetWorldTranslation(), transform->GetWorldRight(), true,   part == TRANSLATION_X ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+  DebugDraw::Instance()->DrawVector(transform->GetWorldTranslation(), transform->GetWorldUp(), true,      part == TRANSLATION_Y ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+  DebugDraw::Instance()->DrawVector(transform->GetWorldTranslation(), transform->GetWorldForward(), true, part == TRANSLATION_Z ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+}
+
+void GameWidget::RenderRotationGizmo()
+{
+  QPoint mouse = this->mapFromGlobal(QCursor::pos());
+  Transform *transform = m_selection->GetComponent<Transform>();
+
+  D3D11Context& context = GraphicsManager::Instance()->GetDevice().GetImmediateContext();
+
+  GraphicsUtils::SetupCamera(context, (Real)width(), (Real)height(), SceneManager::Instance()->GetScene(), m_perFrameData);
+
+  m_pickingDepthBuffer.Clear(context);
+  m_pickingTarget.Set(context, m_pickingDepthBuffer);
+
+  DepthState::Set(context, DepthState::DEPTH_ENABLED);
+  BlendState::Set(context, BlendState::NO_BLENDING);
+  RasterState::Set(context, RasterState::BACK_FACE_CULLING);
+
+  m_pickingVertexShader.Set(context);
+  m_pickingPixelShader.Set(context);
+
+  // Z axis
+  PerObjectData perObject;
+  perObject.WorldMatrix.SetTransformation(transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation());
+  m_perObjectData->SetData(context, perObject);
+  UINT32 handle = (UINT32)ROTATION_Z + 1;
+  m_pickingData->SetData(context, handle);
+  m_plane.Draw(context);
+
+  // X axis
+  perObject.WorldMatrix.SetTransformation(Quaternion(transform->GetWorldUp(), SF_PI / 2.0f) * transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation());
+  m_perObjectData->SetData(context, perObject);
+  handle = (UINT32)ROTATION_X + 1;
+  m_pickingData->SetData(context, handle);
+  m_plane.Draw(context);
+
+  // Y axis
+  perObject.WorldMatrix.SetTransformation(Quaternion(transform->GetWorldRight(), SF_PI / 2.0f) * transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation());
+  m_perObjectData->SetData(context, perObject);
+  handle = (UINT32)ROTATION_Y + 1;
+  m_pickingData->SetData(context, handle);
+  m_plane.Draw(context);
+
+  GizmoPart part = GetGizmoPart(mouse.x(), mouse.y());
+  DebugDraw::Instance()->DrawCircle(transform->GetWorldTranslation(), transform->GetWorldRight(), 1.0f, true, part == ROTATION_X ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+  DebugDraw::Instance()->DrawCircle(transform->GetWorldTranslation(), transform->GetWorldUp(), 1.0f, true, part == ROTATION_Y ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+  DebugDraw::Instance()->DrawCircle(transform->GetWorldTranslation(), transform->GetWorldForward(), 1.0f, true, part == ROTATION_Z ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+}
+
+void GameWidget::RenderScalingGizmo()
+{
+  QPoint mouse = this->mapFromGlobal(QCursor::pos());
+  Transform *transform = m_selection->GetComponent<Transform>();
+
+  D3D11Context& context = GraphicsManager::Instance()->GetDevice().GetImmediateContext();
+
+  GraphicsUtils::SetupCamera(context, (Real)width(), (Real)height(), SceneManager::Instance()->GetScene(), m_perFrameData);
+
+  m_pickingDepthBuffer.Clear(context);
+  m_pickingTarget.Set(context, m_pickingDepthBuffer);
+
+  DepthState::Set(context, DepthState::DEPTH_ENABLED);
+  BlendState::Set(context, BlendState::NO_BLENDING);
+  RasterState::Set(context, RasterState::BACK_FACE_CULLING);
+
+  m_pickingVertexShader.Set(context);
+  m_pickingPixelShader.Set(context);
+
+  // Z axis
+  PerObjectData perObject;
+  perObject.WorldMatrix.SetTransformation(transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation() + 0.5f * transform->GetWorldForward());
+  m_perObjectData->SetData(context, perObject);
+  UINT32 handle = (UINT32)SCALING_Z + 1;
+  m_pickingData->SetData(context, handle);
+  m_box.Draw(context);
+
+  // X axis
+  perObject.WorldMatrix.SetTransformation(Quaternion(transform->GetWorldUp(), SF_PI / 2.0f) * transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation() + 0.5f * transform->GetWorldRight());
+  m_perObjectData->SetData(context, perObject);
+  handle = (UINT32)SCALING_X + 1;
+  m_pickingData->SetData(context, handle);
+  m_box.Draw(context);
+
+  // Y axis
+  perObject.WorldMatrix.SetTransformation(Quaternion(transform->GetWorldRight(), SF_PI / 2.0f) * transform->GetWorldRotation(), Vector3(1.0f, 1.0f, 1.0f), transform->GetWorldTranslation() + 0.5f * transform->GetWorldUp());
+  m_perObjectData->SetData(context, perObject);
+  handle = (UINT32)SCALING_Y + 1;
+  m_pickingData->SetData(context, handle);
+  m_box.Draw(context);
+
+  GizmoPart part = GetGizmoPart(mouse.x(), mouse.y());
+  DebugDraw::Instance()->DrawLine(transform->GetWorldTranslation(), transform->GetWorldTranslation() + transform->GetWorldRight(), true, part == SCALING_X ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+  DebugDraw::Instance()->DrawSphere(transform->GetWorldTranslation() + transform->GetWorldRight(), 0.02f, true, part == SCALING_X ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+  DebugDraw::Instance()->DrawLine(transform->GetWorldTranslation(), transform->GetWorldTranslation() + transform->GetWorldUp(), true, part == SCALING_Y ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+  DebugDraw::Instance()->DrawSphere(transform->GetWorldTranslation() + transform->GetWorldUp(), 0.02f, true, part == SCALING_Y ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+  DebugDraw::Instance()->DrawLine(transform->GetWorldTranslation(), transform->GetWorldTranslation() + transform->GetWorldForward(), true, part == SCALING_Z ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+  DebugDraw::Instance()->DrawSphere(transform->GetWorldTranslation() + transform->GetWorldForward(), 0.02f, true, part == SCALING_Z ? Vector4(1.0f, 1.0f, 0.0f, 1.0f) : Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+}
+
+void GameWidget::UpdateGizmos(int x, int y, int dx, int dy)
+{
+  Transform *transform = m_selection->GetComponent<Transform>();
+  Object *editorCamera = SF_GET_OBJECT(m_editorCamera);
+  Transform *cameraTransform = editorCamera->GetComponent<Transform>();
+  Camera *camera = editorCamera->GetComponent<Camera>();
+
+  if (m_currentGizmo == TRANSLATION_GIZMO || m_currentGizmo == SCALING_GIZMO)
+  {
+    Real aspect = (Real)width() / height();
+    Real fovy = camera->GetFieldOfView() / 2.0f;
+    Real np = camera->GetNearPlane();
+    Real npHeight = tanf(fovy) * np;
+    Real npWidth = npHeight * aspect;
+    Real npX = ((2.0f * x) / width() - 1.0f) * npWidth;
+    Real npY = -((2.0f * y) / height() - 1.0f) * npHeight;
+
+    Vector3 cameraRayPos = cameraTransform->GetWorldTranslation();
+    Vector3 cameraRayDir = cameraTransform->GetWorldForward() * np + cameraTransform->GetWorldRight() * npX + cameraTransform->GetWorldUp() * npY;
+
+    Vector3 oldCenter = transform->GetWorldTranslation();
+    Vector3 intersection;
+    switch (m_currentGizmoPart)
+    {
+
+    case TRANSLATION_X:
+    case TRANSLATION_Y:
+    case SCALING_X:
+    case SCALING_Y:
+    {
+      Geometry::Plane plane(transform->GetWorldForward(), transform->GetWorldTranslation());
+
+      Real t = 0.0f;
+      Geometry::RayPlane(cameraRayPos, cameraRayDir, plane.m_data, t);
+      intersection = cameraRayPos + t * cameraRayDir;
+    } break;
+
+    case TRANSLATION_Z:
+    case SCALING_Z:
+    {
+      Geometry::Plane plane(transform->GetWorldUp(), transform->GetWorldTranslation());
+
+      Real t = 0.0f;
+      Geometry::RayPlane(cameraRayPos, cameraRayDir, plane.m_data, t);
+      intersection = cameraRayPos + t * cameraRayDir;
+    } break;
+
+    }
+
+    // Project onto axis
+    if (m_currentGizmoPart == TRANSLATION_X || m_currentGizmoPart == SCALING_X) intersection = (intersection - m_lastIntersection).Dot(transform->GetWorldRight()) * transform->GetWorldRight() + m_lastIntersection;
+    else if (m_currentGizmoPart == TRANSLATION_Y || m_currentGizmoPart == SCALING_Y) intersection = (intersection - m_lastIntersection).Dot(transform->GetWorldUp()) * transform->GetWorldUp() + m_lastIntersection;
+    else if (m_currentGizmoPart == TRANSLATION_Z || m_currentGizmoPart == SCALING_Z) intersection = (intersection - m_lastIntersection).Dot(transform->GetWorldForward()) * transform->GetWorldForward() + m_lastIntersection;
+
+    if (m_lastIntersection == transform->GetWorldTranslation())
+    {
+      m_lastIntersection = intersection;
+      return;
+    }
+
+    if (m_currentGizmo == TRANSLATION_GIZMO)
+    {
+      Vector3 translation = intersection - m_lastIntersection;
+      transform->SetTranslation(transform->GetWorldTranslation() + intersection - m_lastIntersection);
+    }
+    else
+    {
+      Matrix4 invRotation = transform->GetRotation().Inverted().GetMatrix4();
+      Vector3 scaling = invRotation * (intersection - m_lastIntersection);
+      transform->SetScale(transform->GetScale() + scaling);
+    }
+
+    m_lastIntersection = intersection;
+  }
+  else if (m_currentGizmo == ROTATION_GIZMO)
+  {
+    Vector3 rotationAxis;
+    if (m_currentGizmoPart == ROTATION_X) rotationAxis = transform->GetRotation().GetMatrix4().TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
+    else if (m_currentGizmoPart == ROTATION_Y) rotationAxis = transform->GetRotation().GetMatrix4().TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
+    else if (m_currentGizmoPart == ROTATION_Z) rotationAxis = transform->GetRotation().GetMatrix4().TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
+
+    transform->SetRotation(Quaternion(rotationAxis, dx * 0.0001f * (cameraTransform->GetWorldTranslation() - transform->GetWorldTranslation()).Length()) * transform->GetRotation());
   }
 }
 
@@ -289,6 +551,21 @@ QPaintEngine* GameWidget::paintEngine() const
 void GameWidget::SetSelection(Object *object)
 {
   m_selection = object;
+}
+
+void GameWidget::MoveToObject(Object *object)
+{
+  Transform *cameraTransform = SF_GET_OBJECT(m_editorCamera)->GetComponent<Transform>();
+  Transform *objectTransform = object->GetComponent<Transform>();
+  cameraTransform->Update();
+  objectTransform->Update();
+
+  cameraTransform->SetTranslation(objectTransform->GetTranslation() - cameraTransform->GetForward() * 5.0f);
+}
+
+void GameWidget::SetGizmo(Gizmo gizmo)
+{
+  m_currentGizmo = gizmo;
 }
 
 void GameWidget::resizeEvent(QResizeEvent* evt)

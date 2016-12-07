@@ -30,6 +30,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
+
   ComponentFactory::ComponentFactory(void) : m_initialized(false)
   {
 

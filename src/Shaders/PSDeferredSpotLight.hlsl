@@ -4,6 +4,7 @@
 
 cbuffer SpotLightData
 {
+  matrix ShadowMapTransform;
   float4 LightPosition;
   float3 LightDirection;
   float4 LightColor;
@@ -14,7 +15,8 @@ cbuffer SpotLightData
   float LightFalloff;
 };
 
-Texture2DArray gbuffer;
+Texture2DArray gbuffer : register(t0);
+Texture2D shadowMap : register(t1);
 SamplerState pointSampler;
 
 float4 main(PixelIn input) : SV_TARGET
@@ -24,7 +26,9 @@ float4 main(PixelIn input) : SV_TARGET
   if (gbufferData.Diffuse.a == 0.0f) discard;
 
   float3 lightDirection = LightPosition - gbufferData.WorldPosition;
-  float lightDistance = length(lightDirection);
+  float lightDistSqr = dot(lightDirection, lightDirection);
+  float lightDistance = sqrt(lightDistSqr);
+  if (lightDistance > LightRange || lightDistance <= 0.0f) discard;
   lightDirection /= lightDistance;
   float3 halfVector = normalize(lightDirection + gbufferData.ViewDirection);
 
@@ -32,6 +36,20 @@ float4 main(PixelIn input) : SV_TARGET
   float spotPower = (dot(-LightDirection, lightDirection) - cos(LightOuterAngle)) / (cos(LightInnerAngle) - cos(LightOuterAngle));
   spotPower = pow(saturate(spotPower), LightFalloff);
   if (spotPower <= 0.0f) discard;
+
+  // Check shadow map
+  float shadowFactor = 0.0f;
+  float4 shadowPos = mul(float4(gbufferData.WorldPosition, 1.0f), ShadowMapTransform);
+  shadowPos.xy = shadowPos.xy / shadowPos.w / 2.0f + 0.5f;
+  if (shadowPos.x >= 0.0f && shadowPos.x <= 1.0f &&  shadowPos.y >= 0.0f && shadowPos.y <= 1.0f)
+  {
+    float smDepth = shadowMap.Sample(pointSampler, float2(shadowPos.x, 1.0f - shadowPos.y)).r;
+
+    if (lightDistSqr - 0.001f < smDepth)
+      shadowFactor = 1.0f;
+  }
+
+  if (shadowFactor == 0.0f) discard;
 
   float NoL = max(0.0f, dot(gbufferData.Normal, lightDirection));
   float NoH = max(0.0f, dot(gbufferData.Normal, halfVector));
@@ -54,6 +72,6 @@ float4 main(PixelIn input) : SV_TARGET
   atten = (atten - 0.001f) / (1.0f - 0.001f);
   atten = max(0, atten);
 
-  return float4(BlendDiffuseSpecular(diffuse, specular, gbufferData.Diffuse.rgb, gbufferData.Metallic) * atten * NoL * LightIntensity * LightColor * spotPower, 1.0f);
+  return float4(BlendDiffuseSpecular(diffuse, specular, gbufferData.Diffuse.rgb, gbufferData.Metallic) * atten * NoL * LightIntensity * LightColor * spotPower * shadowFactor, 1.0f);
   //return float4((NoL * diffuseColor / 3.14159f + specular) * atten, 1.0f);
 }

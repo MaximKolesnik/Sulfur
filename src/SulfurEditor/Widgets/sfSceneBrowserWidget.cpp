@@ -109,7 +109,7 @@ void SceneBrowserWidget::Setup()
   m_layout->addWidget(m_sceneTree, 1, 0, 1, 2);
 
   m_newObjectButton = new QToolButton();
-  m_newObjectButton->setMinimumWidth(100);
+  m_newObjectButton->setMinimumWidth(200);
   m_newObjectButton->setText("New");
   m_newObjectButton->setPopupMode(QToolButton::InstantPopup);
   m_layout->addWidget(m_newObjectButton, 0, 0);
@@ -144,6 +144,11 @@ void SceneBrowserWidget::Setup()
   QObject::connect(
     m_sceneTree, &QTreeWidget::itemSelectionChanged,
     this, &SceneBrowserWidget::OnSceneTreeSelectionChanged
+    );
+
+  QObject::connect(
+    m_sceneTree, &QTreeWidget::itemActivated,
+    this, &SceneBrowserWidget::OnObjectActivated
     );
 
   QObject::connect(
@@ -183,14 +188,11 @@ void SceneBrowserWidget::DeleteSelectedObjects()
     HNDL objectHandle = selection.front()->data(0, Qt::UserRole).value<HNDL>();
     QTreeWidgetItem *parent = item->parent();
     if (parent == nullptr)
-    {
-      m_scene->RemoveFromRoot(objectHandle);
       m_sceneTree->invisibleRootItem()->removeChild(item);
-    }
     else
-    {
       parent->removeChild(item);
-    }
+
+    m_scene->RemoveObject(objectHandle);
 
     ObjectFactory::Instance()->DestroyObject(objectHandle);
   }
@@ -240,6 +242,12 @@ void SceneBrowserWidget::OnPropertiesClicked()
   m_scenePropertiesDialog->show();
 }
 
+void SceneBrowserWidget::OnObjectActivated(QTreeWidgetItem *item, int column)
+{
+  Object *object = SF_GET_OBJECT(item->data(0, Qt::UserRole).value<HNDL>());
+  emit ObjectActivated(object);
+}
+
 void SceneBrowserWidget::OnSceneTreeSelectionChanged()
 {
   QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
@@ -269,12 +277,13 @@ void SceneBrowserWidget::OnItemsMoved(const QModelIndex &parent, int start, int 
 
     if (parentHandle != currentParent)
     {
-      if (child->GetParent() == SF_INV_HANDLE)
-        m_scene->RemoveFromRoot(childHandle);
-      else if (parentHandle == SF_INV_HANDLE)
-        m_scene->AddObject(childHandle);
-
-      child->SetParent(parentHandle);
+      if (currentParent == SF_INV_HANDLE || parentHandle == SF_INV_HANDLE)
+      {
+        m_scene->RemoveObject(childHandle);
+        m_scene->AddObject(childHandle, parentHandle);
+      }
+      else
+        child->SetParent(parentHandle);
     }
   }
 }

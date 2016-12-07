@@ -13,7 +13,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 /******************************************************************************/
 #pragma once
 #include <QtWidgets/QMainWindow>
-#include "Widgets/sfGameWidget.hpp"
+#include "Widgets/sfEditorWidget.hpp"
 #include "Widgets/sfInspectorWidget.hpp"
 #include "Widgets/sfResourceBrowserWidget.hpp"
 #include "Widgets/sfOutputWidget.hpp"
@@ -40,6 +40,7 @@ namespace Sulfur
     void OnSaveSceneAs();
 
   public slots:
+    void OnObjectActivated(Object *object);
     void OnObjectSelected(Object *object);
     void OnObjectSelectedGameWindow(Object *object);
     void OnObjectChanged();
@@ -48,7 +49,7 @@ namespace Sulfur
     QMenuBar *m_menuBar;
     QToolBar *m_toolBar;
 
-    GameWidget *m_game;
+    EditorWidget *m_editor;
     InspectorWidget *m_inspector;
     ResourceBrowserWidget *m_resourceBrowser;
     OutputWidget *m_output;

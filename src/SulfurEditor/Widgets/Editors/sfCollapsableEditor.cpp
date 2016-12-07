@@ -32,6 +32,11 @@ CollapsableEditor::~CollapsableEditor()
 {
 }
 
+void CollapsableEditor::SetHeaderText(const std::string& text)
+{
+  m_collapseButton->setText(text.c_str());
+}
+
 void CollapsableEditor::Setup()
 {
   m_collapseButton = new QPushButton();

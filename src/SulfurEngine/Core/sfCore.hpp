@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Types/sfSingleton.hpp"
 #include "Modules/Window/sfWindow.hpp"
 

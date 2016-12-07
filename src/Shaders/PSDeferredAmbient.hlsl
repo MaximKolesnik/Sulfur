@@ -9,6 +9,12 @@ TextureCube environmentMap : register(t1);
 TextureCube irradianceMap : register(t2);
 SamplerState pointSampler;
 
+cbuffer AmbientLightData
+{
+  float4 AmbientLight;
+  bool UseIBL;
+};
+
 float Random(float2 uv)
 {
   uint x = uint(uv.x);
@@ -88,6 +94,8 @@ float4 main(PixelIn input) : SV_TARGET
   GBufferData gbufferData;
   UnpackGBuffer(gbuffer, pointSampler, input.texCoords, gbufferData);
   if (gbufferData.Diffuse.a == 0.0f) discard;
+
+  if (!UseIBL) return float4(AmbientLight.rgb * AmbientLight.a, 1.0f);
 
   float L = normalize(-reflect(gbufferData.ViewDirection, gbufferData.Normal));
   float NoL = max(0.0f, dot(gbufferData.Normal, L));

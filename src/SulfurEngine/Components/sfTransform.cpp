@@ -11,13 +11,13 @@
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
-
 #include "sfTransform.hpp"
 #include "Factories/sfObjectFactory.hpp"
 #include "Factories/sfComponentFactory.hpp"
 
 namespace Sulfur
 {
+
   Transform::Transform(void) 
     : IEntity(), m_translation(0.0f, 0.0f, 0.0f), m_rotation(1.0f, 0.0f, 0.0f, 0.0f), m_scale(1.0f, 1.0f, 1.0f)
   {
@@ -48,9 +48,11 @@ namespace Sulfur
   void Transform::Update()
   {
     m_matrix.SetTransformation(m_rotation, m_scale, m_translation);
-    m_right = m_matrix.TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
-    m_up = m_matrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
-    m_forward = m_matrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
+    
+    Matrix4 lclRotation = m_rotation.GetMatrix4();
+    m_right = lclRotation * Vector3(1.0f, 0.0f, 0.0f);
+    m_up = lclRotation * Vector3(0.0f, 1.0f, 0.0f);
+    m_forward = lclRotation * Vector3(0.0f, 0.0f, 1.0f);
 
     Object *object = SF_GET_OBJECT(m_owner);
     if (object->GetOwner() != SF_INV_HANDLE)
@@ -61,9 +63,11 @@ namespace Sulfur
       m_worldRotation = parentTransform->GetWorldRotation() * m_rotation;
       m_worldScale = parentTransform->GetWorldScale();
       m_worldScale = Vector3(m_worldScale[0] * m_scale[0], m_worldScale[1] * m_scale[1], m_worldScale[2] * m_scale[2]);
-      m_worldRight = m_worldMatrix.TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
-      m_worldUp = m_worldMatrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
-      m_worldForward = m_worldMatrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));
+
+      Matrix4 rotation = m_worldRotation.GetMatrix4();
+      m_worldRight = rotation * Vector3(1.0f, 0.0f, 0.0f);
+      m_worldUp = rotation * Vector3(0.0f, 1.0f, 0.0f);
+      m_worldForward = rotation * Vector3(0.0f, 0.0f, 1.0f);
     }
     else
     {

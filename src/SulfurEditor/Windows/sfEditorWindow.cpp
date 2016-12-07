@@ -33,11 +33,11 @@ EditorWindow::EditorWindow(QWidget *parent)
 
   addDockWidget(Qt::BottomDockWidgetArea, outputDock);
 
-  m_game = new GameWidget();
-  setCentralWidget(m_game);
+  m_editor = new EditorWidget();
+  setCentralWidget(m_editor);
 
   QObject::connect(
-    m_game, &GameWidget::ObjectSelected,
+    m_editor->GetGameWidget(), &GameWidget::ObjectSelected,
     this, &EditorWindow::OnObjectSelectedGameWindow
     );
 
@@ -64,6 +64,11 @@ EditorWindow::EditorWindow(QWidget *parent)
   QObject::connect(
     m_sceneBrowser, &SceneBrowserWidget::ObjectSelected,
     this, &EditorWindow::OnObjectSelected
+    );
+
+  QObject::connect(
+    m_sceneBrowser, &SceneBrowserWidget::ObjectActivated,
+    this, &EditorWindow::OnObjectActivated
     );
 
   addDockWidget(Qt::LeftDockWidgetArea, sceneDock);
@@ -95,7 +100,7 @@ EditorWindow::~EditorWindow()
 
 void EditorWindow::Frame()
 {
-  m_game->Frame();
+  m_editor->GetGameWidget()->Frame();
 }
 
 void EditorWindow::CreateMenuBar()
@@ -136,10 +141,15 @@ void EditorWindow::OnSaveSceneAs()
   }
 }
 
+void EditorWindow::OnObjectActivated(Object *object)
+{
+  m_editor->GetGameWidget()->MoveToObject(object);
+}
+
 void EditorWindow::OnObjectSelected(Object *object)
 {
   m_inspector->SetObject(object);
-  m_game->SetSelection(object);
+  m_editor->GetGameWidget()->SetSelection(object);
 }
 
 void EditorWindow::OnObjectSelectedGameWindow(Object *object)

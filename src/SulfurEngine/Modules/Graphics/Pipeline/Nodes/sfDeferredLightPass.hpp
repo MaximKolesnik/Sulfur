@@ -19,6 +19,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/Resources/Shader/sfD3D11VertexShader.hpp"
 #include "Modules/Graphics/Resources/Shader/sfD3D11PixelShader.hpp"
 #include "Modules/Graphics/Resources/Buffer/sfD3D11ConstantBuffer.hpp"
+#include "Modules/Scene/sfSceneManager.hpp"
 
 namespace Sulfur
 {
@@ -33,6 +34,9 @@ public:
   virtual void Process() override;
 
 private:
+  void PrepShadowMap(RenderTarget& shadowMap, UINT32 index = 0);
+  void PrepLightPass(D3D11PixelShader *pixelShader, RenderTarget& shadowMap);
+
   void RenderAmbientLight();
   void RenderDirectionalLights();
   void RenderPointLights();
@@ -41,6 +45,7 @@ private:
 private:
   D3D11VertexShader m_fullscreenQuadVertexShader;
   D3D11PixelShader m_ambientPixelShader;
+  D3D11ConstantBuffer *m_ambientLightData;
 
   D3D11PixelShader m_directionalLightShader;
   D3D11ConstantBuffer *m_directionalLightData;
@@ -51,8 +56,18 @@ private:
   D3D11PixelShader m_spotLightPixelShader;
   D3D11ConstantBuffer *m_spotLightData;
 
+  D3D11VertexShader m_depthVertexShader;
+  D3D11ConstantBuffer *m_perFrameData;
+  D3D11ConstantBuffer *m_perObjectData;
+
+  D3D11PixelShader m_depthPixelShader;
+
   RenderTarget *m_renderTarget;
   Texture2D *m_gBuffer;
+
+  RenderTarget m_shadowMap;
+  RenderTarget m_shadowCube;
+  DepthBuffer m_shadowMapDepthBuffer;
 
 };
 

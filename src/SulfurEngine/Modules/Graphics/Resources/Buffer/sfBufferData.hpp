@@ -12,6 +12,7 @@
 #include "Math/sfVector4.hpp"
 #include "Math/sfMatrix3.hpp"
 #include "Math/sfMatrix4.hpp"
+#include "Modules/Graphics/Types/sfColor.hpp"
 
 namespace Sulfur
 {
@@ -73,8 +74,16 @@ struct MaterialData
   Real Roughness;
 };
 
+struct AmbientLightData
+{
+  Color AmbientLight;
+  INT32 UseIBL;
+};
+
 struct DirectionalLightData
 {
+  Matrix4 ShadowMapTransform;
+  Vector3 Position;
   Vector3 Direction;
   Vector4 Color;
   float Intensity;
@@ -90,6 +99,7 @@ struct PointLightData
 
 struct SpotLightData
 {
+  Matrix4 ShadowMapTransform;
   Vector4 Position;
   Vector3 Direction;
   Vector4 Color;

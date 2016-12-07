@@ -14,7 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfRenderGbuffer.hpp"
 
 #include "Modules/Graphics/Resources/Buffer/sfBufferData.hpp"
-#include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Modules/Graphics/Utils/sfGraphicsUtils.hpp"
 #include "Factories/sfComponentFactory.hpp"
 #include "Factories/sfObjectFactory.hpp"
 
@@ -66,76 +66,8 @@ void RenderGbuffer::Process()
   m_pixelShader.Set(m_context);
 
   Scene& scene = SceneManager::Instance()->GetScene();
-  SetupCamera(scene);  
-
-  ComponentFactory::ComponentData componentData = SF_GET_COMP_DATA(MeshRenderer);
-  for (auto it = componentData.begin(); it != componentData.end(); ++it)
-    RenderMeshRenderer(static_cast<MeshRenderer*>(*it));
-}
-
-void RenderGbuffer::SetupCamera(Scene& scene)
-{
-  HNDL objHandle = scene.GetCameraObject();
-
-  if (objHandle != SF_INV_HANDLE)
-  {
-    Object *object = SF_GET_OBJECT(scene.GetCameraObject());
-    Transform *transform = object->GetComponent<Transform>();
-    Camera *camera = object->GetComponent<Camera>();
-
-    PerFrameData perFrame;
-    perFrame.ViewMatrix.SetViewMatrix(transform->GetWorldRight(), transform->GetWorldUp(), transform->GetWorldForward(), transform->GetWorldTranslation());
-    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_gBuffer->GetTexture()->GetDescription().Width, (Real)m_gBuffer->GetTexture()->GetDescription().Height, camera->GetFieldOfView() * SF_RADS_PER_DEG, camera->GetNearPlane(), camera->GetFarPlane());
-    perFrame.ViewPosition = transform->GetWorldTranslation();
-    m_perFrameData->SetData(m_context, perFrame);
-  }
-  else
-  {
-    PerFrameData perFrame;
-    perFrame.ViewMatrix.SetLookAtLH(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f));
-    perFrame.ProjMatrix.SetPerspectiveFovLH((Real)m_gBuffer->GetTexture()->GetDescription().Width, (Real)m_gBuffer->GetTexture()->GetDescription().Height, 3.14159f / 4.0f, 0.1f, 1000.0f);
-    perFrame.ViewPosition = Vector3(0.0f, 0.0f, 0.0f);
-    m_perFrameData->SetData(m_context, perFrame);
-  }
-}
-
-void RenderGbuffer::RenderMeshRenderer(MeshRenderer *meshRenderer)
-{
-  Mesh *mesh = meshRenderer->GetMesh();
-
-  if (mesh != nullptr)
-  {
-    const Material& material = meshRenderer->GetMaterial();
-    Texture2D *diffuseTexture = material.GetDiffuseTexture();
-    Texture2D *normalTexture = material.GetNormalTexture();
-    Texture2D *materialTexture = material.GetMaterialTexture();
-    Texture2D *emissiveTexture = material.GetEmissiveTexture();
-
-    MaterialData materialData;
-    materialData.DiffuseColor = material.GetDiffuseColor();
-    materialData.EmissiveColor = material.GetEmissiveColor();
-    materialData.UsesDiffuseTexture = diffuseTexture != nullptr;
-    materialData.UsesNormalTexture = normalTexture != nullptr;
-    materialData.UsesMaterialTexture = materialTexture != nullptr;
-    materialData.UsesEmissiveTexture = emissiveTexture != nullptr;
-    materialData.Metallic = material.GetMetallic();
-    materialData.Roughness = material.GetRoughness();
-    m_materialData->SetData(m_context, materialData);
-
-    if (materialData.UsesDiffuseTexture != 0) diffuseTexture->SetPixel(m_context, 0);
-    if (materialData.UsesNormalTexture != 0) normalTexture->SetPixel(m_context, 1);
-    if (materialData.UsesMaterialTexture != 0) materialTexture->SetPixel(m_context, 2);
-    if (materialData.UsesEmissiveTexture != 0) emissiveTexture->SetPixel(m_context, 3);
-
-    Object *object = SF_GET_OBJECT(meshRenderer->GetOwner());
-    Transform* transform = object->GetComponent<Transform>();
-
-    PerObjectData perObject;
-    perObject.WorldMatrix = transform->GetWorldMatrix();
-    m_perObjectData->SetData(m_context, perObject);
-
-    mesh->Draw(m_context);
-  }
+  GraphicsUtils::SetupCamera(m_context, (Real)m_gBuffer->GetTexture()->GetDescription().Width, (Real)m_gBuffer->GetTexture()->GetDescription().Height, scene, m_perFrameData);
+  GraphicsUtils::RenderWorld(m_context, m_materialData, m_perObjectData);
 }
 
 }

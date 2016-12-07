@@ -35,3 +35,9 @@ struct SkyboxPixelIn
   float4 position : SV_POSITION;
   float3 texCoords : TEXCOORD;
 };
+
+struct DepthPixelIn
+{
+  float4 position : SV_POSITION;
+  float depth : TEXCOORD0;
+};

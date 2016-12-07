@@ -39,7 +39,7 @@ namespace Sulfur
   void PointLight::DrawDebug(DebugDraw *draw) const
   {
     Transform *transform = ComponentFactory::Instance()->GetComponent<Transform>(m_owner);
-    draw->DrawSphere(transform->GetTranslation(), m_range, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+    draw->DrawSphere(transform->GetTranslation(), m_range, false, Vector4(1.0f, 1.0f, 0.0f, 1.0f));
   }
 
 }

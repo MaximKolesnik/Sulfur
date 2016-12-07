@@ -173,6 +173,12 @@ public: \
   const type& Get##upperName() const { return m_##name; } \
   void Set##upperName(const type& value) { m_##name = value; }
 
+#define SF_PRIVATE_PROPERTY_CUSTOM(type, name, upperName, display, getter, setter) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &getter, &setter); } \
+type m_##name;
+
+
 #define SF_PRIVATE_PROPERTY_RANGE(type, name, upperName, display, min, max) \
 private: \
 static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &Get##upperName, &Set##upperName, min, max); } \
@@ -188,12 +194,22 @@ type m_##name; \
 public: \
   const type& Get##upperName() const { return m_##name; }
 
+#define SF_PRIVATE_PROPERTY_READ_ONLY_CUSTOM(type, name, upperName, display, getter) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &getter, nullptr); } \
+type m_##name;
+
 #define SF_PRIVATE_PROPERTY_WRITE_ONLY(type, name, upperName, display) \
 private: \
 static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, nullptr, &Set##upperName); } \
 type m_##name; \
 public: \
   void Set##upperName(const type& value) { m_##name = value; }
+
+#define SF_PRIVATE_PROPERTY_WRITE_ONLY_CUSTOM(type, name, upperName, display, setter) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, nullptr, &setter); } \
+type m_##name;
 
 #define SF_PROTECTED_PROPERTY(type, name, upperName, display) \
 private: \
@@ -204,6 +220,12 @@ public: \
   const type& Get##upperName() const { return m_##name; } \
   void Set##upperName(const type& value) { m_##name = value; }
 
+#define SF_PROTECTED_PROPERTY_CUSTOM(type, name, upperName, display, getter, setter) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, &getter, &setter); } \
+protected: \
+type m_##name;
+
 #define SF_PROTECTED_PROPERTY_READ_ONLY(type, name, upperName, display) \
 private: \
 static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, &Get##upperName, nullptr); } \
@@ -212,6 +234,12 @@ type m_##name; \
 public: \
   const type& Get##upperName() const { return m_##name; }
 
+#define SF_PROTECTED_PROPERTY_READ_ONLY_CUSTOM(type, name, upperName, display, getter) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(#upperName, &getter, nullptr); } \
+protected: \
+type m_##name;
+
 #define SF_PROTECTED_PROPERTY_WRITE_ONLY(type, name, upperName, display) \
 private: \
 static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, nullptr, &Set##upperName); } \
@@ -219,6 +247,12 @@ protected: \
 type m_##name; \
 public: \
   void Set##upperName(const type& value) { m_##name = value; }
+
+#define SF_PROTECTED_PROPERTY_WRITE_ONLY_CUSTOM(type, name, upperName, display, setter) \
+private: \
+static Property* upperName##Property() { (void)StaticPropertyRegister<ThisType, &upperName##Property>::DUMMY; return new GetterSetterProperty<ThisType, type>(display, nullptr, &setter); } \
+protected: \
+type m_##name;
 
 #define SF_PUBLIC_PROPERTY(type, name, upperName, display) \
 private: \

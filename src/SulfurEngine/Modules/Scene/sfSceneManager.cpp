@@ -34,4 +34,9 @@ const Scene& SceneManager::GetScene() const
   return m_scene;
 }
 
+void SceneManager::Update()
+{
+  m_scene.UpdateAabb();
+}
+
 }

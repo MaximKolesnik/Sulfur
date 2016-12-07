@@ -208,7 +208,7 @@ namespace Sulfur
       InitializeCriticalSection(&m_workers[i].m_suspendedCS);
       m_workers[i].m_coreAffinity = i;
       m_workers[i].m_taskManager = this;
-      m_workers[i].m_threadHandle = CreateThread(0, 0, WorkerThreadRoutine, 
+      m_workers[i].m_threadHandle = CreateThread(0, 0, WorkerThreadRoutine,
         &m_workers[i], NULL, NULL);
 
       SF_CRITICAL_ERR_EXP(m_workers[i].m_threadHandle != NULL,

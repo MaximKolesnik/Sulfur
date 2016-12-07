@@ -448,7 +448,7 @@ namespace Sulfur
       Set(
         xScale, 0.0f, 0.0f, 0.0f,
         0.0f, yScale, 0.0f, 0.0f,
-        0.0f, 0.0f, farPlane / range, -farPlane * nearPlane / range,
+        0.0f, 0.0f, farPlane / range, -nearPlane * farPlane / range,
         0.0f, 0.0f, 1.0f, 0.0f
       );
     }

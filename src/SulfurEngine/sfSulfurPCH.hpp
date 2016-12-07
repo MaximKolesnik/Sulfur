@@ -13,12 +13,18 @@
 // STL
 #include <vector>
 #include <unordered_map>
+#include <set>
 #include <unordered_set>
 #include <algorithm>
+
 // Graphics API
 #include <d3d11.h>
 #include <dxgi.h>
 #include <d3dcompiler.h>
+
+// Scripting
+#include <python.h>
+#include <structmember.h>
 
 // Engine
 #include "Types/sfTypes.hpp"
