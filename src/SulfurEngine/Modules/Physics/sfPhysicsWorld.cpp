@@ -28,6 +28,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules\Physics\DebugDraw\sfDebug.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 #include "Modules\Physics\Collision\sfCollision.hpp"
+#include "Modules\Time\sfTime.hpp"
 
 /******************************************************************************
 Maxim TODO: Wrap all integrators
@@ -53,72 +54,86 @@ namespace Sulfur
 
   SF_DEFINE_TASK(SyncData)
   {
-    for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
-      it.second->m_position = SF_GET_COMP_TYPE(Transform, it.second->m_transformHndl)->GetTranslation();
+    if (!Time::Instance()->IsPaused())
+    {
+      for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
+        it.second->m_position = SF_GET_COMP_TYPE(Transform, it.second->m_transformHndl)->GetTranslation();
+    }
   } SF_END_DEFINE_TASK(SyncData);
 
   SF_DEFINE_TASK(IntegrateBodies)
   {
-    for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
+    if (!Time::Instance()->IsPaused())
     {
-      if (it.second->m_state == Physics::RB_Static)
-        continue;
+      for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
+      {
+        if (it.second->m_state == Physics::RB_Static)
+          continue;
 
-      Physics::ExplicitEuler integrator;
-      integrator.Integrate(it.second);
+        Physics::ExplicitEuler integrator;
+        integrator.Integrate(it.second);
+      }
     }
   } SF_END_DEFINE_TASK(IntegrateBodies);
 
   SF_DEFINE_TASK(BroadPhase)
   {
-    for (auto &it : Physics::PhysicsWorld::Instance()->m_colliders)
+    if (!Time::Instance()->IsPaused())
     {
-      Physics::PhysicsWorld::Instance()->m_broadPhase->UpdateProxy(it.second->m_proxy, it.second);
-    }
+      for (auto &it : Physics::PhysicsWorld::Instance()->m_colliders)
+      {
+        Physics::PhysicsWorld::Instance()->m_broadPhase->UpdateProxy(it.second->m_proxy, it.second);
+      }
 
-    Physics::PhysicsWorld::Instance()->m_broadPhase->
-      GetPossibleContacts(Physics::PhysicsWorld::Instance()->m_possiblePairs);
+      Physics::PhysicsWorld::Instance()->m_broadPhase->
+        GetPossibleContacts(Physics::PhysicsWorld::Instance()->m_possiblePairs);
+    }
   } SF_END_DEFINE_TASK(BroadPhase);
 
   SF_DEFINE_TASK(NarrowPhase)
   {
-    Physics::Contacts contacts;
-
-    for (auto it : Physics::PhysicsWorld::Instance()->m_possiblePairs.m_results)
+    if (!Time::Instance()->IsPaused())
     {
-        Collide(contacts, (Physics::ColliderData*)it.m_clientData0, 
+      Physics::Contacts contacts;
+
+      for (auto it : Physics::PhysicsWorld::Instance()->m_possiblePairs.m_results)
+      {
+        Collide(contacts, (Physics::ColliderData*)it.m_clientData0,
           (Physics::ColliderData*)it.m_clientData1);
-    }
+      }
 
-    Physics::ConstraintSolver solver;
-    if (!contacts.empty())
-    {
-      DrawContacts(contacts);
-      solver.Solve(contacts);
+      Physics::ConstraintSolver solver;
+      if (!contacts.empty())
+      {
+        DrawContacts(contacts);
+        solver.Solve(contacts);
+      }
     }
   } SF_END_DEFINE_TASK(NarrowPhase);
 
   SF_DEFINE_TASK(PostAndCleanup)
   {
-
-    for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
+    if (!Time::Instance()->IsPaused())
     {
-      Physics::RigidBodyData *rbData = it.second;
-      if (rbData->m_compHndl == SF_INV_HANDLE)
-        continue;
+      for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
+      {
+        Physics::RigidBodyData *rbData = it.second;
+        if (rbData->m_compHndl == SF_INV_HANDLE)
+          continue;
 
-      RigidBody *rbComp = SF_GET_COMP_TYPE(RigidBody, rbData->m_compHndl);
-      Transform *rbTrans = SF_GET_OBJECT(rbComp->GetOwner())->GetComponent<Transform>();
+        RigidBody *rbComp = SF_GET_COMP_TYPE(RigidBody, rbData->m_compHndl);
+        Transform *rbTrans = SF_GET_OBJECT(rbComp->GetOwner())->GetComponent<Transform>();
 
-      //Post data
-      rbComp->SetVelocity(rbData->m_velocity);
-      rbTrans->SetTranslation(rbData->m_position);
-      rbTrans->SetRotation(rbData->m_orientation);
-      //Clean up
-      rbData->m_forces.ZeroOut();
+        //Post data
+        rbComp->SetVelocity(rbData->m_velocity);
+        rbTrans->SetTranslation(rbData->m_position);
+        rbTrans->SetRotation(rbData->m_orientation);
+        //Clean up
+        rbData->m_forces.ZeroOut();
+      }
+
+      Physics::PhysicsWorld::Instance()->m_possiblePairs.m_results.clear();
     }
-
-    Physics::PhysicsWorld::Instance()->m_possiblePairs.m_results.clear();
   } SF_END_DEFINE_TASK(PostAndCleanup);
 
   namespace Physics

@@ -15,7 +15,11 @@ int main(int argc, char *argv[])
     }
 
     Sulfur::EditorWindow w;
+    QSplashScreen *splashScreen = new QSplashScreen(QPixmap("images/Splash.png"));
     w.show();
+    splashScreen->show();
+
+    QTimer::singleShot(2500, splashScreen, SLOT(close()));
 
     while (w.isVisible())
     {

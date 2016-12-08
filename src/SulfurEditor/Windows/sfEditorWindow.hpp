@@ -18,6 +18,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Widgets/sfResourceBrowserWidget.hpp"
 #include "Widgets/sfOutputWidget.hpp"
 #include "Widgets/sfSceneBrowserWidget.hpp"
+#include "sfAboutWindow.hpp"
 
 namespace Sulfur
 {
@@ -38,6 +39,8 @@ namespace Sulfur
     void OnOpenScene();
     void OnSaveScene();
     void OnSaveSceneAs();
+    void OnDebugDraw();
+    void OnAbout();
 
   public slots:
     void OnObjectActivated(Object *object);
@@ -47,6 +50,8 @@ namespace Sulfur
 
   private:
     QMenuBar *m_menuBar;
+    QAction *m_debugDrawAction;
+
     QToolBar *m_toolBar;
 
     EditorWidget *m_editor;
@@ -54,6 +59,8 @@ namespace Sulfur
     ResourceBrowserWidget *m_resourceBrowser;
     OutputWidget *m_output;
     SceneBrowserWidget *m_sceneBrowser;
+
+    AboutWindow *m_aboutWindow;
 
   };
 

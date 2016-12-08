@@ -68,13 +68,15 @@ namespace Sulfur
     void Draw(D3D11Context& context);
     void DrawWireframe(D3D11Context& context, D3D11ConstantBuffer *perObjectBuffer);
 
+    bool IsEnabled() const;
+    void SetEnabled(bool enabled);
+
   private:
     static const UINT32 CIRCLE_SIDES = 36;
-
     static const Vector4 DEFAULT_COLOR;
 
+    bool m_enabled;
     LineBuffers m_lineBuffers[2];
-
     std::vector<const MeshRenderer *> m_wireFrameRenderers;
 
   };

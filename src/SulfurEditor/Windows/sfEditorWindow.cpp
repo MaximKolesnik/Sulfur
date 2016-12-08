@@ -15,6 +15,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Widgets/sfGameWidget.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Factories/sfObjectFactory.hpp"
+#include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 
 namespace Sulfur
 {
@@ -24,12 +25,15 @@ EditorWindow::EditorWindow(QWidget *parent)
 {
   resize(1920, 1080);
   showMaximized();
+  setWindowTitle("Sulfur Editor");
+
+  m_aboutWindow = new AboutWindow();
 
   QDockWidget *outputDock = new QDockWidget(tr("Output"), this);
   outputDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
-  //m_output = new OutputWidget(outputDock);
-  //outputDock->setWidget(m_output);
+  m_output = new OutputWidget(outputDock);
+  outputDock->setWidget(m_output);
 
   addDockWidget(Qt::BottomDockWidgetArea, outputDock);
 
@@ -113,6 +117,16 @@ void EditorWindow::CreateMenuBar()
   fileMenu->addAction("Save Scene", this, &EditorWindow::OnSaveScene);
   fileMenu->addAction("Save Scene As...", this, &EditorWindow::OnSaveSceneAs);
   m_menuBar->addMenu(fileMenu);
+
+  QMenu *viewMenu = new QMenu("View");
+  m_debugDrawAction = viewMenu->addAction("Debug Draw", this, &EditorWindow::OnDebugDraw);
+  m_debugDrawAction->setCheckable(true);
+  m_debugDrawAction->setChecked(DebugDraw::Instance()->IsEnabled());
+  m_menuBar->addMenu(viewMenu);
+
+  QMenu *helpMenu = new QMenu("Help");
+  helpMenu->addAction("About", this, &EditorWindow::OnAbout);
+  m_menuBar->addMenu(helpMenu);
 }
 
 void EditorWindow::OnOpenScene()
@@ -141,6 +155,12 @@ void EditorWindow::OnSaveSceneAs()
   }
 }
 
+void EditorWindow::OnDebugDraw()
+{
+  DebugDraw::Instance()->SetEnabled(!DebugDraw::Instance()->IsEnabled());
+  m_debugDrawAction->setChecked(DebugDraw::Instance()->IsEnabled());
+}
+
 void EditorWindow::OnObjectActivated(Object *object)
 {
   m_editor->GetGameWidget()->MoveToObject(object);
@@ -161,6 +181,11 @@ void EditorWindow::OnObjectSelectedGameWindow(Object *object)
 void EditorWindow::OnObjectChanged()
 {
   m_sceneBrowser->UpdateSelectedObjects();
+}
+
+void EditorWindow::OnAbout()
+{
+  m_aboutWindow->show();
 }
 
 }

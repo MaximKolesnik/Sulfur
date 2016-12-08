@@ -36,6 +36,7 @@ DebugDraw::~DebugDraw()
 
 void DebugDraw::Init(D3D11Device& device)
 {
+  m_enabled = true;
   m_lineBuffers[0].m_vertexBuffer.Init<Vertex>(device, MAX_VERTICES);
   m_lineBuffers[0].m_indexBuffer.Init(device, MAX_INDICES);
   m_lineBuffers[1].m_vertexBuffer.Init<Vertex>(device, MAX_VERTICES);
@@ -253,52 +254,68 @@ void DebugDraw::DrawWireframe(const MeshRenderer *meshRenderer)
 
 void DebugDraw::Draw(D3D11Context& context)
 {
-  context.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+  if (m_enabled)
+  {
+    context.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-  DepthState::Set(context, DepthState::DEPTH_ENABLED);
-  m_lineBuffers[0].m_vertexBuffer.SetData(context, m_lineBuffers[0].m_vertices, m_lineBuffers[0].m_vertexCount);
-  m_lineBuffers[0].m_indexBuffer.SetData(context, m_lineBuffers[0].m_indices, m_lineBuffers[0].m_indexCount);
+    DepthState::Set(context, DepthState::DEPTH_ENABLED);
+    m_lineBuffers[0].m_vertexBuffer.SetData(context, m_lineBuffers[0].m_vertices, m_lineBuffers[0].m_vertexCount);
+    m_lineBuffers[0].m_indexBuffer.SetData(context, m_lineBuffers[0].m_indices, m_lineBuffers[0].m_indexCount);
 
-  m_lineBuffers[0].m_vertexBuffer.Set(context);
-  m_lineBuffers[0].m_indexBuffer.Set(context);
+    m_lineBuffers[0].m_vertexBuffer.Set(context);
+    m_lineBuffers[0].m_indexBuffer.Set(context);
 
-  context.DrawIndexed(m_lineBuffers[0].m_indexCount, 0, 0);
+    context.DrawIndexed(m_lineBuffers[0].m_indexCount, 0, 0);
+
+    DepthState::Set(context, DepthState::DEPTH_DISABLED);
+    m_lineBuffers[1].m_vertexBuffer.SetData(context, m_lineBuffers[1].m_vertices, m_lineBuffers[1].m_vertexCount);
+    m_lineBuffers[1].m_indexBuffer.SetData(context, m_lineBuffers[1].m_indices, m_lineBuffers[1].m_indexCount);
+
+    m_lineBuffers[1].m_vertexBuffer.Set(context);
+    m_lineBuffers[1].m_indexBuffer.Set(context);
+
+    context.DrawIndexed(m_lineBuffers[1].m_indexCount, 0, 0);
+  }
 
   m_lineBuffers[0].m_vertexCount = 0;
   m_lineBuffers[0].m_indexCount = 0;
-
-  DepthState::Set(context, DepthState::DEPTH_DISABLED);
-  m_lineBuffers[1].m_vertexBuffer.SetData(context, m_lineBuffers[1].m_vertices, m_lineBuffers[1].m_vertexCount);
-  m_lineBuffers[1].m_indexBuffer.SetData(context, m_lineBuffers[1].m_indices, m_lineBuffers[1].m_indexCount);
-
-  m_lineBuffers[1].m_vertexBuffer.Set(context);
-  m_lineBuffers[1].m_indexBuffer.Set(context);
-
-  context.DrawIndexed(m_lineBuffers[1].m_indexCount, 0, 0);
-
   m_lineBuffers[1].m_vertexCount = 0;
   m_lineBuffers[1].m_indexCount = 0;
 }
 
 void DebugDraw::DrawWireframe(D3D11Context& context, D3D11ConstantBuffer *perObjectBuffer)
 {
-  DepthState::Set(context, DepthState::DEPTH_ENABLED);
-  RasterState::Set(context, RasterState::WIREFRAME);
-  PerObjectData perObject;
-  for (const MeshRenderer *meshRenderer : m_wireFrameRenderers)
+  if (m_enabled)
   {
-    Mesh *mesh = meshRenderer->GetMesh();
-    if (mesh != nullptr)
+    DepthState::Set(context, DepthState::DEPTH_ENABLED);
+    RasterState::Set(context, RasterState::WIREFRAME);
+    PerObjectData perObject;
+    for (const MeshRenderer *meshRenderer : m_wireFrameRenderers)
     {
-      Transform* transform = ComponentFactory::Instance()->GetComponent<Transform>(meshRenderer->GetOwner());
+      Mesh *mesh = meshRenderer->GetMesh();
+      if (mesh != nullptr)
+      {
+        Transform* transform = ComponentFactory::Instance()->GetComponent<Transform>(meshRenderer->GetOwner());
 
-      perObject.WorldMatrix = transform->GetWorldMatrix();
-      perObjectBuffer->SetData(context, perObject);
+        perObject.WorldMatrix = transform->GetWorldMatrix();
+        perObjectBuffer->SetData(context, perObject);
 
-      mesh->Draw(context);
+        mesh->Draw(context);
+      }
     }
   }
+
   m_wireFrameRenderers.clear();
+}
+
+bool DebugDraw::IsEnabled() const
+{
+  return m_enabled;
+}
+
+void DebugDraw::SetEnabled(bool enabled)
+{
+  m_enabled = enabled;
 }
 
 }

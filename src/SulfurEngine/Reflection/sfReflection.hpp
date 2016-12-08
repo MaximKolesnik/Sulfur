@@ -87,6 +87,8 @@ namespace Sulfur
       return SF_TYPE_INFO(ReflectionBase);
     }
 
+    virtual void Initialize() {}
+
   protected:
     static PropertyList& GetPropertyList() 
     { 

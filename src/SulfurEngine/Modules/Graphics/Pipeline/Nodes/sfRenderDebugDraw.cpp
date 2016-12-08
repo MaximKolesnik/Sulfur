@@ -53,7 +53,6 @@ void RenderDebugDraw::Process()
   PerObjectData perObject;
   perObject.WorldMatrix.SetIdentity();
   m_perObjectData->SetData(m_context, perObject);
-
   DebugDraw::Instance()->Draw(m_context);
 
   m_wireframeShader.Set(m_context);

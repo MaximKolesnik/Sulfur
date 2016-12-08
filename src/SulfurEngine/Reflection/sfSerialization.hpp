@@ -221,6 +221,8 @@ namespace Sulfur
 
         prop->Deserialize(str, &value);
       }
+
+      value.Initialize();
     }
 
     template <typename T>
