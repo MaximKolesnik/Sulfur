@@ -38,6 +38,7 @@ namespace Sulfur
         : m_compHndl(compHndl){}
 
       void Initialize(void);
+      void CalculateInertia(void);
 
       Vector3 m_position = Vector3::c_zero;
       Vector3 m_velocity = Vector3::c_zero;

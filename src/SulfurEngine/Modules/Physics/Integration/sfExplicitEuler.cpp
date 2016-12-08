@@ -53,7 +53,7 @@ namespace Sulfur
 
       bData->m_orientation = QuatIntegrate(bData->m_orientation, bData->m_angularVelocity, EngineSettings::DefaultFPS);
 
-      static Real damping = pow(Real(0.99), EngineSettings::DefaultFPS);
+      static Real damping = pow(Real(0.85), EngineSettings::DefaultFPS);
 
       bData->m_angularVelocity = damping * bData->m_angularVelocity;
       bData->m_velocity = damping * bData->m_velocity;

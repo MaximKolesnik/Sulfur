@@ -55,6 +55,12 @@ namespace Sulfur
         m_invMass = 1 / (scale[0] * scale[1] * scale[2]);
       }
 
+      CalculateInertia();
+    }
+
+    void RigidBodyData::CalculateInertia(void)
+    {
+      Transform *trans = SF_GET_COMP_TYPE(Transform, m_transformHndl);
 
       if (m_invMass != Real(0.0))
       {
@@ -66,8 +72,8 @@ namespace Sulfur
         Real zz = (scale[0] * scale[0] + scale[1] * scale[1]) * mul;
 
         m_inertia.Set(xx, Real(0.0), Real(0.0),
-                      Real(0.0), yy, Real(0.0),
-                      Real(0.0), Real(0.0), zz);
+          Real(0.0), yy, Real(0.0),
+          Real(0.0), Real(0.0), zz);
 
         m_invInertia.Set((Real)1.0 / xx, Real(0.0), Real(0.0),
           Real(0.0), (Real)1.0 / yy, Real(0.0),

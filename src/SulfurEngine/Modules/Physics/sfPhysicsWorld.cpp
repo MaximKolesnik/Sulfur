@@ -57,48 +57,45 @@ namespace Sulfur
 
   SF_DEFINE_TASK(SyncData)
   {
-    if (!Time::Instance()->IsPaused())
+    for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
     {
-      for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
+      it.second->m_position = SF_GET_COMP_TYPE(Transform, it.second->m_transformHndl)->GetTranslation();
+      if (it.second->m_compHndl != SF_INV_HANDLE)
       {
-        it.second->m_position = SF_GET_COMP_TYPE(Transform, it.second->m_transformHndl)->GetTranslation();
-        if (it.second->m_compHndl != SF_INV_HANDLE)
-        {
-          RigidBody *body = SF_GET_COMP_TYPE(RigidBody, it.second->m_compHndl);
+        RigidBody *body = SF_GET_COMP_TYPE(RigidBody, it.second->m_compHndl);
 
-          it.second->m_velocity = body->GetVelocity();
-          it.second->m_angularVelocity = body->GetAngularVelocity();
-          it.second->m_state = body->GetDynamicState();
-        }
+        it.second->m_velocity = body->GetVelocity();
+        it.second->m_angularVelocity = body->GetAngularVelocity();
+        it.second->m_state = body->GetDynamicState();
       }
+    }
 
-      for (auto &it : Physics::PhysicsWorld::Instance()->m_colliders)
+    for (auto &it : Physics::PhysicsWorld::Instance()->m_colliders)
+    {
+      switch (it.second->m_type)
       {
-        switch (it.second->m_type)
-        {
-        case Physics::CT_SPHERE:
-        {
-          SphereCollider *sphere = SF_GET_COMP_TYPE(SphereCollider, it.second->m_compHndl);
-          it.second->m_offset = sphere->GetOffset();
-          it.second->m_radius = sphere->GetRadius();
-        }
-        break;
-        case Physics::CT_CAPSULE:
-        {
-          CapsuleCollider *capsule = SF_GET_COMP_TYPE(CapsuleCollider, it.second->m_compHndl);
-          it.second->m_lineLength = capsule->GetCenterLineLength();
-          it.second->m_offset = capsule->GetOffset();
-          it.second->m_radius = capsule->GetRadius();
-        }
-        break;
-        case Physics::CT_BOX:
-        {
-          BoxCollider *box = SF_GET_COMP_TYPE(BoxCollider, it.second->m_compHndl);
-          it.second->m_offset = box->GetOffset();
-          it.second->m_scale = box->GetScale();
-        }
-        break;
-        }
+      case Physics::CT_SPHERE:
+      {
+        SphereCollider *sphere = SF_GET_COMP_TYPE(SphereCollider, it.second->m_compHndl);
+        it.second->m_offset = sphere->GetOffset();
+        it.second->m_radius = sphere->GetRadius();
+      }
+      break;
+      case Physics::CT_CAPSULE:
+      {
+        CapsuleCollider *capsule = SF_GET_COMP_TYPE(CapsuleCollider, it.second->m_compHndl);
+        it.second->m_lineLength = capsule->GetCenterLineLength();
+        it.second->m_offset = capsule->GetOffset();
+        it.second->m_radius = capsule->GetRadius();
+      }
+      break;
+      case Physics::CT_BOX:
+      {
+        BoxCollider *box = SF_GET_COMP_TYPE(BoxCollider, it.second->m_compHndl);
+        it.second->m_offset = box->GetOffset();
+        it.second->m_scale = box->GetScale();
+      }
+      break;
       }
     }
   } SF_END_DEFINE_TASK(SyncData);
@@ -168,6 +165,7 @@ namespace Sulfur
 
         //Post data
         rbComp->SetVelocity(rbData->m_velocity);
+        rbComp->SetAngularVelocity(rbData->m_angularVelocity);
         rbTrans->SetTranslation(rbData->m_position);
         rbTrans->SetRotation(rbData->m_orientation);
         //Clean up
@@ -319,6 +317,8 @@ namespace Sulfur
         rb->m_position = SF_GET_COMP_TYPE(Transform, rb->m_transformHndl)->GetTranslation();
       else
         rb->m_position = Vector3::c_zero;
+
+      rb->CalculateInertia();
 
       return rb;
     }

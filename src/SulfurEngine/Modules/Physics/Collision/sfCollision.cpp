@@ -14,6 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "sfCollision.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
+#include "Modules\Physics\Data\sfRigidBodyData.hpp"
 
 #include "sfBoxToBox.hpp"
 #include "sfBoxToCapsule.hpp"
@@ -39,6 +40,10 @@ namespace Sulfur
     void Collide(Contacts &contacts,
       ColliderData *colliderA, ColliderData *colliderB)
     {
+      if (colliderA->m_rbData->m_state == RB_Static
+        && colliderB->m_rbData->m_state == RB_Static)
+        return;
+
       collisionFuncs[colliderA->m_type][colliderB->m_type](contacts, colliderA, colliderB);
     }
   }
