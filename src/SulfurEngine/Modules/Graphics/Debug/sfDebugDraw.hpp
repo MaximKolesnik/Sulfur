@@ -33,7 +33,7 @@ namespace Sulfur
     SF_SINGLETON(DebugDraw)
 
   private:
-    static const UINT32 MAX_VERTICES = 4096;
+    static const UINT32 MAX_VERTICES = 65536;
     static const UINT32 MAX_INDICES = MAX_VERTICES << 2;
 
     struct LineBuffers

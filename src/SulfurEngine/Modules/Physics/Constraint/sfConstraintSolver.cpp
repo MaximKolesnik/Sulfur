@@ -108,7 +108,7 @@ namespace Sulfur
 
         dvt = dv.Dot(it.m_tangent2);
         dPt = it.m_massTangent2 * (-dvt);
-        maxPt = Real(0.8) * it.m_massNormal;
+        maxPt = Real(0.3) * it.m_massNormal;
         dPt = std::max(-maxPt, std::min(dPt, maxPt));
         Pt = dPt * it.m_tangent2;
 

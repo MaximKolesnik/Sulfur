@@ -41,6 +41,7 @@ namespace Sulfur
         return Vector3::c_zero;
 
       Vector3 localDir = transform.Inverted().TransformNormal(direction);
+      localDir.Normalize();
       Real furthestDistance = localDir.Dot(points[0]);
       const Vector3 *result = &points[0];
       size_t numPoints = points.size();

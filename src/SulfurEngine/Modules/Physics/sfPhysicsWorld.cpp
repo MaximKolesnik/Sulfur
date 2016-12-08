@@ -62,11 +62,7 @@ namespace Sulfur
       it.second->m_position = SF_GET_COMP_TYPE(Transform, it.second->m_transformHndl)->GetTranslation();
       if (it.second->m_compHndl != SF_INV_HANDLE)
       {
-        RigidBody *body = SF_GET_COMP_TYPE(RigidBody, it.second->m_compHndl);
-
-        it.second->m_velocity = body->GetVelocity();
-        it.second->m_angularVelocity = body->GetAngularVelocity();
-        it.second->m_state = body->GetDynamicState();
+        it.second->Initialize();
       }
     }
 

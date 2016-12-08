@@ -28,6 +28,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components\sfSphereCollider.hpp"
 #include "Components\sfCapsuleCollider.hpp"
 #include "Components/sfThirdPersonController.hpp"
+#include "Components\sfColliderRandomDrop.hpp"
 
 namespace Sulfur
 {
@@ -142,6 +143,7 @@ namespace Sulfur
     this->_RegisterComponent<BoxCollider>();
     this->_RegisterComponent<SphereCollider>();
     this->_RegisterComponent<CapsuleCollider>();
+    this->_RegisterComponent<ColliderRandomDrop>();
 
     this->_AddToComponentGroup<BoxCollider>("Colliders");
     this->_AddToComponentGroup<SphereCollider>("Colliders");

@@ -73,26 +73,25 @@ namespace Sulfur
 
       if (closestPoint == relSpherePos) // Deep contact
       {
-        /*Real minDist = SF_REAL_MAX;
+        Real minDist = SF_REAL_MAX;
         Vector3 minNormal;
         Vector3 minProj;
+        Matrix4 boxMat;
+        boxMat.SetTransformation(transBox->GetRotation(), transBox->GetScale() * box->m_scale,
+          boxPos);
 
         const ColliderGeometry &boxGeometry = GeometryMap::Instance()->GetBoxGeometry();
-        const ColliderGeometry::FaceList& faceList = boxGeometry.GetFaces();
-        Vector3 boxScale = (transBox->GetScale() * box->m_scale);
 
-        for (auto &face : faceList)
+        for (auto &p : boxGeometry.GetPlanes())
         {
-          Vector3 worldNormal = transBox->GetRotation().Rotated(face.m_normal);
-          Real planeDist =
-            (boxScale * face.m_normal + relSpherePos).Length();
+          Geometry::Plane plane = p.Transformed(boxMat);
 
-          Vector3 proj = Geometry::ProjectPointOnPlane(spherePos, worldNormal, planeDist);
+          Vector3 proj = Geometry::ProjectPointOnPlane(spherePos, plane.GetNormal(), plane.GetDistance());
           Real dist = (spherePos - proj).Length();
           if (dist < minDist)
           {
             minDist = dist;
-            minNormal = worldNormal;
+            minNormal = plane.GetNormal();
             minProj = proj;
           }
         }
@@ -101,11 +100,12 @@ namespace Sulfur
         c.m_colliderB = sphere;
         c.m_contactPoint = minProj;
         c.m_contactNormal = minNormal;
-        c.m_penetration = minDist - radius;*/
+        c.m_penetration = minDist;
+        contacts.push_back(c);
       }
       else //Shallow
       {
-        Vector3 closestPointWorld = transBox->GetRotation().Rotated(closestPoint + boxPos);
+        Vector3 closestPointWorld = boxPos + transBox->GetRotation().Rotated(closestPoint);
 
         c.m_colliderA = box;
         c.m_colliderB = sphere;

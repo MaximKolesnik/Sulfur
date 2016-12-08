@@ -21,6 +21,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Math\Geometry\sfGeometry.hpp"
 #include "sfSAT.hpp"
 #include "Math\Geometry\sfShapes.hpp"
+#include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 
 namespace Sulfur
 {
@@ -80,7 +81,7 @@ namespace Sulfur
         }
       }
 
-      for (size_t index = 0; index < boxGeometry.GetEdgeCount(); index += 2)
+      /*for (size_t index = 0; index < boxGeometry.GetEdgeCount(); index += 2)
       {
         const ColliderGeometry::HalfEdge &edge = boxGeometry.GetEdge(index);
         const ColliderGeometry::HalfEdge &twin = boxGeometry.GetEdge(index + 1);
@@ -96,6 +97,9 @@ namespace Sulfur
 
         crossEP.Normalize();
 
+        Real t = (capLineB - capLineA).Dot(trans * boxGeometry.GetVertex(edge.m_origin)) * 
+          (capLineB - capLineA).Dot(trans * boxGeometry.GetVertex(twin.m_origin));
+
         auto projLine = SAT::ProjectOnAxis(worldCapVerts, crossEP);
 
         Real dist = projLine.m_max - projLine.m_min;
@@ -105,7 +109,7 @@ namespace Sulfur
           minAxis = crossEP;
           faceContact = -1;
         }
-      }
+      }*/
 
       if (faceContact != -1)
       {
@@ -151,7 +155,7 @@ namespace Sulfur
         c.m_colliderA = box;
         c.m_colliderB = capsule;
         c.m_contactNormal = minAxis;
-        c.m_contactPoint = closestPts.m_pointB;
+        c.m_contactPoint = closestPts.m_pointA;
         c.m_penetration = minDist;
 
         contacts.push_back(c);
@@ -176,6 +180,7 @@ namespace Sulfur
 
       PointsSupportShape capLineShape;
       capLineShape.m_localSpacePoints.push_back(Vector3(Real(-0.5), Real(0.0), Real(0.0)));
+      capLineShape.m_localSpacePoints.push_back(Vector3(Real(0.0), Real(0.0), Real(0.0)));
       capLineShape.m_localSpacePoints.push_back(Vector3(Real(0.5), Real(0.0), Real(0.0)));
       capLineShape.m_scale = Vector3(cLineLength, 1, 1);
       capLineShape.m_rotation = capTrans->GetRotation();
@@ -198,7 +203,7 @@ namespace Sulfur
       trans.SetTransformation(boxTrans->GetRotation(), boxScale, boxPos);
 
       std::vector<Gjk::CsoPoint> simplex;
-      bool intersect = Gjk::Intersect(&capLineShape, &boxShape, 4, pointInfo, SF_EPSILON, simplex);
+      bool intersect = Gjk::Intersect(&boxShape, &capLineShape, 5, pointInfo, 0.005f, simplex);
 
       if (intersect) //Deep contact
       {
@@ -207,7 +212,7 @@ namespace Sulfur
         return;
       }
 
-      Vector3 CtoB = pointInfo.m_pointA - pointInfo.m_pointB;
+      Vector3 CtoB = pointInfo.m_pointB - pointInfo.m_pointA;
       Real dist = CtoB.Length();
 
       if (dist > capRadius)
@@ -224,7 +229,7 @@ namespace Sulfur
       Vector3 worldFaceNormal = refPlane.GetNormal();
       Real dot = MathUtils::Abs(worldFaceNormal.Dot(lineVec));
 
-      if (dot <= 0.005) //We need two points here
+      if (dot <= 0.09) //We need two points here
       {
         size_t firstEdge = boxGeometry.GetFace(refFace).m_edge;
         size_t edgeIt = firstEdge;
@@ -233,7 +238,7 @@ namespace Sulfur
         {
           size_t twin = boxGeometry.GetEdge(edgeIt).m_twin;
           Geometry::Plane clipPlane = boxGeometry.GetPlane(boxGeometry.GetEdge(twin).m_face);
-          clipPlane.Transformed(trans);
+          clipPlane.Transform(trans);
 
           SAT::ClipLineToPlane(capLineA, capLineB, clipPlane.GetNormal(), clipPlane.GetDistance());
 
@@ -247,7 +252,7 @@ namespace Sulfur
         c0.m_contactPoint = 
           Geometry::ProjectPointOnPlane(capLineA, refPlane.GetNormal(), refPlane.GetDistance());
         c0.m_contactNormal = CtoB;
-        c0.m_penetration = capRadius - dist;
+        c0.m_penetration = capRadius - (c0.m_contactPoint - capLineA).Length();
 
         contacts.push_back(c0);
 
@@ -258,7 +263,7 @@ namespace Sulfur
         c1.m_contactPoint = 
           Geometry::ProjectPointOnPlane(capLineB, refPlane.GetNormal(), refPlane.GetDistance());
         c1.m_contactNormal = CtoB;
-        c1.m_penetration = capRadius - dist;
+        c1.m_penetration = capRadius - (c1.m_contactPoint - capLineB).Length();
 
         contacts.push_back(c1);
       }
@@ -268,8 +273,8 @@ namespace Sulfur
 
         c.m_colliderA = box;
         c.m_colliderB = capsule;
-        c.m_contactPoint = pointInfo.m_pointB;
-        c.m_contactNormal = (pointInfo.m_pointA - pointInfo.m_pointB).Normalized();
+        c.m_contactPoint = pointInfo.m_pointA;
+        c.m_contactNormal = (pointInfo.m_pointB - pointInfo.m_pointA).Normalized();
         c.m_penetration = capRadius - dist;
 
         contacts.push_back(c);

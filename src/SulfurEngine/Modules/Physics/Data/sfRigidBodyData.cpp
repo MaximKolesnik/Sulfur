@@ -60,6 +60,9 @@ namespace Sulfur
 
     void RigidBodyData::CalculateInertia(void)
     {
+      if (m_transformHndl == SF_INV_HANDLE)
+        return;
+
       Transform *trans = SF_GET_COMP_TYPE(Transform, m_transformHndl);
 
       if (m_invMass != Real(0.0))
