@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    BRDF.hlsli
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   BRDF functions.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 static const float3 c_dielectricSpecular = float3(0.2f, 0.2f, 0.2f);
 
 float pow2(float num)

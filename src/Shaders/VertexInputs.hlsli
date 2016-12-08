@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    VSFullScreenQuad.hlsl
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   Vertex shader structures and buffers.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 cbuffer PerFrameData
 {
   matrix ViewMatrix;

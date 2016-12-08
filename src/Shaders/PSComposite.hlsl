@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    PSDeferredSpotLight.hlsl
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   Pixel shader for compositing color, bloom and luminance.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 #include "PixelInputs.hlsli"
 #include "HDR.hlsli"
 #include "Common.hlsli"

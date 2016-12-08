@@ -30,11 +30,16 @@ namespace Sulfur
 
   private:
     void Setup();
+    void UpdatePlayStateButtons();
 
   public slots:
     void OnTranslationToggled();
     void OnRotationToggled();
     void OnScalingToggled();
+
+    void OnPlayToggled();
+    void OnPauseToggled();
+    void OnStopToggled();
 
   private:
     QGridLayout *m_layout;
@@ -42,6 +47,10 @@ namespace Sulfur
     QPushButton *m_translationButton;
     QPushButton *m_rotationButton;
     QPushButton *m_scalingButton;
+
+    QPushButton *m_playButton;
+    QPushButton *m_pauseButton;
+    QPushButton *m_stopButton;
 
     GameWidget *m_gameWidget;
   

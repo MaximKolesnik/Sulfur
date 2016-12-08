@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    Common.hlsli
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   Common functions and constants.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 #include "Constants.hlsli"
 
 float Random(float2 uv)

@@ -35,6 +35,9 @@ namespace Sulfur
     void OnCollapseClicked(bool checked);
 
   protected:
+    QFrame *m_headerFrame;
+    QHBoxLayout *m_headerLayout;
+
     QPushButton *m_collapseButton;
   
   };

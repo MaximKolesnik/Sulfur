@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    VSSkybox.hlsli
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   Vertex shader for rendering skybox.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 #include "VertexInputs.hlsli"
 #include "PixelInputs.hlsli"
 

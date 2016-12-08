@@ -39,7 +39,7 @@ namespace Sulfur
 
 GameWidget::GameWidget(QWidget *parent)
   : QWidget(parent), m_controllingCamera(false), m_cameraYaw(0.0f), m_cameraPitch(0.0f), m_resizeTimer(0),
-  m_selection(nullptr), m_currentGizmo(TRANSLATION_GIZMO), m_usingGizmo(false)
+  m_selection(nullptr), m_currentGizmo(TRANSLATION_GIZMO), m_usingGizmo(false), m_state(STOPPED)
 {
   setAttribute(Qt::WA_PaintOnScreen, true);
   setAttribute(Qt::WA_NativeWindow, true);
@@ -60,6 +60,8 @@ GameWidget::GameWidget(QWidget *parent)
   SceneManager::Instance()->GetScene().SetCameraObject(m_editorCamera);
 
   CreatePickingResources();
+
+  Time::Instance()->SetPaused(true);
 }
 
 GameWidget::~GameWidget()
@@ -72,9 +74,13 @@ GameWidget::~GameWidget()
 
 void GameWidget::Frame()
 {
-  RenderPickingTexture();
-  SelectionDrawing();
-  UpdateEditorCamera();
+  if (m_state != PLAYING)
+  {
+    RenderPickingTexture();
+    SelectionDrawing();
+    UpdateEditorCamera();
+  }
+
   Core::Instance()->Frame();
 }
 
@@ -543,6 +549,24 @@ void GameWidget::UpdateEditorCamera()
   }
 }
 
+void GameWidget::BackupScene()
+{
+  std::ofstream file("temp_scene", std::ios_base::binary);
+  Serialization::Serialize(file, SceneManager::Instance()->GetScene());
+  file.close();
+}
+
+void GameWidget::RestoreScene()
+{
+  m_selection = nullptr;
+  emit ObjectSelected(nullptr);
+
+  std::ifstream file("temp_scene", std::ios_base::binary);
+  Serialization::Deserialize(file, SceneManager::Instance()->GetScene());
+  file.close();
+  std::remove("temp_scene");
+}
+
 QPaintEngine* GameWidget::paintEngine() const
 {
   return nullptr;
@@ -566,6 +590,39 @@ void GameWidget::MoveToObject(Object *object)
 void GameWidget::SetGizmo(Gizmo gizmo)
 {
   m_currentGizmo = gizmo;
+}
+
+void GameWidget::SetState(State state)
+{
+  if (state != m_state)
+  {
+    // Don't allow stopped to paused
+    if (state == PAUSED && m_state == STOPPED)
+      return;
+
+    Time::Instance()->SetPaused(state != PLAYING);
+
+    if (state == PLAYING)
+    {
+      if (m_state == STOPPED)
+        BackupScene();
+      SceneManager::Instance()->GetScene().SetCameraToFirst();
+    }
+    else if (m_state == PLAYING)
+    {
+      SceneManager::Instance()->GetScene().SetCameraObject(m_editorCamera);
+    }
+
+    if (state == STOPPED)
+      RestoreScene();
+
+    m_state = state;
+  }
+}
+
+GameWidget::State GameWidget::GetState() const
+{
+  return m_state;
 }
 
 void GameWidget::resizeEvent(QResizeEvent* evt)

@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    Blur.hlsli
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   Blur constants.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 static const float GaussianOffset[3] = {
   0.0, 1.3846153846, 3.2307692308
 };

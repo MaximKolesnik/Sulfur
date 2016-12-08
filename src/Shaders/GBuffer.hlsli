@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    GBuffer.hlsli
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   GBuffer structures and functions.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 Texture2D GB_DiffuseMetallic;
 Texture2D GB_NormalRoughness;
 Texture2D GB_ViewPosition;

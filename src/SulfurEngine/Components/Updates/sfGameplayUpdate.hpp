@@ -1,18 +1,20 @@
 /******************************************************************************/
 /*!
 \par     Sulfur
-\file    PSWireframe.hlsl
+\file    sfGameplayUpdate.hpp
 \author  Dylan Norris
 \par     DP email: d.norris@digipen.edu
+\date    12/7/2016
 
-\brief   Test pixel shader for wireframe.
+\brief   Gameplay update tasks
 
 All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
-#include "PixelInputs.hlsli"
+#pragma once
+#include "Managers/TaskManager/sfTaskRegistry.hpp"
 
-float4 main(PixelIn input) : SV_TARGET
+namespace Sulfur
 {
-  return float4(1.0f, 0.0f, 0.0f, 1.0f);
+
 }

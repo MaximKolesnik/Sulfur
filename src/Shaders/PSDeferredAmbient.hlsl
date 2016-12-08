@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    PSDeferredAmbient.hlsl
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   Pixel shader for rendering ambient lighting.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 #include "PixelInputs.hlsli"
 #include "GBuffer.hlsli"
 #include "IBL.hlsli"
@@ -20,7 +32,7 @@ float4 main(ScreenPixelIn input) : SV_TARGET
   UnpackGBuffer(SS_Sampler, input.texCoords, gbufferData);
   float occlusion = TEX_OcclusionMap.Sample(SS_Sampler, input.texCoords).r;
 
-  if (!UseIBL) return float4(AmbientLight.rgb * AmbientLight.a * occlusion, 1.0f);
+  if (!UseIBL) return float4(AmbientLight.rgb * AmbientLight.a * gbufferData.Diffuse * occlusion, 1.0f);
 
   float3 V = -mul(float4(normalize(gbufferData.ViewPosition), 0.0f), InverseView).xyz;
   float3 N = mul(float4(gbufferData.Normal, 0.0f), InverseView).xyz;

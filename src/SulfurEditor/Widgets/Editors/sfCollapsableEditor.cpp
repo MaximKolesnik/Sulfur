@@ -39,9 +39,18 @@ void CollapsableEditor::SetHeaderText(const std::string& text)
 
 void CollapsableEditor::Setup()
 {
+  m_headerLayout = new QHBoxLayout();
+  m_headerLayout->setContentsMargins(0, 0, 0, 0);
+
+  m_headerFrame = new QFrame();
+  m_headerFrame->setContentsMargins(0, 0, 0, 0);
+
+  m_headerFrame->setLayout(m_headerLayout);
+  m_mainLayout->insertWidget(0, m_headerFrame);
+
   m_collapseButton = new QPushButton();
   if (m_property != nullptr) m_collapseButton->setText(m_property->GetName().c_str());
-  m_mainLayout->insertWidget(0, m_collapseButton);
+  m_headerLayout->insertWidget(0, m_collapseButton);
 
   // Bold font
   QFont font = m_collapseButton->font();

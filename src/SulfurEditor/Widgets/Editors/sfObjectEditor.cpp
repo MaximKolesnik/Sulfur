@@ -12,7 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfObjectEditor.hpp"
-#include "sfCollapsableEditor.hpp"
+#include "sfDeletableEditor.hpp"
 #include "Factories/sfObjectFactory.hpp"
 #include "Factories/sfComponentFactory.hpp"
 
@@ -52,9 +52,12 @@ void ObjectEditor::UpdateValue()
 
     if (component->m_name != "Transform")
     {
-      CollapsableEditor *editor = static_cast<CollapsableEditor*>(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)));
+      DeletableEditor *editor = new DeletableEditor(component);
       editor->SetHeaderText(component->m_name);
       AddChild(editor);
+
+      connect(editor, &DeletableEditor::Deleted,
+        [=]() { ComponentFactory::Instance()->DeleteComponent(component); });
     }
   }
 
@@ -101,9 +104,13 @@ void ObjectEditor::OnAddComponent(QAction *action)
   Object *object = const_cast<Object*>(&GetValue<Object>());
 
   IEntity *component = ComponentFactory::Instance()->CreateComponent(action->text().toUtf8().data());
-  AddChild(PropertyEditor::Create(component, SF_TYPE_INFO(IEntity)));
+  DeletableEditor *editor = new DeletableEditor(component);
+  AddChild(editor);
   m_childrenLayout->removeWidget(m_newComponentButton);
   m_childrenLayout->addWidget(m_newComponentButton);
+
+  connect(editor, &DeletableEditor::Deleted,
+    [=]() { ComponentFactory::Instance()->DeleteComponent(component); });
 
   object->AttachComponent(component);
 }

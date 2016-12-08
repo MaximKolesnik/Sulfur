@@ -53,6 +53,13 @@ namespace Sulfur
       GIZMO_PART_COUNT
     };
 
+    enum State
+    {
+      PLAYING,
+      PAUSED,
+      STOPPED
+    };
+
   public:
     GameWidget(QWidget *parent = 0);
     ~GameWidget();
@@ -70,6 +77,8 @@ namespace Sulfur
     void MoveToObject(Object *object);
 
     void SetGizmo(Gizmo widget);
+    void SetState(State state);
+    State GetState() const;
 
   protected:
     virtual void resizeEvent(QResizeEvent* evt) override;
@@ -83,6 +92,8 @@ namespace Sulfur
     GizmoPart GetGizmoPart(int x, int y);
     void SelectionDrawing();
     void UpdateEditorCamera();
+    void BackupScene();
+    void RestoreScene();
 
     // Gizmos
     void RenderTranslationGizmo();
@@ -94,6 +105,7 @@ namespace Sulfur
     void ObjectSelected(Object *object);
 
   private:
+    State m_state;
     Window *m_window;
 
     bool m_usingGizmo;

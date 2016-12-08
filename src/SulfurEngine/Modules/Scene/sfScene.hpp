@@ -45,6 +45,11 @@ namespace Sulfur
 
     const Geometry::Aabb& GetAabb() const;
 
+    void SetCameraToFirst();
+
+  private:
+    bool SetCameraToFirst(HNDL root);
+
     SF_PRIVATE_PROPERTY(std::list<HNDL>, rootObjects, RootObjects, "Root Objects")
     SF_PRIVATE_PROPERTY(std::list<HNDL>, objects, Objects, "Objects")
     SF_PRIVATE_PROPERTY(HNDL, cameraObject, CameraObject, "Camera Object")

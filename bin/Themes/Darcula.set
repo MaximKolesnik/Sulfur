@@ -267,7 +267,7 @@ QToolButton:hover {
 }
 QPushButton {
     padding: 0 10px 2px;
-    min-width: 60px;
+    min-width: 0px;
     height: 22px;
 }
 QToolButton,

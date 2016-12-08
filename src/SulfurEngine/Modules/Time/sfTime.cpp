@@ -18,7 +18,7 @@ namespace Sulfur
 {
 
   Time::Time()
-    : m_frameRate(EngineSettings::DefaultFPS), m_dt(0.0f)
+    : m_frameRate(EngineSettings::DefaultFPS), m_dt(0.0f), m_paused(false)
   {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
@@ -48,6 +48,16 @@ namespace Sulfur
   Real Time::GetDt()
   {
     return m_dt;
+  }
+
+  void Time::SetPaused(bool paused)
+  {
+    m_paused = paused;
+  }
+
+  bool Time::IsPaused() const
+  {
+    return m_paused;
   }
 
 }

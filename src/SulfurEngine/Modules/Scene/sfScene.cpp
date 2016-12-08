@@ -15,6 +15,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Factories/sfObjectFactory.hpp"
 #include "Components/sfTransform.hpp"
 #include "Components/sfMeshRenderer.hpp"
+#include "Components/sfCamera.hpp"
 
 namespace Sulfur
 {
@@ -145,6 +146,36 @@ namespace Sulfur
   const Geometry::Aabb& Scene::GetAabb() const
   {
     return m_aabb;
+  }
+
+  void Scene::SetCameraToFirst()
+  {
+    for (HNDL object : m_rootObjects)
+    {
+      if (SetCameraToFirst(object))
+        return;
+    }
+
+    SetCameraObject(SF_INV_HANDLE);
+  }
+
+  bool Scene::SetCameraToFirst(HNDL root)
+  {
+    Object *rootObject = SF_GET_OBJECT(root);
+
+    if (rootObject->HasComponent<Camera>())
+    {
+      SetCameraObject(root);
+      return true;
+    }
+
+    for (HNDL child : rootObject->GetChildren())
+    {
+      if (SetCameraToFirst(child))
+        return true;
+    }
+
+    return false;
   }
 
 }

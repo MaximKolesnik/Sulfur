@@ -1,3 +1,15 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    PSDeferredSpotLight.hlsl
+\author  Dylan Norris
+\par     DP email: d.norris@digipen.edu
+
+\brief   Pixel shader for rendering light map for spot lights.
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
 #include "PixelInputs.hlsli"
 #include "GBuffer.hlsli"
 #include "BRDF.hlsli"

@@ -52,7 +52,7 @@ void ContainerEditor::Setup()
 
   m_childrenWidget = new QFrame();
   m_childrenWidget->setLayout(m_childrenLayout);
-  m_childrenWidget->setContentsMargins(0, 0, 0, 0);
+  m_childrenWidget->setContentsMargins(10, 0, 10, 0);
   m_mainLayout->addWidget(m_childrenWidget);
 }
 

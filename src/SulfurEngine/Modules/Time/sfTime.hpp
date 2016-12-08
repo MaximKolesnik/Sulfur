@@ -26,11 +26,16 @@ namespace Sulfur
     void WaitForFrameRate();
     Real GetDt();
 
+    void SetPaused(bool paused);
+    bool IsPaused() const;
+
   private:
     LARGE_INTEGER m_startCycle;
     Real m_dt;
     Real m_frameRate;
     Real m_frequency;
+
+    bool m_paused;
 
   };
   

@@ -57,9 +57,11 @@ namespace Sulfur
     TaskManager* tm = TaskManager::Instance();
     tm->AddNode("UpdateTransforms");
     tm->AddNode("RenderGraphics");
+    tm->AddNode("UpdateGameplay");
     tm->AddNode("TriggerEventsEndFrame");
     tm->SetStartingTask("UpdateTransforms");
-    tm->SetDependency("RenderGraphics", "UpdateTransforms");
+    tm->SetDependency("UpdateGameplay", "UpdateTransforms");
+    tm->SetDependency("RenderGraphics", "UpdateGameplay");
     tm->SetDependency("TriggerEventsEndFrame", "RenderGraphics");
     tm->CompleteGraph();
 
@@ -79,7 +81,6 @@ namespace Sulfur
     InputManager::Instance()->Update();
     SceneManager::Instance()->Update();
     TaskManager::Instance()->RunTasks();
-    //GraphicsManager::Instance()->Update();
     ObjectFactory::Instance()->EndFrameCleanUp();
     Time::Instance()->WaitForFrameRate();
   }
