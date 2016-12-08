@@ -53,30 +53,4 @@ namespace Sulfur
   {
 
   }
-
-  const Vector3& BoxCollider::GetOffset(void) const
-  {
-    return m_offset;
-  }
-
-  const Vector3& BoxCollider::GetScale(void) const
-  {
-    return m_scale;
-  }
-
-  void BoxCollider::SetOffset(const Vector3& offset)
-  {
-    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
-
-    cData->m_offset = offset;
-    m_offset = offset;
-  }
-
-  void BoxCollider::SetScale(const Vector3& scale)
-  {
-    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
-
-    cData->m_scale = m_scale;
-    m_scale = m_scale;
-  }
 }

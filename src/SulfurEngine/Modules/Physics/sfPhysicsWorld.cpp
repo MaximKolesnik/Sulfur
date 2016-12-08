@@ -18,6 +18,9 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Data\sfColliderData.hpp"
 #include "Error\sfError.hpp"
 #include "Components\sfRigidBody.hpp"
+#include "Components\sfSphereCollider.hpp"
+#include "Components\sfCapsuleCollider.hpp"
+#include "Components\sfBoxCollider.hpp"
 #include "Components\sfTransform.hpp"
 #include "Factories\sfComponentFactory.hpp"
 #include "Factories\sfObjectFactory.hpp"
@@ -57,7 +60,46 @@ namespace Sulfur
     if (!Time::Instance()->IsPaused())
     {
       for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
+      {
         it.second->m_position = SF_GET_COMP_TYPE(Transform, it.second->m_transformHndl)->GetTranslation();
+        if (it.second->m_compHndl != SF_INV_HANDLE)
+        {
+          RigidBody *body = SF_GET_COMP_TYPE(RigidBody, it.second->m_compHndl);
+
+          it.second->m_velocity = body->GetVelocity();
+          it.second->m_angularVelocity = body->GetAngularVelocity();
+          it.second->m_state = body->GetDynamicState();
+        }
+      }
+
+      for (auto &it : Physics::PhysicsWorld::Instance()->m_colliders)
+      {
+        switch (it.second->m_type)
+        {
+        case Physics::CT_SPHERE:
+        {
+          SphereCollider *sphere = SF_GET_COMP_TYPE(SphereCollider, it.second->m_compHndl);
+          it.second->m_offset = sphere->GetOffset();
+          it.second->m_radius = sphere->GetRadius();
+        }
+        break;
+        case Physics::CT_CAPSULE:
+        {
+          CapsuleCollider *capsule = SF_GET_COMP_TYPE(CapsuleCollider, it.second->m_compHndl);
+          it.second->m_lineLength = capsule->GetCenterLineLength();
+          it.second->m_offset = capsule->GetOffset();
+          it.second->m_radius = capsule->GetRadius();
+        }
+        break;
+        case Physics::CT_BOX:
+        {
+          BoxCollider *box = SF_GET_COMP_TYPE(BoxCollider, it.second->m_compHndl);
+          it.second->m_offset = box->GetOffset();
+          it.second->m_scale = box->GetScale();
+        }
+        break;
+        }
+      }
     }
   } SF_END_DEFINE_TASK(SyncData);
 
@@ -164,21 +206,23 @@ namespace Sulfur
 
       if (rb != m_rigidBodies.end())
       {
-        SF_ASSERT(rb->second->m_compHndl != SF_INV_HANDLE, "RigidBody is already tracked");
+        SF_ASSERT(rb->second->m_compHndl == SF_INV_HANDLE, "RigidBody is already tracked");
+
         delete rb->second;
+        m_rigidBodies.erase(rb);
 
         rbData = new RigidBodyData(rbHndl);
         rbData->Initialize();
-
-        auto col = m_colliders.find(owner);
-        if (col != m_colliders.end())
-          col->second->m_rbData = rbData;
       }
       else
       {
         rbData = new RigidBodyData(rbHndl);
         rbData->Initialize();
       }
+
+      auto col = m_colliders.find(owner);
+      if (col != m_colliders.end())
+        col->second->m_rbData = rbData;
 
       m_rigidBodies.insert({ owner, rbData });
     }
@@ -271,7 +315,11 @@ namespace Sulfur
     {
       RigidBodyData *rb = new RigidBodyData(SF_INV_HANDLE);
       rb->m_transformHndl = SF_GET_OBJECT(owner)->GetComponentHandle<Transform>();
-      rb->m_position = SF_GET_COMP_TYPE(Transform, rb->m_transformHndl)->GetTranslation();
+      if (rb->m_transformHndl != SF_INV_HANDLE)
+        rb->m_position = SF_GET_COMP_TYPE(Transform, rb->m_transformHndl)->GetTranslation();
+      else
+        rb->m_position = Vector3::c_zero;
+
       return rb;
     }
   }

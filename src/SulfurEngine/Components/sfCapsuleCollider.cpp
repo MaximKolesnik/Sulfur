@@ -55,43 +55,4 @@ namespace Sulfur
   {
 
   }
-
-  const Vector3& CapsuleCollider::GetOffset(void) const
-  {
-    return m_offset;
-  }
-
-  const Real&  CapsuleCollider::GetRadius(void) const
-  {
-    return m_radius;
-  }
-
-  const Real&  CapsuleCollider::GetCenterLineLength(void) const
-  {
-    return m_centerLineLength;
-  }
-
-  void CapsuleCollider::SetOffset(const Vector3 &offset)
-  {
-    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
-
-    cData->m_offset = offset;
-    m_offset = offset;
-  }
-
-  void CapsuleCollider::SetRadius(const Real &rad)
-  {
-    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
-
-    cData->m_radius = rad;
-    m_radius = rad;
-  }
-
-  void CapsuleCollider::SetCenterLineLength(const Real &length)
-  {
-    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
-
-    cData->m_lineLength = length;
-    m_centerLineLength = length;
-  }
 }

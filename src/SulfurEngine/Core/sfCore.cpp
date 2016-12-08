@@ -76,6 +76,7 @@ namespace Sulfur
     tm->AddNode("RenderGraphics");
     tm->AddNode("UpdateGameplay");
     tm->AddNode("TriggerEventsEndFrame");
+    tm->AddNode("SyncData");
     tm->AddNode("IntegrateBodies");
     tm->AddNode("BroadPhase");
     tm->AddNode("NarrowPhase");
@@ -83,12 +84,12 @@ namespace Sulfur
     tm->SetStartingTask("UpdateTransforms");
     tm->SetDependency("UpdateGameplay", "UpdateTransforms");
     tm->SetDependency("RenderGraphics", "UpdateGameplay");
-    tm->SetDependency("BroadPhase", "UpdateTransforms");
+    tm->SetDependency("SyncData", "RenderGraphics");
+    tm->SetDependency("BroadPhase", "SyncData");
     tm->SetDependency("NarrowPhase", "BroadPhase");
     tm->SetDependency("IntegrateBodies", "NarrowPhase");
     tm->SetDependency("PostAndCleanup", "IntegrateBodies");    
     tm->SetDependency("TriggerEventsEndFrame", "PostAndCleanup");
-    tm->SetDependency("TriggerEventsEndFrame", "RenderGraphics");
     tm->CompleteGraph();
 
     /*Object *testObj = SF_CREATE_OBJECT("testEvent");

@@ -53,30 +53,4 @@ namespace Sulfur
   {
 
   }
-
-  const Vector3& SphereCollider::GetOffset(void) const
-  {
-    return m_offset;
-  }
-
-  const Real& SphereCollider::GetRadius(void) const
-  {
-    return m_radius;
-  }
-
-  void SphereCollider::SetOffset(const Vector3 &offset)
-  {
-    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
-
-    cData->m_offset = offset;
-    m_offset = offset;
-  }
-
-  void SphereCollider::SetRadius(const Real &rad)
-  {
-    Physics::ColliderData *cData = Physics::PhysicsWorld::Instance()->GetColliderData(m_owner);
-
-    cData->m_radius = rad;
-    m_radius = rad;
-  }
 }

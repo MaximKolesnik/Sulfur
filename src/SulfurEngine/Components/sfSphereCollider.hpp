@@ -30,18 +30,10 @@ public:
   virtual void Update(void) override;
   virtual void DrawDebug(DebugDraw *draw) const override;
 
-  const Vector3& GetOffset(void) const;
-  const Real& GetRadius(void) const;
-
-  void SetOffset(const Vector3 &offset);
-  void SetRadius(const Real &rad);
-
 private:
   //SF_PRIVATE_PROPERTY(bool, isGhost, IsGhost, "Ghost collider");
-  SF_PRIVATE_PROPERTY_CUSTOM(Vector3, offset, Offset, "Collider offset from the center",
-    GetOffset, SetOffset);
-  SF_PRIVATE_PROPERTY_CUSTOM(Real, radius, Radius, 
-    "Scale of the collider based on max value from scale of the transform",
-    GetRadius, SetRadius);
+  SF_PRIVATE_PROPERTY(Vector3, offset, Offset, "Collider offset from the center");
+  SF_PRIVATE_PROPERTY(Real, radius, Radius, 
+    "Scale of the collider based on max value from scale of the transform");
 };
 }
