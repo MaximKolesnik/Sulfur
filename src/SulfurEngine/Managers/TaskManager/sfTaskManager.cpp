@@ -213,7 +213,6 @@ namespace Sulfur
 
       SF_CRITICAL_ERR_EXP(m_workers[i].m_threadHandle != NULL,
         std::to_string(GetLastError()));
-
       SetThreadAffinityMask(m_workers[i].m_threadHandle, 1i64 << i);
     }
   }

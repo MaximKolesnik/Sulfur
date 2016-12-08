@@ -33,7 +33,6 @@ namespace Sulfur
     Transform *trans = SF_CREATE_COMP(Transform);
 
     newObj->AttachComponent(trans);
-    trans->Initialize();
 
     return newObj;
   }

@@ -84,6 +84,15 @@ void ObjectEditor::OnAddComponentClicked()
   auto& componentTypes = ComponentFactory::Instance()->GetComponentTypes();
   for (const std::string& componentType : componentTypes)
   {
+    //Exclusive components like colliders
+    if (ComponentFactory::Instance()->IsGrouped(componentType))
+    {
+      std::string groupName = ComponentFactory::Instance()->GetGroupName(componentType);
+
+      if (object->HasComponentOfGroup(groupName))
+        continue;
+    }
+
     if (!object->HasComponent(componentType))
     {
       QAction *action = menu->addAction(componentType.c_str());

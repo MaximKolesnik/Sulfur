@@ -40,7 +40,10 @@ namespace Sulfur
       QueryPerformanceCounter(&currentCycle);
       m_dt = (currentCycle.QuadPart - m_startCycle.QuadPart) / m_frequency;
     } 
-    while (1.0f / m_dt < m_frameRate);
+    while (m_dt < m_frameRate);
+
+    if (m_dt > m_frameRate)
+      m_dt = EngineSettings::DefaultFPS;
 
     m_startCycle = currentCycle;
   }

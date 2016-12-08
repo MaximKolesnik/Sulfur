@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfGeometry.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    11/10/2016
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 
 #include "Math\sfVector3.hpp"
@@ -13,6 +27,8 @@ namespace Sulfur
       static const char* Names[] = { "Coplanar", "Outside", "Inside", "Overlaps", "NotImplemented" };
     }
 
+    Real ClosestPointsSegmentSegment(const Vector3 &p1, const Vector3 &p2, 
+      const Vector3 &q1, const Vector3 &q2, Vector3 &closestP, Vector3 &closestQ);
 
     // Helper function that you should likely use in several plane intersection functions. Also required for unit-tests.
     Vector3 ProjectPointOnPlane(const Vector3& point, const Vector3& normal, Real planeDistance);

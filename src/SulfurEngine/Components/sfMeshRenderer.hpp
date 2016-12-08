@@ -28,7 +28,7 @@ public:
   virtual MeshRenderer* Clone(void) const override final;
   virtual void Update(void) override final {}
   virtual void DrawDebug(DebugDraw *draw) const override;
-
+  
 private:
   SF_RESOURCE(Mesh, mesh, Mesh, "Mesh")
   SF_PRIVATE_PROPERTY(Material, material, Material, "Material");

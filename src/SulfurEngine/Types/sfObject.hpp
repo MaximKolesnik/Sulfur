@@ -55,6 +55,8 @@ namespace Sulfur
     template <class CompType>
     bool HasComponent(void) const;
 
+    bool HasComponentOfGroup(const std::string &group) const;
+
     HNDL GetComponentHandle(const std::string &compType) const;
     template <class CompType>
     HNDL GetComponentHandle(void) const;

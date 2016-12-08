@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfISpatialPartition.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    11/10/2016
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 
 #include "Math\Geometry\sfShapes.hpp"
@@ -17,7 +31,7 @@ namespace Sulfur
     union
     {
       void* m_proxy;
-      unsigned int m_uIntProxy;
+      UINT64 m_uIntProxy;
     };
   };
 
@@ -59,7 +73,7 @@ namespace Sulfur
   public:
     CastResult();
     explicit CastResult(void* clientData);
-    CastResult(void* clientData, float time);
+    CastResult(void* clientData, Real time);
 
     // Comparison function used for unit testing
     bool operator<(const CastResult& rhs) const;

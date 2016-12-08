@@ -55,13 +55,6 @@ premakeDef.dependencies["fbx"] = {
 	libraryDirs = { "../dependencies/fbx/lib" }
 }
 
-premakeDef.dependencies["python"] = {
-	debugLibs = { "python35_d.lib" },
-	releaseLibs = { "python35.lib" },
-	includeDirs = { "../dependencies/python/include" },
-	libraryDirs = { "../dependencies/python/lib" }
-}
-
 premakeDef.dependencies["dds"] = {
 	includeDirs = { "../dependencies/dds/include" }
 }
@@ -100,7 +93,7 @@ premakeDef.projects["SulfurEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
 	defines = { "SF_BUILDING_LIB" },
-	dependencies = { "D3D11", "libpng", "libjpeg", "fbx", "dds", "WinApi", "python" },
+	dependencies = { "D3D11", "libpng", "libjpeg", "fbx", "dds", "WinApi"},
 	pchHeader = "sfSulfurPCH.hpp",
 	pchSource = "sfSulfurPCH.cpp"
 }
@@ -140,6 +133,12 @@ premakeDef.projects["SulfurGame"] = {
 	language = "C++",
 	kind = "WindowedApp",
 	dependencies = { "SulfurEngine" }
+}
+
+premakeDef.projects["SulfurSandbox"] = {
+  language = "C++",
+  kind = "WindowedApp",
+  dependencies = { "SulfurEngine" }
 }
 
 premakeDef.projects["ShaderCompiler"] = {

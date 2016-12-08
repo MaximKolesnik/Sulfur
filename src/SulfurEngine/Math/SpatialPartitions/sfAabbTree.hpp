@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfAabbTree.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    11/10/2016
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 
 #include "sfISpatialPartition.hpp"
@@ -5,6 +19,8 @@
 
 namespace Sulfur
 {
+  class DebugDraw;
+
   class DynamicAabbTree : public ISpatialPartition
   {
   public:
@@ -22,6 +38,8 @@ namespace Sulfur
     void SelfQuery(QueryResults& results) override;
 
     void FilloutData(std::vector<SpatialPartitionQueryData>& results) const override;
+
+    void DrawDebug(DebugDraw *draw) const;
 
     static const float m_fatteningFactor;
 
@@ -44,31 +62,33 @@ namespace Sulfur
       size_t m_lastAxis;
     };
 
-    Node* CreateNode(void *clientData, Geometry::Aabb &aabb, Geometry::Aabb &origAabb, Node *parent) const;
-    Node*& SelectNode(Node *nodeToInsert, Node *&left, Node *&right) const;
-    void UpdateNode(Node *node) const;
-    void UpdateParents(Node *node) const;
+    Node* _CreateNode(void *clientData, Geometry::Aabb &aabb, Geometry::Aabb &origAabb, Node *parent) const;
+    Node*& _SelectNode(Node *nodeToInsert, Node *&left, Node *&right) const;
+    void _UpdateNode(Node *node) const;
+    void _UpdateParents(Node *node) const;
 
-    void Insert(Node *newNode, Node *&parent);
-    void StoreNodeData(std::vector<SpatialPartitionQueryData>& results, Node *node, int depth) const;
-    void UpdateHeights();
-    void SetHeight(Node *node) const;
-    int GetHeight(Node *node) const;
+    void _Insert(Node *newNode, Node *&parent);
+    void _StoreNodeData(std::vector<SpatialPartitionQueryData>& results, Node *node, int depth) const;
+    void _UpdateHeights();
+    void _SetHeight(Node *node) const;
+    int _GetHeight(Node *node) const;
 
     //Balancing
-    int BalanceFactor(Node *node) const;
-    void BalanceTree(Node *&node);
-    void BalanceTreeUp(Node **node);
-    void RotateLeft(Node *&node);
-    void RotateRight(Node *&node);
+    int _BalanceFactor(Node *node) const;
+    void _BalanceTree(Node *&node);
+    void _BalanceTreeUp(Node **node);
+    void _RotateLeft(Node *&node);
+    void _RotateRight(Node *&node);
 
     //Casting
-    void RayCast(CastResults &results, const Geometry::Ray &ray, Node *node) const;
-    void FrustumCast(const Geometry::Frustum& frustum, CastResults& results, Node *node) const;
-    void CollectLeafs(CastResults &results, Node *node) const;
+    void _RayCast(CastResults &results, const Geometry::Ray &ray, Node *node) const;
+    void _FrustumCast(const Geometry::Frustum& frustum, CastResults& results, Node *node) const;
+    void _CollectLeafs(CastResults &results, Node *node) const;
 
-    void SelfQuery(QueryResults &results, Node *node) const;
-    void SelfQuery(QueryResults &results, Node *node1, Node *node2) const;
+    void _SelfQuery(QueryResults &results, Node *node) const;
+    void _SelfQuery(QueryResults &results, Node *node1, Node *node2) const;
+
+    void _DrawDebug(Node *node, DebugDraw *draw) const;
 
     Node *m_root;
   };

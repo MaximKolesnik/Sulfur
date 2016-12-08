@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfShapes.hpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    11/10/2016
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 
 #include "Math\sfVector3.hpp"
@@ -124,6 +138,14 @@ namespace Sulfur
       // Get the 'd' value (the distance from the origin) which can be computed as Dot(origin - pointOnPlane, normal)
       Real GetDistance() const;
 
+      Plane& Transform(const Matrix4 &transform)
+      {
+        *this = Transformed(transform);
+
+        return *this;
+      }
+
+      Plane Transformed(const Matrix4 &tranform) const;
 
       Vector4 m_data;
     };

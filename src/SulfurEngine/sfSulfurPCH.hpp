@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfSulfurPCH.hpp
+\author  
+\par     
+\date    
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 
 #define NOMINMAX
@@ -21,10 +35,6 @@
 #include <d3d11.h>
 #include <dxgi.h>
 #include <d3dcompiler.h>
-
-// Scripting
-#include <python.h>
-#include <structmember.h>
 
 // Engine
 #include "Types/sfTypes.hpp"

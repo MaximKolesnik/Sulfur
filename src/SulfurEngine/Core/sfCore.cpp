@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfCore.cpp
+\author  
+\par     9/15/2016
+\date    
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #include "sfCore.hpp"
 #include "Components/sfCamera.hpp"
 
@@ -12,6 +26,7 @@
 #include "Modules/Graphics/Scene/sfMesh.hpp"
 #include "Modules/Scene/sfSceneManager.hpp"
 #include "Modules/Graphics/Debug/sfDebugDraw.hpp"
+#include "Modules/Physics/sfPhysicsWorld.hpp"
 #include "Managers\EventManager\sfEventManager.hpp"
 
 // Factories
@@ -52,6 +67,8 @@ namespace Sulfur
 
     InputManager::Instance()->Init(m_window);
     GraphicsManager::Instance()->Init(*m_window);
+    Physics::PhysicsWorld::Instance()->Initialize();
+
     m_running = true;
 
     TaskManager* tm = TaskManager::Instance();
@@ -59,9 +76,18 @@ namespace Sulfur
     tm->AddNode("RenderGraphics");
     tm->AddNode("UpdateGameplay");
     tm->AddNode("TriggerEventsEndFrame");
+    tm->AddNode("IntegrateBodies");
+    tm->AddNode("BroadPhase");
+    tm->AddNode("NarrowPhase");
+    tm->AddNode("PostAndCleanup");
     tm->SetStartingTask("UpdateTransforms");
     tm->SetDependency("UpdateGameplay", "UpdateTransforms");
     tm->SetDependency("RenderGraphics", "UpdateGameplay");
+    tm->SetDependency("BroadPhase", "UpdateTransforms");
+    tm->SetDependency("NarrowPhase", "BroadPhase");
+    tm->SetDependency("IntegrateBodies", "NarrowPhase");
+    tm->SetDependency("PostAndCleanup", "IntegrateBodies");    
+    tm->SetDependency("TriggerEventsEndFrame", "PostAndCleanup");
     tm->SetDependency("TriggerEventsEndFrame", "RenderGraphics");
     tm->CompleteGraph();
 

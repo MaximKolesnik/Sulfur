@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\par     Sulfur
+\file    sfNSquared.cpp
+\author  Maxim Kolesnik
+\par     DP email: maxim.kolesnik@digipen.edu
+\date    11/10/2016
+
+\brief
+
+All content © 2016 DigiPen (USA) Corporation, all rights reserved.
+*/
+/******************************************************************************/
+
 #include "sfNSquared.hpp"
 #include "Math\Geometry\sfGeometry.hpp"
 
@@ -93,17 +107,17 @@ namespace Sulfur
   void BoundingSphereSpatialPartition::CreateProxy(Proxy& proxy, SpatialPartitionData& data)
   {
     proxy.m_uIntProxy = (unsigned int)reinterpret_cast<uintptr_t>(&proxy);
-    m_objects[proxy.m_uIntProxy] = data;
+    m_objects[(int)proxy.m_uIntProxy] = data;
   }
 
   void BoundingSphereSpatialPartition::UpdateProxy(Proxy& proxy, SpatialPartitionData& data)
   {
-    m_objects[proxy.m_uIntProxy] = data;
+    m_objects[(int)proxy.m_uIntProxy] = data;
   }
 
   void BoundingSphereSpatialPartition::RemoveProxy(Proxy& proxy)
   {
-    m_objects.erase(proxy.m_uIntProxy);
+    m_objects.erase((int)proxy.m_uIntProxy);
   }
 
   void BoundingSphereSpatialPartition::CastRay(const Geometry::Ray& ray, CastResults& results)
@@ -172,17 +186,17 @@ namespace Sulfur
   void BoundingAabbSpatialPartition::CreateProxy(Proxy& proxy, SpatialPartitionData& data)
   {
     proxy.m_uIntProxy = (unsigned int)reinterpret_cast<uintptr_t>(&proxy);
-    m_objects[proxy.m_uIntProxy] = data;
+    m_objects[(int)proxy.m_uIntProxy] = data;
   }
 
   void BoundingAabbSpatialPartition::UpdateProxy(Proxy& proxy, SpatialPartitionData& data)
   {
-    m_objects[proxy.m_uIntProxy] = data;
+    m_objects[(int)proxy.m_uIntProxy] = data;
   }
 
   void BoundingAabbSpatialPartition::RemoveProxy(Proxy& proxy)
   {
-    m_objects.erase(proxy.m_uIntProxy);
+    m_objects.erase((int)proxy.m_uIntProxy);
   }
 
   void BoundingAabbSpatialPartition::CastRay(const Geometry::Ray& ray, CastResults& results)
