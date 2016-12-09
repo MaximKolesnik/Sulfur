@@ -14,6 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfThirdPersonController.hpp"
 #include "Factories/sfObjectFactory.hpp"
 #include "Factories/sfComponentFactory.hpp"
+#include "Modules/Scene/sfSceneManager.hpp"
 #include "sfTransform.hpp"
 
 #include "Modules/Time/sfTime.hpp"
@@ -23,7 +24,7 @@ namespace Sulfur
 {
 
 ThirdPersonController::ThirdPersonController()
-  : m_movementSpeed(1.0f), m_rotationSpeed(1.0f)
+  : m_movementSpeed(1.0f), m_rotationSpeed(1.0f), m_cameraDistance(5.0f), m_cameraHeight(1.0f), m_cameraAngle(0.15f), m_cameraRotation(0.0f)
 {
 
 }
@@ -41,15 +42,27 @@ ThirdPersonController* ThirdPersonController::Clone(void) const
 
 void ThirdPersonController::Update(void)
 {
+  HNDL cameraObjectHandle = SceneManager::Instance()->GetScene().GetCameraObject();
+  if (cameraObjectHandle == SF_INV_HANDLE) return;
+
+  Transform *camera = SF_GET_OBJECT(cameraObjectHandle)->GetComponent<Transform>();
+  Transform *player = SF_GET_COMP_TYPE(Transform, m_owner);
+
   float dt = Time::Instance()->GetDt();
   InputManager *inputManager = InputManager::Instance();
-  Transform *playerTransform = SF_GET_COMP_TYPE(Transform, m_owner);
 
   Real vertical = (Real)(inputManager->IsKeyDown('W') - inputManager->IsKeyDown('S'));
   Real horizontal = (Real)(inputManager->IsKeyDown('D') - inputManager->IsKeyDown('A'));
+  m_cameraRotation -= inputManager->MouseDeltaX() * m_rotationSpeed * 0.005f;
 
-  Vector3 translation = vertical * Vector3::c_xAxis + horizontal * Vector3::c_zAxis;
-  playerTransform->SetTranslation(playerTransform->GetTranslation() + translation * dt);
+  Quaternion quat; quat.SetEuler(0.0f, 0.0f, m_cameraRotation);
+  Quaternion quatDown; quatDown.SetEuler(m_cameraAngle, 0.0f, 0.0f);
+  Vector3 direction = quat.GetMatrix3() * Vector3::c_zAxis;
+  Vector3 translation = vertical * direction + horizontal * camera->GetWorldRight();
+
+  player->SetTranslation(player->GetTranslation() + translation * dt * m_movementSpeed);  
+  camera->SetRotation(quat * quatDown);
+  camera->SetTranslation(player->GetTranslation() + Vector3::c_yAxis * m_cameraHeight - direction * m_cameraDistance);
 }
 
 void ThirdPersonController::DrawDebug(DebugDraw *draw) const

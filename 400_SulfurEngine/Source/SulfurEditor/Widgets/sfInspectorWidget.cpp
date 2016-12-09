@@ -19,11 +19,13 @@ namespace Sulfur
 {
 
 InspectorWidget::InspectorWidget(QWidget *parent)
-  : QWidget(parent), m_object(nullptr)
+  : QScrollArea(parent), m_object(nullptr)
 {
   CreateLayout();
-  setMinimumSize(300, 175);
+  setMinimumSize(400, 175);
   setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Ignored);
+  setWidgetResizable(true);
+  //setStyleSheet("background-color: transparent;");
 }
 
 InspectorWidget::~InspectorWidget()
@@ -37,13 +39,23 @@ void InspectorWidget::UpdateValues()
 
 void InspectorWidget::CreateLayout()
 {
+  m_frame = new QFrame();
+  m_frame->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Expanding);
+  m_frame->setFixedWidth(size().width());
   m_layout = new QVBoxLayout();
-  setLayout(m_layout);
+  m_frame->setLayout(m_layout);
+  setWidget(m_frame);
 }
 
 void InspectorWidget::OnPropertyChanged()
 {
   emit ObjectChanged();
+}
+
+void InspectorWidget::resizeEvent(QResizeEvent *e)
+{
+  m_frame->setFixedWidth(e->size().width());
+  QScrollArea::resizeEvent(e);
 }
 
 }

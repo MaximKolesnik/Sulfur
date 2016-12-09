@@ -70,6 +70,7 @@ namespace Sulfur
 
     Object *randObj = SF_CREATE_OBJECT("randObj");
     RigidBody *rb = SF_CREATE_COMP(RigidBody);
+    MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
     rb->SetDynamicState(Physics::RB_Dynamic);
     randObj->AttachComponent(rb);
 
@@ -78,8 +79,6 @@ namespace Sulfur
     case Physics::CT_SPHERE:
     {
       randObj->AttachComponent(SF_CREATE_COMP(SphereCollider));
-
-      MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
       mesh->SetMesh("Models\\sphere.fbx");
       randObj->AttachComponent(mesh);
     }
@@ -87,8 +86,6 @@ namespace Sulfur
     case Physics::CT_CAPSULE:
     {
       randObj->AttachComponent(SF_CREATE_COMP(CapsuleCollider));
-
-      MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
       mesh->SetMesh("Models\\normCapsule.fbx");
       randObj->AttachComponent(mesh);
     }
@@ -96,8 +93,6 @@ namespace Sulfur
     case Physics::CT_BOX:
     {
       randObj->AttachComponent(SF_CREATE_COMP(BoxCollider));
-
-      MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
       mesh->SetMesh("Models\\cube.fbx");
       randObj->AttachComponent(mesh);
     }
@@ -115,6 +110,11 @@ namespace Sulfur
     pos[1] += m_dropHeight;
     pos[0] = xVal;
 
+    Material mat;
+    mat.SetDiffuseColor(Color(rand() / (Real)RAND_MAX, rand() / (Real)RAND_MAX, rand() / (Real)RAND_MAX, 1.0f));
+    mat.SetRoughness(rand() / (Real)RAND_MAX);
+    mat.SetMetallic(rand() / (Real)RAND_MAX);
+    mesh->SetMaterial(mat);
 
     SceneManager::Instance()->GetScene().AddObject(randObj->GetHndl());
     randObj->GetComponent<Transform>()->SetTranslation(pos);
