@@ -4,23 +4,6 @@
     alternate-background-color: #3c3f41;
 }
 
-QFrame {
-    border: none;
-}
-
-QScrollArea {
-    color: #bbbbbb;
-    background-color: #3c3f41;
-    border: none;
-    border-top: 1px solid #2b2b2b;
-    selection-background-color: #2f65ca;
-    selection-color: #bbbbbb;
-}
-QDialog QScrollArea {
-    border-top: none;
-    border: none;
-}
-
 QPlainTextEdit {
     background-color: #2b2b2b;
     border: none;
@@ -33,6 +16,9 @@ QGraphicsView {
     border-color: #2b2b2b;
     color: #bbbbbb;
 }
+
+QScrollArea { background: transparent; }
+QScrollArea > QWidget > QWidget { background: transparent; }
 
 QMainWindow,
 QAbstractItemView,
@@ -79,6 +65,10 @@ QSlider {
     color: #bbb;
     selection-background-color: #2f65ca;
     selection-color: #bbb;
+}
+
+Sulfur--ContainerEditor {
+	border: 1px solid #5e5f60;
 }
 
 QScrollBar {

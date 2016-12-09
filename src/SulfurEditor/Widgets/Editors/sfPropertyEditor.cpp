@@ -68,7 +68,8 @@ PropertyEditor* CreatePropertyEditor(const TypeInfo *typeInfo, Args...args)
     if (typeInfo == SF_TYPE_INFO(ResourcePath)) return new ResourceEditor(args...);
   }
 
-  return new PropertyEditor(args...);
+  return nullptr;
+  //return new PropertyEditor(args...);
 }
 
 PropertyEditor* PropertyEditor::Create(ReflectionBase *object, Property *prop)

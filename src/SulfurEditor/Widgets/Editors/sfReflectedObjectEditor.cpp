@@ -41,11 +41,12 @@ void ReflectedObjectEditor::UpdateValue()
   m_object->GetProperties(properties);
 
   m_collapseButton->setText(m_object->GetTypeInfo()->GetName().c_str());
-
   for (Property *prop : properties)
   {
     if (prop->GetName() != "Name") // TODO: Find a better way to do this
+    {
       AddChild(PropertyEditor::Create(m_object, prop));
+    }
   }
 }
 

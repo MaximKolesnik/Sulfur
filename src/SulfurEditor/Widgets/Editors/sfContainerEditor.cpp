@@ -46,14 +46,15 @@ void ContainerEditor::Setup()
 {
   m_mainLayout = CreateLayout();
   setLayout(m_mainLayout);
+  setFrameStyle(QFrame::Shape::StyledPanel | QFrame::Shadow::Sunken);
 
   m_childrenLayout = CreateLayout();
   setContentsMargins(0, 0, 0, 0);
 
   m_childrenWidget = new QFrame();
   m_childrenWidget->setLayout(m_childrenLayout);
-  m_childrenWidget->setContentsMargins(10, 0, 10, 0);
-  m_mainLayout->addWidget(m_childrenWidget);
+  m_childrenWidget->setContentsMargins(10, 10, 10, 10);
+  m_mainLayout->addWidget(m_childrenWidget, 0, Qt::AlignTop);
 }
 
 void ContainerEditor::ClearLayout()
@@ -67,8 +68,8 @@ void ContainerEditor::ClearLayout()
 
 QBoxLayout* ContainerEditor::CreateLayout()
 {
-  QBoxLayout *layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
-  layout->setMargin(0);
+  QBoxLayout *layout = new QVBoxLayout();
+  layout->setContentsMargins(0, 0, 0, 0);
   return layout;
 }
 

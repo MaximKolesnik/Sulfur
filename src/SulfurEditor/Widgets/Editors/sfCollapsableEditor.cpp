@@ -43,12 +43,13 @@ void CollapsableEditor::Setup()
   m_headerLayout->setContentsMargins(0, 0, 0, 0);
 
   m_headerFrame = new QFrame();
-  m_headerFrame->setContentsMargins(0, 0, 0, 0);
+  m_headerFrame->setContentsMargins(5, 5, 5, 5);
 
   m_headerFrame->setLayout(m_headerLayout);
   m_mainLayout->insertWidget(0, m_headerFrame);
 
   m_collapseButton = new QPushButton();
+  m_collapseButton->setContentsMargins(0, 0, 0, 0);
   if (m_property != nullptr) m_collapseButton->setText(m_property->GetName().c_str());
   m_headerLayout->insertWidget(0, m_collapseButton);
 

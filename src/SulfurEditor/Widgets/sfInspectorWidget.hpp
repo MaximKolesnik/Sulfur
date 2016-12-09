@@ -18,7 +18,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 	
-  class InspectorWidget : public QWidget
+  class InspectorWidget : public QScrollArea
   {
     Q_OBJECT
 
@@ -50,6 +50,9 @@ namespace Sulfur
 
     void UpdateValues();
 
+  protected:
+    virtual void resizeEvent(QResizeEvent *e) override;
+
   private:
     void CreateLayout();
 
@@ -60,6 +63,7 @@ namespace Sulfur
     void ObjectChanged();
   
   private:
+    QFrame *m_frame;
     ReflectionBase *m_object;
     QBoxLayout *m_layout;
 

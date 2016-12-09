@@ -33,6 +33,11 @@ public:
 private:
   SF_PRIVATE_PROPERTY(Real, movementSpeed, MovementSpeed, "Movement Speed")
   SF_PRIVATE_PROPERTY(Real, rotationSpeed, RotationSpeed, "Rotation Speed")
+  SF_PRIVATE_PROPERTY(Real, cameraDistance, CameraDistance, "Camera Distance")
+  SF_PRIVATE_PROPERTY(Real, cameraHeight, CameraHeight, "Camera Height")
+  SF_PRIVATE_PROPERTY(Real, cameraAngle, CameraAngle, "Camera Angle")
+
+  Real m_cameraRotation;
 
 };
 
