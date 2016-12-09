@@ -27,7 +27,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "Modules\Physics\Data\sfRigidBodyData.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
-
+#include "Modules\Scene\sfSceneManager.hpp"
 namespace Sulfur
 {
   ColliderRandomDrop::ColliderRandomDrop(void) : m_delta(2.0), m_dropHeight(5.0),
@@ -116,6 +116,7 @@ namespace Sulfur
     pos[0] = xVal;
 
 
+    SceneManager::Instance()->GetScene().AddObject(randObj->GetHndl());
     randObj->GetComponent<Transform>()->SetTranslation(pos);
   }
 
