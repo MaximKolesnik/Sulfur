@@ -33,7 +33,7 @@ namespace Sulfur
 
   Logger::~Logger(void)
   {
-    //m_logFile.close();                                                          
+    m_logFile.close();                                                          
   }
 
   void Logger::Initialize(void)
@@ -66,19 +66,19 @@ namespace Sulfur
     logName += ".txt";
 
     //Create directory if it does not exist
-    /*struct stat info;
+    struct stat info;
     BOOL directoryExists = true;
 
     if (stat(EngineSettings::LogDir.c_str(), &info) != 0)
       directoryExists = CreateDirectory(EngineSettings::LogDir.c_str(), NULL);
 
     SF_CRITICAL_ERR_EXP(directoryExists,
-      "Log directory does not exist and cannot be created");*/
+      "Log directory does not exist and cannot be created");
 
     //Create log file
-    /*m_logFile.open((EngineSettings::LogDir + logName).c_str(), std::ofstream::out);
+    m_logFile.open((EngineSettings::LogDir + logName).c_str(), std::ofstream::out);
     if (!m_logFile.is_open())
-      SF_CRITICAL_ERR("Log file cannot be created");*/
+      SF_CRITICAL_ERR("Log file cannot be created");
   }
 
   void Logger::Log(const std::string &message, const std::string &fileName,
@@ -94,7 +94,7 @@ namespace Sulfur
     finalMessage += "LINE: " + std::to_string(lineNumber) + " ";
     finalMessage += type + ": " + message + "\n";
 
-    //m_logFile << finalMessage << std::endl;
+    m_logFile << finalMessage << std::endl;
 
     //if (EngineSettings::ShowConsole)
       std::cout << finalMessage;

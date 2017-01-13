@@ -1,5 +1,0 @@
-Engine Architecture
-Editor
-Graphics
-Reflection
-Resource management

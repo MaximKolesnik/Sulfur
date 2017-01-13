@@ -22,6 +22,7 @@ namespace Sulfur
 {
   namespace Physics
   {
+    class ColliderGeometry;
     struct RigidBodyData;
 
     enum ColliderType
@@ -29,6 +30,7 @@ namespace Sulfur
       CT_BOX = 0,
       CT_SPHERE,
       CT_CAPSULE,
+      CT_MESH,
       CT_NUM_TYPES
     };
 
@@ -49,8 +51,9 @@ namespace Sulfur
       Real m_radius; //Sphere, Capsule
 
       Proxy m_proxy; //Spatial partition proxy
-      ColliderType m_type;
 
+      ColliderType m_type;
+      const ColliderGeometry
       HNDL m_transformHndl = SF_INV_HANDLE;
       HNDL m_compHndl = SF_INV_HANDLE; //Collider component hndl
 

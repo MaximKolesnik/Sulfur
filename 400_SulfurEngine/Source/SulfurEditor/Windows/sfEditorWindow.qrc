@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/EditorWindow">
-        <file>Icon.ico</file>
-    </qresource>
-</RCC>
