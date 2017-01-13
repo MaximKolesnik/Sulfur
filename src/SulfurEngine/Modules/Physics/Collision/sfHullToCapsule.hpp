@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*!
 \par     Sulfur
-\file    sfSphereToBox.hpp
+\file    sfBoxToCapsule.hpp
 \author  Maxim Kolesnik
 \par     DP email: maxim.kolesnik@digipen.edu
 \date    11/10/2016
@@ -22,13 +22,13 @@ namespace Sulfur
   {
     struct ColliderData;
 
-    void SphereToBox(Contacts &contacts, ColliderData *sphere,
-      ColliderData *box);
+    void HullToCapsule(Contacts &contacts, ColliderData *hull,
+      ColliderData *capsule);
 
-    inline void BoxToSphere(Contacts &contacts, ColliderData *box,
-      ColliderData *sphere)
+    inline void CapsuleToHull(Contacts &contacts, ColliderData *capsule,
+      ColliderData *hull)
     {
-      SphereToBox(contacts, sphere, box);
+      HullToCapsule(contacts, hull, capsule);
     }
   }
 }

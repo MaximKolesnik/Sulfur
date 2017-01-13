@@ -12,7 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 
-#include "sfSphereToBox.hpp"
+#include "sfSphereToCapsule.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
 #include "Components\sfTransform.hpp"
 #include "Math\sfVector3.hpp"

@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*!
 \par     Sulfur
-\file    sfSphereToBox.cpp
+\file    sfSphereToHull.cpp
 \author  Maxim Kolesnik
 \par     DP email: maxim.kolesnik@digipen.edu
 \date    11/10/2016
@@ -12,7 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 
-#include "sfSphereToBox.hpp"
+#include "sfSphereToHull.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
 #include "Components\sfTransform.hpp"
 #include "Math\sfVector3.hpp"
@@ -23,25 +23,25 @@ namespace Sulfur
 {
   namespace Physics
   {
-    void SphereToBox(Contacts &contacts, ColliderData *sphere,
-      ColliderData *box)
+    void SphereToHull(Contacts &contacts, ColliderData *sphere,
+      ColliderData *hull)
     {
       Transform *transSphere = SF_GET_COMP_TYPE(Transform, sphere->m_transformHndl);
-      Transform *transBox = SF_GET_COMP_TYPE(Transform, box->m_transformHndl);
+      Transform *transHull = SF_GET_COMP_TYPE(Transform, hull->m_transformHndl);
 
       SF_ASSERT(transSphere, "Transform handle on sphere is not set");
-      SF_ASSERT(transBox, "Transform handle on box B is not set");
+      SF_ASSERT(transHull, "Transform handle on box B is not set");
 
       Vector3 spherePos = transSphere->GetTranslation() + sphere->m_offset;
 
       Vector3 halfSizes;
       Vector3 boxPos;
 
-      halfSizes = (transBox->GetScale() * box->m_scale) / 2;
-      boxPos = transBox->GetTranslation() + box->m_offset;
+      halfSizes = (transHull->GetScale() * hull->m_scale) / 2;
+      boxPos = transHull->GetTranslation() + hull->m_offset;
 
       Real radius = transSphere->GetScale().MaxAxisValue() * sphere->m_radius;
-      Vector3 relSpherePos = transBox->GetRotation().Inverted().Rotated(spherePos - boxPos);
+      Vector3 relSpherePos = transHull->GetRotation().Inverted().Rotated(spherePos - boxPos);
 
       if (MathUtils::Abs(relSpherePos[0]) - radius > halfSizes[0]
         ||
@@ -77,12 +77,12 @@ namespace Sulfur
         Vector3 minNormal;
         Vector3 minProj;
         Matrix4 boxMat;
-        boxMat.SetTransformation(transBox->GetRotation(), transBox->GetScale() * box->m_scale,
+        boxMat.SetTransformation(transHull->GetRotation(), transHull->GetScale() * hull->m_scale,
           boxPos);
 
-        const ColliderGeometry &boxGeometry = GeometryMap::Instance()->GetBoxGeometry();
+        const ColliderGeometry *hullGeometry = hull->m_geometry;
 
-        for (auto &p : boxGeometry.GetPlanes())
+        for (auto &p : hullGeometry->GetPlanes())
         {
           Geometry::Plane plane = p.Transformed(boxMat);
 
@@ -96,7 +96,7 @@ namespace Sulfur
           }
         }
 
-        c.m_colliderA = box;
+        c.m_colliderA = hull;
         c.m_colliderB = sphere;
         c.m_contactPoint = minProj;
         c.m_contactNormal = minNormal;
@@ -105,9 +105,9 @@ namespace Sulfur
       }
       else //Shallow
       {
-        Vector3 closestPointWorld = boxPos + transBox->GetRotation().Rotated(closestPoint);
+        Vector3 closestPointWorld = boxPos + transHull->GetRotation().Rotated(closestPoint);
 
-        c.m_colliderA = box;
+        c.m_colliderA = hull;
         c.m_colliderB = sphere;
         c.m_contactNormal = (spherePos - closestPointWorld).Normalized();
         c.m_contactPoint = closestPointWorld;

@@ -1,7 +1,7 @@
 /******************************************************************************/
 /*!
 \par     Sulfur
-\file    sfBoxToBox.cpp
+\file    sfHullToHull.cpp
 \author  Maxim Kolesnik
 \par     DP email: maxim.kolesnik@digipen.edu
 \date    11/10/2016
@@ -12,7 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 
-#include "sfSphereToBox.hpp"
+#include "sfHullToHull.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
 #include "Components\sfTransform.hpp"
 #include "Math\sfVector3.hpp"
@@ -28,16 +28,16 @@ namespace Sulfur
       ColliderData *colliderB, const Vector3 &posB, const Vector3 &scaleB, 
       const Quaternion &orientB, const SAT::EdgeQuery &edgeQuery)
     {
-      const ColliderGeometry &hullA = GeometryMap::Instance()->GetBoxGeometry();
-      const ColliderGeometry &hullB = GeometryMap::Instance()->GetBoxGeometry();
+      const ColliderGeometry *hullA = colliderA->m_geometry;
+      const ColliderGeometry *hullB = colliderB->m_geometry;
 
-      const ColliderGeometry::HalfEdge ea = hullA.GetEdge(edgeQuery.m_edgeA);
-      Vector3 pa = hullA.GetVertex(ea.m_origin);
-      Vector3 qa = hullA.GetVertex(hullA.GetEdge(ea.m_twin).m_origin);
+      const ColliderGeometry::HalfEdge ea = hullA->GetEdge(edgeQuery.m_edgeA);
+      Vector3 pa = hullA->GetVertex(ea.m_origin);
+      Vector3 qa = hullA->GetVertex(hullA->GetEdge(ea.m_twin).m_origin);
 
-      const ColliderGeometry::HalfEdge eb = hullB.GetEdge(edgeQuery.m_edgeB);
-      Vector3 pb = hullB.GetVertex(eb.m_origin);
-      Vector3 qb = hullB.GetVertex(hullB.GetEdge(eb.m_twin).m_origin);
+      const ColliderGeometry::HalfEdge eb = hullB->GetEdge(edgeQuery.m_edgeB);
+      Vector3 pb = hullB->GetVertex(eb.m_origin);
+      Vector3 qb = hullB->GetVertex(hullB->GetEdge(eb.m_twin).m_origin);
 
       pa = posA + orientA.Rotated(scaleA * pa);
       qa = posA + orientA.Rotated(scaleA * qa);
@@ -71,18 +71,18 @@ namespace Sulfur
       ColliderData *colliderInc, const Vector3 &posInc, const Vector3 &scaleInc,
       const Quaternion &orientInc, size_t refFace, size_t incFace, Real separation)
     {
-      const ColliderGeometry &refHull = GeometryMap::Instance()->GetBoxGeometry();
-      const ColliderGeometry &incHull = GeometryMap::Instance()->GetBoxGeometry();
+      const ColliderGeometry *refHull = colliderRef->m_geometry;
+      const ColliderGeometry *incHull = colliderInc->m_geometry;
 
-      const ColliderGeometry::Face &iFace = incHull.GetFace(incFace);
+      const ColliderGeometry::Face &iFace = incHull->GetFace(incFace);
       size_t firstEdge = iFace.m_edge;
       std::vector<Vector3> iVerts;
       
       size_t edgeIt = firstEdge;
       do
       {
-        const ColliderGeometry::HalfEdge e = incHull.GetEdge(edgeIt);
-        iVerts.push_back(incHull.GetVertex(e.m_origin));
+        const ColliderGeometry::HalfEdge e = incHull->GetEdge(edgeIt);
+        iVerts.push_back(incHull->GetVertex(e.m_origin));
         edgeIt = e.m_next;
       } while (edgeIt != firstEdge);
 
@@ -92,16 +92,16 @@ namespace Sulfur
       Matrix4 refTransform;
       refTransform.SetTransformation(orientRef, scaleRef, posRef);
 
-      const ColliderGeometry::Face &rFace = refHull.GetFace(refFace);
+      const ColliderGeometry::Face &rFace = refHull->GetFace(refFace);
       firstEdge = rFace.m_edge;
       edgeIt = firstEdge;
 
       do
       {
-        const ColliderGeometry::HalfEdge e = refHull.GetEdge(edgeIt);
-        const ColliderGeometry::HalfEdge twin = refHull.GetEdge(e.m_twin);
+        const ColliderGeometry::HalfEdge e = refHull->GetEdge(edgeIt);
+        const ColliderGeometry::HalfEdge twin = refHull->GetEdge(e.m_twin);
 
-        Geometry::Plane clipPlane = refHull.GetPlane(twin.m_face);
+        Geometry::Plane clipPlane = refHull->GetPlane(twin.m_face);
         clipPlane.Transform(refTransform);
 
         SAT::ClipPointsToPlane(iVerts, clipPlane);
@@ -109,7 +109,7 @@ namespace Sulfur
 
       } while (edgeIt != firstEdge);
 
-      Geometry::Plane refPlane = refHull.GetPlane(refFace);
+      Geometry::Plane refPlane = refHull->GetPlane(refFace);
       refPlane.Transform(refTransform);
 
       for (auto &it = iVerts.begin(); it != iVerts.end();)
@@ -147,13 +147,13 @@ namespace Sulfur
       incMat.SetTransformation(orientInc, scaleInc, posInc);
       refToInc = incMat.Inverted() * refMat;
 
-      const ColliderGeometry &refHull = GeometryMap::Instance()->GetBoxGeometry();
-      const ColliderGeometry &incHull = GeometryMap::Instance()->GetBoxGeometry();
+      const ColliderGeometry *refHull = colliderRef->m_geometry;
+      const ColliderGeometry *incHull = colliderInc->m_geometry;
 
-      Geometry::Plane refPlane = refHull.GetPlane(refFaceInd);
+      Geometry::Plane refPlane = refHull->GetPlane(refFaceInd);
       refPlane.Transform(refToInc);
 
-      const auto &incPlanes = incHull.GetPlanes();
+      const auto &incPlanes = incHull->GetPlanes();
       Real minDot = SF_REAL_MAX;
       size_t minIndex = 0;
       for (size_t i = 0; i < incPlanes.size(); ++i)
@@ -169,7 +169,7 @@ namespace Sulfur
       return minIndex;
     }
 
-    void BoxToBox(Contacts &contacts, ColliderData *colliderA,
+    void HullToHull(Contacts &contacts, ColliderData *colliderA,
       ColliderData *colliderB)
     {
       Transform *transA = SF_GET_COMP_TYPE(Transform, colliderA->m_transformHndl);
@@ -188,20 +188,20 @@ namespace Sulfur
         SF_LOG_MESSAGE("Hit");*/
 
       SAT::FaceQuery faceQueryA;
-      SAT::QueryFaceDirections(posA, scaleA, orientA, GeometryMap::Instance()->GetBoxGeometry(),
-        posB, scaleB, orientB, GeometryMap::Instance()->GetBoxGeometry(), faceQueryA);
+      SAT::QueryFaceDirections(posA, scaleA, orientA, colliderA->m_geometry,
+        posB, scaleB, orientB, colliderB->m_geometry, faceQueryA);
       if (faceQueryA.m_separation > Real(0.0))
         return;
 
       SAT::FaceQuery faceQueryB;
-      SAT::QueryFaceDirections(posB, scaleB, orientB, GeometryMap::Instance()->GetBoxGeometry(),
-        posA, scaleA, orientA, GeometryMap::Instance()->GetBoxGeometry(), faceQueryB);
+      SAT::QueryFaceDirections(posB, scaleB, orientB, colliderB->m_geometry,
+        posA, scaleA, orientA, colliderA->m_geometry, faceQueryB);
       if (faceQueryB.m_separation > Real(0.0))
         return;
 
       SAT::EdgeQuery edgeQuery;
-      SAT::QueryEdgeDirections(posA, scaleA, orientA, GeometryMap::Instance()->GetBoxGeometry(),
-        posB, scaleB, orientB, GeometryMap::Instance()->GetBoxGeometry(), edgeQuery);
+      SAT::QueryEdgeDirections(posA, scaleA, orientA, colliderA->m_geometry,
+        posB, scaleB, orientB, colliderB->m_geometry, edgeQuery);
       if (edgeQuery.m_separation > Real(0.0))
         return;
 

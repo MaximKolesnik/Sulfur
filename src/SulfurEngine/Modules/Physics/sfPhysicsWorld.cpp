@@ -20,7 +20,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components\sfRigidBody.hpp"
 #include "Components\sfSphereCollider.hpp"
 #include "Components\sfCapsuleCollider.hpp"
-#include "Components\sfBoxCollider.hpp"
+#include "Components\sfMeshCollider.hpp"
 #include "Components\sfTransform.hpp"
 #include "Factories\sfComponentFactory.hpp"
 #include "Factories\sfObjectFactory.hpp"
@@ -85,12 +85,12 @@ namespace Sulfur
         it.second->m_radius = capsule->GetRadius();
       }
       break;
-      case Physics::CT_BOX:
+      /*case Physics::CT_BOX:
       {
         BoxCollider *box = SF_GET_COMP_TYPE(BoxCollider, it.second->m_compHndl);
         it.second->m_offset = box->GetOffset();
         it.second->m_scale = box->GetScale();
-      }
+      }*/
       break;
       }
     }

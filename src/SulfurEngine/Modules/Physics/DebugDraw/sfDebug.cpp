@@ -157,8 +157,8 @@ namespace Sulfur
         case CT_SPHERE:
           DrawSphere(data);
           break;
-        case CT_BOX:
-          DrawBox(data);
+        case CT_MESH:
+          //DrawBox(data);
           break;
         case CT_CAPSULE:
           DrawCapsule(data);

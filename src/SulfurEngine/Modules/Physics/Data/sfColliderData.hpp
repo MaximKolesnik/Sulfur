@@ -29,8 +29,7 @@ namespace Sulfur
 
     enum ColliderType
     {
-      CT_BOX = 0,
-      CT_SPHERE,
+      CT_SPHERE = 0,
       CT_CAPSULE,
       CT_MESH,
       CT_NUM_TYPES
@@ -56,7 +55,7 @@ namespace Sulfur
       Proxy m_proxy; //Spatial partition proxy
 
       ColliderType m_type;
-      std::unique_ptr<ColliderGeometry> m_geometry;
+      const ColliderGeometry *m_geometry;
 
       HNDL m_transformHndl = SF_INV_HANDLE;
       HNDL m_compHndl = SF_INV_HANDLE; //Collider component hndl

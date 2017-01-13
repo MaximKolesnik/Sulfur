@@ -118,7 +118,7 @@ namespace Sulfur
       ColliderGeometry *geometry = new ColliderGeometry();
       const Mesh::VertexList& meshVerts = mesh->GetVertices();
 
-      std::copy(meshVerts.begin(), meshVerts.end(), geometry->m_vertices);
+      
     }
   }
 }

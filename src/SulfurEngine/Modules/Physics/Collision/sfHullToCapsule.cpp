@@ -12,7 +12,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 
-#include "sfSphereToBox.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
 #include "Components\sfTransform.hpp"
 #include "Math\sfVector3.hpp"
@@ -27,14 +26,14 @@ namespace Sulfur
 {
   namespace Physics
   {
-    size_t FindClosestFace(const ColliderGeometry &geometry,
+    size_t FindClosestFace(const ColliderGeometry *geometry,
       const Matrix4 &trans, const Vector3 &contactNormal)
     {
       Real minDist = SF_REAL_MAX;
       size_t ind = 0;
-      for (size_t i = 0; i < geometry.GetFaceCount(); ++i)
+      for (size_t i = 0; i < geometry->GetFaceCount(); ++i)
       {
-        Real dist = -Dot(contactNormal, geometry.GetPlane(i).Transformed(trans).GetNormal());
+        Real dist = -Dot(contactNormal, geometry->GetPlane(i).Transformed(trans).GetNormal());
 
         if (dist < minDist)
         {
@@ -46,12 +45,12 @@ namespace Sulfur
       return ind;
     }
 
-    static void BuildDeepContact(Contacts &contacts, ColliderData *box,
+    static void BuildDeepContact(Contacts &contacts, ColliderData *hull,
       ColliderData *capsule, const Vector3 &boxPos, const Vector3 &boxScale,
       const Quaternion &boxOrient, const Vector3 &capLineA, const Vector3 &capLineB,
       Real capRadius, const Gjk::CsoPoint &closestPts)
     {
-      const ColliderGeometry &boxGeometry = GeometryMap::Instance()->GetBoxGeometry();
+      const ColliderGeometry *hullGeometry = hull->m_geometry;
 
       ColliderGeometry::VertexList worldCapVerts;
       worldCapVerts.push_back(capLineA);
@@ -64,9 +63,9 @@ namespace Sulfur
       Real maxFace = -SF_REAL_MAX;
       Vector3 minAxis;
 
-      for (int i = 0; i < boxGeometry.GetPlaneCount(); ++i)
+      for (int i = 0; i < hullGeometry->GetPlaneCount(); ++i)
       {
-        Geometry::Plane p = boxGeometry.GetPlane(i);
+        Geometry::Plane p = hullGeometry->GetPlane(i);
         p.Transform(trans);
         
         Real da = p.GetNormal().Dot(capLineA) + p.GetDistance();
@@ -113,14 +112,14 @@ namespace Sulfur
 
       if (faceContact != -1)
       {
-        size_t firstEdge = boxGeometry.GetFace(faceContact).m_edge;
+        size_t firstEdge = hullGeometry->GetFace(faceContact).m_edge;
         size_t edgeIt = firstEdge;
 
         do
         {
-          const ColliderGeometry::HalfEdge &e = boxGeometry.GetEdge(edgeIt);
-          const ColliderGeometry::HalfEdge &twin = boxGeometry.GetEdge(e.m_twin);
-          Geometry::Plane plane = boxGeometry.GetPlane(twin.m_face);
+          const ColliderGeometry::HalfEdge &e = hullGeometry->GetEdge(edgeIt);
+          const ColliderGeometry::HalfEdge &twin = hullGeometry->GetEdge(e.m_twin);
+          Geometry::Plane plane = hullGeometry->GetPlane(twin.m_face);
           plane.Transform(trans);
 
           SAT::ClipLineToPlane(worldCapVerts[0], worldCapVerts[1], plane.GetNormal(), plane.GetDistance());
@@ -128,7 +127,7 @@ namespace Sulfur
           edgeIt = e.m_next;
         } while (firstEdge != edgeIt);
 
-        Geometry::Plane plane = boxGeometry.GetPlane(faceContact);
+        Geometry::Plane plane = hullGeometry->GetPlane(faceContact);
         plane.Transform(trans);
         for (size_t i = 0; i < worldCapVerts.size(); ++i)
         {
@@ -136,7 +135,7 @@ namespace Sulfur
           
           Contact c;
 
-          c.m_colliderA = box;
+          c.m_colliderA = hull;
           c.m_colliderB = capsule;
           c.m_contactNormal = minAxis;
           c.m_contactPoint = Geometry::ProjectPointOnPlane(worldCapVerts[i], plane.GetNormal(), plane.GetDistance());
@@ -152,7 +151,7 @@ namespace Sulfur
         //Should work for now
         Contact c;
 
-        c.m_colliderA = box;
+        c.m_colliderA = hull;
         c.m_colliderB = capsule;
         c.m_contactNormal = minAxis;
         c.m_contactPoint = closestPts.m_pointA;
@@ -164,14 +163,14 @@ namespace Sulfur
       }
     }
 
-    void BoxToCapsule(Contacts &contacts, ColliderData *box,
+    void HullToCapsule(Contacts &contacts, ColliderData *hull,
       ColliderData *capsule)
     {
-      Transform *boxTrans = SF_GET_COMP_TYPE(Transform, box->m_transformHndl);
+      Transform *hullTrans = SF_GET_COMP_TYPE(Transform, hull->m_transformHndl);
       Transform *capTrans = SF_GET_COMP_TYPE(Transform, capsule->m_transformHndl);
 
-      Vector3 boxScale = boxTrans->GetScale() * box->m_scale;
-      Vector3 boxPos = boxTrans->GetTranslation() + box->m_offset;
+      Vector3 boxScale = hullTrans->GetScale() * hull->m_scale;
+      Vector3 boxPos = hullTrans->GetTranslation() + hull->m_offset;
 
       Vector3 capPos = capTrans->GetTranslation() + capsule->m_offset;
       Real cLineLength = capsule->m_lineLength * capTrans->GetScale()[0];
@@ -188,7 +187,7 @@ namespace Sulfur
 
       ObbSupportShape boxShape;
       boxShape.m_scale = boxScale;
-      boxShape.m_rotation = boxTrans->GetRotation();
+      boxShape.m_rotation = hullTrans->GetRotation();
       boxShape.m_translation = boxPos;
 
       Gjk::CsoPoint pointInfo;
@@ -200,14 +199,14 @@ namespace Sulfur
         capLineShape.m_rotation.Rotated(capLineShape.m_scale * Vector3(Real(0.5), Real(0.0), Real(0.0)));
 
       Matrix4 trans;
-      trans.SetTransformation(boxTrans->GetRotation(), boxScale, boxPos);
+      trans.SetTransformation(hullTrans->GetRotation(), boxScale, boxPos);
 
       std::vector<Gjk::CsoPoint> simplex;
       bool intersect = Gjk::Intersect(&boxShape, &capLineShape, 5, pointInfo, 0.005f, simplex);
 
       if (intersect) //Deep contact
       {
-        BuildDeepContact(contacts, box, capsule, boxPos, boxScale, boxTrans->GetRotation(),
+        BuildDeepContact(contacts, hull, capsule, boxPos, boxScale, hullTrans->GetRotation(),
           capLineA, capLineB, capRadius, pointInfo);
         return;
       }
@@ -220,34 +219,34 @@ namespace Sulfur
 
       CtoB.Normalize();
 
-      const ColliderGeometry &boxGeometry = GeometryMap::Instance()->GetBoxGeometry();
-      const ColliderGeometry::FaceList &faceList = boxGeometry.GetFaces();
+      const ColliderGeometry *hullGeometry = hull->m_geometry;
+      const ColliderGeometry::FaceList &faceList = hullGeometry->GetFaces();
 
       Vector3 lineVec = capLineA - capLineB;
-      size_t refFace = FindClosestFace(boxGeometry, trans, CtoB);
-      Geometry::Plane refPlane = boxGeometry.GetPlane(refFace).Transformed(trans);
+      size_t refFace = FindClosestFace(hullGeometry, trans, CtoB);
+      Geometry::Plane refPlane = hullGeometry->GetPlane(refFace).Transformed(trans);
       Vector3 worldFaceNormal = refPlane.GetNormal();
       Real dot = MathUtils::Abs(worldFaceNormal.Dot(lineVec));
 
       if (dot <= 0.09) //We need two points here
       {
-        size_t firstEdge = boxGeometry.GetFace(refFace).m_edge;
+        size_t firstEdge = hullGeometry->GetFace(refFace).m_edge;
         size_t edgeIt = firstEdge;
 
         do
         {
-          size_t twin = boxGeometry.GetEdge(edgeIt).m_twin;
-          Geometry::Plane clipPlane = boxGeometry.GetPlane(boxGeometry.GetEdge(twin).m_face);
+          size_t twin = hullGeometry->GetEdge(edgeIt).m_twin;
+          Geometry::Plane clipPlane = hullGeometry->GetPlane(hullGeometry->GetEdge(twin).m_face);
           clipPlane.Transform(trans);
 
           SAT::ClipLineToPlane(capLineA, capLineB, clipPlane.GetNormal(), clipPlane.GetDistance());
 
-          edgeIt = boxGeometry.GetEdge(edgeIt).m_next;
+          edgeIt = hullGeometry->GetEdge(edgeIt).m_next;
         } while (firstEdge != edgeIt);
 
         Contact c0;
 
-        c0.m_colliderA = box;
+        c0.m_colliderA = hull;
         c0.m_colliderB = capsule;
         c0.m_contactPoint = 
           Geometry::ProjectPointOnPlane(capLineA, refPlane.GetNormal(), refPlane.GetDistance());
@@ -258,7 +257,7 @@ namespace Sulfur
 
         Contact c1;
 
-        c1.m_colliderA = box;
+        c1.m_colliderA = hull;
         c1.m_colliderB = capsule;
         c1.m_contactPoint = 
           Geometry::ProjectPointOnPlane(capLineB, refPlane.GetNormal(), refPlane.GetDistance());
@@ -271,7 +270,7 @@ namespace Sulfur
       {
         Contact c;
 
-        c.m_colliderA = box;
+        c.m_colliderA = hull;
         c.m_colliderB = capsule;
         c.m_contactPoint = pointInfo.m_pointA;
         c.m_contactNormal = (pointInfo.m_pointB - pointInfo.m_pointA).Normalized();

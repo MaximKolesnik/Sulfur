@@ -14,7 +14,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "sfColliderData.hpp"
 #include "Components\sfSphereCollider.hpp"
-#include "Components\sfBoxCollider.hpp"
+#include "Components\sfMeshCollider.hpp"
 #include "Components\sfCapsuleCollider.hpp"
 #include "Factories\sfComponentFactory.hpp"
 #include "Factories\sfObjectFactory.hpp"
@@ -52,14 +52,14 @@ namespace Sulfur
         m_transformHndl = owner->GetComponentHandle<Transform>();
       }
       break;
-      case ColliderType::CT_BOX:
+      case ColliderType::CT_MESH:
       {
-        BoxCollider *boxCol = SF_GET_COMP_TYPE(BoxCollider, m_compHndl);
+        MeshCollider *meshCol = SF_GET_COMP_TYPE(MeshCollider, m_compHndl);
         //m_isGhost = boxCol->GetIsGhost();
-        m_offset = boxCol->GetOffset();
-        m_scale = boxCol->GetScale();
-
-        owner = SF_GET_OBJECT(boxCol->GetOwner());
+        m_offset = meshCol->GetOffset();
+        m_scale = meshCol->GetScale();
+        
+        owner = SF_GET_OBJECT(meshCol->GetOwner());
         m_transformHndl = owner->GetComponentHandle<Transform>();
       }
       break;
@@ -87,7 +87,7 @@ namespace Sulfur
     {
       SF_ASSERT(mesh != nullptr, "Mesh is not set");
 
-      m_geometry = 
+      //m_geometry = 
     }
   }
 }

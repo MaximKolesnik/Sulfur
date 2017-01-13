@@ -24,7 +24,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components/sfSpotLight.hpp"
 #include "Components/sfDirectionalLight.hpp"
 #include "Components\sfRigidBody.hpp"
-#include "Components\sfBoxCollider.hpp"
+#include "Components\sfMeshCollider.hpp"
 #include "Components\sfSphereCollider.hpp"
 #include "Components\sfCapsuleCollider.hpp"
 #include "Components/sfThirdPersonController.hpp"
@@ -140,12 +140,12 @@ namespace Sulfur
     this->_RegisterComponent<DirectionalLight>();
     this->_RegisterComponent<ThirdPersonController>();
     this->_RegisterComponent<RigidBody>();
-    this->_RegisterComponent<BoxCollider>();
+    this->_RegisterComponent<MeshCollider>();
     this->_RegisterComponent<SphereCollider>();
     this->_RegisterComponent<CapsuleCollider>();
     this->_RegisterComponent<ColliderRandomDrop>();
 
-    this->_AddToComponentGroup<BoxCollider>("Colliders");
+    this->_AddToComponentGroup<MeshCollider>("Colliders");
     this->_AddToComponentGroup<SphereCollider>("Colliders");
     this->_AddToComponentGroup<CapsuleCollider>("Colliders");
   }

@@ -22,7 +22,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Factories\sfObjectFactory.hpp"
 #include "Components\sfRigidBody.hpp"
 #include "Components\sfSphereCollider.hpp"
-#include "Components\sfBoxCollider.hpp"
+#include "Components\sfMeshCollider.hpp"
 #include "Components\sfCapsuleCollider.hpp"
 #include "Components\sfTransform.hpp"
 #include "Components\sfMeshRenderer.hpp"
@@ -39,7 +39,7 @@ static void TestRB(Vector3 &pos)
   RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
   rb1->SetDynamicState(Physics::RB_Dynamic);
   testObj1->AttachComponent(rb1);
-  testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
+  //testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
   SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
 }
 
@@ -82,7 +82,7 @@ void SetupLevel(void)
   RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
   testObj1->AttachComponent(rb1);
   rb1->SetDynamicState(Physics::RB_Static);
-  testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
+  //testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
   //testObj1->AttachComponent(SF_CREATE_COMP(ColliderRandomDrop));
 
   SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());

@@ -89,7 +89,7 @@ namespace Sulfur
 
       switch (data->m_type)
       {
-      case CT_BOX:
+      case CT_MESH:
         scale = trans->GetScale() * data->m_scale;
         break;
       case CT_SPHERE:
