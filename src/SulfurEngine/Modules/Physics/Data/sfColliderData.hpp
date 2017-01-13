@@ -20,6 +20,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
+  class Mesh;
+
   namespace Physics
   {
     class ColliderGeometry;
@@ -41,6 +43,7 @@ namespace Sulfur
         m_rbData(nullptr) {}
 
       void Initialize(void);
+      void SetMesh(const Mesh *mesh, const std::string &meshPath);
 
       bool m_isGhost;
       Vector3 m_offset;
@@ -53,7 +56,8 @@ namespace Sulfur
       Proxy m_proxy; //Spatial partition proxy
 
       ColliderType m_type;
-      const ColliderGeometry
+      std::unique_ptr<ColliderGeometry> m_geometry;
+
       HNDL m_transformHndl = SF_INV_HANDLE;
       HNDL m_compHndl = SF_INV_HANDLE; //Collider component hndl
 

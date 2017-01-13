@@ -60,5 +60,13 @@ namespace Sulfur
   void MeshCollider::SetColliderMesh(const std::string &meshName)
   {
     SetMesh(meshName);
+
+    Physics::ColliderData *data 
+      = Physics::PhysicsWorld::Instance()->GetColliderData(this->m_owner);
+
+    if (data)
+    {
+      data->SetMesh(m_meshResource, m_meshResourcePath);
+    }
   }
 }

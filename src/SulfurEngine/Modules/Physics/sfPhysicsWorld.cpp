@@ -281,16 +281,16 @@ namespace Sulfur
 
     RigidBodyData* PhysicsWorld::GetRigidBodyData(HNDL owner)
     {
-      SF_ASSERT(m_rigidBodies.find(owner) != m_rigidBodies.end(),
-        "RigidBody is not tracked by Physics");
+      if (m_rigidBodies.find(owner) == m_rigidBodies.end())
+        return nullptr;
 
       return m_rigidBodies[owner];
     }
 
     ColliderData* PhysicsWorld::GetColliderData(HNDL owner)
     {
-      SF_ASSERT(m_colliders.find(owner) != m_colliders.end(),
-        "Collider is not tracked by Physics");
+      if (m_colliders.find(owner) == m_colliders.end())
+        return nullptr;
 
       return m_colliders[owner];
     }

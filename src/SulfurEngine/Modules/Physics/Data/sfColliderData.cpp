@@ -21,10 +21,9 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Error\sfError.hpp"
 #include "Components\sfTransform.hpp"
 #include "Components\sfRigidBody.hpp"
+#include "Modules\Physics\ColliderGeometry\sfGeometryMap.hpp"
 
-/******************************************************************************
-Maxim TODO: Handle the case when collider is attached before the rigid body
-*******************************************************************************/
+#include "Modules\Graphics\Scene\sfMesh.hpp"
 
 namespace Sulfur
 {
@@ -82,6 +81,13 @@ namespace Sulfur
 
       SF_ASSERT(owner, "Owner is null");
       SF_ASSERT(m_transformHndl != SF_INV_HANDLE, "Transform handle is not set");
+    }
+
+    void ColliderData::SetMesh(const Mesh *mesh, const std::string &meshPath)
+    {
+      SF_ASSERT(mesh != nullptr, "Mesh is not set");
+
+      m_geometry = 
     }
   }
 }

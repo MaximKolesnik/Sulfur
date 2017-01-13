@@ -19,6 +19,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
+  class Mesh;
+
   namespace Physics
   {
     class GeometryMap
@@ -26,14 +28,14 @@ namespace Sulfur
       SF_SINGLETON(GeometryMap);
     public:
       void Initialize(void);
-
-      const ColliderGeometry& GetBoxGeometry(void) const { return m_boxGeometry; }
+      const ColliderGeometry* GetGeometry(const Mesh *mesh, const std::string &meshPath);
 
     private:
       void _BuildBoxGeometry(void);
+      void _BuildGeometry(const Mesh *mesh, const std::string &meshPath);
 
       bool m_initialized;
-      ColliderGeometry m_boxGeometry;
+      std::unordered_map<std::string, ColliderGeometry*> m_geometryCollection;
     };
   }
 }
