@@ -43,6 +43,7 @@ namespace Sulfur
 
       void Initialize(void);
       void SetMesh(const Mesh *mesh, const std::string &meshPath);
+      void CalculateMass(void);
 
       bool m_isGhost;
       Vector3 m_offset;
@@ -55,7 +56,7 @@ namespace Sulfur
       Proxy m_proxy; //Spatial partition proxy
 
       ColliderType m_type;
-      const ColliderGeometry *m_geometry;
+      const ColliderGeometry *m_geometry = nullptr;
 
       HNDL m_transformHndl = SF_INV_HANDLE;
       HNDL m_compHndl = SF_INV_HANDLE; //Collider component hndl

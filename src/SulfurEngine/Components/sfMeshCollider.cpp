@@ -32,7 +32,7 @@ namespace Sulfur
   void MeshCollider::Initialize(void)
   {
     Physics::PhysicsWorld::Instance()->AddCollider(this->m_owner, this->m_hndl,
-      Physics::ColliderType::CT_SPHERE);
+      Physics::ColliderType::CT_MESH);
   }
 
   MeshCollider* MeshCollider::Clone(void) const

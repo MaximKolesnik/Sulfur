@@ -55,6 +55,7 @@ namespace Sulfur
     }
   }
 
+  //TODO: Synchronization should be done by events
   SF_DEFINE_TASK(SyncData)
   {
     for (auto &it : Physics::PhysicsWorld::Instance()->m_rigidBodies)
@@ -74,23 +75,51 @@ namespace Sulfur
       {
         SphereCollider *sphere = SF_GET_COMP_TYPE(SphereCollider, it.second->m_compHndl);
         it.second->m_offset = sphere->GetOffset();
-        it.second->m_radius = sphere->GetRadius();
+
+        if (it.second->m_radius != sphere->GetRadius())
+        {
+          it.second->m_radius = sphere->GetRadius();
+          it.second->CalculateMass();
+        }
       }
       break;
       case Physics::CT_CAPSULE:
       {
         CapsuleCollider *capsule = SF_GET_COMP_TYPE(CapsuleCollider, it.second->m_compHndl);
-        it.second->m_lineLength = capsule->GetCenterLineLength();
         it.second->m_offset = capsule->GetOffset();
-        it.second->m_radius = capsule->GetRadius();
+
+        if (it.second->m_lineLength != capsule->GetCenterLineLength()
+          ||
+          it.second->m_radius != capsule->GetRadius())
+        {
+          it.second->m_lineLength = capsule->GetCenterLineLength();
+          it.second->m_radius = capsule->GetRadius();
+          it.second->CalculateMass();
+        }
       }
       break;
-      /*case Physics::CT_BOX:
+      case Physics::CT_MESH:
       {
-        BoxCollider *box = SF_GET_COMP_TYPE(BoxCollider, it.second->m_compHndl);
-        it.second->m_offset = box->GetOffset();
-        it.second->m_scale = box->GetScale();
-      }*/
+        MeshCollider *mesh = SF_GET_COMP_TYPE(MeshCollider, it.second->m_compHndl);
+        it.second->m_offset = mesh->GetOffset();
+
+        if (it.second->m_scale != mesh->GetScale())
+        {
+          it.second->m_scale = mesh->GetScale();
+          it.second->CalculateMass();
+        }
+
+        /*if (mesh->GetMesh())
+        {
+          auto geom
+            = Physics::GeometryMap::Instance()->GetGeometry(mesh->GetMesh(), mesh->GetMeshResourcePath());
+          if (it.second->m_geometry != geom)
+          {
+            it.second->m_geometry = geom;
+            it.second->CalculateMass();
+          }
+        }*/
+      }
       break;
       }
     }
@@ -248,7 +277,10 @@ namespace Sulfur
 
       auto it = m_rigidBodies.find(owner);
       if (it != m_rigidBodies.end())
+      {
         colliderData->m_rbData = it->second;
+        colliderData->CalculateMass();
+      }
       else
       {
         RigidBodyData *rb = _CreateDummyRigidBodyData(owner);

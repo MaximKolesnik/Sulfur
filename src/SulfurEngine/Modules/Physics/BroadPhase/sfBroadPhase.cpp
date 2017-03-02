@@ -15,6 +15,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfBroadPhase.hpp"
 #include "Math\SpatialPartitions\sfAabbTree.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
+#include "Modules\Physics\ColliderGeometry\sfColliderGeometry.hpp"
 #include "Components\sfTransform.hpp"
 #include "Math\Geometry\sfShapes.hpp"
 #include "Math\SpatialPartitions\sfAabbTree.hpp"
@@ -91,6 +92,8 @@ namespace Sulfur
       {
       case CT_MESH:
         scale = trans->GetScale() * data->m_scale;
+        if (data->m_geometry)
+          scale = scale * (2 * data->m_geometry->GetExtents());
         break;
       case CT_SPHERE:
         scale.Splat(trans->GetScale().MaxAxisValue() * data->m_radius * 2);

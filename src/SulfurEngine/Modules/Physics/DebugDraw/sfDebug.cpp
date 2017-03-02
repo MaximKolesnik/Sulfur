@@ -15,6 +15,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "sfDebug.hpp"
 #include "Modules\Graphics\Debug\sfDebugDraw.hpp"
 #include "Modules\Physics\Data\sfColliderData.hpp"
+#include "Modules\Physics\ColliderGeometry\sfColliderGeometry.hpp"
 #include "Components\sfTransform.hpp"
 #include "Components\sfRigidBody.hpp"
 
@@ -50,8 +51,11 @@ namespace Sulfur
       DebugDraw::Instance()->DrawSphere(m, radius);
     }
 
-    static void DrawBox(const ColliderData *data)
+    static void DrawMesh(const ColliderData *data)
     {
+      if (!data->m_geometry)
+        return;
+
       Matrix4 m;
       Vector3 translation;
       Quaternion orientation;
@@ -76,7 +80,28 @@ namespace Sulfur
       m.SetTransformation(orientation, scale,
         translation);
 
-      DebugDraw::Instance()->DrawBox(m);
+      const ColliderGeometry *geometry = data->m_geometry;
+
+      const ColliderGeometry::EdgeList &edges = geometry->GetEdges();
+      const ColliderGeometry::FaceList &faces = geometry->GetFaces();
+
+      for (const auto &face : faces)
+      {
+        UINT16 e1 = face.m_edge;
+        do
+        {
+          UINT16 e2 = edges[e1].m_next;
+          Vector3 p1 = m * geometry->GetVertex( edges[e1].m_origin );
+          Vector3 p2 = m * geometry->GetVertex( edges[e2].m_origin );
+
+          DebugDraw::Instance()->DrawLine(p1, p2, true);
+
+          e1 = edges[e1].m_next;
+
+        } while (e1 != face.m_edge);
+      }
+
+      //DebugDraw::Instance()->DrawBox(m);
     }
 
     static void DrawCapsule(const ColliderData *data)
@@ -158,7 +183,7 @@ namespace Sulfur
           DrawSphere(data);
           break;
         case CT_MESH:
-          //DrawBox(data);
+          DrawMesh(data);
           break;
         case CT_CAPSULE:
           DrawCapsule(data);

@@ -31,6 +31,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include <unordered_set>
 #include <algorithm>
 #include <memory>
+#include <functional>
 
 // Graphics API
 #include <d3d11.h>

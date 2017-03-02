@@ -552,6 +552,24 @@ namespace Sulfur
       return !(*this == other);
     }
 
+    SF_FORCE_INLINE void SF_VEC_CALL Round(UINT16 numDecimals)
+    {
+      m_comps[0] = MathUtils::Round(m_comps[0], numDecimals);
+      m_comps[1] = MathUtils::Round(m_comps[1], numDecimals);
+      m_comps[2] = MathUtils::Round(m_comps[2], numDecimals);
+    }
+
+    SF_FORCE_INLINE Vector3 SF_VEC_CALL Rounded(UINT16 numDecimals) const
+    {
+      Vector3 rVec;
+
+      rVec[0] = MathUtils::Round(m_comps[0], numDecimals);
+      rVec[1] = MathUtils::Round(m_comps[1], numDecimals);
+      rVec[2] = MathUtils::Round(m_comps[2], numDecimals);
+
+      return rVec;
+    }
+
   private:
 #ifdef SF_USE_SIMD
     union
@@ -688,5 +706,15 @@ namespace Sulfur
     SF_ASSERT(Dot(e1, e2) == 0, "Basis is not orthogonal");
     SF_ASSERT(Dot(e1, e3) == 0, "Basis is not orthogonal");
   }
-
 }
+
+template <>
+struct std::hash<Sulfur::Vector3>
+{
+  size_t operator()(const Sulfur::Vector3 &v) const
+  {
+    return ((std::hash<float>()(v[0])
+      ^ std::hash<float>()(v[1]) << 1) >> 1)
+      ^ (std::hash<float>()(v[2]) << 1);
+  }
+};
