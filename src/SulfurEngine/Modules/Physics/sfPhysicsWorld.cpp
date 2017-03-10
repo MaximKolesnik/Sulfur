@@ -109,7 +109,7 @@ namespace Sulfur
           it.second->CalculateMass();
         }
 
-        /*if (mesh->GetMesh())
+        if (mesh->GetMesh())
         {
           auto geom
             = Physics::GeometryMap::Instance()->GetGeometry(mesh->GetMesh(), mesh->GetMeshResourcePath());
@@ -118,7 +118,7 @@ namespace Sulfur
             it.second->m_geometry = geom;
             it.second->CalculateMass();
           }
-        }*/
+        }
       }
       break;
       }
