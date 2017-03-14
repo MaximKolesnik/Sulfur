@@ -83,8 +83,7 @@ void GameWidget::Frame()
   }
 
   Core::Instance()->Frame();
-  Physics::PhysicsWorld::Instance()->DebugDrawColliders();
-  Physics::PhysicsWorld::Instance()->DebugDrawAABB();
+  //Physics::PhysicsWorld::Instance()->DebugDrawColliders();
 }
 
 void GameWidget::mousePressEvent(QMouseEvent *event)
