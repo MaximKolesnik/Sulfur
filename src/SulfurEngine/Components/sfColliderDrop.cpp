@@ -69,6 +69,8 @@ namespace Sulfur
 
   void ColliderDrop::_CreateSpheres(void)
   {
+    _DestroyObjects();
+
     Transform *ownerTrans = SF_GET_COMP_TYPE(Transform, m_owner);
 
     for (int i = 0; i < c_numInRow; ++i)
@@ -105,6 +107,8 @@ namespace Sulfur
 
   void ColliderDrop::_CreateBoxes(void)
   {
+    _DestroyObjects();
+
     Transform *ownerTrans = SF_GET_COMP_TYPE(Transform, m_owner);
 
     for (int i = 0; i < c_numInRow; ++i)
@@ -149,6 +153,9 @@ namespace Sulfur
     for (int i = 0; i < c_numInRow; ++i)
       for (int j = 0; j < c_numInRow; ++j)
         for (int k = 0; k < c_numInRow; ++k)
+        {
           ObjectFactory::Instance()->DestroyObject(m_createdObjects[i][j][k]);
+          SceneManager::Instance()->GetScene().RemoveObject(m_createdObjects[i][j][k]);
+        }
   }
 }
