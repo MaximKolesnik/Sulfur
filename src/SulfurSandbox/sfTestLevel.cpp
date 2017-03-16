@@ -35,7 +35,7 @@ static void TestRB(Vector3 &pos)
 {
   Object *testObj1 = SF_CREATE_OBJECT("testObj1");
   testObj1->GetComponent<Transform>()->SetTranslation(pos);
-  testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0, SF_PI / 2, 0.0);
+  testObj1->GetComponent<Transform>()->SetRotationEulerXZY(SF_PI / 2, 0, 0.0);
   testObj1->GetComponent<Transform>()->Update();
   RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
   rb1->SetDynamicState(Physics::RB_Dynamic);
@@ -61,9 +61,9 @@ void SetupLevel(void)
   SceneManager::Instance()->GetScene().m_sceneProperties.SetIbl(true);
 
   Object *testObj2 = SF_CREATE_OBJECT("testObj2");
-  testObj2->GetComponent<Transform>()->SetTranslation(Vector3(-0.6f, -1.0f, 20.0));
-  testObj2->GetComponent<Transform>()->SetScale(Vector3(5, 1, 2));
-  testObj2->GetComponent<Transform>()->SetRotationEulerXZY(0, 0, 0.0);
+  testObj2->GetComponent<Transform>()->SetTranslation(Vector3(2.5f, -1.0f, 20.0));
+  testObj2->GetComponent<Transform>()->SetScale(Vector3(10, 1, 4));
+  testObj2->GetComponent<Transform>()->SetRotationEulerXZY(0, -SF_PI / 10, 0.0);
   //testObj2->GetComponent<Transform>()->SetScale(Vector3(20.0, 1.0f, 5.0));
   testObj2->GetComponent<Transform>()->Update();
   RigidBody *rb2 = SF_CREATE_COMP(RigidBody);
@@ -78,7 +78,7 @@ void SetupLevel(void)
   TestRB(Vector3(0.0, -2.0f, 20.0));
   TestRB(Vector3(0.0, -1.0f, 20.0));*/
 
-  TestRB(Vector3(0.0f, 3.0f, 20.0f));
+  TestRB(Vector3(0.0f, 1.2f, 20.0f));
   /*TestRB(Vector3(0.5, -2.6f, 20.0));
   TestRB(Vector3(-0.6f, -1.4f, 20.0));
   TestRB(Vector3(0.0, -0.2f, 20.0));

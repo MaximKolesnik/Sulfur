@@ -131,8 +131,6 @@ namespace Sulfur
         c.m_penetration =
           (Geometry::ProjectPointOnPlane(it, refPlane.GetNormal(), refPlane.GetDistance()) - it).Length();
 
-        SF_ASSERT(c.m_penetration < 1.1, "");
-
         contacts.push_back(c);
       }
     }
@@ -151,14 +149,17 @@ namespace Sulfur
       const ColliderGeometry *incHull = colliderInc->m_geometry;
 
       Geometry::Plane refPlane = refHull->GetPlane(refFaceInd);
-      refPlane.Transform(refToInc);
+      //refPlane.Transform(refToInc);
 
       const auto &incPlanes = incHull->GetPlanes();
       Real minDot = SF_REAL_MAX;
       size_t minIndex = 0;
       for (size_t i = 0; i < incPlanes.size(); ++i)
       {
-        Real dot = refPlane.GetNormal().Dot(incPlanes[i].GetNormal());
+        Vector3 refN = orientRef.Rotated(refPlane.GetNormal());
+        Vector3 incN = orientInc.Rotated(incPlanes[i].GetNormal());
+        Real dot = refN.Dot(incN);
+
         if (dot < minDot)
         {
           minDot = dot;
@@ -221,7 +222,7 @@ namespace Sulfur
       {
         if (faceQueryA.m_separation > faceQueryB.m_separation)
         {
-          size_t incFace = GetIncidentFaceIndex(faceQueryA.m_index, 
+          size_t incFace = GetIncidentFaceIndex(faceQueryA.m_index,
             colliderA, posA, scaleA, orientA, colliderB, posB, scaleB, orientB);
 
           BuildFaceContact(contacts, colliderA, posA, scaleA, orientA,

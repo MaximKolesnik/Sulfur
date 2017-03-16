@@ -32,6 +32,38 @@ namespace Sulfur
 {
   namespace Physics
   {
+    namespace
+    {
+      void CheckPlanes(const Matrix4 &ma, const Matrix4 &mb,
+        const ColliderGeometry *hullA, size_t index, const Geometry::Plane &plane)
+      {
+        ColliderGeometry::Face p = hullA->GetFace(index);
+
+        ColliderGeometry::HalfEdge e1 = hullA->GetEdge(p.m_edge);
+
+        std::vector<Vector3> verts;
+        for (int i = 0; i < 3; ++i)
+        {
+          verts.push_back(hullA->GetVertex(e1.m_origin));
+
+          e1 = hullA->GetEdge(e1.m_next);
+        }
+
+        for (auto &it : verts)
+        {
+          it = ma * it;
+          it = mb.Inverted() * it;
+        }
+
+        Geometry::Plane pl(verts[0], verts[1], verts[2]);
+
+        SF_ASSERT(abs(plane.GetNormal()[0] - pl.GetNormal()[0]) < 0.01, "");
+        SF_ASSERT(abs(plane.GetNormal()[1] - pl.GetNormal()[1]) < 0.01, "");
+        SF_ASSERT(abs(plane.GetNormal()[2] - pl.GetNormal()[2]) < 0.01, "");
+        SF_ASSERT(abs(plane.GetDistance() - pl.GetDistance()) < 0.01, "");
+      }
+    }
+
     namespace SAT
     {
       Projection ProjectOnAxis(const std::vector<Vector3> &worldVerts, Vector3 &axis)

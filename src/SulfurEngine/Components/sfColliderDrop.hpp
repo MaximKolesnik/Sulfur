@@ -31,7 +31,7 @@ namespace Sulfur
   private:
     SF_PRIVATE_PROPERTY(Vector3, dropOffset, DropOffset, "Drop Offset");
 
-    static const int c_numInRow = 6;
+    static const int c_numInRow = 7;
     HNDL m_createdObjects[c_numInRow][c_numInRow][c_numInRow];
 
     bool m_created = false;

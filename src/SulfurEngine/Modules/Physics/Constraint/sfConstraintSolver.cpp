@@ -28,7 +28,7 @@ namespace Sulfur
     void ConstraintSolver::Solve(Contacts &contacts) const
     {
       _PrepareContacts(contacts);
-      for (int i = 0; i < 5; ++i)
+      for (int i = 0; i < 10; ++i)
         _ApplyImpulses(contacts);
     }
 
@@ -117,7 +117,7 @@ namespace Sulfur
 
         Real dvt = dv.Dot(it.m_tangent1);
         Real dPt = it.m_massTangent1 * (-dvt);
-        Real maxPt = Real(0.2) * dPn;
+        Real maxPt = Real(0.3) * dPn;
         dPt = std::max(-maxPt, std::min(dPt, maxPt));
         Vector3 Pt = dPt * it.m_tangent1;
 
@@ -129,7 +129,7 @@ namespace Sulfur
 
         dvt = dv.Dot(it.m_tangent2);
         dPt = it.m_massTangent2 * (-dvt);
-        maxPt = Real(0.2) * dPn;
+        maxPt = Real(0.3) * dPn;
         dPt = std::max(-maxPt, std::min(dPt, maxPt));
         Pt = dPt * it.m_tangent2;
 
