@@ -20,15 +20,18 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
+  class Mesh;
+
   namespace Physics
   {
+    class ColliderGeometry;
     struct RigidBodyData;
 
     enum ColliderType
     {
-      CT_BOX = 0,
-      CT_SPHERE,
+      CT_SPHERE = 0,
       CT_CAPSULE,
+      CT_MESH,
       CT_NUM_TYPES
     };
 
@@ -39,6 +42,8 @@ namespace Sulfur
         m_rbData(nullptr) {}
 
       void Initialize(void);
+      void SetMesh(const Mesh *mesh, const std::string &meshPath);
+      void CalculateMass(void);
 
       bool m_isGhost;
       Vector3 m_offset;
@@ -49,7 +54,9 @@ namespace Sulfur
       Real m_radius; //Sphere, Capsule
 
       Proxy m_proxy; //Spatial partition proxy
+
       ColliderType m_type;
+      const ColliderGeometry *m_geometry = nullptr;
 
       HNDL m_transformHndl = SF_INV_HANDLE;
       HNDL m_compHndl = SF_INV_HANDLE; //Collider component hndl

@@ -20,7 +20,6 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 #include "sfTransform.hpp"
 #include "sfRigidBody.hpp"
-#include "sfBoxCollider.hpp"
 #include "sfSphereCollider.hpp"
 #include "sfCapsuleCollider.hpp"
 #include "sfMeshRenderer.hpp"
@@ -91,11 +90,11 @@ namespace Sulfur
       randObj->AttachComponent(mesh);
     }
       break;
-    case Physics::CT_BOX:
+    case Physics::CT_MESH:
     {
-      randObj->AttachComponent(SF_CREATE_COMP(BoxCollider));
+      /*randObj->AttachComponent(SF_CREATE_COMP(BoxCollider));
       mesh->SetMesh("Models\\cube.fbx");
-      randObj->AttachComponent(mesh);
+      randObj->AttachComponent(mesh);*/
     }
       break;
     default:

@@ -22,7 +22,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Factories\sfObjectFactory.hpp"
 #include "Components\sfRigidBody.hpp"
 #include "Components\sfSphereCollider.hpp"
-#include "Components\sfBoxCollider.hpp"
+#include "Components\sfMeshCollider.hpp"
 #include "Components\sfCapsuleCollider.hpp"
 #include "Components\sfTransform.hpp"
 #include "Components\sfMeshRenderer.hpp"
@@ -35,11 +35,14 @@ static void TestRB(Vector3 &pos)
 {
   Object *testObj1 = SF_CREATE_OBJECT("testObj1");
   testObj1->GetComponent<Transform>()->SetTranslation(pos);
+  testObj1->GetComponent<Transform>()->SetRotationEulerXZY(SF_PI / 2, 0, 0.0);
   testObj1->GetComponent<Transform>()->Update();
   RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
   rb1->SetDynamicState(Physics::RB_Dynamic);
   testObj1->AttachComponent(rb1);
-  testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
+  MeshCollider *meshCol = SF_CREATE_COMP(MeshCollider);
+  testObj1->AttachComponent(meshCol);
+  meshCol->SetColliderMesh("Models\\cube.fbx");
   SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
 }
 
@@ -57,41 +60,25 @@ void SetupLevel(void)
   SceneManager::Instance()->GetScene().SetCameraObject(cameraObj->GetHndl());
   SceneManager::Instance()->GetScene().m_sceneProperties.SetIbl(true);
 
-  
-
   Object *testObj2 = SF_CREATE_OBJECT("testObj2");
-  testObj2->GetComponent<Transform>()->SetTranslation(Vector3(-0.6f, -1.0f, 20.0));
-  testObj2->GetComponent<Transform>()->SetScale(Vector3(1, 1, 1));
-  testObj2->GetComponent<Transform>()->SetRotationEulerXZY(0, 3 * SF_PI / 2.2f, 0.0);
+  testObj2->GetComponent<Transform>()->SetTranslation(Vector3(2.5f, -1.0f, 20.0));
+  testObj2->GetComponent<Transform>()->SetScale(Vector3(10, 1, 4));
+  testObj2->GetComponent<Transform>()->SetRotationEulerXZY(0, -SF_PI / 10, 0.0);
   //testObj2->GetComponent<Transform>()->SetScale(Vector3(20.0, 1.0f, 5.0));
   testObj2->GetComponent<Transform>()->Update();
   RigidBody *rb2 = SF_CREATE_COMP(RigidBody);
-  rb2->SetDynamicState(Physics::RB_Dynamic);
+  rb2->SetDynamicState(Physics::RB_Static);
   testObj2->AttachComponent(rb2);
-  testObj2->AttachComponent(SF_CREATE_COMP(CapsuleCollider));
+  MeshCollider *meshCol = SF_CREATE_COMP(MeshCollider);
+  testObj2->AttachComponent(meshCol);
+  meshCol->SetColliderMesh("Models\\cube.fbx");
   SceneManager::Instance()->GetScene().AddObject(testObj2->GetHndl());
-
-  Object *testObj1 = SF_CREATE_OBJECT("testObj1");
-  testObj1->GetComponent<Transform>()->SetTranslation(Vector3(0.0f, -5.0f, 20.0));
-  testObj1->GetComponent<Transform>()->SetScale(Vector3(3.0, 1.0f, 3.0));
-  testObj1->GetComponent<Transform>()->SetRotationEulerXZY(0, 0, 0);
-  testObj1->GetComponent<Transform>()->Update();
-  /*MeshRenderer *mesh = SF_CREATE_COMP(MeshRenderer);
-  mesh->SetMesh("Models\\cube.fbx");
-  testObj1->AttachComponent(mesh);*/
-  RigidBody *rb1 = SF_CREATE_COMP(RigidBody);
-  testObj1->AttachComponent(rb1);
-  rb1->SetDynamicState(Physics::RB_Static);
-  testObj1->AttachComponent(SF_CREATE_COMP(BoxCollider));
-  //testObj1->AttachComponent(SF_CREATE_COMP(ColliderRandomDrop));
-
-  SceneManager::Instance()->GetScene().AddObject(testObj1->GetHndl());
 
   /*TestRB(Vector3(0.0, -3.0f, 20.0));
   TestRB(Vector3(0.0, -2.0f, 20.0));
   TestRB(Vector3(0.0, -1.0f, 20.0));*/
 
-  //TestRB(Vector3(0.0f, -2.0f, 20.0f));
+  TestRB(Vector3(0.0f, 1.2f, 20.0f));
   /*TestRB(Vector3(0.5, -2.6f, 20.0));
   TestRB(Vector3(-0.6f, -1.4f, 20.0));
   TestRB(Vector3(0.0, -0.2f, 20.0));

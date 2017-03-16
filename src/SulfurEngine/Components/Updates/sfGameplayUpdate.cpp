@@ -19,7 +19,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 // Gameplay components
 #include "../sfThirdPersonController.hpp"
 #include "../sfColliderRandomDrop.hpp"
-
+#include "../sfColliderDrop.hpp"
 namespace Sulfur
 {
 
@@ -33,6 +33,10 @@ SF_DEFINE_TASK(UpdateGameplay)
 
     ComponentFactory::ComponentData crdData = SF_GET_COMP_DATA(ColliderRandomDrop);
     for (auto it = crdData.begin(); it != crdData.end(); ++it)
+      it->Update();
+
+    ComponentFactory::ComponentData cdData = SF_GET_COMP_DATA(ColliderDrop);
+    for (auto it = cdData.begin(); it != cdData.end(); ++it)
       it->Update();
   }
 }

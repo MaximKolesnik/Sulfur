@@ -30,7 +30,7 @@ namespace Sulfur
     // Most spatial partitions can get away with a pointer or an integer.
     union
     {
-      void* m_proxy;
+      void* m_proxy = nullptr;
       UINT64 m_uIntProxy;
     };
   };

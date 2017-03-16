@@ -110,13 +110,13 @@ namespace Sulfur
       bool ClipLineToPlane(Vector3 &p0, Vector3 &p1, const Vector3 &plane, Real planeD);
 
       void QueryFaceDirections(const Vector3 &posA, const Vector3 &scaleA, const Quaternion &orientA,
-        const ColliderGeometry &hullA, const Vector3 &posB, const Vector3 &scaleB,
-        const Quaternion &orientB, const ColliderGeometry &hullB, FaceQuery &faceQuery);
+        const ColliderGeometry *hullA, const Vector3 &posB, const Vector3 &scaleB,
+        const Quaternion &orientB, const ColliderGeometry *hullB, FaceQuery &faceQuery);
       void QueryEdgeDirections(const Vector3 &posA, const Vector3 &scaleA, const Quaternion &orientA,
-        const ColliderGeometry &hullA, const Vector3 &posB, const Vector3 &scaleB,
-        const Quaternion &orientB, const ColliderGeometry &hullB, EdgeQuery &edgeQuery);
+        const ColliderGeometry *hullA, const Vector3 &posB, const Vector3 &scaleB,
+        const Quaternion &orientB, const ColliderGeometry *hullB, EdgeQuery &edgeQuery);
 
-      Real ProjectPlaneOnHull(const Geometry::Plane &plane, const ColliderGeometry &hull);
+      Real ProjectPlaneOnHull(const Geometry::Plane &plane, const ColliderGeometry *hull);
       Real ProjectEdge(const Vector3 &pa, const Vector3 &ea, const Vector3 &pb,
         const Vector3 &eb, const Vector3 &posA);
 

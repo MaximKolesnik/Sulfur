@@ -32,6 +32,38 @@ namespace Sulfur
 {
   namespace Physics
   {
+    namespace
+    {
+      void CheckPlanes(const Matrix4 &ma, const Matrix4 &mb,
+        const ColliderGeometry *hullA, size_t index, const Geometry::Plane &plane)
+      {
+        ColliderGeometry::Face p = hullA->GetFace(index);
+
+        ColliderGeometry::HalfEdge e1 = hullA->GetEdge(p.m_edge);
+
+        std::vector<Vector3> verts;
+        for (int i = 0; i < 3; ++i)
+        {
+          verts.push_back(hullA->GetVertex(e1.m_origin));
+
+          e1 = hullA->GetEdge(e1.m_next);
+        }
+
+        for (auto &it : verts)
+        {
+          it = ma * it;
+          it = mb.Inverted() * it;
+        }
+
+        Geometry::Plane pl(verts[0], verts[1], verts[2]);
+
+        SF_ASSERT(abs(plane.GetNormal()[0] - pl.GetNormal()[0]) < 0.01, "");
+        SF_ASSERT(abs(plane.GetNormal()[1] - pl.GetNormal()[1]) < 0.01, "");
+        SF_ASSERT(abs(plane.GetNormal()[2] - pl.GetNormal()[2]) < 0.01, "");
+        SF_ASSERT(abs(plane.GetDistance() - pl.GetDistance()) < 0.01, "");
+      }
+    }
+
     namespace SAT
     {
       Projection ProjectOnAxis(const std::vector<Vector3> &worldVerts, Vector3 &axis)
@@ -133,8 +165,8 @@ namespace Sulfur
 
 
       void QueryFaceDirections(const Vector3 &posA, const Vector3 &scaleA, const Quaternion &orientA,
-        const ColliderGeometry &hullA, const Vector3 &posB, const Vector3 &scaleB, 
-        const Quaternion &orientB, const ColliderGeometry &hullB, FaceQuery &faceQuery)
+        const ColliderGeometry *hullA, const Vector3 &posB, const Vector3 &scaleB, 
+        const Quaternion &orientB, const ColliderGeometry *hullB, FaceQuery &faceQuery)
       {
         int maxIndex = -1;
         Real maxSeparation = -SF_REAL_MAX;
@@ -144,9 +176,9 @@ namespace Sulfur
         ml.SetTransformation(orientB, scaleB, posB);
         Matrix4 aTob = ml.Inverted() * mw; 
 
-        for (size_t index = 0; index < hullA.GetFaceCount(); ++index)
+        for (size_t index = 0; index < hullA->GetFaceCount(); ++index)
         {
-          Geometry::Plane plane = hullA.GetPlane(index);
+          Geometry::Plane plane = hullA->GetPlane(index);
 
           plane.Transform(aTob);
 
@@ -163,8 +195,8 @@ namespace Sulfur
       }
 
       void QueryEdgeDirections(const Vector3 &posA, const Vector3 &scaleA, const Quaternion &orientA,
-        const ColliderGeometry &hullA, const Vector3 &posB, const Vector3 &scaleB,
-        const Quaternion &orientB, const ColliderGeometry &hullB, EdgeQuery &edgeQuery)
+        const ColliderGeometry *hullA, const Vector3 &posB, const Vector3 &scaleB,
+        const Quaternion &orientB, const ColliderGeometry *hullB, EdgeQuery &edgeQuery)
       {
         int maxIndexA = -1;
         int maxIndexB = -1;
@@ -178,33 +210,33 @@ namespace Sulfur
         Vector3 hullPos = AtoB * Vector3(0,0,0);
         Quaternion rotAtoB = orientB.Inverted() * orientA;
 
-        for (int indexA = 0; indexA < hullA.GetEdgeCount(); indexA += 2)
+        for (int indexA = 0; indexA < hullA->GetEdgeCount(); indexA += 2)
         {
-          const ColliderGeometry::HalfEdge &edgeA = hullA.GetEdge(indexA);
-          const ColliderGeometry::HalfEdge &twinA = hullA.GetEdge(indexA + 1);
+          const ColliderGeometry::HalfEdge &edgeA = hullA->GetEdge(indexA);
+          const ColliderGeometry::HalfEdge &twinA = hullA->GetEdge(indexA + 1);
           SF_ASSERT(edgeA.m_twin == indexA + 1 && twinA.m_twin == indexA, 
             "Geometry is not correct: twin indecies do not match");
 
-          Vector3 pa = AtoB * hullA.GetVertex(edgeA.m_origin);
-          Vector3 qa = AtoB * hullA.GetVertex(twinA.m_origin);
+          Vector3 pa = AtoB * hullA->GetVertex(edgeA.m_origin);
+          Vector3 qa = AtoB * hullA->GetVertex(twinA.m_origin);
           Vector3 ea = qa - pa;
 
-          Vector3 ua = hullA.GetPlane(edgeA.m_face).Transformed(AtoB).GetNormal();
-          Vector3 va = hullA.GetPlane(twinA.m_face).Transformed(AtoB).GetNormal();
+          Vector3 ua = hullA->GetPlane(edgeA.m_face).Transformed(AtoB).GetNormal();
+          Vector3 va = hullA->GetPlane(twinA.m_face).Transformed(AtoB).GetNormal();
 
-          for (int indexB = 0; indexB < hullB.GetEdgeCount(); indexB += 2)
+          for (int indexB = 0; indexB < hullB->GetEdgeCount(); indexB += 2)
           {
-            const ColliderGeometry::HalfEdge &edgeB = hullB.GetEdge(indexB);
-            const ColliderGeometry::HalfEdge &twinB = hullB.GetEdge(indexB + 1);
+            const ColliderGeometry::HalfEdge &edgeB = hullB->GetEdge(indexB);
+            const ColliderGeometry::HalfEdge &twinB = hullB->GetEdge(indexB + 1);
             SF_ASSERT(edgeB.m_twin == indexB + 1 && twinB.m_twin == indexB,
               "Geometry is not correct: twin indecies do not match");
 
-            Vector3 pb = hullB.GetVertex(edgeB.m_origin);
-            Vector3 qb = hullB.GetVertex(twinB.m_origin);
+            Vector3 pb = hullB->GetVertex(edgeB.m_origin);
+            Vector3 qb = hullB->GetVertex(twinB.m_origin);
             Vector3 eb = qb - pb;
 
-            Vector3 ub = hullB.GetPlane(edgeB.m_face).GetNormal();
-            Vector3 vb = hullB.GetPlane(twinB.m_face).GetNormal();
+            Vector3 ub = hullB->GetPlane(edgeB.m_face).GetNormal();
+            Vector3 vb = hullB->GetPlane(twinB.m_face).GetNormal();
 
             if (IsMinkowskiFace(ua, va, -ea, -ub, -vb, -eb))
             {
@@ -229,9 +261,9 @@ namespace Sulfur
         edgeQuery.m_separation = maxSeparation;
       }
 
-      Real ProjectPlaneOnHull(const Geometry::Plane &plane, const ColliderGeometry &hull)
+      Real ProjectPlaneOnHull(const Geometry::Plane &plane, const ColliderGeometry *hull)
       {
-        Vector3 support = hull.GetSupport(-plane.GetNormal());
+        Vector3 support = hull->GetSupport(-plane.GetNormal());
         
         return plane.GetNormal().Dot(support) + plane.GetDistance();
       }

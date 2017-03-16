@@ -19,6 +19,8 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 
 namespace Sulfur
 {
+  class Mesh;
+
   namespace Physics
   {
     class ColliderGeometry
@@ -27,18 +29,19 @@ namespace Sulfur
       
       struct HalfEdge
       {
-        HalfEdge(UINT8 next, UINT8 twin, UINT8 origin, UINT8 face)
+        HalfEdge(void) {}
+        HalfEdge(UINT16 next, UINT16 twin, UINT16 origin, UINT16 face)
           : m_next(next), m_twin(twin), m_origin(origin), m_face(face) {}
-        UINT8 m_next;
-        UINT8 m_twin;
-        UINT8 m_origin;
-        UINT8 m_face;
+        UINT16 m_next;
+        UINT16 m_twin;
+        UINT16 m_origin;
+        UINT16 m_face;
       };
 
       struct Face
       {
-        Face(UINT8 edge) : m_edge(edge) {}
-        UINT8 m_edge;
+        Face(UINT16 edge) : m_edge(edge) {}
+        UINT16 m_edge;
       };
 
       typedef std::vector<Vector3> VertexList;
@@ -53,6 +56,7 @@ namespace Sulfur
       const EdgeList& GetEdges(void) const { return m_edges; }
       const FaceList& GetFaces(void) const { return m_faces; }
       const PlaneList& GetPlanes(void) const { return m_planes; }
+      const Mesh* GetMesh(void) const { return m_mesh; }
 
       size_t GetVertexCount(void) const { return m_vertices.size(); }
       size_t GetEdgeCount(void) const { return m_edges.size(); }
@@ -63,6 +67,8 @@ namespace Sulfur
       const HalfEdge& GetEdge(size_t index) const { return m_edges[index]; }
       const Face& GetFace(size_t index) const { return m_faces[index]; }
       const Geometry::Plane& GetPlane(size_t index) const { return m_planes[index]; }
+
+      const Vector3& GetExtents(void) const { return m_extents; }
 
       Vector3 GetSupport(const Vector3 &dir) const
       {
@@ -90,6 +96,10 @@ namespace Sulfur
       EdgeList m_edges;
       FaceList m_faces;
       PlaneList m_planes;
+
+      Vector3 m_extents;
+
+      const Mesh *m_mesh = nullptr;
     };
   }
 }

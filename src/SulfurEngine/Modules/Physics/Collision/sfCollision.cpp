@@ -16,10 +16,10 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules\Physics\Data\sfColliderData.hpp"
 #include "Modules\Physics\Data\sfRigidBodyData.hpp"
 
-#include "sfBoxToBox.hpp"
-#include "sfBoxToCapsule.hpp"
+#include "sfHullToHull.hpp"
+#include "sfHullToCapsule.hpp"
 #include "sfCapsuleToCapsule.hpp"
-#include "sfSphereToBox.hpp"
+#include "sfSphereToHull.hpp"
 #include "sfSphereToCapsule.hpp"
 #include "sfSphereToSphere.hpp"
 
@@ -32,9 +32,9 @@ namespace Sulfur
     static const CollisionFunc 
       collisionFuncs[ColliderType::CT_NUM_TYPES][ColliderType::CT_NUM_TYPES] =
     {
-      BoxToBox, BoxToSphere, BoxToCapsule,
-      SphereToBox, SphereToSphere, SphereToCapsule,
-      CapsuleToBox, CapsuleToSphere, CapsuleToCapsule
+      SphereToSphere, SphereToCapsule, SphereToHull,
+      CapsuleToSphere, CapsuleToCapsule, CapsuleToHull,
+      HullToSphere, HullToCapsule, HullToHull
     };
 
     void Collide(Contacts &contacts,

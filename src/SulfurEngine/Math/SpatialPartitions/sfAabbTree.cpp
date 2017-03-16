@@ -34,84 +34,31 @@ namespace Sulfur
 
   void DynamicAabbTree::CreateProxy(Proxy& proxy, SpatialPartitionData& data)
   {
-    if (!m_root)
-    {
-      m_root = _CreateNode(data.m_clientData, data.m_aabb, data.m_aabb, nullptr);
-      _UpdateNode(m_root);
-      proxy.m_proxy = m_root;
-    }
-    else
-    {
-      Node *newNode = _CreateNode(data.m_clientData, data.m_aabb, data.m_aabb, nullptr);
-      _UpdateNode(newNode);
-      _Insert(newNode, m_root);
-      _UpdateHeights();
-      proxy.m_proxy = newNode;
-    }
+    Node *node = _CreateNode(data.m_clientData, nullptr);
+    node->m_aabb = data.m_aabb;
+    
+    _Insert(node);
+
+    proxy.m_proxy = node;
   }
 
   void DynamicAabbTree::UpdateProxy(Proxy& proxy, SpatialPartitionData& data)
   {
     Node *node = reinterpret_cast<Node*>(proxy.m_proxy);
+    node->m_aabb = data.m_aabb;
 
-    if (!node->m_parent)
-    {
-      node->m_aabb = data.m_aabb;
-      node->m_origAbbb = data.m_aabb;
-      _UpdateNode(node);
-      return;
-    }
-    else
-    {
-      if (node->m_parent->m_aabb.Contains(data.m_aabb))
-      {
-        node->m_aabb = data.m_aabb;
-        node->m_origAbbb = data.m_aabb;
-        _UpdateNode(node);
-        return;
-      }
-      else
-      {
-        RemoveProxy(proxy);
-        CreateProxy(proxy, data);
-      }
-    }
+    _RemoveNode(node);
+    _Insert(node);
   }
 
   void DynamicAabbTree::RemoveProxy(Proxy& proxy)
   {
     Node *node = reinterpret_cast<Node*>(proxy.m_proxy);
 
-    Node *parent = node->m_parent;
-    if (parent)
-    {
-      Node *sibling = parent->m_left == node ? parent->m_right : parent->m_left;
-      Node *grandParent = parent->m_parent;
-      if (!grandParent)
-      {
-        m_root = sibling;
-        sibling->m_parent = nullptr;
-      }
-      else
-      {
-        sibling->m_parent = grandParent;
-        if (parent == parent->m_parent->m_left)
-          grandParent->m_left = sibling;
-        else
-          grandParent->m_right = sibling;
-      }
-      delete parent;
-      parent = nullptr;
-
-      _UpdateHeights();
-      _BalanceTreeUp(&sibling);
-      _UpdateNode(sibling);
-    }
-    else
-      m_root = nullptr;
+    _RemoveNode(node);
 
     delete node;
-
+    proxy.m_proxy = nullptr;
   }
 
   void DynamicAabbTree::CastRay(const Geometry::Ray& ray, CastResults& results)
@@ -134,18 +81,14 @@ namespace Sulfur
     _StoreNodeData(results, m_root, 0);
   }
 
-  DynamicAabbTree::Node* DynamicAabbTree::_CreateNode(void *clientData, Geometry::Aabb &aabb,
-    Geometry::Aabb &origAabb, Node *parent) const
+  DynamicAabbTree::Node* DynamicAabbTree::_CreateNode(void *clientData, Node *parent) const
   {
     Node *newNode = new Node();
 
     newNode->m_clientData = clientData;
-    newNode->m_aabb = aabb;
-    newNode->m_origAbbb = origAabb;
     newNode->m_left = newNode->m_right = nullptr;
     newNode->m_parent = parent;
     newNode->m_height = 0;
-    newNode->m_lastAxis = 0;
 
     return newNode;
   }
@@ -167,7 +110,7 @@ namespace Sulfur
       return right;
   }
 
-  void DynamicAabbTree::_UpdateNode(Node *node) const
+  /*void DynamicAabbTree::_UpdateNode(Node *node) const
   {
     if (node->IsLeaf())
     {
@@ -176,39 +119,119 @@ namespace Sulfur
     }
     else
       node->m_aabb = Geometry::Aabb::Combine(node->m_left->m_aabb, node->m_right->m_aabb);
-  }
+  }*/
 
-  void DynamicAabbTree::_UpdateParents(Node *node) const
+  /*void DynamicAabbTree::_UpdateParents(Node *node) const
   {
     if (node->m_parent)
     {
       _UpdateNode(node->m_parent);
       _UpdateParents(node->m_parent);
     }
-  }
+  }*/
 
-  void DynamicAabbTree::_Insert(Node *newNode, Node *&parent)
+  void DynamicAabbTree::_Insert(Node *newNode)
   {
-    if (!parent->IsLeaf())
+    if (!m_root)
     {
-      Node *&selection = _SelectNode(newNode, parent->m_left, parent->m_right);
-      _Insert(newNode, selection);
+      m_root = newNode;
+      newNode->m_parent = nullptr;
+      return;
+    }
+
+    const Geometry::Aabb &newAabb = newNode->m_aabb;
+    Node *current = m_root;
+
+    while (!current->IsLeaf())
+    {
+      Real area = current->m_aabb.GetSurfaceArea();
+
+      Geometry::Aabb combined;
+      combined = Geometry::Aabb::Combine(current->m_aabb, newAabb);
+      Real combinedArea = combined.GetSurfaceArea();
+
+      Real cost = Real(2.0) * combinedArea;
+      Real pushingCost = Real(2.0) * (combinedArea - area);
+
+      Real costLeft;
+      if (current->m_left->IsLeaf())
+      {
+        Geometry::Aabb aabb;
+        aabb = Geometry::Aabb::Combine(newAabb, current->m_left->m_aabb);
+        costLeft = aabb.GetSurfaceArea() + pushingCost;
+      }
+      else
+      {
+        Geometry::Aabb aabb;
+        aabb = Geometry::Aabb::Combine(newAabb, current->m_left->m_aabb);
+        Real oldArea = current->m_left->m_aabb.GetSurfaceArea();
+        Real newArea = aabb.GetSurfaceArea();
+        costLeft = (newArea - oldArea) + pushingCost;
+      }
+
+      Real costRight;
+      if (current->m_right->IsLeaf())
+      {
+        Geometry::Aabb aabb;
+        aabb = Geometry::Aabb::Combine(newAabb, current->m_right->m_aabb);
+        costRight = aabb.GetSurfaceArea() + pushingCost;
+      }
+      else
+      {
+        Geometry::Aabb aabb;
+        aabb = Geometry::Aabb::Combine(newAabb, current->m_right->m_aabb);
+        Real oldArea = current->m_right->m_aabb.GetSurfaceArea();
+        Real newArea = aabb.GetSurfaceArea();
+        costRight = (newArea - oldArea) + pushingCost;
+      }
+
+      if (cost < costLeft && cost < costRight)
+        break;
+
+      if (costLeft < costRight)
+        current = current->m_left;
+      else
+        current = current->m_right;
+    }
+
+    Node *sibling = current;
+
+    Node *oldParent = sibling->m_parent;
+    Node *newParent = _CreateNode(nullptr, oldParent);
+    newParent->m_aabb = Geometry::Aabb::Combine(newAabb, sibling->m_aabb);
+    newParent->m_height = sibling->m_height + 1;
+
+    if (oldParent)
+    {
+      if (oldParent->m_left == sibling)
+        oldParent->m_left = newParent;
+      else
+        oldParent->m_right = newParent;
+
+      newParent->m_left = sibling;
+      newParent->m_right = newNode;
+      sibling->m_parent = newParent;
+      newNode->m_parent = newParent;
     }
     else
     {
-      Node *branch = _CreateNode(nullptr, parent->m_aabb, parent->m_aabb, parent->m_parent);
-      branch->SetChildren(parent, newNode);
-
-      branch->m_left->m_parent = branch;
-      branch->m_right->m_parent = branch;
-
-      parent = branch;
+      newParent->m_left = sibling;
+      newParent->m_right = newNode;
+      sibling->m_parent = newParent;
+      newNode->m_parent = newParent;
+      m_root = newParent;
     }
 
-    _SetHeight(m_root);
-    _BalanceTree(parent);
-    _UpdateNode(parent);
-    _UpdateParents(parent);
+    current = newNode->m_parent;
+    while (current)
+    {
+      current = _BalanceNode(current);
+
+      current->m_height = 1 + std::max(current->m_left->m_height, current->m_right->m_height);
+      current->m_aabb = Geometry::Aabb::Combine(current->m_left->m_aabb, current->m_right->m_aabb);
+
+      current = current->m_parent;
+    }
   }
 
   void DynamicAabbTree::_StoreNodeData(std::vector<SpatialPartitionQueryData>& results,
@@ -228,144 +251,171 @@ namespace Sulfur
     _StoreNodeData(results, node->m_right, depth + 1);
   }
 
-  void DynamicAabbTree::_UpdateHeights()
+  DynamicAabbTree::Node* DynamicAabbTree::_BalanceNode(Node *node)
   {
-    _SetHeight(m_root);
+    if (node->IsLeaf() || node->m_height < 2)
+      return node;
+
+    Node *leftChild = node->m_left;
+    Node *rightChild = node->m_right;
+
+    int balanceFactor = 
+      ((rightChild->m_right) ? rightChild->m_right->m_height : 0)
+      - 
+      ((leftChild->m_left) ? leftChild->m_left->m_height : 0);
+
+    if (balanceFactor > 1)
+      return _RotateLeft(rightChild);
+
+    if (balanceFactor < -1)
+      return _RotateRight(leftChild);
+
+    return node;
   }
 
-  void DynamicAabbTree::_SetHeight(Node *node) const
+  DynamicAabbTree::Node* DynamicAabbTree::_RotateLeft(Node *&node)
   {
-    if (node->IsLeaf())
-      node->m_height = 0;
+    Node *parent = node->m_parent;
+    Node *sibling = parent->m_left;
+    Node *leftChild = node->m_left;
+    Node *rightChild = node->m_right;
+
+    node->m_left = parent;
+    node->m_parent = parent->m_parent;
+    parent->m_parent = node;
+
+    if (node->m_parent)
+    {
+      if (node->m_parent->m_left == parent)
+        node->m_parent->m_left = parent->m_right;
+      else
+        node->m_parent->m_right = parent->m_right;
+    }
+    else
+      m_root = node;
+
+    if (leftChild->m_height > rightChild->m_height)
+    {
+      node->m_right = leftChild;
+      parent->m_right = rightChild;
+      rightChild->m_parent = parent;
+
+      parent->m_aabb = Geometry::Aabb::Combine(sibling->m_aabb, rightChild->m_aabb);
+      node->m_aabb = Geometry::Aabb::Combine(parent->m_aabb, leftChild->m_aabb);
+
+      parent->m_height = 1 + std::max(sibling->m_height, rightChild->m_height);
+      node->m_height = 1 + std::max(parent->m_height, leftChild->m_height);
+    }
     else
     {
-      _SetHeight(node->m_left);
-      _SetHeight(node->m_right);
-      int leftH = node->m_left->m_height;
-      int rightH = node->m_right->m_height;
-      node->m_height = (leftH > rightH ? leftH : rightH) + 1;
+      node->m_right = rightChild;
+      parent->m_right = leftChild;
+      leftChild->m_parent = parent;
+
+      parent->m_aabb = Geometry::Aabb::Combine(sibling->m_aabb, leftChild->m_aabb);
+      node->m_aabb = Geometry::Aabb::Combine(parent->m_aabb, rightChild->m_aabb);
+
+      parent->m_height = 1 + std::max(sibling->m_height, leftChild->m_height);
+      node->m_height = 1 + std::max(parent->m_height, rightChild->m_height);
     }
+
+    return node;
   }
 
-  int DynamicAabbTree::_GetHeight(Node *node) const
+  DynamicAabbTree::Node* DynamicAabbTree::_RotateRight(Node *&node)
   {
-    return node ? node->m_height : 0;
+    Node *parent = node->m_parent;
+    Node *sibling = parent->m_right;
+    Node *leftChild = node->m_left;
+    Node *rightChild = node->m_right;
+
+    node->m_left = parent;
+    node->m_parent = parent->m_parent;
+    parent->m_parent = node;
+
+    if (node->m_parent)
+    {
+      if (node->m_parent->m_left == parent)
+        node->m_parent->m_left = node;
+      else
+        node->m_parent->m_right = node;
+    }
+    else
+      m_root = node;
+
+    if (leftChild->m_height > rightChild->m_height)
+    {
+      node->m_right = leftChild;
+      parent->m_left = rightChild;
+      rightChild->m_parent = parent;
+
+      parent->m_aabb = Geometry::Aabb::Combine(sibling->m_aabb, rightChild->m_aabb);
+      node->m_aabb = Geometry::Aabb::Combine(parent->m_aabb, leftChild->m_aabb);
+
+      parent->m_height = 1 + std::max(sibling->m_height, rightChild->m_height);
+      node->m_height = 1 + std::max(parent->m_height, leftChild->m_height);
+    }
+    else
+    {
+      node->m_right = rightChild;
+      parent->m_left = leftChild;
+      leftChild->m_parent = parent;
+
+      parent->m_aabb = Geometry::Aabb::Combine(sibling->m_aabb, leftChild->m_aabb);
+      node->m_aabb = Geometry::Aabb::Combine(parent->m_aabb, rightChild->m_aabb);
+
+      parent->m_height = 1 + std::max(sibling->m_height, leftChild->m_height);
+      node->m_height = 1 + std::max(parent->m_height, rightChild->m_height);
+    }
+
+    return node;
   }
 
-  int DynamicAabbTree::_BalanceFactor(Node *node) const
+  void DynamicAabbTree::_RemoveNode(Node *node)
   {
-    if (!node)
-      return 0;
-
-    return _GetHeight(node->m_right) - _GetHeight(node->m_left);
-  }
-
-  void DynamicAabbTree::_BalanceTree(Node *&node)
-  {
-    if (_BalanceFactor(node) >= 2)
-      _RotateLeft(node);
-    if (_BalanceFactor(node) <= -2)
-      _RotateRight(node);
-  }
-
-  void DynamicAabbTree::_BalanceTreeUp(Node **node)
-  {
-    if (!*node)
+    if (node == m_root)
+    {
+      m_root = nullptr;
       return;
-
-    _BalanceTree((*node));
-
-    _BalanceTreeUp(&(*node)->m_parent);
-  }
-
-  void DynamicAabbTree::_RotateLeft(Node *&node)
-  {
-    Node *nodeParent = node->m_parent;
-    Node *newRoot = node->m_right;
-    Node *small;
-
-    if (_BalanceFactor(newRoot) > 0)
-    {
-      small = newRoot->m_left;
-
-      newRoot->m_left = node;
-      newRoot->m_parent = node->m_parent;
-      node->m_parent = newRoot;
-      node->m_right = small;
-
-      small->m_parent = node;
-    }
-    else
-    {
-      small = newRoot->m_right;
-
-      newRoot->m_right = node;
-      newRoot->m_parent = node->m_parent;
-      node->m_parent = newRoot;
-      node->m_right = small;
-
-      small->m_parent = node;
     }
 
-    if (node == m_root)
-      m_root = newRoot;
+    Node *parent = node->m_parent;
+    Node *grandParent = parent->m_parent;
+    Node *sibling;
+
+    if (parent->m_left == node)
+      sibling = parent->m_right;
     else
+      sibling = parent->m_left;
+
+    if (grandParent)
     {
-      if (nodeParent->m_right == node)
-        nodeParent->m_right = newRoot;
+      if (grandParent->m_left == parent)
+        grandParent->m_left = sibling;
       else
-        nodeParent->m_left = newRoot;
-    }
+        grandParent->m_right = sibling;
 
-    _SetHeight(newRoot);
-    _SetHeight(node);
-    _UpdateNode(newRoot->m_left);
-    _UpdateNode(newRoot->m_right);
-    _UpdateNode(newRoot);
-  }
+      sibling->m_parent = grandParent;
 
-  void DynamicAabbTree::_RotateRight(Node *&node)
-  {
-    Node *nodeParent = node->m_parent;
-    Node *newRoot = node->m_left;
-    Node *small;
+      delete parent;
 
-    if (_BalanceFactor(newRoot) > 0)
-    {
-      small = newRoot->m_left;
-      newRoot->m_left = node;
-      newRoot->m_parent = node->m_parent;
-      node->m_parent = newRoot;
-      node->m_left = small;
+      Node *curr = grandParent;
+      while (curr)
+      {
+        curr = _BalanceNode(curr);
 
-      small->m_parent = node;
+        curr->m_aabb = Geometry::Aabb::Combine(curr->m_left->m_aabb, curr->m_right->m_aabb);
+        curr->m_height = 1 + std::max(curr->m_left->m_height, curr->m_right->m_height);
+
+        curr = curr->m_parent;
+      }
     }
     else
     {
-
-      small = newRoot->m_right;
-      newRoot->m_right = node;
-      newRoot->m_parent = node->m_parent;
-      node->m_parent = newRoot;
-      node->m_left = small;
-
-      small->m_parent = node;
+      m_root = sibling;
+      sibling->m_parent = nullptr;
+      delete parent;
     }
-
-    if (node == m_root)
-      m_root = newRoot;
-    else
-    {
-      if (nodeParent->m_right == node)
-        nodeParent->m_right = newRoot;
-      else
-        nodeParent->m_left = newRoot;
-    }
-    _SetHeight(newRoot);
-    _SetHeight(node);
-    _UpdateNode(newRoot->m_left);
-    _UpdateNode(newRoot->m_right);
-    _UpdateNode(newRoot);
   }
 
   void DynamicAabbTree::_RayCast(CastResults &results, const Geometry::Ray &ray, Node *node) const
@@ -394,9 +444,10 @@ namespace Sulfur
     if (!node)
       return;
 
+    size_t lastAxis = 0;
     Geometry::IntersectionType::Type result =
       Geometry::FrustumAabb(&frustum.m_planes->m_data, node->m_aabb.m_min,
-      node->m_aabb.m_max, node->m_lastAxis);
+      node->m_aabb.m_max, lastAxis);
 
     if (result == Geometry::IntersectionType::Inside)
     {

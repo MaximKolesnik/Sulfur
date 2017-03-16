@@ -54,19 +54,24 @@ namespace Sulfur
         if (MathUtils::Abs(it.m_contactNormal[0]) >= Real(0.57735027))
           it.m_tangent1.Set(it.m_contactNormal[1], -it.m_contactNormal[0], Real(0.0));
         else
-          it.m_tangent1.Set(Real(0.0), -it.m_contactNormal[2], -it.m_contactNormal[1]);
+          it.m_tangent1.Set(Real(0.0), it.m_contactNormal[2], -it.m_contactNormal[1]);
 
         it.m_tangent1.Normalize();
-        it.m_tangent2 = it.m_contactNormal.Cross(it.m_tangent1);
+        it.m_tangent2 = (it.m_contactNormal).Cross(it.m_tangent1);
 
-        Vector3 rat1 = it.m_tangent1.Cross(rA);
-        Vector3 rbt1 = it.m_tangent1.Cross(rB);
-        Real kt1 = rat1.Dot(bodyA->m_invInertia * rat1) + rbt1.Dot(bodyB->m_invInertia * rbt1);
+        SF_ASSERT(abs(it.m_contactNormal.Dot(it.m_tangent1)) <= 0.001, "");
+        SF_ASSERT(abs(it.m_contactNormal.Dot(it.m_tangent2)) <= 0.001, "");
+
+        Vector3 rat1 = rA.Cross(it.m_tangent1);
+        Vector3 rbt1 = rB.Cross(it.m_tangent1);
+        Real kt1 = 
+          ((bodyA->m_invInertia * rat1).Cross(rA) + (bodyB->m_invInertia * rbt1).Cross(rB)).Dot(it.m_tangent1);
         it.m_massTangent1 = Real(1.0) / kt1;
 
-        Vector3 rat2 = it.m_tangent2.Cross(rA);
-        Vector3 rbt2 = it.m_tangent2.Cross(rB);
-        Real kt2 = rat2.Dot(bodyA->m_invInertia * rat2) + rbt2.Dot(bodyB->m_invInertia * rbt2);
+        Vector3 rat2 = rA.Cross(it.m_tangent2);
+        Vector3 rbt2 = rB.Cross(it.m_tangent2);
+        Real kt2 = 
+          ((bodyA->m_invInertia * rat2).Cross(rA) + (bodyB->m_invInertia * rbt2).Cross(rB)).Dot(it.m_tangent2);
         it.m_massTangent2 = Real(1.0) / kt2;
 
         Vector3 relVel = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
@@ -94,33 +99,6 @@ namespace Sulfur
         Vector3 dv = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
           - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA);
 
-        Real dvt = dv.Dot(it.m_tangent1);
-        Real dPt = it.m_massTangent1 * (-dvt);
-        Real maxPt = Real(0.8) * it.m_massNormal;
-        dPt = std::max(-maxPt, std::min(dPt, maxPt));
-        Vector3 Pt = dPt * it.m_tangent1;
-
-        bodyA->m_velocity -= bodyA->m_invMass * Pt;
-        bodyA->m_angularVelocity -= bodyA->m_invInertia * rA.Cross(Pt);
-
-        bodyB->m_velocity += bodyB->m_invMass * Pt;
-        bodyB->m_angularVelocity += bodyB->m_invInertia * rB.Cross(Pt);
-
-        dvt = dv.Dot(it.m_tangent2);
-        dPt = it.m_massTangent2 * (-dvt);
-        maxPt = Real(0.3) * it.m_massNormal;
-        dPt = std::max(-maxPt, std::min(dPt, maxPt));
-        Pt = dPt * it.m_tangent2;
-
-        bodyA->m_velocity -= bodyA->m_invMass * Pt;
-        bodyA->m_angularVelocity -= bodyA->m_invInertia * rA.Cross(Pt);
-
-        bodyB->m_velocity += bodyB->m_invMass * Pt;
-        bodyB->m_angularVelocity += bodyB->m_invInertia * rB.Cross(Pt);
-
-        dv = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
-          - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA);
-
         Real vn = dv.Dot(it.m_contactNormal);
         Real dPn = it.m_massNormal * (-vn + it.m_bias);
 
@@ -133,6 +111,33 @@ namespace Sulfur
 
         bodyB->m_velocity += bodyB->m_invMass * Pn;
         bodyB->m_angularVelocity += bodyB->m_invInertia * rB.Cross(Pn);
+
+        dv = bodyB->m_velocity + bodyB->m_angularVelocity.Cross(rB)
+          - bodyA->m_velocity - bodyA->m_angularVelocity.Cross(rA);
+
+        Real dvt = dv.Dot(it.m_tangent1);
+        Real dPt = it.m_massTangent1 * (-dvt);
+        Real maxPt = Real(0.3) * dPn;
+        dPt = std::max(-maxPt, std::min(dPt, maxPt));
+        Vector3 Pt = dPt * it.m_tangent1;
+
+        bodyA->m_velocity -= bodyA->m_invMass * Pt;
+        bodyA->m_angularVelocity -= bodyA->m_invInertia * rA.Cross(Pt);
+
+        bodyB->m_velocity += bodyB->m_invMass * Pt;
+        bodyB->m_angularVelocity += bodyB->m_invInertia * rB.Cross(Pt);
+
+        dvt = dv.Dot(it.m_tangent2);
+        dPt = it.m_massTangent2 * (-dvt);
+        maxPt = Real(0.3) * dPn;
+        dPt = std::max(-maxPt, std::min(dPt, maxPt));
+        Pt = dPt * it.m_tangent2;
+
+        bodyA->m_velocity -= bodyA->m_invMass * Pt;
+        bodyA->m_angularVelocity -= bodyA->m_invInertia * rA.Cross(Pt);
+
+        bodyB->m_velocity += bodyB->m_invMass * Pt;
+        bodyB->m_angularVelocity += bodyB->m_invInertia * rB.Cross(Pt);
 
       }
     }

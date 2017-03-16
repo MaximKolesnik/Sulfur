@@ -41,6 +41,7 @@ namespace Sulfur
   #endif  //SF_USE_SIMD
 
   #define SF_EPSILON  Sulfur::Real(0.000001)
+  #define SF_EPSILON_NUM_DECIMALS 6
 #ifdef SF_USE_SIMD
 #define SF_UT_EPSILON SF_EPSILON
 #else
@@ -105,6 +106,15 @@ namespace Sulfur
     SF_FORCE_INLINE Type GetSign(Type val)
     {
       return (val >= Type(0.0)) ? Type(1.0) : Type(-1.0);
+    }
+
+    SF_FORCE_INLINE Real Round(Real val, UINT16 numDecimals)
+    {
+      SF_ASSERT(numDecimals != 0, "Rounding error");
+
+      int mul = (int)pow(10, numDecimals);
+
+      return roundf(val * mul) / mul;
     }
   }
 }
