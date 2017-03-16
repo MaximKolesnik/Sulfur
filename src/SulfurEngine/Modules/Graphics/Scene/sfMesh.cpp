@@ -35,6 +35,64 @@ void Mesh::Free()
   m_indexBuffer.Free();
 }
 
+void Mesh::CalculateTangentsAndBinormals()
+{
+  std::vector<Vector3> tangents(m_vertices.size() * 2);
+  Vector3 *tan1 = tangents.data();
+  Vector3 *tan2 = tangents.data() + m_vertices.size();
+  SecureZeroMemory(tan1, sizeof(Vector3) * tangents.size());
+
+  for (UINT32 i = 0; i < m_indices.size(); i+=3)
+  {
+    UINT32 i1 = m_indices[i];
+    UINT32 i2 = m_indices[i + 1];
+    UINT32 i3 = m_indices[i + 2];
+
+    const Vertex &v1 = m_vertices[i1];
+    const Vertex &v2 = m_vertices[i2];
+    const Vertex &v3 = m_vertices[i3];
+
+    float x1 = v2.m_position[0] - v1.m_position[0];
+    float x2 = v3.m_position[0] - v1.m_position[0];
+    float y1 = v2.m_position[1] - v1.m_position[1];
+    float y2 = v3.m_position[1] - v1.m_position[1];
+    float z1 = v2.m_position[2] - v1.m_position[2];
+    float z2 = v3.m_position[2] - v1.m_position[2];
+
+    float s1 = v2.m_texCoords[0] - v1.m_texCoords[0];
+    float s2 = v3.m_texCoords[0] - v1.m_texCoords[0];
+    float t1 = v2.m_texCoords[1] - v1.m_texCoords[1];
+    float t2 = v3.m_texCoords[1] - v1.m_texCoords[1];
+
+    float r = 1.0f / (s1 * t2 - s2 * t1);
+    Vector3 sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
+      (t2 * z1 - t1 * z2) * r);
+    Vector3 tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
+      (s1 * z2 - s2 * z1) * r);
+
+    tan1[i1] += sdir;
+    tan1[i2] += sdir;
+    tan1[i3] += sdir;
+
+    tan2[i1] += tdir;
+    tan2[i2] += tdir;
+    tan2[i3] += tdir;
+  }
+
+  for (UINT32 i = 0; i < m_vertices.size(); ++i)
+  {
+    const Vector3& normal = m_vertices[i].m_normal;
+    const Vector3& tangent = tan1[i];
+
+    m_vertices[i].m_tangent = (tangent - normal * normal.Dot(tangent)).Normalize();
+    m_vertices[i].m_tangent = ((normal.Cross(tangent).Dot(tan2[i])) < 0.0f) ? -m_vertices[i].m_tangent : m_vertices[i].m_tangent;
+
+    m_vertices[i].m_binormal = m_vertices[i].m_normal.Cross(m_vertices[i].m_tangent);
+  }
+
+  m_valid = false;
+}
+
 void Mesh::Draw(D3D11Context& context)
 {
   if (!m_valid)

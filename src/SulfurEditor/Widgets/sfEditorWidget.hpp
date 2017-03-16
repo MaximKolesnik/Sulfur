@@ -32,6 +32,9 @@ namespace Sulfur
     void Setup();
     void UpdatePlayStateButtons();
 
+  protected:
+    virtual void keyPressEvent(QKeyEvent *event) override;
+
   public slots:
     void OnTranslationToggled();
     void OnRotationToggled();
@@ -40,6 +43,10 @@ namespace Sulfur
     void OnPlayToggled();
     void OnPauseToggled();
     void OnStopToggled();
+
+  signals:
+    void DeleteSelection();
+    void DuplicateSelection();
 
   private:
     QGridLayout *m_layout;

@@ -16,6 +16,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Components/sfCamera.hpp"
 
 // Modules
+#include "Modules/Vr/sfVrManager.hpp"
 #include "Modules/Input/sfInputManager.hpp"
 #include "Modules/Window/sfWindowManager.hpp"
 #include "Modules/Graphics/sfGraphicsManager.hpp"
@@ -67,6 +68,7 @@ namespace Sulfur
 
     InputManager::Instance()->Init(m_window);
     GraphicsManager::Instance()->Init(*m_window);
+    //VrManager::Instance()->Init();
     Physics::PhysicsWorld::Instance()->Initialize();
 
     m_running = true;
@@ -105,6 +107,7 @@ namespace Sulfur
   void Core::Frame(void)
   {
     WindowManager::Instance()->Update();
+    //VrManager::Instance()->Update();
     InputManager::Instance()->Update();
     SceneManager::Instance()->Update();
     TaskManager::Instance()->RunTasks();

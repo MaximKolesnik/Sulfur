@@ -7,7 +7,7 @@ require "common"
 premakeDef.workspace = {
 	name = "Sulfur",
 	architectures = { "x86_64" },
-    flags = { "FatalCompileWarnings", "MultiProcessorCompile", "C++14" }, 
+    flags = { "FatalCompileWarnings", "MultiProcessorCompile", "C++14", "FatalLinkWarnings", "NoIncrementalLink", "LinkTimeOptimization" }, 
     defines = { "_CRT_SECURE_NO_WARNINGS", "SF_USE_SIMD" },
 	startupProject = "SulfurGame",
 	characterSet = "MBCS"
@@ -34,18 +34,25 @@ premakeDef.dependencies["zlib"] = {
 }
 
 premakeDef.dependencies["libpng"] = {
-	debugLibs = { "libpng16d.lib" },
-	releaseLibs = { "libpng16.lib" },
+	debugLibs = { "libpngd.lib" },
+	releaseLibs = { "libpng.lib" },
 	includeDirs = { "../dependencies/libpng/include" },
 	libraryDirs = { "../dependencies/libpng/lib" },
 	dependencies = { "zlib" }
 }
 
 premakeDef.dependencies["libjpeg"] = {
-	debugLibs = { "jpeg.lib" },
+	debugLibs = { "jpegd.lib" },
 	releaseLibs = { "jpeg.lib" },
 	includeDirs = { "../dependencies/libjpeg/include" },
 	libraryDirs = { "../dependencies/libjpeg/lib" }
+}
+
+premakeDef.dependencies["openvr"] = {
+	debugLibs = { "openvr_api64d.lib" },
+	releaseLibs = { "openvr_api64.lib" },
+	includeDirs = { "../dependencies/openvr/include" },
+	libraryDirs = { "../dependencies/openvr/lib" }
 }
 
 premakeDef.dependencies["fbx"] = {
@@ -93,7 +100,7 @@ premakeDef.projects["SulfurEngine"] = {
 	language = "C++",
 	kind = "StaticLib",
 	defines = { "SF_BUILDING_LIB" },
-	dependencies = { "D3D11", "libpng", "libjpeg", "fbx", "dds", "WinApi"},
+	dependencies = { "D3D11", "libpng", "libjpeg", "fbx", "dds", "WinApi", "openvr" },
 	pchHeader = "sfSulfurPCH.hpp",
 	pchSource = "sfSulfurPCH.cpp"
 }

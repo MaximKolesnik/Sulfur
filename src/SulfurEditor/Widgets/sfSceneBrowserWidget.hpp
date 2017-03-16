@@ -34,14 +34,16 @@ namespace Sulfur
     void SelectObject(HNDL object);
     void UpdateSelectedObjects();
 
+    void DeleteSelectedObjects();
+    void DuplicateSelectedObjects();
+
   protected:
     virtual void keyPressEvent(QKeyEvent *event) override;
 
   private:
     void Setup();
-    void AddObject(HNDL objectHandle, QTreeWidgetItem *root = nullptr);
-    void AddObject(Object *object, QTreeWidgetItem *root = nullptr);
-    void DeleteSelectedObjects();
+    QTreeWidgetItem* AddObject(HNDL objectHandle, QTreeWidgetItem *root = nullptr);
+    QTreeWidgetItem* AddObject(Object *object, QTreeWidgetItem *root = nullptr);
     Object* CreateObjectInFrontOfCamera(const std::string& name);
     void AddMeshObject(const std::string& objectName, const std::string& resourceName);
     void AddComponentObject(const std::string& objectName, const std::string& component);

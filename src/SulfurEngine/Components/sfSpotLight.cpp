@@ -34,6 +34,13 @@ namespace Sulfur
   SpotLight* SpotLight::Clone(void) const
   {
     SpotLight *newSpotLight = SF_CREATE_COMP(SpotLight);
+    newSpotLight->m_color = m_color;
+    newSpotLight->m_range = m_range;
+    newSpotLight->m_intensity = m_intensity;
+    newSpotLight->m_innerAngle = m_innerAngle;
+    newSpotLight->m_outerAngle = m_outerAngle;
+    newSpotLight->m_falloff = m_falloff;
+    newSpotLight->m_castsShadows = m_castsShadows;
     return newSpotLight;
   }
 

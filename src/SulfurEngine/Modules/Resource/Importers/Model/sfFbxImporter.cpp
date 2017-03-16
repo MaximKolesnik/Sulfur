@@ -268,6 +268,7 @@ void FbxImporter::LoadMesh(FbxScene *scene, FbxNode *node, Mesh *resource, doubl
         resource->AddTriangle(indices[0], indices[1], indices[2]);
       }
     }
+    resource->CalculateTangentsAndBinormals();
   }
 
   int childCount = node->GetChildCount();

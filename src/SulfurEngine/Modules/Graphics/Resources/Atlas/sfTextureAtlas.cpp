@@ -79,6 +79,8 @@ void TextureAtlas::AddTexture(const std::string& texture)
     { (node->Size[0] - 1.0f) / m_textureSize, (node->Size[1] - 1.0f) / m_textureSize }
   };
   m_atlasData[texture] = data;
+
+  m_valid = false;
 }
 
 const AtlasData* TextureAtlas::GetAtlasData(const std::string& texture) const
@@ -89,6 +91,12 @@ const AtlasData* TextureAtlas::GetAtlasData(const std::string& texture) const
     return nullptr;
 
   return &it->second;
+}
+
+void TextureAtlas::SetPixel(D3D11Context& context, UINT32 slot)
+{
+  //Update();
+  Texture2D::SetPixel(context, slot);
 }
 
 AtlasNode* TextureAtlas::AddToNode(AtlasNode *node, BYTE *pixelData, UINT32 width, UINT32 height)

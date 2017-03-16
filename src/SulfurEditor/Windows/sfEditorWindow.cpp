@@ -45,6 +45,16 @@ EditorWindow::EditorWindow(QWidget *parent)
     this, &EditorWindow::OnObjectSelectedGameWindow
     );
 
+  QObject::connect(
+    m_editor, &EditorWidget::DeleteSelection,
+    this, &EditorWindow::OnDeleteSelection
+    );
+
+  QObject::connect(
+    m_editor, &EditorWidget::DuplicateSelection,
+    this, &EditorWindow::OnDuplicateSelection
+    );
+
   QDockWidget *inspectorDock = new QDockWidget(tr("Inspector"), this);
   inspectorDock->setAllowedAreas(Qt::DockWidgetArea_Mask);
 
@@ -113,6 +123,7 @@ void EditorWindow::CreateMenuBar()
   setMenuBar(m_menuBar);
 
   QMenu *fileMenu = new QMenu("File");
+  fileMenu->addAction("New Scene", this, &EditorWindow::OnNewScene);
   fileMenu->addAction("Open Scene", this, &EditorWindow::OnOpenScene);
   fileMenu->addAction("Save Scene", this, &EditorWindow::OnSaveScene);
   fileMenu->addAction("Save Scene As...", this, &EditorWindow::OnSaveSceneAs);
@@ -129,6 +140,14 @@ void EditorWindow::CreateMenuBar()
   m_menuBar->addMenu(helpMenu);
 }
 
+void EditorWindow::OnNewScene()
+{
+  SceneManager::Instance()->GetScene() = Scene();
+  ObjectFactory::Instance()->DestroyAll();
+  m_sceneBrowser->SetScene(&SceneManager::Instance()->GetScene());
+  m_editor->GetGameWidget()->SetupEditor();
+}
+
 void EditorWindow::OnOpenScene()
 {
   QString fileName = QFileDialog::getOpenFileName(this, "Open Scene", QDir::currentPath() + "/Resources", "Sulfur Scene (*.ssc)");
@@ -137,6 +156,7 @@ void EditorWindow::OnOpenScene()
     std::ifstream file(fileName.toUtf8().data(), std::ios_base::binary);
     Serialization::Deserialize(file, SceneManager::Instance()->GetScene());
     m_sceneBrowser->SetScene(&SceneManager::Instance()->GetScene());
+    m_editor->GetGameWidget()->SetupEditor();
   }
 }
 
@@ -186,6 +206,16 @@ void EditorWindow::OnObjectChanged()
 void EditorWindow::OnAbout()
 {
   m_aboutWindow->show();
+}
+
+void EditorWindow::OnDeleteSelection()
+{
+  m_sceneBrowser->DeleteSelectedObjects();
+}
+
+void EditorWindow::OnDuplicateSelection()
+{
+  m_sceneBrowser->DuplicateSelectedObjects();
 }
 
 }

@@ -30,7 +30,7 @@ public:
   void Init(const Texture2D& texture);
   virtual void Free() override;
 
-  void SetPixel(D3D11Context& context, UINT32 slot);
+  virtual void SetPixel(D3D11Context& context, UINT32 slot);
 
   void GenerateMips(D3D11Context& context);
   virtual Texture2D* Blurred(D3D11Device& device, D3D11Context& context, DXGI_FORMAT format, bool cached, UINT32 downsamples, UINT32 iterations);

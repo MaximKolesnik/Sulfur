@@ -131,7 +131,7 @@ namespace Sulfur
         c.m_penetration =
           (Geometry::ProjectPointOnPlane(it, refPlane.GetNormal(), refPlane.GetDistance()) - it).Length();
 
-        SF_ASSERT(c.m_penetration < 1.1, "");
+        //SF_ASSERT(c.m_penetration < 1.1, "");
 
         contacts.push_back(c);
       }

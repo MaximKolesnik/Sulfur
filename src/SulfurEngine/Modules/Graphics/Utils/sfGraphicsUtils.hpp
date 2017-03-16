@@ -17,6 +17,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Modules/Graphics/Resources/Buffer/sfD3D11ConstantBuffer.hpp"
 #include "Modules/Graphics/Resources/Shader/sfD3D11VertexShader.hpp"
 #include "Components/sfMeshRenderer.hpp"
+#include "Components/sfTrackedController.hpp"
 
 namespace Sulfur
 {
@@ -37,6 +38,7 @@ namespace Sulfur
     static void SetupCamera(D3D11Context& context, Real width, Real height, Scene& scene, D3D11ConstantBuffer *perFrameBuffer);
     static void RenderWorld(D3D11Context& context, D3D11ConstantBuffer *materialBuffer, D3D11ConstantBuffer *perObjectBuffer);
     static void RenderMeshRenderer(D3D11Context& context, MeshRenderer *meshRenderer, D3D11ConstantBuffer *materialBuffer, D3D11ConstantBuffer *perObjectBuffer);
+    static void RenderTrackedController(D3D11Context& context, TrackedController *trackedController, D3D11ConstantBuffer *materialBuffer, D3D11ConstantBuffer *perObjectBuffer);
 
     // Fullscreen Quad
     static D3D11VertexShader s_fullscreenQuadVertexShader;

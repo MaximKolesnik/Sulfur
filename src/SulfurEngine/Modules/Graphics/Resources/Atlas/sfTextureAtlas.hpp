@@ -49,6 +49,8 @@ public:
   void AddTexture(const std::string& texture);
   const AtlasData* GetAtlasData(const std::string& texture) const;
 
+  virtual void SetPixel(D3D11Context& context, UINT32 slot) override;
+
 private:
   AtlasNode* AddToNode(AtlasNode *node, BYTE *pixelData, UINT32 width, UINT32 height);
 

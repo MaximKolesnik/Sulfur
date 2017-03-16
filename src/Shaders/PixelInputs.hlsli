@@ -14,6 +14,8 @@ cbuffer MaterialData
 {
   float4 MaterialDiffuseColor;
   float4 MaterialEmissiveColor;
+  float4 MaterialDiffuseMaterialScaling;
+  float4 MaterialNormalEmissiveScaling;
   bool MaterialUsesDiffuseTexture;
   bool MaterialUsesNormalTexture;
   bool MaterialUsesMaterialTexture;

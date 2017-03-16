@@ -33,6 +33,10 @@ namespace Sulfur
   PointLight* PointLight::Clone(void) const
   {
     PointLight *newPointLight = SF_CREATE_COMP(PointLight);
+    newPointLight->m_color = m_color;
+    newPointLight->m_range = m_range;
+    newPointLight->m_intensity = m_intensity;
+    newPointLight->m_castsShadows = m_castsShadows;
     return newPointLight;
   }
 

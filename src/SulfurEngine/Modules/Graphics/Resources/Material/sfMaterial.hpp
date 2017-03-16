@@ -15,6 +15,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 #include "Reflection/sfReflection.hpp"
 #include "Modules/Graphics/Types/sfColor.hpp"
 #include "Modules/Graphics/Resources/Texture/sfTexture2D.hpp"
+#include "Math/sfVector2.hpp"
 
 namespace Sulfur
 {
@@ -26,12 +27,16 @@ namespace Sulfur
 
     SF_PRIVATE_PROPERTY(Color, diffuseColor, DiffuseColor, "Diffuse Color")
     SF_RESOURCE(Texture2D, diffuseTexture, DiffuseTexture, "Diffuse Texture")
+    SF_PRIVATE_PROPERTY(Vector2, diffuseTiling, DiffuseTiling, "Diffuse Tiling")
     SF_PRIVATE_PROPERTY_RANGE(Real, metallic, Metallic, "Metallic", 0.2f, 0.45f)
     SF_PRIVATE_PROPERTY_RANGE(Real, roughness, Roughness, "Roughness", c_minRoughness, 1.0f)
     SF_RESOURCE(Texture2D, materialTexture, MaterialTexture, "Material Texture")
+    SF_PRIVATE_PROPERTY(Vector2, materialTiling, MaterialTiling, "Material Tiling")
     SF_RESOURCE(Texture2D, normalTexture, NormalTexture, "Normal Texture")
+    SF_PRIVATE_PROPERTY(Vector2, normalTiling, NormalTiling, "Normal Tiling")
     SF_PRIVATE_PROPERTY(Color, emissiveColor, EmissiveColor, "Emissive Color")
     SF_RESOURCE(Texture2D, emissiveTexture, EmissiveTexture, "Emissive Texture")
+    SF_PRIVATE_PROPERTY(Vector2, emissiveTiling, EmissiveTiling, "Emissive Tiling")
 
     static const Real c_minRoughness;
   

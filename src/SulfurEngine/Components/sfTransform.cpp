@@ -91,7 +91,7 @@ namespace Sulfur
       m_translation = m_matrix * Vector3(0.0f, 0.0f, 0.0f);
       m_rotation = Quaternion(m_matrix);
       m_scale = m_worldScale;
-      m_scale = Vector3(m_scale[0] / m_worldScale[0], m_scale[1] / m_worldScale[1], m_scale[2] / m_worldScale[2]);
+      m_scale = Vector3(m_scale[0] / parentTransform->m_worldScale[0], m_scale[1] / parentTransform->m_worldScale[1], m_scale[2] / parentTransform->m_worldScale[2]);
       m_right = m_matrix.TransformNormal(Vector3(1.0f, 0.0f, 0.0f));
       m_up = m_matrix.TransformNormal(Vector3(0.0f, 1.0f, 0.0f));
       m_forward = m_matrix.TransformNormal(Vector3(0.0f, 0.0f, 1.0f));

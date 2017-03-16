@@ -12,6 +12,7 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 */
 /******************************************************************************/
 #include "sfEditorWidget.hpp"
+#include "Modules/Graphics/Debug/sfDebugDraw.hpp"
 
 namespace Sulfur
 {
@@ -153,20 +154,57 @@ void EditorWidget::OnScalingToggled()
 
 void EditorWidget::OnPlayToggled()
 {
+  DebugDraw::Instance()->SetEnabled(false);
   m_gameWidget->SetState(GameWidget::PLAYING);
   UpdatePlayStateButtons();
 }
 
 void EditorWidget::OnPauseToggled()
 {
+  DebugDraw::Instance()->SetEnabled(true);
   m_gameWidget->SetState(GameWidget::PAUSED);
   UpdatePlayStateButtons();
 }
 
 void EditorWidget::OnStopToggled()
 {
+  DebugDraw::Instance()->SetEnabled(true);
   m_gameWidget->SetState(GameWidget::STOPPED);
   UpdatePlayStateButtons();
+}
+
+void EditorWidget::keyPressEvent(QKeyEvent *event)
+{
+  switch (event->key())
+  {
+  case Qt::Key_Delete:
+    emit DeleteSelection();
+    break;
+
+  case Qt::Key_D:
+    if (event->modifiers() & Qt::KeyboardModifier::ControlModifier)
+      emit DuplicateSelection();
+    break;
+
+  case Qt::Key_Q:
+    if (!m_gameWidget->m_controllingCamera)
+      OnTranslationToggled();
+    break;
+
+  case Qt::Key_W:
+    if (!m_gameWidget->m_controllingCamera)
+      OnRotationToggled();
+    break;
+
+  case Qt::Key_E:
+    if (!m_gameWidget->m_controllingCamera)
+      OnScalingToggled();
+    break;
+
+  default:
+    event->ignore();
+    return;
+  }
 }
 
 

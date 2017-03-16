@@ -38,8 +38,10 @@ All content © 2016 DigiPen (USA) Corporation, all rights reserved.
 namespace Sulfur
 {
 
+Real GameWidget::s_cameraRotationSpeed = 0.005f;
+
 GameWidget::GameWidget(QWidget *parent)
-  : QWidget(parent), m_controllingCamera(false), m_cameraYaw(0.0f), m_cameraPitch(0.0f), m_resizeTimer(0),
+  : QWidget(parent), m_controllingCamera(false), m_resizeTimer(0),
   m_selection(nullptr), m_currentGizmo(TRANSLATION_GIZMO), m_usingGizmo(false), m_state(STOPPED)
 {
   setAttribute(Qt::WA_PaintOnScreen, true);
@@ -48,17 +50,7 @@ GameWidget::GameWidget(QWidget *parent)
   Core::Instance()->StartUp((HWND)winId());
   m_window = Core::Instance()->GetWindow();
 
-  Object *editorCamera = ObjectFactory::Instance()->CreateObject("EditorCamera");
-
-  Camera *cameraComponent = ComponentFactory::Instance()->CreateComponent<Camera>();
-  cameraComponent->SetProjectionType(ProjectionType::PERSPECTIVE);
-  cameraComponent->SetNearPlane(0.1f);
-  cameraComponent->SetFarPlane(1000.0f);
-  cameraComponent->SetFieldOfView(45.0f);
-  editorCamera->AttachComponent(cameraComponent);
-
-  m_editorCamera = editorCamera->GetHndl();
-  SceneManager::Instance()->GetScene().SetCameraObject(m_editorCamera);
+  SetupEditor();
 
   CreatePickingResources();
 
@@ -71,6 +63,26 @@ GameWidget::~GameWidget()
   m_pickingDepthBuffer.Free();
   m_stagingTexture->Release();
   Core::Instance()->ShutDown();
+}
+
+void GameWidget::SetupEditor()
+{
+  m_editorCamera = SceneManager::Instance()->GetScene().GetCameraObject();
+
+  if (m_editorCamera == SF_INV_HANDLE)
+  {
+    Object *editorCamera = ObjectFactory::Instance()->CreateObject("EditorCamera");
+
+    Camera *cameraComponent = ComponentFactory::Instance()->CreateComponent<Camera>();
+    cameraComponent->SetProjectionType(ProjectionType::PERSPECTIVE);
+    cameraComponent->SetNearPlane(0.1f);
+    cameraComponent->SetFarPlane(1000.0f);
+    cameraComponent->SetFieldOfView(45.0f);
+    editorCamera->AttachComponent(cameraComponent);
+
+    m_editorCamera = editorCamera->GetHndl();
+    SceneManager::Instance()->GetScene().SetCameraObject(m_editorCamera);
+  }
 }
 
 void GameWidget::Frame()
@@ -528,16 +540,10 @@ void GameWidget::UpdateEditorCamera()
     InputManager *inputManager = InputManager::Instance();
 
     // Camera rotation
-    Real rotationAmount = 50.0f * Time::Instance()->GetDt();
-    m_cameraYaw += inputManager->MouseDeltaX() * -rotationAmount;
-    m_cameraPitch += inputManager->MouseDeltaY() * -rotationAmount;
-    while (m_cameraYaw < 0.0f) m_cameraYaw += 360.0f;
-    while (m_cameraYaw >= 360.0f) m_cameraYaw -= 360.0f;
-    if (m_cameraPitch < -90.0f) m_cameraPitch = -90.0f;
-    if (m_cameraPitch > 90.0f) m_cameraPitch = 90.0f;
-
-    Quaternion rotation;
-    rotation.SetEuler(m_cameraPitch * SF_RADS_PER_DEG, 0.0f, m_cameraYaw * SF_RADS_PER_DEG);
+    Real x, y, z;
+    Quaternion rotation = transform->GetRotation();
+    rotation.GetEulerXYZ(x, y, z);
+    rotation.SetEuler(x + inputManager->MouseDeltaY() * -s_cameraRotationSpeed, y, z + inputManager->MouseDeltaX() * -s_cameraRotationSpeed);
     transform->SetRotation(rotation);
 
     // Camera movement

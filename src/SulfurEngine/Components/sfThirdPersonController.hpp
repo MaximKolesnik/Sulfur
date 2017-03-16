@@ -32,6 +32,7 @@ public:
 
 private:
   SF_PRIVATE_PROPERTY(Real, movementSpeed, MovementSpeed, "Movement Speed")
+  SF_PRIVATE_PROPERTY(Real, jumpSpeed, JumpSpeed, "Jump Speed")
   SF_PRIVATE_PROPERTY(Real, rotationSpeed, RotationSpeed, "Rotation Speed")
   SF_PRIVATE_PROPERTY(Real, cameraDistance, CameraDistance, "Camera Distance")
   SF_PRIVATE_PROPERTY(Real, cameraHeight, CameraHeight, "Camera Height")

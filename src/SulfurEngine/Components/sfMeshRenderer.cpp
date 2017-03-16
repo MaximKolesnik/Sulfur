@@ -32,6 +32,9 @@ namespace Sulfur
   MeshRenderer* MeshRenderer::Clone(void) const
   {
     MeshRenderer *newMeshRenderer = SF_CREATE_COMP(MeshRenderer);
+    newMeshRenderer->m_meshResource = m_meshResource;
+    newMeshRenderer->m_meshResourcePath = m_meshResourcePath;
+    newMeshRenderer->m_material = m_material;
     return newMeshRenderer;
   }
 

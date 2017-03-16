@@ -261,6 +261,10 @@ void GraphicsUtils::RenderWorld(D3D11Context& context, D3D11ConstantBuffer *mate
   ComponentFactory::ComponentData componentData = SF_GET_COMP_DATA(MeshRenderer);
   for (auto it = componentData.begin(); it != componentData.end(); ++it)
     RenderMeshRenderer(context, static_cast<MeshRenderer*>(*it), materialBuffer, perObjectBuffer);
+
+  /*componentData = SF_GET_COMP_DATA(TrackedController);
+  for (auto it = componentData.begin(); it != componentData.end(); ++it)
+    RenderTrackedController(context, static_cast<TrackedController*>(*it), materialBuffer, perObjectBuffer);*/
 }
 
 void GraphicsUtils::RenderMeshRenderer(D3D11Context& context, MeshRenderer *meshRenderer, D3D11ConstantBuffer *materialBuffer, D3D11ConstantBuffer *perObjectBuffer)
@@ -283,6 +287,8 @@ void GraphicsUtils::RenderMeshRenderer(D3D11Context& context, MeshRenderer *mesh
       MaterialData materialData;
       materialData.DiffuseColor = material.GetDiffuseColor();
       materialData.EmissiveColor = material.GetEmissiveColor();
+      materialData.DiffuseMaterialTiling = Vector4(material.GetDiffuseTiling()[0], material.GetDiffuseTiling()[1], material.GetMaterialTiling()[0], material.GetMaterialTiling()[1]);
+      materialData.NormalEmissiveTiling = Vector4(material.GetNormalTiling()[0], material.GetNormalTiling()[1], material.GetEmissiveTiling()[0], material.GetEmissiveTiling()[1]);
       materialData.UsesDiffuseTexture = diffuseTexture != nullptr;
       materialData.UsesNormalTexture = normalTexture != nullptr;
       materialData.UsesMaterialTexture = materialTexture != nullptr;
@@ -303,6 +309,39 @@ void GraphicsUtils::RenderMeshRenderer(D3D11Context& context, MeshRenderer *mesh
 
     mesh->Draw(context);
   }
+}
+
+void GraphicsUtils::RenderTrackedController(D3D11Context& context, TrackedController *trackedController, D3D11ConstantBuffer *materialBuffer, D3D11ConstantBuffer *perObjectBuffer)
+{
+  if (!trackedController->IsReadyToRender())
+    return;
+
+  Object *object = SF_GET_OBJECT(trackedController->GetOwner());
+  Transform *transform = object->GetComponent<Transform>();
+
+  if (materialBuffer)
+  {
+    MaterialData materialData;
+    materialData.DiffuseColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+    materialData.EmissiveColor = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+    materialData.DiffuseMaterialTiling = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+    materialData.NormalEmissiveTiling = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+    materialData.UsesDiffuseTexture = true;
+    materialData.UsesNormalTexture = false;
+    materialData.UsesMaterialTexture = false;
+    materialData.UsesEmissiveTexture = false;
+    materialData.Metallic = 0.2f;
+    materialData.Roughness = 0.8f;
+    materialBuffer->SetData(context, materialData);
+
+    trackedController->GetTexture().SetPixel(context, 0);
+  }
+
+  PerObjectData perObject;
+  perObject.WorldMatrix = transform->GetWorldMatrix();
+  perObjectBuffer->SetData(context, perObject);
+
+  trackedController->GetMesh().Draw(context);
 }
 
 D3D11VertexShader GraphicsUtils::s_fullscreenQuadVertexShader;

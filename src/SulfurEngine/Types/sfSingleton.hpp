@@ -39,3 +39,8 @@ static className* Instance(void) { \
 SF_SINGLETON_INSTANCE(className) \
 SF_FORBID_COPY(className) \
 SF_PRIVATE_CTOR_DTOR(className)
+
+#define SF_SINGLETON_EMPTY(className) \
+SF_SINGLETON_INSTANCE(className) \
+SF_FORBID_COPY(className) \
+SF_PRIVATE_CTOR_DTOR_EMPTY(className)

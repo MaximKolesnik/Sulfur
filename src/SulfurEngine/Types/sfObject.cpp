@@ -175,8 +175,9 @@ Object*Object::_Clone(const Object *obj) const
   for (auto &it : m_components)
   {
     IEntity *compToClone = ComponentFactory::Instance()->GetComponent(it.first, it.second);
+    IEntity *newComponent = compToClone->Clone();
 
-    clone->AttachComponent(compToClone->Clone());
+    clone->AttachComponent(newComponent);
   }
 
   _CloneChildren(clone, m_children);

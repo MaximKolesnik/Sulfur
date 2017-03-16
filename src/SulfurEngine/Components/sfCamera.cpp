@@ -33,6 +33,10 @@ void Camera::Initialize(void)
 Camera* Camera::Clone(void) const
 {
   Camera *newCamera = SF_CREATE_COMP(Camera);
+  newCamera->m_projectionType = m_projectionType;
+  newCamera->m_fieldOfView = m_fieldOfView;
+  newCamera->m_nearPlane = m_nearPlane;
+  newCamera->m_farPlane = m_farPlane;
   return newCamera;
 }
 

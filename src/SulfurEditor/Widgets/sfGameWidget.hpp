@@ -64,6 +64,7 @@ namespace Sulfur
     GameWidget(QWidget *parent = 0);
     ~GameWidget();
 
+    void SetupEditor();
     void Frame();
 
     virtual void mousePressEvent(QMouseEvent *event) override;
@@ -79,6 +80,8 @@ namespace Sulfur
     void SetGizmo(Gizmo widget);
     void SetState(State state);
     State GetState() const;
+
+    friend class EditorWidget;
 
   protected:
     virtual void resizeEvent(QResizeEvent* evt) override;
@@ -112,10 +115,9 @@ namespace Sulfur
     GizmoPart m_currentGizmoPart;
     Vector3 m_lastIntersection;
 
+    static Real s_cameraRotationSpeed;
     bool m_controllingCamera;
     HNDL m_editorCamera;
-    Real m_cameraYaw;
-    Real m_cameraPitch;
 
     int m_resizeTimer;
   

@@ -25,16 +25,16 @@ GBufferOutput main(DeferredPixelIn input)
   GBufferOutput output;
 
   output.DiffuseMetallic.rgb = MaterialDiffuseColor.rgb;
-  if (MaterialUsesDiffuseTexture) output.DiffuseMetallic.rgb *= GammaToLinear(TEX_Diffuse.Sample(SS_Sampler, 1.0f - input.texCoords).rgb);
+  if (MaterialUsesDiffuseTexture) output.DiffuseMetallic.rgb *= GammaToLinear(TEX_Diffuse.Sample(SS_Sampler, 1.0f - (input.texCoords * MaterialDiffuseMaterialScaling.xy)).rgb);
 
   output.DiffuseMetallic.a = MaterialMetallic;
 
   output.NormalRoughness.xyz = normalize(input.normal);
   if (MaterialUsesNormalTexture)
   {
-    float3 normalMap = TEX_Normal.Sample(SS_Sampler, 1.0f - input.texCoords).xyz * 2.0f - 1.0f;
+    float3 normalMap = TEX_Normal.Sample(SS_Sampler, 1.0f - (input.texCoords * MaterialNormalEmissiveScaling.xy)).xyz * 2.0f - 1.0f;
     float3x3 tbn = float3x3(normalize(input.tangent), normalize(input.binormal), output.NormalRoughness.xyz);
-    output.NormalRoughness.xyz = mul(tbn, normalMap);
+    output.NormalRoughness.xyz = mul(normalMap, tbn);
   }
 
   output.NormalRoughness.a = MaterialRoughness;

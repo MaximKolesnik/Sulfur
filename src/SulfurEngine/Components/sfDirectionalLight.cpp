@@ -32,6 +32,9 @@ namespace Sulfur
   DirectionalLight* DirectionalLight::Clone(void) const
   {
     DirectionalLight *newDirectionalLight = SF_CREATE_COMP(DirectionalLight);
+    newDirectionalLight->m_color = m_color;
+    newDirectionalLight->m_intensity = m_intensity;
+    newDirectionalLight->m_castsShadows = m_castsShadows;
     return newDirectionalLight;
   }
 

@@ -32,6 +32,8 @@ namespace Sulfur
     void Init(D3D11Device& device);
     void Free();
 
+    void CalculateTangentsAndBinormals();
+
     void Draw(D3D11Context& context);
 
     UINT32 AddVertex(const Vertex& vertex);

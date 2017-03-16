@@ -86,6 +86,11 @@ void SceneBrowserWidget::keyPressEvent(QKeyEvent *event)
     DeleteSelectedObjects();
     break;
 
+  case Qt::Key_D:
+    if (event->modifiers() & Qt::KeyboardModifier::ControlModifier)
+      DuplicateSelectedObjects();
+    break;
+
   default:
     event->ignore();
     return;
@@ -157,12 +162,12 @@ void SceneBrowserWidget::Setup()
     );
 }
 
-void SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
+QTreeWidgetItem* SceneBrowserWidget::AddObject(HNDL objectHandle, QTreeWidgetItem *root)
 {
-  AddObject(SF_GET_OBJECT(objectHandle), root);
+  return AddObject(SF_GET_OBJECT(objectHandle), root);
 }
 
-void SceneBrowserWidget::AddObject(Object *object, QTreeWidgetItem *root)
+QTreeWidgetItem* SceneBrowserWidget::AddObject(Object *object, QTreeWidgetItem *root)
 {
   if (root == nullptr) 
     root = m_sceneTree->invisibleRootItem();
@@ -178,6 +183,8 @@ void SceneBrowserWidget::AddObject(Object *object, QTreeWidgetItem *root)
   auto& children = object->GetChildren();
   for (auto& child : children)
     AddObject(child, item);
+
+  return item;
 }
 
 void SceneBrowserWidget::DeleteSelectedObjects()
@@ -195,6 +202,29 @@ void SceneBrowserWidget::DeleteSelectedObjects()
     m_scene->RemoveObject(objectHandle);
 
     ObjectFactory::Instance()->DestroyObject(objectHandle);
+  }
+}
+
+void SceneBrowserWidget::DuplicateSelectedObjects()
+{
+  QList<QTreeWidgetItem*> selection = m_sceneTree->selectedItems();
+  QList<QTreeWidgetItem*> newSelection;
+
+  for (QTreeWidgetItem *item : selection)
+  {
+    HNDL objectHandle = selection.front()->data(0, Qt::UserRole).value<HNDL>();
+    Object *obj = ObjectFactory::Instance()->GetObject(objectHandle);
+
+    Object *newObj = static_cast<Object*>(obj->Clone());
+    newSelection.append(AddObject(newObj, item->parent()));
+    m_scene->AddObject(newObj->GetHndl(), obj->GetParent());
+  }
+
+
+  m_sceneTree->clearSelection();
+  for (QTreeWidgetItem *item : newSelection)
+  {
+    m_sceneTree->setItemSelected(item, true);
   }
 }
 

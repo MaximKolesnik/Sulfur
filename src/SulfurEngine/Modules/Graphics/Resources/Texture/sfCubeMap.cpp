@@ -113,9 +113,9 @@ Texture2D* CubeMap::Blurred(D3D11Device& device, D3D11Context& context, DXGI_FOR
   convolutionData.OutputWidth = description.Width;
   convolutionData.OutputHeight = description.Height;
   convolutionData.PhiRange = 6.283f;
-  convolutionData.PhiStep = 0.012f;
+  convolutionData.PhiStep = 0.036f;
   convolutionData.ThetaRange = 1.57f;
-  convolutionData.ThetaStep = 0.05f;
+  convolutionData.ThetaStep = 0.15f;
 
   convolutionShader->Set(context);
   m_blurredRenderTarget->Clear(context, Vector4(0.0f, 0.0f, 0.0f, 0.0f));

@@ -51,6 +51,7 @@ namespace Sulfur
     ColliderRandomDrop *newComp = SF_CREATE_COMP(ColliderRandomDrop);
 
     newComp->m_delta = m_delta;
+    newComp->m_dropHeight = m_dropHeight;
 
     return newComp;
   }

@@ -36,6 +36,7 @@ namespace Sulfur
 
   private:
     void CreateMenuBar();
+    void OnNewScene();
     void OnOpenScene();
     void OnSaveScene();
     void OnSaveSceneAs();
@@ -47,6 +48,8 @@ namespace Sulfur
     void OnObjectSelected(Object *object);
     void OnObjectSelectedGameWindow(Object *object);
     void OnObjectChanged();
+    void OnDeleteSelection();
+    void OnDuplicateSelection();
 
   private:
     QMenuBar *m_menuBar;

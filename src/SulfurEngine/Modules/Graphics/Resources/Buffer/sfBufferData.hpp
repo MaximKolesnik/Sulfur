@@ -66,6 +66,8 @@ struct MaterialData
 {
   Vector4 DiffuseColor;
   Vector4 EmissiveColor;
+  Vector4 DiffuseMaterialTiling;
+  Vector4 NormalEmissiveTiling;
   INT32 UsesDiffuseTexture;
   INT32 UsesNormalTexture;
   INT32 UsesMaterialTexture;
