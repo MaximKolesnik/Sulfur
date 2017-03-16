@@ -291,7 +291,10 @@ void GameWidget::SelectionDrawing()
     auto& components = m_selection->GetComponents();
     for (auto it = components.begin(); it != components.end(); ++it)
     {
-      ComponentFactory::Instance()->GetComponent(it->first, it->second)->DrawDebug(DebugDraw::Instance());
+      IEntity *component = ComponentFactory::Instance()->GetComponent(it->first, it->second);
+
+      if (component)
+        component->DrawDebug(DebugDraw::Instance());
     }
 
     if (m_currentGizmo == TRANSLATION_GIZMO) RenderTranslationGizmo();

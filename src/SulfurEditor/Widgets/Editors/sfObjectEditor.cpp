@@ -50,14 +50,17 @@ void ObjectEditor::UpdateValue()
   {
     IEntity *component = ComponentFactory::Instance()->GetComponent(componentPair.first, componentPair.second);
 
-    if (component->m_name != "Transform")
+    if (component)
     {
-      DeletableEditor *editor = new DeletableEditor(component);
-      editor->SetHeaderText(component->m_name);
-      AddChild(editor);
+      if (component->m_name != "Transform")
+      {
+        DeletableEditor *editor = new DeletableEditor(component);
+        editor->SetHeaderText(component->m_name);
+        AddChild(editor);
 
-      connect(editor, &DeletableEditor::Deleted,
-        [=]() { ComponentFactory::Instance()->DeleteComponent(component); });
+        connect(editor, &DeletableEditor::Deleted,
+          [=]() { ComponentFactory::Instance()->DeleteComponent(component); });
+      }
     }
   }
 

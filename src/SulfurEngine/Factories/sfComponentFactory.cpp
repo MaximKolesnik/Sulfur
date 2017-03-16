@@ -96,7 +96,9 @@ namespace Sulfur
 
   void ComponentFactory::DeleteComponent(const std::string &name, const HNDL handle)
   {
-    SF_ASSERT(m_compMap.find(name) != m_compMap.end(), name + " component is not registered");
+    if (m_compMap.find(name) == m_compMap.end())
+      return;
+
     SF_ASSERT(handle != SF_INV_HANDLE, "Invalid handle");
 
     Object *obj = SF_GET_OBJECT(m_compMap[name]->At(handle)->m_owner);
@@ -158,8 +160,9 @@ namespace Sulfur
     HNDL handle) const
   {
     SF_ASSERT(handle != SF_INV_HANDLE, "Invalid handle");
-    SF_ASSERT(m_compMap.find(name) != m_compMap.end(),
-      name + " is not registered");
+
+    if (m_compMap.find(name) == m_compMap.end())
+      return nullptr;
 
     return m_compMap.at(name)->At(handle);
   }

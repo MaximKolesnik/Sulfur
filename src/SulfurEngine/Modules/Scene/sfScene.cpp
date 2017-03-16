@@ -81,7 +81,10 @@ namespace Sulfur
     {
       std::string componentName;
       Serialization::Deserialize(str, componentName);
-      Serialization::Deserialize(str, *components[componentName]);
+
+      auto it = components.find(componentName);
+      if (it != components.end())
+        Serialization::Deserialize(str, *it->second);
     }
   }
 
