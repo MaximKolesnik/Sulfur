@@ -108,7 +108,8 @@ namespace Sulfur
   void ColliderDrop::_CreateBoxes(void)
   {
     _DestroyObjects();
-
+    //hack
+    ObjectFactory::Instance()->EndFrameCleanUp();
     Transform *ownerTrans = SF_GET_COMP_TYPE(Transform, m_owner);
 
     for (int i = 0; i < c_numInRow; ++i)
