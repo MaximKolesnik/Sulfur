@@ -1,0 +1,2 @@
+Sulfur Engine is a tech heavy project with a large focus on graphics and physics.  A WYSIWYG editor was developed in addition to the engine to allow for faster iterations while creating content and, more importantly, to easily test graphics and physics implementations during development.
+The purpose of this project is providing an easy to use game engine for designers and a good API for developers to expand on.  With our tools, this project should allow developers benchmark different techniques on various types of games and game worlds.
