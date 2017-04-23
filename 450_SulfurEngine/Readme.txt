@@ -1,7 +1,6 @@
 Team Midnight Rage
 Dylan Norris and Maxim Kolesnik
 Producer: maxim.kolesnik@digipen.edu
-GAM450 Fall 2016
 
 To play demo levels, launch the editor, go to File->Open Scene an choose a level.
 While playing physics level, press F1 or F to swapn objects.
