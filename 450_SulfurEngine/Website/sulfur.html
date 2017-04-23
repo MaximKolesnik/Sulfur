@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Sulfur Engine</title>
+	<link href="css/style.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="js/imageViewer.js"></script>
+</head>
+
+<body>
+
+<!-- Navigation bar -->
+<div id="navbar" class="navbar">
+	<a href="#overview" class="navbar-title">Sulfur Engine</a>
+	<ul class="nav">
+		<li><a href="#overview">Overview</a></li>
+		<li><a href="#features">Features</a></li>
+		<li><a href="#screens">Screens</a></li>
+		<li><a href="#video">Videos</a></li>
+		<li><a href="#team">Team</a></li>
+	</ul>
+</div>
+
+<!-- Overview -->
+<div id="overview" name="overview">
+	<header>
+		<h1>Sulfur Engine</h1>
+		<p>Sulfur Engine is a tech heavy project with focus on graphics and physics. The game editor will be developed<br/>on top of the engine to provide programmers an ability to create content and, most importantly, to test<br/>different graphics or physics programming techniques with ease.</p>
+		<p>The purpose of this project is for programmers to learn and implement advanced techniques within a working<br/>3D game engine. Since the game editor is being developed, this project will allow programmers to benchmark<br/>different techniques on various types of game worlds.</p>
+	</header>
+</div>
+
+<!-- Features -->
+<div id="features" name="features" class="row-odd">
+	<h2 class="centered">FEATURES</h2>
+	<hr/>
+	<div class="row">
+	  <div class="column feature-column">
+		<h3>Physics</h3>
+		<ul>
+			<li>Broad phase: dynamic AABB tree</li>
+			<li>Narrow phase: GJK, optimized SAT</li>
+			<li>Sequential Impulse Solver</li>
+			<li>FBX to TwinEdge conversion</li>
+			<li>General SAT implemetation to work with any convex hull</li>
+			<li>&nbsp</li>
+			<li>&nbsp</li>
+			<li>&nbsp</li>
+			<li>&nbsp</li>
+		<ul>
+	  </div>
+	  <div class="column feature-column">
+		<h3>Graphics</h3>
+		<ul>
+			<li>DirectX 11</li>
+			<li>Physically-Based Rendering</li>
+			<li>Deferred Rendering</li>
+			<li>Multithreaded</li>
+			<li>Image-Based Lighting</li>
+			<li>Screen-Space Ambient Occlusion</li>
+			<li>HDR Tonemapping</li>
+			<li>Adaptive Luminance</li>
+			<li>Bloom</li>
+		<ul>
+	  </div>
+	  <div class="column feature-column">
+		<h3>Editor</h3>
+		<ul>
+			<li>Fully-Featured Scene Editor</li>
+			<li>Object Inspector</li>
+			<li>Run game / simulation from within the editor.</li>
+			<li>&nbsp</li>
+			<li>&nbsp</li>
+			<li>&nbsp</li>
+			<li>&nbsp</li>
+			<li>&nbsp</li>
+			<li>&nbsp</li>
+		<ul>
+	  </div>
+	</div>
+</div>
+
+<!-- Screens -->
+<div id="screens" name="screens" class="row-even">
+	<h2 class="centered">SCREENSHOTS</h2>
+	<hr/>
+	<div class="row">
+	  <div class="column">
+		<img src="images/screen1_thumb.jpg" onclick="openModal();currentSlide(1)" class="hover-shadow center-block">
+	  </div>
+	  <div class="column">
+		<img src="images/screen2_thumb.jpg" onclick="openModal();currentSlide(2)" class="hover-shadow center-block">
+	  </div>
+	  <div class="column">
+		<img src="images/screen3_thumb.jpg" onclick="openModal();currentSlide(3)" class="hover-shadow center-block">
+	  </div>
+	  <div class="column">
+		<img src="images/screen4_thumb.jpg" onclick="openModal();currentSlide(4)" class="hover-shadow center-block">
+	  </div>
+	</div>
+</div>
+
+<!-- Screens modal -->
+<div id="myModal" class="modal">
+  <span class="close cursor" onclick="closeModal()">&times;</span>
+  <div class="modal-content">
+
+    <div class="mySlides">
+      <div class="numbertext">1 / 4</div>
+        <img src="images/screen1.jpg" style="width:100%">
+    </div>
+
+    <div class="mySlides">
+      <div class="numbertext">2 / 4</div>
+        <img src="images/screen2.jpg" style="width:100%">
+    </div>
+
+    <div class="mySlides">
+      <div class="numbertext">3 / 4</div>
+        <img src="images/screen3.jpg" style="width:100%">
+    </div>
+    <div class="mySlides">
+      <div class="numbertext">4 / 4</div>
+        <img src="images/screen4.jpg" style="width:100%">
+    </div>
+
+    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+
+    <div class="caption-container">
+      <p id="caption"></p>
+    </div>
+	
+  </div>
+</div>
+
+<!-- Video -->
+<div id="video" name="video" class="row-odd">
+	<h2 class="centered">VIDEOS</h2>
+	<hr/>
+	<div class="row">
+		<div class="column"><iframe width="560" height="315" src="https://www.youtube.com/embed/xN2l5f1d_30" frameborder="0" allowfullscreen></iframe></div>
+		<div class="column"><iframe width="560" height="315" src="https://www.youtube.com/embed/ZEBdWTMX1ro" frameborder="0" allowfullscreen></iframe></div>
+	</div>
+</div>
+
+<!-- Team -->
+<div id="team" name="team" class="row-even">
+	<h2 class="centered">TEAM MIDNIGHT RAGE</h2>
+	<hr/>
+	<div class="row">
+	  <div class="column team-column">
+		<h3>Maxim Kolesnik</h3>
+		<ul>
+			<li>Engine Architecture</li>
+			<li>SIMD Math Library</li>
+			<li>Fiber-Based Task Manager</li>
+			<li>Factory Programming</li>
+			<li>Physics Programming</li>
+		<ul>
+	  </div>
+	  <div class="column team-column">
+		<h3>Dylan Norris</h3>
+		<ul>
+			<li>Graphics Programming</li>
+			<li>Tools Programming</li>
+			<li>Engine Architecture</li>
+			<li>Reflection Programming</li>
+			<li>&nbsp</li>
+		<ul>
+	  </div>
+	</div>
+</div>
+
+<!-- Footer -->
+<div id="footer" name="footer">
+	<span class="copyright">Copyright &copy; 2017 Digipen Institute of Technology. All rights reserved.</span>
+</div>
+
+</body>
+
+</html>
